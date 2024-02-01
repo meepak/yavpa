@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "yaspa",
-    "slug": "yaspa",
+    "name": "yavpa",
+    "slug": "yavpa",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -21,10 +21,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.meepak.yavpa"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "cc801c2c-70cf-4ae5-9b04-ad99cb74de4e"
+      }
     }
   }
 }
