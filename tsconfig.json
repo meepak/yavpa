@@ -12,11 +12,27 @@
     "noImplicitAny": false,
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node",
+    "moduleDetection": "auto",
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*":[
+        "app/*"
+      ],
+      "@c/*": [
+        "components/*"
+      ],
+      "@cc/*": [
+        "components/controls/*"
+      ],
+      "@a/*": [
+        "assets/*"
+      ],
+      "@u/*": [
+        "utilities/*"
+      ],
+      "@s/*": [
+        "splash/*"
+      ],
     }
   }
 }
