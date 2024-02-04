@@ -7,8 +7,6 @@ const createPreviewControls = ({
   onPreviewStop,
   speed,
   speedChange,
-  setExportMode,
-  closeMe,
 }) => [
   {
     icon: "loop",
@@ -34,14 +32,6 @@ const createPreviewControls = ({
         onValueChange={speedChange}
       />
     ),
-  },
-  {
-    icon: "code",
-    onPress: () => setExportMode(true),
-  },
-  {
-    icon: "close",
-    onPress: closeMe,
   },
 ];
 

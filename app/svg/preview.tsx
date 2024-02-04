@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Text, View, Modal } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, { useState, useEffect, useRef, useContext } from "react";
+import { View } from "react-native";
 import SvgPreview from "@c/svg/preview";
-import ControlPanel from "@c/controls/control-panel"; 
 import createPreviewControls from "@c/controls/page-controls/preview";
+import { SvgDataContext } from "./context";
 // import ExportScreen from "@a/svg/export";
 
-const PreviewScreen = ({ svgData, closeMe }) => {
-  const [exportMode, setExportMode] = useState(false);
+const PreviewScreen = ({ initControls }) => {
+  const {svgData} = useContext(SvgDataContext);
   const previewRef = useRef(null);
   const [speed, setSpeed] = useState(1);
 
@@ -31,54 +30,12 @@ const PreviewScreen = ({ svgData, closeMe }) => {
     onPreviewStop,
     speed,
     speedChange,
-    setExportMode,
-    closeMe,
   });
 
   return (
-    <>
-      <SafeAreaView style={{ flex: 1 }}>
-        <View
-          style={{
-            alignSelf: "stretch",
-            borderBottomWidth: 1,
-            borderBottomColor: "black",
-          }}
-        >
-          <Text
-            style={{
-              color: "black",
-              fontSize: 30,
-              marginBottom: 15,
-              fontWeight: "bold",
-              textAlign: "center",
-            }}
-          >
-            Preview Screen!
-          </Text>
-        </View>
-        <View style={{ flex: 1 }}>
+      <View style={{ flex: 1 }} onLayout={() => initControls(buttons)}>
           <SvgPreview ref={previewRef} svgData={svgData} />
-        </View>
-        <View
-          style={{
-            alignSelf: "stretch",
-            borderTopWidth: 1,
-            borderTopColor: "black",
-          }}
-        >
-          <ControlPanel buttons={buttons} />
-        </View>
-      </SafeAreaView>
-      {/* <Modal
-        animationType="slide"
-        transparent={false}
-        visible={exportMode}
-        onRequestClose={() => setExportMode(false)}
-      >
-        <ExportScreen svgData={svgData} closeMe={() => setExportMode(false)} />
-      </Modal> */}
-    </>
+      </View>
   );
 };
 

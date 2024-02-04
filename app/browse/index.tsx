@@ -15,7 +15,6 @@ import { SvgDataType, getGreeting } from "@u/helper";
 import { getFiles } from "@u/storage";
 import Svg, { Path } from "react-native-svg";
 import { Link } from "expo-router";
-import Header from "@c/headers/browse";
 
 const HEADER_MAX_HEIGHT = 200; // Maximum height of the header
 const HEADER_MIN_HEIGHT = 60; // Minimum height of the header
@@ -41,10 +40,12 @@ const BrowseScreen = () => {
 
   const [files, setFiles] = useState<SvgDataType[]>([]);
 
-  const scrollY = useRef(new Animated.Value(0)).current;
-
+  const scrollY = React.useRef(new Animated.Value(0)).current;
+  const spaceBetween = 50; // The space between the FlatList and the header view
+  const scrollYStop = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT + spaceBetween;
+  
   const headerHeight = scrollY.interpolate({
-    inputRange: [0, (HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT)],
+    inputRange: [0, scrollYStop],// Adjust this to match the actual range of scrollY values
     outputRange: [HEADER_MAX_HEIGHT, HEADER_MIN_HEIGHT],
     extrapolate: 'clamp',
   });
@@ -62,7 +63,7 @@ const BrowseScreen = () => {
   const renderItem: ListRenderItem<SvgDataType> = ({ item }: { item: SvgDataType }) => {
     // TODO if allowed to add name, use name?
     return (
-      <Link href={`/svg/draw/?guid=${item.metaData.guid}`} asChild>
+      <Link href={`/svg/?guid=${item.metaData.guid}`} asChild>
         <TouchableOpacity>
           <View
             style={{
@@ -131,11 +132,13 @@ const BrowseScreen = () => {
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
           style={{ marginHorizontal: gap / 2}}
+          contentContainerStyle={{ borderColor: 'blue', borderWidth: 1, paddingBottom: bottomFileMargin * 2 }}
+          scrollEventThrottle={1}
           onScroll={Animated.event(
             [{ nativeEvent: { contentOffset: { y: scrollY } } }],
             { useNativeDriver: false }
           )} />
-        <Link href="/svg/draw" asChild>
+        <Link href="/svg/" asChild>
           <TouchableOpacity
             style={styles.floatingButton}
           >

@@ -99,7 +99,7 @@ const ControlPanel = ({ buttons, paddingLeft=40, paddingRight=20 }) => {
               {item.icon ? (
                 <MaterialIcons name={item.icon} size={ICON_SIZE} color="white" />
               ) : (
-                <Text>{item.name || "Icon"}</Text>
+                <Text style={{color: '#FFFFFF'}}>{item.name || "Icon"}</Text>
               )}
             </TouchableOpacity>
         )}

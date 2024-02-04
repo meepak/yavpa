@@ -6,28 +6,27 @@ import ControlPanel from "@cc/control-panel";
 import ContextMenu from "@c/controls/context-menu";
 import { useRouter } from "expo-router";
 import YavpaStyled from "@c/background/yavpa-styles";
+import { ScreenModes } from "@u/helper";
 
-const EDIT_ICON_TOGGLE_SET = ["draw", "lock-outline"];
 
-const Header = ({ controlPanelButtons, title, onTitleChange, isEditMode, setEditMode }) => {
-    const [closeMenuAt, setCloseMenuAt] = useState(Date.now());
+const Header = ({ title, onTitleChange, controlPanelButtons, initialScreenMode, onScreenModeChanged}) => {
     const [name, setName] = useState(title);
-    const [editIcon, setEditIcon] = useState(EDIT_ICON_TOGGLE_SET[0]);
+    const [screenMode, setScreenMode] = useState(initialScreenMode || ScreenModes[0]);
+
     const router = useRouter();
 
     useEffect(() => {
         setName(title);
     }, [title]);
 
-    const toggleEditMode = () => {
-        const newEditMode = !isEditMode
-        setEditMode(newEditMode);
-        return newEditMode;
+    const toggleScreenMode = () => {
+        const currentScreenModeIndex = ScreenModes.findIndex((mode) => mode.name === screenMode.name);
+        const newScreenModeIndex = (currentScreenModeIndex + 1) % ScreenModes.length;
+        const newScreenMode = ScreenModes[newScreenModeIndex];
+        setScreenMode(newScreenMode);
+        onScreenModeChanged && onScreenModeChanged(newScreenMode);
     };
 
-    const hideMenu = () => {
-        setCloseMenuAt(() => Date.now());
-    };
 
     const onChangeText = (text: string) => {
         setName(text);
@@ -36,6 +35,7 @@ const Header = ({ controlPanelButtons, title, onTitleChange, isEditMode, setEdit
         }
     }
 
+    // to be implemented properly in next version
     const MenuItemTest = () => (
         <View style={{
             alignContent: 'center',
@@ -79,8 +79,7 @@ const Header = ({ controlPanelButtons, title, onTitleChange, isEditMode, setEdit
                         <MaterialIcons name="more-vert" size={32} color="black" />
                     }
                     width={150}
-                    height={60}
-                    closeMenuAt={closeMenuAt}>
+                    height={60}>
                     <MenuItemTest />
                 </ContextMenu>
             </View>
@@ -100,14 +99,10 @@ const Header = ({ controlPanelButtons, title, onTitleChange, isEditMode, setEdit
                             borderRadius: 30,
                         }} >
                         <MaterialIcons
-                            name={editIcon as "draw"}
+                            name={screenMode.icon}
                             size={28}
                             color="#FFFFFF"
-                            onPress={() => {
-                                const newEditMode = toggleEditMode();
-                                setEditIcon(EDIT_ICON_TOGGLE_SET[newEditMode ? 0 : 1])
-                            }
-                            }
+                            onPress={toggleScreenMode}
                         />
                     </View>
                 </View>

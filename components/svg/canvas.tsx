@@ -11,6 +11,7 @@ import simplify from "simplify-js";
 import * as d3 from "d3";
 import * as Crypto from "expo-crypto";
 import { createPathdata, getPathFromPoints, getPointsFromPath, PathDataType } from "@u/helper";
+import { AvailableShapes, shapeData, calculateDistance } from "@u/shapes";
 
 type SvgCanvasProps = {
   editMode?: boolean;
@@ -30,7 +31,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     editMode = true,
     command = "",
     forceUpdate = 0,
-    onPathDataChange = () => {},
+    onPathDataChange = () => { },
     initialPathData = [],
     strokeWidth = 3,
     stroke = "#000000",
@@ -51,6 +52,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     guid: Crypto.randomUUID(),
   });
   const [startTime, setStartTime] = useState(-1);
+  const [currentShape, setCurrentShape] = useState({ name: "", start: { x: 0, y: 0 }, end: { x: 0, y: 0 } });
   // const [prevVelocityX, setPrevVelocityX] = useState(0);
   // const [prevVelocityY, setPrevVelocityY] = useState(0);
 
@@ -89,8 +91,10 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
             undonePaths[undonePaths.length - 1],
           ]);
         }
-        break;
-      default:
+      default: // check for shapes
+        if (AvailableShapes.includes(command) && command !== AvailableShapes[0]) {
+          setCurrentShape({ name: command, start: { x: 0, y: 0 }, end: { x: 0, y: 0 } });
+        }
         break;
     }
   }, [command, forceUpdate]);
@@ -106,14 +110,6 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   //   const threshold = 0.1; // Adjust this value as needed
   //   return diffX > threshold || diffY > threshold;
   // };
-
-  const calculateDistance = (point1, point2) => {
-    const dx = point2.x - point1.x;
-    const dy = point2.y - point1.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    // console.log("distance", distance, point1, point2);
-    return distance;
-  };
 
   const getLastPoint = (path) => {
     // split function to use a regular expression that splits the string 
@@ -136,12 +132,36 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     };
     switch (state) {
       case "began":
-        setCurrentPath({ ...currentPath, path: `M${pt.x},${pt.y}` });
         setStartTime(Date.now());
+
+        if (AvailableShapes.includes(currentShape.name)) {
+          setCurrentShape((prev) => {
+            prev.start = { x: parseFloat(pt.x), y: parseFloat(pt.y) }
+            return prev;
+          });
+          break;
+        }
+
+        setCurrentPath({ ...currentPath, path: `M${pt.x},${pt.y}` });
         // setPrevVelocityX(event.velocityX);
         // setPrevVelocityY(event.velocityY);
         break;
       case "active":
+        if (AvailableShapes.includes(currentShape.name)) {
+          setCurrentShape((prev) => {
+            prev.end = { x: parseFloat(pt.x), y: parseFloat(pt.y) }
+            return prev;
+          });
+          const { path, length } = shapeData(currentShape);
+
+          setCurrentPath({
+            ...currentPath,
+            path,
+            length,
+          });
+          break;
+        }
+
         // if (velocityHasChanged(event.velocityX, event.velocityY)) {
         //   setCompletedPaths((prev) => [
         //     ...prev,
@@ -172,6 +192,10 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
       case "ended":
         currentPath.time = Date.now() - startTime;
 
+        if (AvailableShapes.includes(currentShape.name)) {
+          setCurrentShape({ name: "", start: { x: 0, y: 0 }, end: { x: 0, y: 0 } });
+        }
+
         // console.log("path", currentPath.path);
         if (simplifyTolerance > 0) {
           const points = getPointsFromPath(currentPath.path);
@@ -199,7 +223,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
             currentPath.path = line(points) || ""; // Assign an empty string if line(points) is null.
           }
         }
-        
+
         currentPath.stroke = stroke;
         currentPath.strokeWidth = strokeWidth;
         currentPath.visible = true;
@@ -234,15 +258,15 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
         <View style={styles.container}>
           <Svg style={styles.svg}>
             {completedPaths.map((item, _index) => (
-                item.visible
-                  ? <Path
-                    key={item.guid}
-                    d={item.path}
-                    stroke={item.stroke}
-                    strokeWidth={item.strokeWidth}
-                    fill="none"
-                  />
-                  : <></>
+              item.visible
+                ? <Path
+                  key={item.guid}
+                  d={item.path}
+                  stroke={item.stroke}
+                  strokeWidth={item.strokeWidth}
+                  fill="none"
+                />
+                : <></>
             ))}
             <Path
               key={'current'}

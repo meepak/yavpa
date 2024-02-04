@@ -4,6 +4,12 @@ import { Dimensions } from "react-native";
 const screenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
 
+export type ScreenModeType = {name: string, icon: string};
+export const ScreenModes:ScreenModeType[] = [
+  { name: "Draw", icon: "draw" },
+  { name: "Preview", icon: "preview" },
+  { name: "Export", icon: "save" },
+];
 
 // Define Type of PathData
 export type PathDataType = {
@@ -25,8 +31,14 @@ export type SvgDataType = {
     updated_at: string;
     name: string;
     viewBox: string;
+    lastScreenMode?: number;
   };
 };
+
+export interface SvgDataContextType {
+  svgData: SvgDataType;
+  setSvgData: React.Dispatch<React.SetStateAction<SvgDataType>>;
+}
 
 export const createSvgData = (defaultViewBoxWidth: number, defaultViewBoxHeight: number): SvgDataType => ({
   pathData: [],
@@ -36,6 +48,7 @@ export const createSvgData = (defaultViewBoxWidth: number, defaultViewBoxHeight:
     updated_at: Date.now().toString(),
     name: "",
     viewBox: `0 0 ${defaultViewBoxWidth} ${defaultViewBoxHeight}`,
+    lastScreenMode: 0,
   },
 });
 

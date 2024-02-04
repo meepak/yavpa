@@ -6,7 +6,7 @@ import ColorHunter from "@cc/color-box/color-hunter";
 import { ColorBoxProps } from "@cc/color-box/interface";
 import { rgbToHsl, hslToRgb } from "@u/color-conversion";
 
-
+//https://www.figma.com/color-wheel/
 
 const ColorBox = ({ initialColor = '#000000', onColorSelected }: ColorBoxProps) => {
     const [selectedColor, setSelectedColor] = useState(initialColor);

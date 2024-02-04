@@ -3,9 +3,9 @@ import ColorBox from "@cc/color-box";
 import StrokeWidth from "@cc/stroke-width";
 import SimplifySmooth from "@cc/simplify-smooth";
 import PathsAsLayers from "../paths-as-layers";
+import SelectShape from "../select-shape";
 
 const createDrawControls = ({
-  onNewPress,
   onUndo,
   onRedo,
   strokeWidth,
@@ -18,12 +18,9 @@ const createDrawControls = ({
   setD3CurveBasis,
   svgData,
   updateSvgData,
-  showPreviewModal,
+  shape,
+  drawShape,
 }) => [
-    {
-      icon: "file-present",
-      onPress: onNewPress,
-    },
     {
       icon: "undo",
       onPress: onUndo,
@@ -89,9 +86,13 @@ const createDrawControls = ({
       extraPanel: { width: 330, height: (svgData.pathData.length + 2.5) * 32 }
     },
     {
-      icon: "preview",
-      onPress: showPreviewModal,
-    },
+      icon: "interests",
+      title: "Draw Shape",
+      extraControl: (
+        <SelectShape onValueChanged={(value) => { drawShape(value); }} value={shape} />
+      ),
+      extraPanel: { width: 250, height: 200 }
+    }
   ];
 
 export default createDrawControls
