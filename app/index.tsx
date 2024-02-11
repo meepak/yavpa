@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { StyleSheet } from "react-native";
-import { Link, Redirect, SplashScreen, useRouter } from "expo-router";
-// import { SafeAreaProvider } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
+import { Redirect, SplashScreen } from "expo-router";
+// import { StatusBar } from "expo-status-bar";
 import AnimatedSplashAppLoader from "@s/animated-splash";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 // Instruct SplashScreen not to hide yet, we want to do this manually
 SplashScreen.preventAutoHideAsync().catch(() => {
@@ -12,15 +10,13 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 });
 
 const splashImage = require("../assets/splash.png");
-const bgColor = "#0000FF"
+const bgColor = 'transparent';
 // const bgImage = require("../assets/bg2.png");
 
 const App = () => {
   const [isAnimationComplete, setAnimationComplete] = useState(false);
 
   return (
-    <>
-      <StatusBar translucent={true} style="auto" />
       <AnimatedSplashAppLoader
         image={splashImage}
         bgColor={bgColor}
@@ -28,7 +24,6 @@ const App = () => {
       >
         {isAnimationComplete && <Redirect href={"/browse"} />}
       </AnimatedSplashAppLoader>
-    </>
   )
 };
 

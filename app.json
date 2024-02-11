@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "yavpa",
+    "name": "mypath",
     "slug": "yavpa",
-    "scheme": "yavpa",
+    "scheme": "mypath",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#c1c1c1"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -23,7 +23,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.meepak.yavpa"
+      "package": "com.meepak.mypath"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -32,6 +32,9 @@
       "eas": {
         "projectId": "cc801c2c-70cf-4ae5-9b04-ad99cb74de4e"
       }
-    }
+    },
+    "plugins": [
+      "expo-router"
+    ]
   }
 }

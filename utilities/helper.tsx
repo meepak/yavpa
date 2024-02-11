@@ -1,16 +1,20 @@
 import * as Crypto from "expo-crypto";
-import { Dimensions } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { StyleSheet, Dimensions, Platform } from "react-native";
+import { Linecap, Linejoin } from "react-native-svg";
 
 const screenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
 
-export type ScreenModeType = {name: string, icon: string};
-export const ScreenModes:ScreenModeType[] = [
-  { name: "Draw", icon: "draw" },
+export type ScreenModeType = { name: string, icon: string };
+export const ScreenModes: ScreenModeType[] = [
+  { name: "Draw", icon: "edit" },
   { name: "Preview", icon: "preview" },
-  { name: "Export", icon: "save" },
+  { name: "Export", icon: "export" },
 ];
 
+// TODO -- once stroke styles are added, have to update in 
+// canvas, preview, formatter for export
 // Define Type of PathData
 export type PathDataType = {
   path: string;
@@ -18,6 +22,9 @@ export type PathDataType = {
   time: number;
   stroke: string;
   strokeWidth: number;
+  strokeOpacity?: number;
+  strokeCap?: Linecap;
+  strokeJoin?: Linejoin;
   guid: string;
   visible: boolean;
 };
@@ -31,7 +38,8 @@ export type SvgDataType = {
     updated_at: string;
     name: string;
     viewBox: string;
-    lastScreenMode?: number;
+    lastScreenMode?: string;
+    editable?: boolean;
   };
 };
 
@@ -40,23 +48,33 @@ export interface SvgDataContextType {
   setSvgData: React.Dispatch<React.SetStateAction<SvgDataType>>;
 }
 
-export const createSvgData = (defaultViewBoxWidth: number, defaultViewBoxHeight: number): SvgDataType => ({
+export const createSvgData = (defaultViewBoxWidth?: number, defaultViewBoxHeight?: number): SvgDataType => ({
   pathData: [],
   metaData: {
     guid: Crypto.randomUUID(),
     created_at: Date.now().toString(),
     updated_at: Date.now().toString(),
     name: "",
-    viewBox: `0 0 ${defaultViewBoxWidth} ${defaultViewBoxHeight}`,
-    lastScreenMode: 0,
+    viewBox: `0 0 ${defaultViewBoxWidth ?? screenWidth} ${defaultViewBoxHeight ?? screenHeight - 111}`,
+    lastScreenMode: ScreenModes[0].name,
+    editable: true,
   },
 });
 
 // not used but keeping for reference
-export const createPathdata = (): PathDataType => ({
+export const createPathdata = (
+  stroke?: string,
+  strokeWidth?: number,
+  strokeOpacity?: number,
+  strokeCap?: Linecap,
+  strokeJoin?: Linejoin
+): PathDataType => ({
   path: "",
-  stroke: "black",
-  strokeWidth: 2,
+  stroke: stroke ?? "#000000",
+  strokeWidth: strokeWidth ?? 2,
+  strokeOpacity: strokeOpacity ?? 1,
+  strokeCap: strokeCap ?? "round", // other support in next version only
+  strokeJoin: strokeJoin ?? "round",
   length: 0,
   time: 0,
   visible: false,
@@ -107,19 +125,11 @@ export const getViewBoxTrimmed = (pathData: PathDataType[]) => {
   return `${minX - offset} ${minY - offset} ${maxX - minX + 2 * offset} ${maxY - minY + 2 * offset}`;
 };
 
-export const getGreeting = () => {
-  const currentTime = new Date().getHours()
+export const isAndroid = Platform.OS === "android";
+export const isIOS =  Platform.OS === "ios";
 
-  if (currentTime >= 5 && currentTime < 12) {
-    return 'Good Morning'
-  }
-
-  if (currentTime >= 12 && currentTime < 17) {
-    return 'Good Afternoon'
-  }
-
-  if (currentTime >= 17 && currentTime < 21) {
-    return 'Good Evening'
-  }
-  return 'Good Night'
-}
+export const HeaderGradientBackground = ({ children }) =>
+  <>
+    <LinearGradient colors={['#015ccd', '#a805ee', '#1d0f98']} style={StyleSheet.absoluteFill} />
+    {children}
+  </>

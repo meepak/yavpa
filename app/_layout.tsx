@@ -1,14 +1,18 @@
-import { StyleSheet, View } from 'react-native';
-import AnimatedBackground from "@c/background/animated-background";
 import { Slot } from 'expo-router';
-import bgImage from "@a/bg2.png";
-import { SafeAreaView } from 'react-native-safe-area-context';
+// import { SafeAreaView } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SvgDataProvider } from '@x/svg-data';
+import Background from '@c/background';
 
 export default function RootLayout() {
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-       {/* <AnimatedBackground source={bgImage} style={StyleSheet.absoluteFill} /> */}
-      <Slot /> 
-    </SafeAreaView>
+    <SvgDataProvider>
+          <Background />
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        {/* <SafeAreaView style={{ flex: 1 }}> */}
+          <Slot />
+        {/* </SafeAreaView> */}
+      </GestureHandlerRootView>
+    </SvgDataProvider>
   );
 }

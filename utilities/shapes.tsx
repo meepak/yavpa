@@ -1,17 +1,23 @@
+import * as d3 from "d3";
 import { getPathFromPoints } from "./helper";
 
 export const AvailableShapes = [
     'freehand',
-    'line',
-    'circle',
-    'square',
-    'rectangle',
-    'star',
-    'heart',
-    'pentagon',
-    'hexagon',
+    '— line',
+    '◯ circle',
+    '□ square',
+    '▭ rectangle',
+    '☆ star',
+    '♡ heart',
+    '⬠ pentagon',
+    '⬡ hexagon',
     'octagon'
 ]
+
+// everything other than freehand is a shape
+export const isValidShape = (name: string) => {
+    return AvailableShapes.includes(name) && name !== AvailableShapes[0];
+}
 
 export const calculateDistance = (point1, point2) => {
     const dx = point2.x - point1.x;
@@ -22,7 +28,8 @@ export const calculateDistance = (point1, point2) => {
 };
 
 export const shapeData = ({ name = "", start = { x: 0, y: 0 }, end = { x: 0, y: 0 } }) => {
-    switch (name) {
+    const shapeName = name.split(" ").pop()!.toLowerCase() || name;
+    switch (shapeName) {
         case 'line':
             return LinePoints({ start, end });
         case 'circle':
@@ -122,7 +129,7 @@ const HeartPoints = ({ start, end }) => {
     const steps = 100; // Increase for a smoother heart
 
     // Calculate the angle between the start and end points
-    const startAngle = Math.atan2(dy, dx);
+    const startAngle = Math.PI/2-Math.atan2(dy, dx);
 
     let length = 0;
     let lastPoint = null;
@@ -184,4 +191,20 @@ const PolygonPoints = ({ start, end, sides }) => {
         path: getPathFromPoints(points),
         length,
     };
+}
+
+// used in simply-smooth control and uses by canvas to draw
+export const getD3CurveBasis = (d3Value: string): d3.CurveFactory | d3.CurveFactoryLineOnly | undefined => {
+    switch (d3Value) {
+        case "auto":
+            return d3.curveBasis;
+        case "open":
+            return d3.curveBasisOpen;
+        case "closed":
+            return d3.curveBasisClosed;
+        case "linear":
+            return d3.curveLinear;
+        default:
+            return undefined;
+    }
 }

@@ -1,5 +1,7 @@
 import { SvgDataType, getPointsFromPath } from "@u/helper";
 
+// TODO -- UPDATE WITH NEW STROKE PROPERTIES, strokeOpacity, strokeCap, strokeJoin
+
 export const getStaticSvg = (svgData: SvgDataType) => {
   let text = `<svg viewBox="${svgData.metaData.viewBox}">`;
   svgData.pathData.forEach((path) => {
@@ -12,6 +14,12 @@ export const getStaticSvg = (svgData: SvgDataType) => {
       path.stroke +
       '" stroke-width="' +
       path.strokeWidth +
+      '" stroke-linecap="' +
+      path.strokeCap +
+      '" stroke-linejoin="' +
+      path.strokeJoin +
+      '" stroke-opacity="' +
+      path.strokeOpacity +
       '" fill="none" />';
   });
   text += "</svg>";
@@ -30,6 +38,12 @@ export const getSmilSvg = (svgData: SvgDataType) => {
       path.stroke +
       '" stroke-width="' +
       path.strokeWidth +
+      '" stroke-linecap="' +
+      path.strokeCap +
+      '" stroke-linejoin="' +
+      path.strokeJoin +
+      '" stroke-opacity="' +
+      path.strokeOpacity +
       '" fill="none">';
     text +=
       '<animate attributeName="stroke-dashoffset" from="' +
@@ -76,6 +90,12 @@ export const getCssSvg = (svgData: SvgDataType) => {
       path.stroke +
       '" stroke-width="' +
       path.strokeWidth +
+      '" stroke-linecap="' +
+      path.strokeCap +
+      '" stroke-linejoin="' +
+      path.strokeJoin +
+      '" stroke-opacity="' +
+      path.strokeOpacity +
       '" fill="none" />';
   });
   text += "</svg>";
@@ -102,6 +122,9 @@ export const getRnComponent = (svgData: SvgDataType) => {
                   d="${path.path}"
                   stroke="${path.stroke}"
                   strokeWidth={${path.strokeWidth}}
+                  strokeLinecap="${path.strokeCap}"
+                  strokeLinejoin="${path.strokeJoin}"
+                  opacity={${path.strokeOpacity}}
                   fill="none"
                   strokeDasharray={${path.length}}
                   strokeDashoffset={${path.length}}

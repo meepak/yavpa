@@ -1,0 +1,129 @@
+import React, { useContext, useEffect, useState } from "react";
+import { View } from "react-native";
+import SvgCanvas from "./canvas";
+import createDrawControls from "./control";
+import { PathDataType, createSvgData } from "@u/helper";
+import { AvailableShapes } from "@u/shapes";
+import { SvgDataContext } from "@x/svg-data";
+
+
+
+const DrawScreen = ({initControls}) => {
+  const {svgData, setSvgData} = useContext(SvgDataContext);
+  const [stroke, setStroke] = useState("#000000");
+  const [strokeWidth, setStrokeWidth] = useState(2);
+  const [strokeOpacity, setStrokeOpacity] = useState(1);
+  const [simplifyTolerance, setSimplifyTolerance] = useState(0);
+  const [d3CurveBasis, setD3CurveBasis] = useState(null); //"auto", "open", "closed", null
+  const [command, setCommand] = useState("");
+  const [commandEnforcer, setCommandEnforcer] = useState(0); // since we may need to send same command, we use this increasing id to force update
+  const [shape, setShape] = useState(AvailableShapes[0]);
+  const [editMode, setEditMode] = useState(true);
+
+  const executeCommand = (cmd: string) => {
+    if (command === cmd) {
+      setCommandEnforcer((prev) => prev + 1)
+    } else {
+      setCommand(cmd);
+    }
+  }
+
+  // useEffect(() => {
+  //   console.log('recursive probably');
+  //   executeCommand("update");
+  // }, [commandOVerride])  
+  
+  // useEffect(() => {
+  //   console.log('commandEnforcer probably', commandEnforcer, command);
+  // }, [commandEnforcer])
+
+    // React.useEffect(() => {
+
+  //    useEffect(() => {
+  //   executeCommand("open");
+  // }, [])
+
+  // without this it doesn't display anything in the canvas
+    React.useEffect(() => { 
+      console.log("use effect update")
+    executeCommand("update");
+  }, [svgData]);
+
+  const updateSvgData = (value: PathDataType[]) => {
+      setSvgData((prevSvgData) => ({
+        ...prevSvgData,
+        pathData: value,
+      }));
+      console.log('updating..');
+      executeCommand("update");
+  }
+
+  const onUndo = () => executeCommand("undo");
+  const onRedo = () => executeCommand("redo");
+  // const onLock = () => {
+  //   const mode = editMode ? "lock" : "unlock";
+  //   console.log('mode', mode);
+  //   setEditMode((prev) => !prev);
+  // };
+
+  const drawShape = (shape) => {
+    setShape(shape);
+    executeCommand(shape);
+  }
+
+  // const onSelectMode = () => executeCommand("select");
+  
+
+  const buttons = createDrawControls({
+    // onLock,
+    onUndo,
+    onRedo,
+    strokeWidth,
+    setStrokeWidth,
+    stroke,
+    setStroke,
+    strokeOpacity,
+    setStrokeOpacity,
+    simplifyTolerance,
+    setSimplifyTolerance,
+    d3CurveBasis,
+    setD3CurveBasis,
+    shape,
+    drawShape,
+    // onSelectMode,
+  });
+
+  // update svgdata with new path data
+  const handleSvgPathDataChange = (pathData: PathDataType[]) => {
+    console.log('pathdata udpated');
+    setSvgData((existingData) => ({
+      metaData: existingData.metaData,
+      pathData: pathData,
+    }));
+  };
+
+  useEffect(() => {
+    initControls(buttons)
+  }, [stroke, strokeOpacity, strokeWidth, simplifyTolerance, d3CurveBasis, shape])
+
+
+
+  return (
+    <View style={{ flex: 1 }} onLayout={() => initControls(buttons)}>
+        <SvgCanvas
+          editable={editMode} // to do get rid of this, as preview will act as read only mode
+          command={command}
+          forceUpdate={commandEnforcer}
+          onPathDataChange={handleSvgPathDataChange}
+          initialPathData={svgData.pathData}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+          strokeOpacity={strokeOpacity}
+          simplifyTolerance={simplifyTolerance}
+          d3CurveBasis={d3CurveBasis}
+        />
+      </View>
+  );
+};
+
+export default DrawScreen;

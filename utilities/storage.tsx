@@ -1,23 +1,27 @@
 import * as FileSystem from "expo-file-system";
 import * as Crypto from "expo-crypto";
-import { SvgDataType, getViewBoxTrimmed } from "./helper";
+import { SvgDataType, getViewBoxTrimmed, isIOS } from "./helper";
 
 
-const AppName = "draw-replay-svg-path";
+// const AppName = "mypath.mahat.au";
+const AppName = isIOS ? "mypath.mahat.au" : "draw-replay-svg-path"; //TODO change this before release
+
 const AppSaveDirectory = FileSystem.documentDirectory + AppName + "/";
 
 let fileCache: SvgDataType[] | null = null;
 
 
 function parseSvgData(svgData: any, update_updated_at = false): SvgDataType {
-
     const isValid = (val) => (val !== null && val !== undefined && (val || val === false));
+    
+      // Create a deep copy of svgData
+    const svgDataCopy = JSON.parse(JSON.stringify(svgData));
     ///check if svgData has pathData and if not set default values
-    if (!isValid(svgData.pathData)) {
-        svgData.pathData = [];
+    if (!isValid(svgDataCopy.pathData)) {
+        svgDataCopy.pathData = [];
     }
     //chec if pathData is of type PathDataType else set default values
-    svgData.pathData = svgData.pathData.map((pathData) => {
+    svgDataCopy.pathData = svgDataCopy.pathData.map((pathData) => {
         if (!isValid(pathData.stroke)) {
             pathData.stroke = "#000000";
         }
@@ -39,25 +43,25 @@ function parseSvgData(svgData: any, update_updated_at = false): SvgDataType {
         return pathData;
     });
     // check if svgData has metaData and if not set default values
-    svgData.metaData = svgData.metaData || {};
-    if (!isValid(svgData.metaData.guid)) {
-        svgData.metaData.guid = Crypto.randomUUID();
+    svgDataCopy.metaData = svgDataCopy.metaData || {};
+    if (!isValid(svgDataCopy.metaData.guid)) {
+        svgDataCopy.metaData.guid = Crypto.randomUUID();
     }
-    if (!isValid(svgData.metaData.created_at)) {
-        svgData.metaData.created_at = new Date().toISOString();
+    if (!isValid(svgDataCopy.metaData.created_at)) {
+        svgDataCopy.metaData.created_at = new Date().toISOString();
     }
-    if (!isValid(svgData.metaData.updated_at) || update_updated_at) {
-        svgData.metaData.updated_at = new Date().toISOString();
+    if (!isValid(svgDataCopy.metaData.updated_at) || update_updated_at) {
+        svgDataCopy.metaData.updated_at = new Date().toISOString();
     }
-    if (!isValid(svgData.metaData.name) || svgData.metaData.name === svgData.metaData.guid) {
-        svgData.metaData.name = svgData.metaData.updated_at.split('.')[0].split('T').join(' ');
+    if (!isValid(svgDataCopy.metaData.name) || svgDataCopy.metaData.name === svgDataCopy.metaData.guid) {
+        svgDataCopy.metaData.name = svgDataCopy.metaData.updated_at.split('.')[0].split('T').join(' ');
     }
-    if (!isValid(svgData.metaData.viewBox)) {
-        svgData.metaData.viewBox = getViewBoxTrimmed(svgData.pathData);
+    if (!isValid(svgDataCopy.metaData.viewBox)) {
+        svgDataCopy.metaData.viewBox = getViewBoxTrimmed(svgDataCopy.pathData);
     }
     // console.log(svgData.metaData)
 
-    return svgData;
+    return svgDataCopy;
 }
 
 export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
@@ -90,7 +94,7 @@ export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
         await FileSystem.writeAsStringAsync(filename, json);
         // console.log("file saved at ", filename);
 
-        // Update the cache
+        // Update the cache, not sure cache is effective may need to check more than metadata or always just replace changed stuff??
         if (fileCache !== null) {
             const index = fileCache.findIndex(file => file.metaData.guid === svgData.metaData.guid);
             if (index !== -1) {
@@ -118,6 +122,13 @@ export const getFiles = async (): Promise<SvgDataType[]> => {
          // Sort the files by modification time in descending order
          fileCache.sort((a, b) => Date.parse(b.metaData.updated_at) - Date.parse(a.metaData.updated_at));
             return fileCache;
+        }
+
+        // check if directory exist
+        const dirInfo = await FileSystem.getInfoAsync(AppSaveDirectory);
+        if (!dirInfo.exists) {
+            console.log('no directory found')
+            return [];
         }
 
         const filenames = await FileSystem.readDirectoryAsync(AppSaveDirectory);
@@ -182,6 +193,34 @@ export const getFile = async (guid: string): Promise<SvgDataType | null> => {
     } catch (err) {
         console.error("Failed to read the file:", err);
         return null;
+        // Handle the error appropriately, e.g. show an error message to the user
+    }
+};
+
+
+export const deleteFile = async (guid: string): Promise<boolean> => {
+    try {
+
+        // If the cache is not empty, try to find the file in the cache & remove from it
+        if (fileCache !== null) {
+            const file = fileCache.find(file => file.metaData.guid === guid);
+            if (file) {
+                let index = fileCache.indexOf(file);
+                if(index > -1) {
+                    fileCache.splice(index, 1)
+                }
+            }
+        }
+
+        // Construct the filename from the guid
+        const filename = `${guid}.json`; // Adjust this line if your files have a different naming pattern
+
+        // Get the file info
+        const result = await FileSystem.deleteAsync(AppSaveDirectory + "/" + filename);
+        return true;
+    } catch (err) {
+        console.error("Failed to delete the file:", err);
+        return false;
         // Handle the error appropriately, e.g. show an error message to the user
     }
 };
