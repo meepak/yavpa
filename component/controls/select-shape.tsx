@@ -15,7 +15,7 @@ const SelectShape = ({ color = 'black', value, onValueChanged }) => {
             labels={AvailableShapes}
             initialValue={currentValue}
             onChange={handleShapeSelection}
-            numOfColumns={3}
+            numOfColumns={2}
             textStyle={{ marginLeft: 5, marginBottom: 5 }}
             iconStyle={{ size: 20, color: '#000000' }}
         />

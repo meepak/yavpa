@@ -1,6 +1,8 @@
 import * as FileSystem from "expo-file-system";
 import * as Crypto from "expo-crypto";
-import { SvgDataType, getViewBoxTrimmed, isIOS } from "./helper";
+import { SvgDataType, isIOS } from "./helper";
+import { svg } from "d3";
+import { DEFAULT_VIEWBOX } from "./constants";
 
 
 // const AppName = "mypath.mahat.au";
@@ -56,9 +58,10 @@ function parseSvgData(svgData: any, update_updated_at = false): SvgDataType {
     if (!isValid(svgDataCopy.metaData.name) || svgDataCopy.metaData.name === svgDataCopy.metaData.guid) {
         svgDataCopy.metaData.name = svgDataCopy.metaData.updated_at.split('.')[0].split('T').join(' ');
     }
-    if (!isValid(svgDataCopy.metaData.viewBox)) {
-        svgDataCopy.metaData.viewBox = getViewBoxTrimmed(svgDataCopy.pathData);
-    }
+    // since this will be set during next opening, no need to set it here
+    // if (!isValid(svgDataCopy.metaData.viewBox)) {
+    //     svgDataCopy.metaData.viewBox = getViewBoxTrimmed(svgDataCopy.pathData);
+    // }
     // console.log(svgData.metaData)
 
     return svgDataCopy;
@@ -143,6 +146,16 @@ export const getFiles = async (): Promise<SvgDataType[]> => {
                 );
                 const json = await FileSystem.readAsStringAsync(info.uri);
                 const svgData = parseSvgData(JSON.parse(json));
+
+                // TODO remove this from release version
+                // correction for already saved files
+                if(svgData.metaData.viewBox.includes('NaN')) {
+                    console.log(svgData.metaData.guid, 'viewbox is wrong', svgData.metaData.viewBox)
+                    svgData.metaData.viewBox = DEFAULT_VIEWBOX;
+                    saveSvgToFile(svgData);
+                }
+                // ---
+
                 return svgData;
                 
             })

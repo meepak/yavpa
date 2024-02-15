@@ -7,7 +7,7 @@ const StrokeOpacity = ({ color, strokeWidth, value, onValueChanged }) => {
   const [currentValue, setCurrentValue] = useState(value)
   return (
     <>
-      <View style={{ position: 'absolute', top: 7, zIndex: -2 }}>
+      <View style={{ position: 'absolute', top: 7, zIndex: -2, margin: 5 }}>
         <Text style={{fontWeight: 'bold'}}>Stroke Opacity</Text>
         <Svg height="100" width="250">
           <Line

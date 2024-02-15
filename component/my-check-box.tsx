@@ -10,7 +10,7 @@ const getIconName = (checked: boolean) => (checked ? CHECKED_ICON_NAME : UNCHECK
 interface MyCheckBoxProps {
   label: string;
   checked: boolean;
-  onChange: () => void;
+  onChange: (checked: boolean) => void;
   textStyle?: StyleProp<TextStyle>;
   iconStyle?: MyIconStyle;
   checkBoxFirst?: boolean;
@@ -18,7 +18,7 @@ interface MyCheckBoxProps {
 
 const MyCheckBox: React.FC<MyCheckBoxProps> = ({label, checked, onChange, textStyle, iconStyle, checkBoxFirst = false }) => {
   const handlePress = () => {
-    onChange();
+    onChange(!checked);
   };
   const elements = [
     <MyIcon key="icon" name={getIconName(checked)} style={iconStyle}/>,

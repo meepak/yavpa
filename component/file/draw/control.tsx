@@ -116,7 +116,7 @@ const createDrawControls = ({
       extraControl: (
         <SelectShape onValueChanged={(value: string) => { drawShape(value); }} value={shape} />
       ),
-      extraPanel: { width: 365, height: 150 }
+      extraPanel: { width: 285, height: 180 }
     },
 
     // {

@@ -53,14 +53,19 @@ export const shapeData = ({ name = "", start = { x: 0, y: 0 }, end = { x: 0, y: 
     }
 }
 
-const LinePoints = ({ start, end }) => {
+const LinePoints = ({ start, end, precision = 3 }) => {
+        const x1 = parseFloat(start.x).toFixed(precision);
+        const y1 = parseFloat(start.y).toFixed(precision);
+        const x2 = parseFloat(end.x).toFixed(precision);
+        const y2 = parseFloat(end.y).toFixed(precision);
+        const len = calculateDistance(start, end);
     return {
-        path: `M${start.x},${start.y}L${end.x},${end.y}`,
-        length: calculateDistance(start, end)
+        path: `M${x1},${y1}L${x2},${y2}`,
+        length: len.toFixed(precision)
     };
 }
 
-const CirclePoints = ({ start, end }) => {
+const CirclePoints = ({ start, end, precision = 3 }) => {
     // calculate the path of the circle between start and end point
     const radius = calculateDistance(start, end);
     // calculate points of the circle where center is start and radius is radius
@@ -71,7 +76,7 @@ const CirclePoints = ({ start, end }) => {
         const radian = (angle * Math.PI) / 180; // Convert degrees to radians
         const x = start.x + radius * Math.cos(radian);
         const y = start.y + radius * Math.sin(radian);
-        circlePoints.push({ x: x, y: y } as never);
+        circlePoints.push({ x: x.toFixed(precision), y: y.toFixed(precision) } as never);
     }
     // remove first point
     circlePoints.shift();
@@ -82,7 +87,7 @@ const CirclePoints = ({ start, end }) => {
     };
 }
 
-const RectanglePoints = ({ start, end }) => {
+const RectanglePoints = ({ start, end, precision = 3 }) => {
     const x = Math.min(start.x, end.x);
     const y = Math.min(start.y, end.y);
     const width = Math.abs(start.x - end.x);
@@ -93,7 +98,7 @@ const RectanglePoints = ({ start, end }) => {
     };
 }
 
-const StarPoints = ({ start, end }) => {
+const StarPoints = ({ start, end, precision = 3 }) => {
     const outerRadius = calculateDistance(start, end);
     const innerRadius = outerRadius / 2.5; // Adjust as needed
     const points = [];
@@ -116,12 +121,12 @@ const StarPoints = ({ start, end }) => {
 
     return {
         path: getPathFromPoints(points),
-        length,
+        length: length.toFixed(precision),
     };
 }
 
 
-const HeartPoints = ({ start, end }) => {
+const HeartPoints = ({ start, end, precision = 3}) => {
     const dx = end.x - start.x;
     const dy = end.y - start.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
@@ -157,11 +162,11 @@ const HeartPoints = ({ start, end }) => {
 
     return {
         path: getPathFromPoints(points),
-        length,
+        length: length.toFixed(precision),
     };
 }
 
-const PolygonPoints = ({ start, end, sides }) => {
+const PolygonPoints = ({ start, end, sides, precision = 3 }) => {
     const dx = end.x - start.x;
     const dy = end.y - start.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
@@ -189,7 +194,7 @@ const PolygonPoints = ({ start, end, sides }) => {
 
     return {
         path: getPathFromPoints(points),
-        length,
+        length: length.toFixed(precision),
     };
 }
 

@@ -1,24 +1,28 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
-import { View } from "react-native";
 import { SvgDataContext } from "@x/svg-data";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { View } from "react-native";
 import SvgAnimate, { SvgAnimateHandle } from "./animate";
 import createPreviewControls from "./control";
+import { saveSvgToFile } from "@u/storage";
 
 const PreviewScreen = ({ initControls }) => {
   const [speed, setSpeed] = useState(1);
-  const { svgData } = useContext(SvgDataContext);
+  const [loop, setLoop] = useState(true);
+  const [delay, setDelay] = useState(0);
+
+  const { svgData, setSvgData } = useContext(SvgDataContext);
   const previewRef = useRef<SvgAnimateHandle | null>(null);
 
-  const onPreviewLoop = () => {
-    if (previewRef.current) {
-      previewRef.current.loopAnimation();
+  useEffect(() => 
+  {
+    const animationData = svgData.metaData.animation;
+    if(animationData) {
+      setSpeed(animationData.speed || 1);
+      setLoop(animationData.loop || true);
+      setDelay(animationData.delay || 0)
     }
-  }
-  const onPreviewReplay = () => {
-    if (previewRef.current) {
-      previewRef.current.replayAnimation();
-    }
-  }
+  }, [])
+
   const onPreviewPlay = () => {
     if (previewRef.current) {
       previewRef.current.playAnimation();
@@ -35,24 +39,43 @@ const PreviewScreen = ({ initControls }) => {
     }
   }, [speed]);
 
+  useEffect(() => {
+    if (previewRef.current) {
+      previewRef.current.animationLoop(loop);
+    }
+  }, [loop]);
 
   useEffect(() => {
-    onPreviewPlay();
-  }, [previewRef]);
+    if (previewRef.current) {
+      previewRef.current.animationDelay(delay);
+    }
+  }, [delay]);
+
+
+  useEffect(() => {
+    setTimeout(
+    onPreviewPlay, 500);
+  }, []);
 
 
   // In your component:
   const buttons = createPreviewControls({
-    onPreviewLoop,
     onPreviewPlay,
     onPreviewStop,
     speed,
     setSpeed,
+    loop,
+    setLoop,
+    delay,
+    setDelay
   });
 
   useEffect(() => {
+    svgData.metaData.animation = {speed, loop, delay}
+    setSvgData(svgData)
+    saveSvgToFile(svgData); // TODO  lets do this way in draw screen too, save where its needed not on every change
     initControls(buttons)
-  }, [speed])
+  }, [speed, loop, delay])
 
 
   return (

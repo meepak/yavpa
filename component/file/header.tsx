@@ -68,76 +68,76 @@ const Header = ({
     }
 
     return (
-        <HeaderGradientBackground>
-            <View
-                style={{
-                    top: insets.top,
-                    marginVertical: 7,
-                    marginRight: 10,
-                    marginLeft: 5,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    alignContent: "center",
-                    justifyContent: "space-between"
-                }}
-            >
-                <TouchableOpacity onPress={handleBackButtonPress}>
-                    <MyIcon name="back" color="#FFFFFF" strokeWidth={2} size={32} />
-                </TouchableOpacity>
-                <TextInput
+        <><HeaderGradientBackground>
+                <View
                     style={{
-                        flex: 1,
-                        height: 40,
-                        color: "rgba(255, 255, 255, 0.7)",
-                        fontSize: 22,
-                        fontWeight: "300",
-                        textAlign: "left",
-                        borderWidth: 0,
-                        paddingLeft: 10,
+                        top: insets.top,
+                        marginVertical: 7,
+                        marginRight: 10,
+                        marginLeft: 5,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        alignContent: "center",
+                        justifyContent: "space-between",
                     }}
-                    onChangeText={onChangeText}
-                    value={name}
-                    placeholder="Title"
-                    placeholderTextColor="rgba(255, 255, 255, 0.7)"
-                />
-                <Image
-                    source={require('@a/logo2.png')}
-                    style={{ height: 42, width: 42, bottom: -5, }}
-                />
-                {/* <ContextMenu
-                anchor={<MyIcon name="menu" color="#FFFFFF" strokeWidth={2} />}
-                width={150}
-                height={60}>
-                <MenuItemTest />
-            </ContextMenu> */}
-            </View>
-            <View style={{ marginTop: 30 }}>
-                <ControlPanel
-                    buttons={controlPanelButtons}
-                    paddingLeft={50}
-                    paddingRight={20} 
-                    />
-                <TouchableOpacity
-                    style={{ position: 'absolute', left: 10, top: isIOS ? 10 : -2 }}
-                    onPress={handleScreenModeButtonPress}
                 >
-                    <View
-                        pointerEvents="auto"
+                    <TouchableOpacity onPress={handleBackButtonPress}>
+                        <MyIcon name="back" color="#FFFFFF" strokeWidth={2} size={32} />
+                    </TouchableOpacity>
+                    <TextInput
                         style={{
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: "#0000FF",
-                            width: 55,
-                            height: 55,
-                            borderRadius: 30,
-                        }}>
-                        <MyIcon
-                            name={screenMode.icon}
-                            color="#FFFFFF" />
-                    </View>
-                </TouchableOpacity>
+                            flex: 1,
+                            height: 40,
+                            color: "rgba(255, 255, 255, 0.7)",
+                            fontSize: 22,
+                            fontWeight: "300",
+                            textAlign: "left",
+                            borderWidth: 0,
+                            paddingLeft: 10,
+                        }}
+                        onChangeText={onChangeText}
+                        value={name}
+                        placeholder="Title"
+                        placeholderTextColor="rgba(255, 255, 255, 0.7)" />
+                    <Image
+                        source={require('@a/logo2.png')}
+                        style={{ height: 42, width: 42, bottom: -5, }} />
+                    {/* <ContextMenu
+    anchor={<MyIcon name="menu" color="#FFFFFF" strokeWidth={2} />}
+    width={150}
+    height={60}>
+    <MenuItemTest />
+</ContextMenu> */}
+                </View>
+                <View style={{ marginTop: 30 }}>
+                    <ControlPanel
+                        buttons={controlPanelButtons}
+                        paddingLeft={50}
+                        paddingRight={20} />
+
+                </View>
+            </HeaderGradientBackground>
+            <TouchableOpacity
+            style={{ position: 'absolute', left: 10, bottom: isIOS ? 10 : -2 }}
+            onPress={handleScreenModeButtonPress}
+        >
+            <View
+                pointerEvents="auto"
+                style={{
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: "#0000FF",
+                    width: 55,
+                    height: 55,
+                    borderRadius: 30,
+                }}>
+                <MyIcon
+                    name={screenMode.icon}
+                    color="#FFFFFF" />
             </View>
-        </HeaderGradientBackground>
+        </TouchableOpacity>
+            
+            </>
     );
 }
 

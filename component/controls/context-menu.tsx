@@ -104,7 +104,10 @@ const ContextMenu = ({
                 top: yPosition,
                 padding: 20,
                 borderRadius: 10,
-                backgroundColor: "rgba(255,255,255, 0.5)",
+                backgroundColor: "rgba(220,200,255, 0.7)",
+                borderWidth: 0.7,
+                borderColor: "rgba(0,0,0,0.5)",
+                elevation: 2,
               }}>
                 {children}
               </View>

@@ -5,6 +5,7 @@ import createDrawControls from "./control";
 import { PathDataType, createSvgData } from "@u/helper";
 import { AvailableShapes } from "@u/shapes";
 import { SvgDataContext } from "@x/svg-data";
+import { saveSvgToFile } from "@u/storage";
 
 
 
@@ -49,14 +50,14 @@ const DrawScreen = ({initControls}) => {
     executeCommand("update");
   }, [svgData]);
 
-  const updateSvgData = (value: PathDataType[]) => {
-      setSvgData((prevSvgData) => ({
-        ...prevSvgData,
-        pathData: value,
-      }));
-      console.log('updating..');
-      executeCommand("update");
-  }
+  // const updateSvgData = (value: PathDataType[]) => {
+  //     setSvgData((prevSvgData) => ({
+  //       ...prevSvgData,
+  //       pathData: value,
+  //     }));
+  //     console.log('updating..');
+  //     executeCommand("update");
+  // }
 
   const onUndo = () => executeCommand("undo");
   const onRedo = () => executeCommand("redo");
@@ -100,6 +101,7 @@ const DrawScreen = ({initControls}) => {
       metaData: existingData.metaData,
       pathData: pathData,
     }));
+    // saveSvgToFile(svgData); //enable this later and disable useEffect hook saving
   };
 
   useEffect(() => {
@@ -121,6 +123,7 @@ const DrawScreen = ({initControls}) => {
           strokeOpacity={strokeOpacity}
           simplifyTolerance={simplifyTolerance}
           d3CurveBasis={d3CurveBasis}
+          viewBox={svgData.metaData.viewBox}
         />
       </View>
   );

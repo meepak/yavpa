@@ -7,8 +7,9 @@ import {
 } from "react-native-gesture-handler";
 import simplify from "simplify-js";
 import * as d3 from "d3";
-import { createPathdata, getPathFromPoints, getPointsFromPath, getViewBoxTrimmed, PathDataType } from "@u/helper";
+import { createPathdata, getPathFromPoints, getPointsFromPath, PathDataType } from "@u/helper";
 import { AvailableShapes, shapeData, calculateDistance, isValidShape, getD3CurveBasis } from "@u/shapes";
+import { DEFAULT_VIEWBOX } from "@u/constants";
 
 type SvgCanvasProps = {
   editable?: boolean;
@@ -22,6 +23,7 @@ type SvgCanvasProps = {
   precision?: number;
   simplifyTolerance?: number;
   d3CurveBasis?: any; // Replace 'any' with the actual type if known
+  viewBox?: string;
 };
 
 const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
@@ -37,6 +39,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     precision = 3,
     simplifyTolerance = 0,
     d3CurveBasis = null,
+    viewBox = DEFAULT_VIEWBOX,
   } = props;
 
   const newPathData = () => createPathdata(stroke, strokeWidth, strokeOpacity);
@@ -53,6 +56,8 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   const [selectMode, setSelectMode] = useState(false);
   const [selectedPathIndex, setSelectedPathIndex] = useState(-1);
   const [selectedPaths, setSelectedPaths] = useState([] as PathDataType[]);
+
+  const precise = (num: string) => parseFloat(num as string).toFixed(precision);
 
   useEffect(() => {
     setEditMode(editable);
@@ -122,7 +127,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     let x = parameters[parameters.length - 2];
     let y = parameters[parameters.length - 1];
 
-    return { commandType, x: parseFloat(x), y: parseFloat(y) };
+    return { commandType, x: precise(x), y: precise(y) };
   };
 
   const handleDrawingEvent = (event, state) => {
@@ -133,8 +138,8 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 
     if (!editMode) return;
     const pt = {
-      x: parseFloat(event.x).toFixed(precision),
-      y: parseFloat(event.y).toFixed(precision),
+      x: precise(event.x),
+      y: precise(event.y),
     };
 
     switch (state) {
@@ -163,7 +168,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
           setCurrentPath({
             ...currentPath,
             path,
-            length,
+            length: length as unknown as number,
           });
           break;
         }
@@ -203,7 +208,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
           if (points.length >= 2) {
             // Create a line generator
             let curveBasis = getD3CurveBasis(d3CurveBasis);
-            if(curveBasis) {
+            if (curveBasis) {
               const line = d3.line().curve(curveBasis);
               // Generate the path data
               currentPath.path = line(points) || ""; // Assign an empty string if line(points) is null.
@@ -211,6 +216,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
           }
         }
 
+     
         currentPath.visible = true;
         setCompletedPaths((prev) => [...prev, currentPath]);
         // console.log("completedPaths", completedPaths);
@@ -224,6 +230,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 
 
   const pan = Gesture.Pan()
+  pan.shouldCancelWhenOutside(true);
   pan.onBegin((event) => handleDrawingEvent(event, "began"))
     .onUpdate((event) => handleDrawingEvent(event, "active"))
     .onEnd((event) => handleDrawingEvent(event, "ended"));
@@ -233,8 +240,8 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     if (!selectMode) return;
     // console.log('tap', event);
     const pt = {
-      x: parseFloat(event.x as any).toFixed(precision),
-      y: parseFloat(event.y as any).toFixed(precision),
+      x: precise(event.x as unknown as string),
+      y: precise(event.y as unknown as string),
     };
     if (selectedPaths.length > 0) {
       // if we are not inside boundary box, we restore selected path
@@ -337,8 +344,8 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     <Path
       key={key}
       d={p.path}
-      stroke={p.stroke} 
-      strokeWidth={p.strokeWidth} 
+      stroke={p.stroke}
+      strokeWidth={p.strokeWidth}
       strokeLinecap={p.strokeCap}
       strokeLinejoin={p.strokeJoin}
       opacity={p.strokeOpacity}
@@ -346,11 +353,11 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} pointerEvents="box-none">
       <GestureDetector gesture={pan}>
         <GestureDetector gesture={tap}>
           <View style={styles.container}>
-            <Svg style={styles.svg}>
+            <Svg style={styles.svg} viewBox={viewBox}>
               {completedPaths.map((item, _index) => (
                 item.visible
                   ? <MyPath {...item} key={item.guid} />
@@ -371,9 +378,12 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    zIndex: -1,
   },
   svg: {
     flex: 1,
+    width: '100%',
+    height: '100%',
   },
 });
 

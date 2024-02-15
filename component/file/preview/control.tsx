@@ -1,18 +1,16 @@
-import React, { } from "react";
-import PlaySpeed from "@c/controls/play-speed";
+import AnimationParams from "@c/controls/animation-params";
+import React from "react";
 
 const createPreviewControls = ({
-  onPreviewLoop,
   onPreviewPlay,
   onPreviewStop,
   speed,
   setSpeed,
+  loop,
+  setLoop,
+  delay,
+  setDelay
 }) => [
-    {
-      key: "loop",
-      icon: "loop",
-      onPress: onPreviewLoop,
-    },
     {
       key: "play",
       icon: "play",
@@ -26,16 +24,24 @@ const createPreviewControls = ({
     {
       key: "speed",
       icon: "speed",
-      title: "Set Animation Speed",
+      title: "Set Animation Params",
       extraControl: (
-        <PlaySpeed
-          value={speed}
-          onValueChanged={(value: number) => {
+        <AnimationParams
+          speed={speed}
+          onSpeedChanged={(value: number) => {
             setSpeed(() => value);
+          }}
+          loopStatus={loop}
+          onLoopStatusChanged={(value: boolean) => {
+            setLoop(() => value);
+          }}
+          loopDelay={delay}
+          onLoopDelayChanged={(value: number) => {
+            setDelay(() => value);
           }}
         />
       ),
-      extraPanel: { width: 250, height: 100 }
+      extraPanel: { width: 250, height: 210 }
     },
   ];
 

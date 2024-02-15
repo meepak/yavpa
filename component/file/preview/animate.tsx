@@ -1,7 +1,9 @@
-import React, { useEffect } from "react";
-import { Animated, View, StyleSheet, Easing, Dimensions } from "react-native";
-import { Svg, Path } from "react-native-svg";
-import { SvgDataType, getViewBoxTrimmed } from "@u/helper";
+
+
+import { SvgDataType } from "@u/helper";
+import React, { useEffect, useRef } from "react";
+import { Animated, Easing, StyleSheet, View } from "react-native";
+import { Path, Svg } from "react-native-svg";
 
 type Props = {
   svgData: SvgDataType;
@@ -13,6 +15,8 @@ export interface SvgAnimateHandle {
   replayAnimation: () => void;
   stopAnimation: () => void;
   animationSpeed: (value: number) => void;
+  animationLoop: (value: boolean) => void;
+  animationDelay: (value: number) => void;
 }
 
 const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnimate>) => {
@@ -20,105 +24,122 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
 
   const pathData = props.svgData.pathData;
 
+  // console.log('pathData', pathData);
+
   // get the one from meta data, if using trimmed view box is what needed
   // update at commented place
   // const viewBox = getViewBox(pathData);
   const viewBox = props.svgData.metaData.viewBox;
 
-  // const [speed, setSpeed] = React.useState(1); // this is causing rerendering during value change
+  const [speed, setSpeed] = React.useState(1); // this is causing rerendering during value change
+  const [loop, setLoop] = React.useState(true);
+  const [loopDelay, setLoopDelay] = React.useState(0);
 
-  let speed = 1;
-  const setSpeed = (value: number) => {speed = value}
-  // set speed
+  const opacity = useRef(new Animated.Value(1)).current;
+
   const animationSpeed = (value: number) => setSpeed(value);
+  const animationLoop = (value: boolean) => setLoop(value);
+  const animationDelay = (value: number) => setLoopDelay(value);
 
   // Create an array of animated values
   const animatedValues = pathData.map(() => new Animated.Value(0));
 
-  // Create an array of animations
-  const animations = Animated.sequence(animatedValues.map((animatedValue, index) => {
-    const delay = index === 0 ? 0 : 0; // Adjust the delay as needed
-    const duration =
-      pathData[index] && pathData[index].time
-        ? pathData[index].time / speed
-        : 0;
 
-    return Animated.sequence([
-      Animated.delay(delay),
-      Animated.timing(animatedValue, {
-        toValue: 1,
-        duration: duration,
-        useNativeDriver: false,
-        easing: Easing.linear,
+  // Create an array of animations
+  const animations = Animated.sequence([
+    ...animatedValues.map((animatedValue, index) => {
+      const delay = index === 0 ? 0 : 0; // Adjust the delay as needed
+      const duration =
+        pathData[index] && pathData[index].time
+          ? pathData[index].time / speed
+          : 0;
+
+      return Animated.sequence([
+        Animated.delay(delay),
+        Animated.timing(animatedValue, {
+          toValue: 1,
+          duration: duration,
+          useNativeDriver: false,
+          easing: Easing.linear,
+        }),
+      ]);
+    }),
+    // Conditionally add the last two sequences if loop is true
+    ...(loop ? [
+      // Fade out the entire SVG in configured period
+      // Animated.delay(loopDelay),
+      Animated.timing(opacity, {
+        toValue: 0,
+        duration: loopDelay * 1000, // Replace with the duration of the fade out
+        useNativeDriver: true,
       }),
-    ]);
+
+
+      // Reset animatedValues here to truly reset loop animation
+      ...animatedValues.map((animatedValue) => {
+        return Animated.timing(animatedValue, {
+          toValue: 0,
+          duration: 0,
+          useNativeDriver: false,
+        });
+      }),
+    ] : []),
+  ]);
+
+
+  // Create the animation sequence once
+  // const animationSequence = Animated.sequence(animations);
+
+  // play animation
+  const playAnimation = () => {
+    console.log('playing animation')
+    if (animations == undefined || !animations) {
+      // Create an array of animations
+      console.log('no animations')
+    }
+
+    if (loop) {
+      console.log('looping', loopDelay)
+      animatedValues.forEach((animatedValue) => animatedValue.setValue(0));
+      animations.reset();
+      Animated.loop(animations).start();
+    } else {
+      console.log('not looping')
+      animations.start();
+    }
+  };
+
+  // stop animation
+  const stopAnimation = () => {
+    console.log("stopping animation");
+    animations.stop();
+  };
+
+  // Use the useImperativeHandle hook to expose the functions
+  React.useImperativeHandle(ref, () => ({
+    playAnimation,
+    stopAnimation,
+    animationSpeed,
+    animationLoop,
+    animationDelay,
   }));
 
   useEffect(() => {
-    animatedValues.forEach((animatedValue, index) => {
-      console.log(`animatedValue[${index}]: ${animatedValue.__getValue()}`);
-    });
-  }, [animatedValues]);
-
-  // Create the animation sequence once
-// const animationSequence = Animated.sequence(animations);
-
-// play animation
-const playAnimation = () => {
-  console.log('playing animation')
-  animations.start();
-};
-
-// loop animation
-const loopAnimation = () => {
-  console.log("looping animation");
-
-  animatedValues.forEach((animatedValue) => animatedValue.setValue(0));
-  animations.reset();
-  Animated.loop(animations).start();
-};
-
-// replay animation, can't find the use as play is sufficient.
-const replayAnimation = () => {
-  console.log("replaying animation");
-  // Reset all animated values to 0, this clears up the screen
-  animatedValues.forEach((animatedValue) => animatedValue.setValue(0));
-  animations.reset();
-  animations.start();
-
-  // Start the animations in sequence
-  // playAnimation();
-};
-
-// stop animation
-const stopAnimation = () => {
-  console.log("stopping animation");
-  animations.stop();
-};
-
-  // Start the animations in sequence
-  // playAnimation();
-
-  // Use the useImperativeHandle hook to expose the loopAnimation and replayAnimation methods to the parent component
-  React.useImperativeHandle(ref, () => ({
-    playAnimation,
-    loopAnimation,
-    replayAnimation,
-    stopAnimation,
-    animationSpeed,
-  }));
+    playAnimation();
+  }, [speed, loop, loopDelay]);
 
   return (
-    <View style={StyleSheet.absoluteFill}>
+    <Animated.View style={{ ...StyleSheet.absoluteFillObject, opacity }}>
       <Svg
         style={{ flex: 1 }}
         viewBox={viewBox} // TO be included in SvgData
       >
         {pathData.map((path, index) => {
-          
+          const offsetFactor = 0.05; // Adjust this value as needed
+          const strokeDasharray = path.length * (1 + offsetFactor);
           const strokeDashoffset = animatedValues[index].interpolate({
             inputRange: [0, 1],
-            outputRange: [path.length, 0],
+            outputRange: [strokeDasharray, 0],
           });
 
           return (
@@ -131,13 +152,13 @@ const stopAnimation = () => {
               strokeLinejoin={path.strokeJoin}
               opacity={path.strokeOpacity}
               fill="none"
-              strokeDasharray={path.length}
+              strokeDasharray={strokeDasharray}
               strokeDashoffset={strokeDashoffset}
             />
           );
         })}
       </Svg>
-    </View>
+    </Animated.View>
   );
 });
 
