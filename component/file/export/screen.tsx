@@ -2,16 +2,15 @@ import React, { useContext, useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import * as FileSystem from "expo-file-system";
-import LottieView, { AnimationObject } from "lottie-react-native";
+import LottieView from "lottie-react-native";
 import {
   getCssSvg,
-  getLottieSvg,
-  getRnComponent,
+  getLottieTrimmedPath,
+  // getRnComponent,
   getSmilSvg,
   getStaticSvg,
 } from "@u/formatters";
 import { SvgDataContext } from "@x/svg-data";
-import { text } from "d3";
 
 const ExportScreen = ({ initControls }) => {
   const { svgData } = useContext(SvgDataContext);
@@ -48,9 +47,9 @@ const ExportScreen = ({ initControls }) => {
       name: "Lottie",
       onPress: () => {
         console.log('lottie selected');
-        let lt = getLottieSvg(svgData);
+        console.log(JSON.stringify(svgData, null, 2));
+        let lt = getLottieTrimmedPath(svgData);
         setLottie(lt);
-        console.log('lottie object', lt);
         let ltStr = JSON.stringify(lt);
         console.log(ltStr);
         Clipboard.setStringAsync(ltStr);
@@ -83,9 +82,11 @@ const ExportScreen = ({ initControls }) => {
   };
 
   return (
+
     <View style={{ ...StyleSheet.absoluteFillObject }} onLayout={() => initControls(buttons)}>
-      {/* <LottieView style={{ flex: 1 }} resizeMode="contain" source={JSON.stringify(exportSource)} autoPlay loop /> */}
-      <LottieView style={{ flex: 1 }} resizeMode="contain" source={require('@a/hl.json')} autoPlay loop />
+
+      <LottieView style={{ flex: 1 }} resizeMode="contain" source={JSON.stringify(lottie)} autoPlay loop />
+      <LottieView style={{ flex: 1 }} resizeMode="contain" source={require('@a/test.json')} autoPlay loop />
       {/* <TextInput editable={false} multiline>{exportSource}</TextInput> */}
     </View>
 

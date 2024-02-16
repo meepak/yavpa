@@ -1,8 +1,9 @@
 import * as FileSystem from "expo-file-system";
 import * as Crypto from "expo-crypto";
-import { SvgDataType, isIOS } from "./helper";
+import { isIOS } from "./helper";
 import { svg } from "d3";
 import { DEFAULT_VIEWBOX } from "./constants";
+import { SvgDataType } from "./types";
 
 
 // const AppName = "mypath.mahat.au";
@@ -14,7 +15,7 @@ let fileCache: SvgDataType[] | null = null;
 
 
 function parseSvgData(svgData: any, update_updated_at = false): SvgDataType {
-    const isValid = (val) => (val !== null && val !== undefined && (val || val === false));
+    const isValid = (val: boolean | null | undefined) => (val !== null && val !== undefined && (val || val === false));
     
       // Create a deep copy of svgData
     const svgDataCopy = JSON.parse(JSON.stringify(svgData));

@@ -2,7 +2,7 @@ import React, { useCallback, useLayoutEffect, useState } from "react";
 import { StyleSheet, Dimensions, Text, TouchableOpacity, View, ListRenderItem, Alert, FlatList } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MyIcon from "@c/my-icon";
-import { SvgDataType } from "@u/helper";
+import { SvgDataType } from "@u/types";
 import { deleteFile, getFiles } from "@u/storage";
 import Svg, { Path } from "react-native-svg";
 import { Link, useRouter } from "expo-router";
@@ -14,6 +14,7 @@ import { StickyHeaderFlatList, useStickyHeaderScrollProps } from 'react-native-s
 import { StatusBar } from "expo-status-bar";
 import { Foreground } from "@c/browse/foreground";
 import { HeaderBar } from "@c/browse/header-bar";
+import { Brushes, getBrush } from "@u/brushes";
 
 const PARALLAX_HEIGHT = 238;
 const HEADER_BAR_HEIGHT = 92;
@@ -112,22 +113,34 @@ const BrowseScreen = () => {
           alignContent: 'center',
           alignItems: 'center',
           padding: 5,
+          overflow: 'hidden',
         }}
       >
         <Svg width="100%" height="100%" viewBox={item.metaData.viewBox}>
-          {item.pathData.map((path, index) => (
-            path.visible
-              ? <Path
-                key={index}
-                d={path.path}
-                stroke={path.stroke}
-                strokeWidth={path.strokeWidth}
-                strokeLinecap={path.strokeCap}
-                strokeLinejoin={path.strokeJoin}
-                opacity={path.strokeOpacity}
-                fill={'none'} />
-              : null
-          ))}
+          {item.pathData.map((path, index) => {
+            if (!path.visible) {
+              return null;
+            }
+            let brush: BrushType | undefined;
+            if (path.stroke.startsWith("url(#")) {
+              const brushGuid = path.stroke.slice(5, -1);
+              brush = Brushes.find(brush => brush.params.guid === brushGuid);
+            }
+            return (
+              <React.Fragment key={index}>
+                {brush && getBrush(brush)}
+                <Path
+                  key={index}
+                  d={path.path}
+                  stroke={path.stroke}
+                  strokeWidth={path.strokeWidth}
+                  strokeLinecap={path.strokeCap}
+                  strokeLinejoin={path.strokeJoin}
+                  opacity={path.strokeOpacity}
+                  fill={'none'} />
+              </React.Fragment>
+            )
+          })}
         </Svg>
         <View style={{ alignItems: 'center' }}>
           {item.metaData.name.split(' ').map((line, i) => (
@@ -220,7 +233,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignContent: 'center',
-    elevation: 8,
+    elevation: 5,
   },
 });
 

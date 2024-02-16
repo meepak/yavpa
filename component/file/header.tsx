@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { TextInput, TouchableOpacity, View, Image } from "react-native";
 import { useRouter } from "expo-router";
-import { ControlPanel, ContextMenu } from "component/controls";
-import { HeaderGradientBackground, ScreenModes, isAndroid, isIOS } from "@u/helper";
+import { ControlPanel } from "component/controls";
+import { HeaderGradientBackground, isIOS } from "@u/helper";
+import { ScreenModes } from "@u/constants";
 import MyIcon from "@c/my-icon";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 

@@ -1,4 +1,5 @@
 import { Dimensions } from "react-native";
+import { ScreenModeType } from "./types";
 
 // ---- fix for the canvas size ---------------------
 const SCREEN_WIDTH = Dimensions.get("window").width;
@@ -10,3 +11,9 @@ export const CANVAS_WIDTH = SCREEN_WIDTH - CANVAS_PADDING * 2;
 export const CANVAS_HEIGHT = SCREEN_HEIGHT - MAX_HEADER_HEIGHT - CANVAS_PADDING * 2;
 export const DEFAULT_VIEWBOX = `0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`;
 // -------------------------------------------------
+
+export const ScreenModes: ScreenModeType[] = [
+    { name: "Draw", icon: "edit" },
+    { name: "Preview", icon: "preview" },
+    { name: "Export", icon: "export" },
+  ];

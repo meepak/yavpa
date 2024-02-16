@@ -2,10 +2,9 @@ import React, { useContext, useEffect, useState } from "react";
 import { View } from "react-native";
 import SvgCanvas from "./canvas";
 import createDrawControls from "./control";
-import { PathDataType, createSvgData } from "@u/helper";
+import { PathDataType } from "@u/types";
 import { AvailableShapes } from "@u/shapes";
 import { SvgDataContext } from "@x/svg-data";
-import { saveSvgToFile } from "@u/storage";
 
 
 

@@ -7,9 +7,11 @@ import {
 } from "react-native-gesture-handler";
 import simplify from "simplify-js";
 import * as d3 from "d3";
-import { createPathdata, getPathFromPoints, getPointsFromPath, PathDataType } from "@u/helper";
-import { AvailableShapes, shapeData, calculateDistance, isValidShape, getD3CurveBasis } from "@u/shapes";
+import { createPathdata, getPathFromPoints, getPointsFromPath } from "@u/helper";
+import { shapeData, calculateDistance, isValidShape, getD3CurveBasis } from "@u/shapes";
 import { DEFAULT_VIEWBOX } from "@u/constants";
+import { BrushType, PathDataType } from "@u/types";
+import { Brushes, getBrush } from "@u/brushes";
 
 type SvgCanvasProps = {
   editable?: boolean;
@@ -216,7 +218,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
           }
         }
 
-     
+
         currentPath.visible = true;
         setCompletedPaths((prev) => [...prev, currentPath]);
         // console.log("completedPaths", completedPaths);
@@ -340,17 +342,27 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     }
   }
 
-  const MyPath = (p: PathDataType, key: string) => (
-    <Path
-      key={key}
-      d={p.path}
-      stroke={p.stroke}
-      strokeWidth={p.strokeWidth}
-      strokeLinecap={p.strokeCap}
-      strokeLinejoin={p.strokeJoin}
-      opacity={p.strokeOpacity}
-      fill="none" />
-  );
+  const MyPath = (p: PathDataType, key: string) => {
+    let brush: BrushType | undefined;
+    if (p.stroke.startsWith("url(#")) {
+      const brushGuid = p.stroke.slice(5, -1);
+      brush = Brushes.find(brush => brush.params.guid === brushGuid);
+    }
+    return (
+      <>
+        {brush && getBrush(brush)}
+        <Path
+          key={key}
+          d={p.path}
+          stroke={p.stroke}
+          strokeWidth={p.strokeWidth}
+          strokeLinecap={p.strokeCap}
+          strokeLinejoin={p.strokeJoin}
+          opacity={p.strokeOpacity}
+          fill="none" />
+      </>
+    )
+  };
 
   return (
     <View style={styles.container} pointerEvents="box-none">
@@ -379,6 +391,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     zIndex: -1,
+    overflow: 'hidden',
   },
   svg: {
     flex: 1,

@@ -1,9 +1,10 @@
 import { SvgDataContext } from "@x/svg-data";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { View } from "react-native";
-import SvgAnimate, { SvgAnimateHandle } from "./animate";
+import SvgAnimate from "./animate";
 import createPreviewControls from "./control";
 import { saveSvgToFile } from "@u/storage";
+import { SvgAnimateHandle } from "@u/types";
 
 const PreviewScreen = ({ initControls }) => {
   const [speed, setSpeed] = useState(1);

@@ -8,6 +8,7 @@ import {
   SelectShape
 } from "component/controls"
 import { ColorValue } from "react-native";
+import SelectBrush from "@c/controls/select-brush";
 
 const createDrawControls = ({
   // onLock,
@@ -58,6 +59,18 @@ const createDrawControls = ({
         />
       ),
       extraPanel: { width: 350, height: 320 }
+    },
+    {
+      key: "brush",
+      icon: "palette",
+      title: "Select Brush Stroke",
+      extraControl: (
+        <SelectBrush
+          value={stroke.startsWith('url(#') ? stroke.slice(5, -1) : ''}
+          onValueChanged={(guid: string) => setStroke(() => "url(#" + guid + ")")}
+        />
+      ),
+      extraPanel: { width: 280, height: 320 }
     },
     {
       key: "stroke-width",
@@ -117,7 +130,7 @@ const createDrawControls = ({
         <SelectShape onValueChanged={(value: string) => { drawShape(value); }} value={shape} />
       ),
       extraPanel: { width: 285, height: 180 }
-    },
+    }, 
 
     // {
     //   key: "select",

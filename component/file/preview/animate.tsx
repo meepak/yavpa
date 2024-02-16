@@ -1,6 +1,5 @@
-
-
-import { SvgDataType } from "@u/helper";
+import { Brushes, getBrush } from "@u/brushes";
+import { BrushType, SvgDataType } from "@u/types";
 import React, { useEffect, useRef } from "react";
 import { Animated, Easing, StyleSheet, View } from "react-native";
 import { Path, Svg } from "react-native-svg";
@@ -8,16 +7,6 @@ import { Path, Svg } from "react-native-svg";
 type Props = {
   svgData: SvgDataType;
 };
-
-export interface SvgAnimateHandle {
-  playAnimation: () => void;
-  loopAnimation: () => void;
-  replayAnimation: () => void;
-  stopAnimation: () => void;
-  animationSpeed: (value: number) => void;
-  animationLoop: (value: boolean) => void;
-  animationDelay: (value: number) => void;
-}
 
 const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnimate>) => {
   const AnimatedPath = Animated.createAnimatedComponent(Path);
@@ -141,8 +130,15 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
             inputRange: [0, 1],
             outputRange: [strokeDasharray, 0],
           });
+          let brush: BrushType | undefined;
+          if (path.stroke.startsWith("url(#")) {
+            const brushGuid = path.stroke.slice(5, -1);
+            brush = Brushes.find(brush => brush.params.guid === brushGuid);
+          }
 
           return (
+            <React.Fragment key={index}>
+              {brush && getBrush(brush)}
             <AnimatedPath
               key={index}
               d={path.path}
@@ -155,6 +151,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
               strokeDasharray={strokeDasharray}
               strokeDashoffset={strokeDashoffset}
             />
+            </React.Fragment>
           );
         })}
       </Svg>

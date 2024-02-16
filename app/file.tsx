@@ -1,5 +1,6 @@
-import { CANVAS_HEIGHT, CANVAS_WIDTH, DEFAULT_VIEWBOX } from "@u/constants";
-import { ScreenModeType, ScreenModes, createSvgData } from "@u/helper";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, DEFAULT_VIEWBOX, ScreenModes } from "@u/constants";
+import { ScreenModeType } from "@u/types";
+import { createSvgData } from "@u/helper";
 import { getFile, saveSvgToFile } from "@u/storage";
 import { SvgDataContext } from "@x/svg-data";
 import { DrawScreen, ExportScreen, Header, PreviewScreen } from "component/file";

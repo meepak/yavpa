@@ -1,0 +1,225 @@
+{
+    "v": "5.7.1", // The version of the Lottie renderer this file is intended for.
+    "ip": 0, // The in-point of the animation in frames.
+    "op": 180, // The out-point of the animation in frames.
+    "nm": "Animation", // The name of the animation.
+    "mn": "{ca8052f4-553a-43a5-a578-63690ef39ea2}", // The unique id of the animation.
+    "fr": 60, // The frame rate of the animation.
+    "w": 300, // The width of the animation in pixels.
+    "h": 300, // The height of the animation in pixels.
+    "assets": [], // An array of objects representing the assets used in the animation.
+    "layers": [ // An array of objects representing the layers of the animation.
+        {
+            "ddd": 0, // Whether the layer is 3D. If 0, the layer is 2D.
+            "ty": 4, // The type of the layer. 4 means it's a shape layer.
+            "ind": 0, // The index of the layer.
+            "st": 0, // The start time of the layer in frames.
+            "ip": 0, // The in-point of the layer in frames.
+            "op": 180, // The out-point of the layer in frames.
+            "nm": "Layer", // The name of the layer.
+            "mn": "{2a5a225a-4d30-4c33-a6e5-cc27e7d60ab6}", // The unique id of the layer.
+            "ks": { // The transform properties of the layer.
+                "a": { // The anchor point of the layer.
+                    "a": 0, // Whether the anchor point is animated.
+                    "k": [
+                        256,
+                        256
+                    ] // The value of the anchor point.
+                },
+                "p": { // The position of the layer.
+                    "a": 0, // Whether the position is animated.
+                    "k": [
+                        256,
+                        256
+                    ] // The value of the position.
+                },
+                "s": { // The scale of the layer.
+                    "a": 0, // Whether the scale is animated.
+                    "k": [
+                        100,
+                        100
+                    ] // The value of the scale.
+                },
+                "r": { // The rotation of the layer.
+                    "a": 0, // Whether the rotation is animated.
+                    "k": 0 // The value of the rotation.
+                },
+                "o": { // The opacity of the layer.
+                    "a": 0, // Whether the opacity is animated.
+                    "k": 100 // The value of the opacity.
+                }
+            },
+            "shapes": [ // An array of objects representing the shapes in the layer.
+                {
+                    "ty": "gr",
+                    "nm": "Rectangle",
+                    "mn": "{019cd1ce-b739-4606-b573-5ba0590f0beb}",
+                    "it": [
+                        {
+                            "ty": "rc",
+                            "nm": "Rectangle",
+                            "mn": "{b37b010c-d69f-4410-a980-ca32712e1bd7}",
+                            "d": 1, // The direction of the item. 1 means normal, -1 means reversed.
+                            "p": { // The position of the item.
+                                "a": 0, // Whether the position is animated.
+                                "k": [
+                                    150,
+                                    150
+                                ] // The value of the position.
+                            },
+                            "s": { // The size of the item.
+                                "a": 1, // Whether the size is animated.
+                                "k": [ // The keyframes of the size animation.
+                                    // Each keyframe has a time ("t"), a value ("s"), and easing functions ("o" for outgoing, "i" for incoming).
+                                    // The easing functions have influence points ("x" and "y").
+                                    // The "h" property is hold interpolation. If 1, it means the value doesn't change until the next keyframe.
+                                ]
+                            },
+                            "s": {
+                                "a": 1,
+                                "k": [
+                                    {
+                                        "t": 0,
+                                        "s": [
+                                            250,
+                                            130
+                                        ],
+                                        "h": 0,
+                                        "o": {
+                                            "x": [
+                                                0.333
+                                            ],
+                                            "y": [
+                                                0
+                                            ]
+                                        },
+                                        "i": {
+                                            "x": [
+                                                0.667
+                                            ],
+                                            "y": [
+                                                1
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "t": 90,
+                                        "s": [
+                                            130,
+                                            250
+                                        ],
+                                        "h": 0,
+                                        "o": {
+                                            "x": [
+                                                0.333
+                                            ],
+                                            "y": [
+                                                0
+                                            ]
+                                        },
+                                        "i": {
+                                            "x": [
+                                                0.667
+                                            ],
+                                            "y": [
+                                                1
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "t": 180,
+                                        "s": [
+                                            250,
+                                            130
+                                        ]
+                                    }
+                                ]
+                            },
+                            "r": {
+                                "a": 0,
+                                "k": 0
+                            }
+                        },
+                        {
+                            "ty": "st",
+                            "nm": "Stroke",
+                            "mn": "{7c2c70d2-ca57-44a1-9dd3-1275fb1b8928}",
+                            "o": {
+                                "a": 0,
+                                "k": 100
+                            },
+                            "lc": 2,
+                            "lj": 2,
+                            "ml": 0,
+                            "w": {
+                                "a": 0,
+                                "k": 10
+                            },
+                            "c": {
+                                "a": 0,
+                                "k": [
+                                    0.114,
+                                    0.157,
+                                    0.282
+                                ]
+                            }
+                        },
+                        {
+                            "ty": "fl",
+                            "nm": "Fill",
+                            "mn": "{92d7b51b-6d14-4dcf-a57b-fe313f089e98}",
+                            "o": {
+                                "a": 0,
+                                "k": 100
+                            },
+                            "r": 1,
+                            "c": {
+                                "a": 0,
+                                "k": [
+                                    0.196,
+                                    0.314,
+                                    0.690
+                                ]
+                            }
+                        },
+                        {
+                            "ty": "tr",
+                            "a": {
+                                "a": 0,
+                                "k": [
+                                    221.538,
+                                    190.626
+                                ]
+                            },
+                            "p": {
+                                "a": 0,
+                                "k": [
+                                    221.538,
+                                    190.626
+                                ]
+                            },
+                            "s": {
+                                "a": 0,
+                                "k": [
+                                    100,
+                                    100
+                                ]
+                            },
+                            "r": { // The rotation of the item.
+                                "a": 0, // Whether the rotation is animated.
+                                "k": 0 // The value of the rotation.
+                            },
+                            "o": { // The opacity of the item.
+                                "a": 0, // Whether the opacity is animated.
+                                "k": 100 // The valu
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "meta": { // Metadata about the animation.
+        "g": "Glaxnimate 0.5.1" // The generator of the animation.
+    }
+}

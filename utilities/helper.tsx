@@ -2,60 +2,14 @@ import * as Crypto from "expo-crypto";
 import { LinearGradient } from "expo-linear-gradient";
 import { StyleSheet, Dimensions, Platform } from "react-native";
 import { Linecap, Linejoin } from "react-native-svg";
-import { CANVAS_HEIGHT, CANVAS_WIDTH } from "./constants";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, ScreenModes } from "./constants";
+import { PathDataType, SvgDataType } from "./types";
 
 // TODO move this to constants
 const screenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
 
-export type ScreenModeType = { name: string, icon: string };
-export const ScreenModes: ScreenModeType[] = [
-  { name: "Draw", icon: "edit" },
-  { name: "Preview", icon: "preview" },
-  { name: "Export", icon: "export" },
-];
 
-// TODO -- once stroke styles are added, have to update in 
-// canvas, preview, formatter for export
-// Define Type of PathData
-export type PathDataType = {
-  path: string; // svg path, e.g. "M0,0 L100,100" only contains M & L commands
-  length: number; // length of the path calculated by summing distance between two consecutive points
-  time: number; // total time in ms taken to draw the path
-  stroke: string; // stroke color
-  strokeWidth: number; // stroke width
-  strokeOpacity?: number; // stroke opacity
-  strokeCap?: Linecap; // stroke linecap
-  strokeJoin?: Linejoin; // stroke linejoin
-  guid: string; // unique identifier for each path
-  visible: boolean; // is path visible (allows to hide path without deleting them permanently)
-};
-
-export type MetaDataType = {
-  guid: string; // unique identifier for each svg
-  created_at: string; // timestamp when svg was created
-  updated_at: string; // timestamp when svg was last updated
-  name: string; // name of the svg
-  viewBox: string; // viewBox of the svg
-  lastScreenMode?: string; // last screen mode
-  editable?: boolean; // is svg editable
-  animation?: {
-    speed?: number, // speed of the animation, total time = path.time / (speed * 1000) seconds
-    loop?: boolean, // loop the animation
-    delay?: number, // delay between animation loop
-  }
-};
-
-// Define type of SvgData
-export type SvgDataType = {
-  pathData: PathDataType[];
-  metaData: MetaDataType;
-};
-
-export interface SvgDataContextType {
-  svgData: SvgDataType;
-  setSvgData: React.Dispatch<React.SetStateAction<SvgDataType>>;
-}
 
 export const createSvgData = (defaultViewBoxWidth?: number, defaultViewBoxHeight?: number): SvgDataType => ({
   pathData: [],
