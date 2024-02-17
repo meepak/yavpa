@@ -3,7 +3,7 @@ import MySlider from "@c/controls/my-slider";
 import Svg, { Line } from "react-native-svg";
 import { useEffect, useState } from "react";
 
-const StrokeWidth = ({ color, value, onValueChanged }) => {
+const StrokeWidth = ({ color, opacity=1, value, onValueChanged }) => {
   const [currentValue, setCurrentValue] = useState(value)
   return (
     <>
@@ -17,6 +17,7 @@ const StrokeWidth = ({ color, value, onValueChanged }) => {
             y2="25"
             stroke={color ?? '#000000'}
             strokeWidth={currentValue}
+            opacity={opacity}
           />
         </Svg>
       </View>

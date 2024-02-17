@@ -9,6 +9,7 @@ import {
 } from "component/controls"
 import { ColorValue } from "react-native";
 import SelectBrush from "@c/controls/select-brush";
+import StrokeWidthOpacity from "@c/controls/stroke-width-opacity";
 
 const createDrawControls = ({
   // onLock,
@@ -73,36 +74,55 @@ const createDrawControls = ({
       extraPanel: { width: 280, height: 320 }
     },
     {
-      key: "stroke-width",
+      key: "stroke-width-opacity",
       icon: "stroke-width",
-      title: "Set Stroke Width",
+      title: "Set Stroke Width & Opacity",
       extraControl: (
-        <StrokeWidth
+        <StrokeWidthOpacity
           color={stroke}
-          value={strokeWidth}
-          onValueChanged={(value: number) => {
+          opacity={strokeOpacity}
+          width={strokeWidth}
+          onOpacityChanged={(value: number) => {
+            setStrokeOpacity(() => value);
+          }}
+          onWidthChanged={(value: number) => {
             setStrokeWidth(() => value);
           }}
         />
       ),
-      extraPanel: { width: 250, height: 100 }
+      extraPanel: { width: 250, height: 200 }
     },
-    {
-      key: "opacity",
-      icon: "opacity",
-      title: "Set Stroke Opacity",
-      extraControl: (
-        <StrokeOpacity
-          color={stroke}
-          strokeWidth={strokeWidth}
-          value={strokeOpacity}
-          onValueChanged={(value: number) => {
-            setStrokeOpacity(() => value);
-          }}
-        />
-      ),
-      extraPanel: { width: 250, height: 100 }
-    },
+    // {
+    //   key: "stroke-width",
+    //   icon: "stroke-width",
+    //   title: "Set Stroke Width",
+    //   extraControl: (
+    //     <StrokeWidth
+    //       color={stroke}
+    //       value={strokeWidth}
+    //       onValueChanged={(value: number) => {
+    //         setStrokeWidth(() => value);
+    //       }}
+    //     />
+    //   ),
+    //   extraPanel: { width: 250, height: 100 }
+    // },
+    // {
+    //   key: "opacity",
+    //   icon: "opacity",
+    //   title: "Set Stroke Opacity",
+    //   extraControl: (
+    //     <StrokeOpacity
+    //       color={stroke}
+    //       strokeWidth={strokeWidth}
+    //       value={strokeOpacity}
+    //       onValueChanged={(value: number) => {
+    //         setStrokeOpacity(() => value);
+    //       }}
+    //     />
+    //   ),
+    //   extraPanel: { width: 250, height: 100 }
+    // },
     {
       key: "line-simplify",
       icon: "line-simplify",
