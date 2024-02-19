@@ -18,6 +18,8 @@ const ContextMenu = ({
   const [menuVisible, setMenuVisible] = useState(false);
   const [xPosition, setXPosition] = useState(0);
   const [yPosition, setYPosition] = useState(0);
+  const windowWidth = Dimensions.get('window').width;
+  const windowHeight = Dimensions.get('window').height;
 
 
   const anchorRef = useRef<View>(null);
@@ -37,8 +39,6 @@ const ContextMenu = ({
 
   const showMenu = () => {
     anchorRef?.current?.measureInWindow((x, y, anchorWidth, anchorHeight) => {
-      const windowWidth = Dimensions.get('window').width;
-      const windowHeight = Dimensions.get('window').height;
 
       if (isNaN(x) || isNaN(y) || isNaN(anchorWidth) || isNaN(anchorHeight)) {
         console.error('Invalid measurements:', { x, y, anchorWidth, anchorHeight });
@@ -99,6 +99,7 @@ const ContextMenu = ({
               <View style={{
                 width: width,
                 height: height,
+                maxHeight: windowHeight - 300,
                 position: 'absolute',
                 left: xPosition,
                 top: yPosition,

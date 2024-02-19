@@ -81,6 +81,7 @@ export interface SvgAnimateHandle {
     animationSpeed: (value: number) => void;
     animationLoop: (value: boolean) => void;
     animationDelay: (value: number) => void;
+    animationCleanup: (value: number) => void;
 }
 
 export type BrushType = {

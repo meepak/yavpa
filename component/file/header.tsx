@@ -6,6 +6,7 @@ import { HeaderGradientBackground, isIOS } from "@u/helper";
 import { ScreenModes } from "@u/types";
 import MyIcon from "@c/my-icon";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import MyPathLogo from "@c/logo/my-path-logo";
 
 
 const Header = ({
@@ -32,7 +33,7 @@ const Header = ({
 
 
     const handleScreenModeButtonPress = () => {
-        console.log('screen mode button pressed')
+        // console.log('screen mode button pressed')
         const currentScreenModeIndex = ScreenModes.findIndex((mode) => mode.name === screenMode.name);
         const newScreenModeIndex = (currentScreenModeIndex + 1) % ScreenModes.length;
         const newScreenMode = ScreenModes[newScreenModeIndex];
@@ -41,7 +42,7 @@ const Header = ({
     };
 
     const handleBackButtonPress = () => {
-        console.log('baack pressed')
+        // console.log('baack pressed')
         if (router.canGoBack()) {
             router.back()
         }
@@ -88,10 +89,10 @@ const Header = ({
                     placeholder="Title"
                     enterKeyHint="done"
                     placeholderTextColor="rgba(255, 255, 255, 0.7)" />
-                <Image
-                    source={require('@a/logo2.png')}
-                    style={{ height: 42, width: 42, bottom: -5, }} />
-                
+                <View style={{ bottom: -5, }}>
+                    <MyPathLogo animate={false} width={42} height={42} />
+                </View>
+
             </View>
             <View style={{ marginTop: 30 }}>
                 <ControlPanel

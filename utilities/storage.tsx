@@ -15,10 +15,10 @@ let fileCache: SvgDataType[] | null = null;
 
 
 function parseSvgData(svgData: any, update_updated_at = false): SvgDataType {
-    const isValid = (val:any) => (val !== null && val !== undefined && (val || val === false));
-    
+    const isValid = (val: any) => (val !== null && val !== undefined && (val || val === false));
+
     // console.log(svgData);
-      // Create a deep copy of svgData
+    // Create a deep copy of svgData
     const svgDataCopy = JSON.parse(JSON.stringify(svgData));
     ///check if svgData has pathData and if not set default values
     if (!isValid(svgDataCopy.pathData) && !Array.isArray(svgDataCopy.pathData)) {
@@ -76,69 +76,72 @@ function parseSvgData(svgData: any, update_updated_at = false): SvgDataType {
     return svgDataCopy;
 }
 
+let saveTimeout: NodeJS.Timeout;
 export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
-
-    console.log('saving file', svgData.metaData.guid, svgData.metaData.updated_at)
-    // there should be atleast 1 pathData to qualify for saving
-    if (svgData.pathData.length < 1) {
-        return false;
+    // Clear the previous timeout
+    if (saveTimeout) {
+        clearTimeout(saveTimeout);
+        console.log('saving cancelled', svgData.metaData.guid, svgData.metaData.updated_at)
     }
+    console.log('saving file', svgData.metaData.guid, svgData.metaData.updated_at)
 
-    // if guid is not yet assigned, this will assign a new guid
-    //fill anything missing with default value
-    svgData = parseSvgData(svgData, true);
+    // Set a new timeout to save the data after 2 seconds
+    saveTimeout = setTimeout(async () => save(svgData, name), 2000);
 
-    // Serialize the svgData object to a JSON string
-    const json = JSON.stringify(svgData);
-
-    const filename =
-        AppSaveDirectory + svgData.metaData.guid + ".json";
-
-    try {
-        // Make sure the directory exists
-        const dirInfo = await FileSystem.getInfoAsync(AppSaveDirectory);
-        if (!dirInfo.exists) {
-            await FileSystem.makeDirectoryAsync(AppSaveDirectory, {
-                intermediates: true,
-            });
+    const save = async (svgData: SvgDataType, name: string) => {
+        // there should be atleast 1 pathData to qualify for saving
+        if (svgData.pathData.length < 1) {
+            return false;
         }
 
-        // Write the JSON string to a file
-        await FileSystem.writeAsStringAsync(filename, json);
-        // console.log("file saved at ", filename);
+        // if guid is not yet assigned, this will assign a new guid
+        //fill anything missing with default value
+        svgData = parseSvgData(svgData, true);
 
-        // Update the cache, not sure cache is effective may need to check more than metadata or always just replace changed stuff??
-        // if (fileCache !== null) {
-        //     const index = fileCache.findIndex(file => file.metaData.guid === svgData.metaData.guid);
-        //     if (index !== -1) {
-        //         fileCache[index] = svgData;
-        //     } else {
-        //         fileCache.push(svgData);
-        //     }
-        // }
+        // Serialize the svgData object to a JSON string
+        const json = JSON.stringify(svgData);
+
+        const filename =
+            AppSaveDirectory + svgData.metaData.guid + ".json";
+
+        try {
+            // Make sure the directory exists
+            const dirInfo = await FileSystem.getInfoAsync(AppSaveDirectory);
+            if (!dirInfo.exists) {
+                await FileSystem.makeDirectoryAsync(AppSaveDirectory, {
+                    intermediates: true,
+                });
+            }
+
+            // Write the JSON string to a file
+            await FileSystem.writeAsStringAsync(filename, json);
+            // console.log("file saved at ", filename);
+
+            // Update the cache, not sure cache is effective may need to check more than metadata or always just replace changed stuff??
+            // if (fileCache !== null) {
+            //     const index = fileCache.findIndex(file => file.metaData.guid === svgData.metaData.guid);
+            //     if (index !== -1) {
+            //         fileCache[index] = svgData;
+            //     } else {
+            //         fileCache.push(svgData);
+            //     }
+            // }
 
 
-        console.log('file saved', svgData.metaData.guid, svgData.metaData.updated_at)
-        return true;
-    } catch (err) {
-        console.error("Failed to save file:", err);
-        return false;
-        // Handle the error appropriately, e.g. show an error message to the user
-    }
+            console.log('file saved', svgData.metaData.guid, svgData.metaData.updated_at)
+            return true;
+        } catch (err) {
+            console.error("Failed to save file:", err);
+            return false;
+            // Handle the error appropriately, e.g. show an error message to the user
+        }
+    };
 };
 
 
 export const getFiles = async (): Promise<SvgDataType[]> => {
     try {
-
-        // If the cache is not empty, return the cached files
-        // if (fileCache !== null) {
-        // console.log('its from cache', fileCache.length)
-         // Sort the files by modification time in descending order
-        //  fileCache.sort((a, b) => Date.parse(b.metaData.updated_at) - Date.parse(a.metaData.updated_at));
-        //     return fileCache;
-        // }
-
+        
         // check if directory exist
         const dirInfo = await FileSystem.getInfoAsync(AppSaveDirectory);
         if (!dirInfo.exists) {
@@ -161,17 +164,13 @@ export const getFiles = async (): Promise<SvgDataType[]> => {
 
                 // TODO remove this from release version
                 // correction for already saved files
-                if(svgData.metaData.viewBox.includes('NaN')) {
+                if (svgData.metaData.viewBox.includes('NaN')) {
                     console.log(svgData.metaData.guid, 'viewbox is wrong', svgData.metaData.viewBox)
                     svgData.metaData.viewBox = DEFAULT_VIEWBOX;
                     saveSvgToFile(svgData);
                 }
-                // ---
-
-                // console.log(svgData);
-                // console.log('--------------------');
                 return svgData;
-                
+
             })
         );
 
@@ -202,14 +201,6 @@ export const getFiles = async (): Promise<SvgDataType[]> => {
 export const getFile = async (guid: string): Promise<SvgDataType | null> => {
     try {
 
-        // If the cache is not empty, try to find the file in the cache
-        // if (fileCache !== null) {
-        //     const file = fileCache.find(file => file.metaData.guid === guid);
-        //     if (file) {
-        //         return file;
-        //     }
-        // }
-
         // Construct the filename from the guid
         const filename = `${guid}.json`; // Adjust this line if your files have a different naming pattern
 
@@ -236,18 +227,6 @@ export const getFile = async (guid: string): Promise<SvgDataType | null> => {
 
 export const deleteFile = async (guid: string): Promise<boolean> => {
     try {
-
-        // If the cache is not empty, try to find the file in the cache & remove from it
-        // if (fileCache !== null) {
-        //     const file = fileCache.find(file => file.metaData.guid === guid);
-        //     if (file) {
-        //         let index = fileCache.indexOf(file);
-        //         if(index > -1) {
-        //             fileCache.splice(index, 1)
-        //         }
-        //     }
-        // }
-
         // Construct the filename from the guid
         const filename = `${guid}.json`; // Adjust this line if your files have a different naming pattern
 

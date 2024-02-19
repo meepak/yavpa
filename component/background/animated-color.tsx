@@ -9,12 +9,12 @@ const AnimatedColor = () => {
       Animated.sequence([
         Animated.timing(animation, {
           toValue: 1,
-          duration: 10000,
+          duration: 15000,
           useNativeDriver: true
         }),
         Animated.timing(animation, {
           toValue: 0,
-          duration: 10000,
+          duration: 15000,
           useNativeDriver: true
         })
       ])

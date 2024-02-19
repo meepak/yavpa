@@ -4,19 +4,25 @@ import { StyleSheet } from "react-native";
 import { Redirect, SplashScreen } from "expo-router";
 // import { StatusBar } from "expo-status-bar";
 import AnimatedSplashAppLoader from "@s/animated-splash";
+import * as Updates from 'expo-updates';
+
 
 // Instruct SplashScreen not to hide yet, we want to do this manually
 SplashScreen.preventAutoHideAsync().catch(() => {
   /* reloading the app might trigger some race conditions, ignore them */
 });
 
-const splashImage = require("../assets/splash.png");
+import splashImage from "../assets/splash.png";
 const bgColor = 'transparent';
 // const bgImage = require("../assets/bg2.png");
 
 const App = () => {
   const [isAnimationComplete, setAnimationComplete] = useState(false);
 
+  const runTypeMessage = Updates.isEmbeddedLaunch
+  ? 'This app is running from built-in code'
+  : 'This app is running an update';
+  
   return (
       <AnimatedSplashAppLoader
         image={splashImage}

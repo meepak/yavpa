@@ -153,12 +153,12 @@ export const drawingEvent = (
       if (isValidPath(currentPath.path)) {  
         currentPath.visible = true;
         currentPath.length = polygonLength(points.map(point => [point.x, point.y]));
-       console.log('updating completed path');
+      //  console.log('updating completed path');
 
         setCompletedPaths((prev) => [...prev, currentPath]);
       }
-      console.log("completedPaths", completedPaths.length);
-      setCurrentPath(newPathData()); // redundant??
+      // console.log("completedPaths", completedPaths.length);
+      setCurrentPath(newPathData()); 
       setStartTime(0);
       break;
     default:

@@ -3,8 +3,8 @@ import * as React from 'react';
 import { Dimensions, Image, StyleSheet, Text, View } from 'react-native';
 import Animated, { Extrapolation, SharedValue, interpolate, useAnimatedStyle } from 'react-native-reanimated';
 import banner from '@a/banner.png';
-import logo from '@a/logo2.png';
 import alphaVersion from '@a/alpha-version.png';
+import MyPathLogo from '@c/logo/my-path-logo';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -13,9 +13,16 @@ interface ForegroundProps {
 }
 
 export const Foreground: React.FC<ForegroundProps> = ({ scrollValue }) => {
+  const [animateLogo, setAnimateLogo] = React.useState(false);
   const foregroundWrapperAnimatedStyle = useAnimatedStyle(() => {
     return { opacity: interpolate(scrollValue.value, [0, 150, 222], [1, 1, 0], Extrapolation.CLAMP) };
   }, [scrollValue]);
+
+  React.useEffect(() => {
+    setTimeout(() => {
+    setAnimateLogo(true);
+    }, 4000)
+  }, []);
 
   return (
     <View pointerEvents="none" style={styles.foregroundWrapper}>
@@ -26,11 +33,12 @@ export const Foreground: React.FC<ForegroundProps> = ({ scrollValue }) => {
           style={styles.foregroundImage}
         />
         <View style={styles.foregroundContainer}>
-          <Animated.Image
+          {/* <Animated.Image
             source={logo}
             style={styles.foregroundLogo}
             resizeMode="contain" 
-          />
+          /> */}
+          <MyPathLogo animate={animateLogo} width={77} height={77} />
           <View style={styles.foregroundDetails}>
             <Text
               style={styles.foregroundDetailsHeader}>

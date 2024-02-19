@@ -54,6 +54,11 @@ const PreviewScreen = ({ initControls }) => {
     }
   }, [delay]);
 
+  useEffect(() => {
+    if (previewRef.current) {
+      previewRef.current.animationCleanup(correction);
+    }
+  }, [correction]);
 
   useEffect(() => {
     setTimeout(
@@ -76,9 +81,9 @@ const PreviewScreen = ({ initControls }) => {
   });
 
   useEffect(() => {
-    console.log('saving file', speed, loop, delay)
     svgData.metaData.animation = {speed, loop, delay, correction}
     setSvgData(svgData)
+    // throttle saving to file
     saveSvgToFile(svgData); // TODO  lets do this way in draw screen too, save where its needed not on every change
     initControls(buttons)
   }, [speed, loop, delay, correction])
@@ -86,7 +91,7 @@ const PreviewScreen = ({ initControls }) => {
 
   return (
     <View style={{ flex: 1 }} onLayout={() => initControls(buttons)}>
-      <SvgAnimate ref={previewRef} svgData={svgData} correction={correction}/>
+      <SvgAnimate ref={previewRef} svgData={svgData}/>
     </View>
   );
 };

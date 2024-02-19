@@ -128,3 +128,30 @@ export const Brushes: BrushType[] = [
   // }
   
 ]
+
+// get svg for brush
+export const getBrushSvg = (brush: BrushType) => {
+  let brushSvg = '';
+  switch (brush.name) {
+    case "LinearGradientBrush":
+      brushSvg = `<linearGradient id="${brush.params.guid}" x1="0%" y1="0%" x2="100%" y2="0%">`;
+      (brush.params as GradientBrushPropType).colors.forEach((color, index) => {
+        brushSvg += `<stop offset="${(index / ((brush.params as GradientBrushPropType).colors.length - 1)) * 100}%" stop-color="${color}" stop-opacity="1" />`;
+      });
+      brushSvg += '</linearGradient>';
+      break;
+    case "RadialGradientBrush":
+      brushSvg = `<radialGradient id="${brush.params.guid}" cx="0.5" cy="0.5" r="0.5">`;
+      (brush.params as GradientBrushPropType).colors.forEach((color, index) => {
+        brushSvg += `<stop offset="${(index / ((brush.params as GradientBrushPropType).colors.length - 1)) * 100}%" stop-color="${color}" stop-opacity="1" />`;
+      });
+      brushSvg += '</radialGradient>';
+      break;
+    case "PatternBrush":
+      brushSvg = `<pattern id="${brush.params.guid}" x="0" y="0" width="50" height="50"><image href="${(brush.params as PatternBrushPropType).pattern}" x="0" y="0" width="200" height="200" /></pattern>`;
+      break;
+    default:
+      break;
+  }
+  return brushSvg;
+}

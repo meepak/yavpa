@@ -7,7 +7,6 @@ import { Path, Svg } from "react-native-svg";
 
 type Props = {
   svgData: SvgDataType;
-  correction: number;
 };
 
 const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnimate>) => {
@@ -26,12 +25,16 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
   const [speed, setSpeed] = React.useState(1); // this is causing rerendering during value change
   const [loop, setLoop] = React.useState(true);
   const [loopDelay, setLoopDelay] = React.useState(0);
+  const [correction, setCorrection] = React.useState(0.05);
 
   const opacity = useRef(new Animated.Value(1)).current;
 
   const animationSpeed = (value: number) => setSpeed(value);
   const animationLoop = (value: boolean) => setLoop(value);
   const animationDelay = (value: number) => setLoopDelay(value);
+  const animationCleanup = (value: number) => setCorrection(value);
+
+  
 
   // Create an array of animated values
   const animatedValues = pathData.map(() => new Animated.Value(0));
@@ -84,26 +87,26 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
 
   // play animation
   const playAnimation = () => {
-    console.log('playing animation')
+    // console.log('playing animation')
     if (animations == undefined || !animations) {
       // Create an array of animations
-      console.log('no animations')
+      // console.log('no animations')
     }
 
     if (loop) {
-      console.log('looping', loopDelay)
+      // console.log('looping', loopDelay)
       animatedValues.forEach((animatedValue) => animatedValue.setValue(0));
       animations.reset();
       Animated.loop(animations).start();
     } else {
-      console.log('not looping')
+      // console.log('not looping')
       animations.start();
     }
   };
 
   // stop animation
   const stopAnimation = () => {
-    console.log("stopping animation");
+    // console.log("stopping animation");
     animations.stop();
   };
 
@@ -114,11 +117,13 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
     animationSpeed,
     animationLoop,
     animationDelay,
+    animationCleanup,
   }));
 
   useEffect(() => {
+    // console.log('correction', correction);
     playAnimation();
-  }, [speed, loop, loopDelay]);
+  }, [speed, loop, loopDelay, correction]);
 
   return (
     <Animated.View style={{ ...StyleSheet.absoluteFillObject, opacity }}>
@@ -127,7 +132,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
         viewBox={viewBox} // TO be included in SvgData
       >
         {pathData.map((path, index) => {
-          const offsetFactor = props.correction ?? 0.05; // Adjust this value as needed
+          const offsetFactor = correction; // Adjust this value as needed
           const strokeDasharray = path.length * (1 + offsetFactor);
           const strokeDashoffset = animatedValues[index].interpolate({
             inputRange: [0, 1],

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Button, ScrollView, StyleSheet, Text, View } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import * as FileSystem from "expo-file-system";
@@ -13,14 +13,23 @@ import {
 import { SvgDataContext } from "@x/svg-data";
 import MyPreview from "@c/my-preview";
 import SvgAnimate from "../preview/animate";
+import { getViewBoxTrimmed } from "@u/helper";
+import { SvgDataType } from "@u/types";
 
 const ExportScreen = ({ initControls }) => {
   const { svgData } = useContext(SvgDataContext);
+ const [animate, setAnimate] = useState(false);
+
+
   const [exportSource, setExportSource] = useState("");
   const [fileName, setFileName] = useState("untitled.svg");
-
   const [lottie, setLottie] = useState({});
+  const [svgDataVbTrimmed, setSvgDataVbTrimmed] = useState<SvgDataType>();
 
+  useEffect(() => {
+    if (svgData === undefined) return;
+    svgData.metaData.viewBox = getViewBoxTrimmed(svgData.pathData);
+  }, [svgData]);
 
 
   //TODO set filelname with exportsource
@@ -70,6 +79,10 @@ const ExportScreen = ({ initControls }) => {
     // },
   ];
 
+  const copySvgToClipboard = () => {
+    console.log(svgData);
+    Clipboard.setStringAsync(getStaticSvg(svgData));
+  }
   const copyToClipboard = () => {
     console.log(exportSource)
     Clipboard.setStringAsync(exportSource);
@@ -87,18 +100,20 @@ const ExportScreen = ({ initControls }) => {
       <LottieView style={{ flex: 1 }} resizeMode="contain" source={require('@a/test.json')} autoPlay loop /> */}
   {/* <TextInput editable={false} multiline>{exportSource}</TextInput> */ }
 
+  useEffect(() => {
+    setTimeout(() => {setAnimate(true)}, 2000);
+  }, []);
 
   return (
     <ScrollView style={styles.container} onLayout={() => initControls(buttons)}>
       <Text style={styles.title}>Export your paths!</Text>
       <View style={styles.preview}>
-        {/* <MyPreview data={svgData} /> */}
-      <SvgAnimate svgData={svgData} correction={svgData.metaData.animation?.correction} />
+        <MyPreview data={svgData} animate={animate} />
       </View>
       <View style={styles.section}>
         <Text>Static SVG</Text>
         <Button title="Download" onPress={download} />
-        <Button title="Copy to Clipboard" onPress={copyToClipboard} />
+        <Button title="Copy to Clipboard" onPress={copySvgToClipboard} />
       </View>
       <View style={styles.section}>
         <Text>SMIL SVG</Text>

@@ -69,7 +69,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    console.log('new request');
+    // console.log('new request');
     if (svgData.metaData.guid !== "") {
       setIsLoading(false);
       setCompletedPaths(() => svgData.pathData);
@@ -110,7 +110,6 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     };
     saveSvgToFile(updatedSvgData);
     setSvgData(updatedSvgData);
-    console.log('file saved - ', updatedSvgData.metaData.guid)
   }, [completedPaths]);
 
   const handleDrawingEvent = (event: GestureUpdateEvent<PanGestureHandlerEventPayload>, state: string) => {

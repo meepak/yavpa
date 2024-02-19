@@ -16,7 +16,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.meepak.mypath"
     },
     "android": {
       "adaptiveIcon": {
@@ -36,6 +37,13 @@
     },
     "plugins": [
       "expo-router"
-    ]
+    ],
+    "owner": "meepak",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/cc801c2c-70cf-4ae5-9b04-ad99cb74de4e"
+    }
   }
 }

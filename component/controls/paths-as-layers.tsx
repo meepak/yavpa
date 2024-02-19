@@ -85,8 +85,7 @@ const PathsAsLayers = () => {
     }
 
     return (
-        <View style={styles.container}>
-            <ScrollView style={{ flex: 1 }}>
+            <ScrollView style={styles.container} showsVerticalScrollIndicator={true}>
             {[...svgData.pathData].reverse().map((layer, idx) => {
                 const index = svgData.pathData.length - 1 - idx;
                 return (
@@ -126,7 +125,6 @@ const PathsAsLayers = () => {
                 )
             })}
             </ScrollView>
-        </View>
     );
 };
 

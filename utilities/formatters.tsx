@@ -1,12 +1,22 @@
 import { getPointsFromPath, getViewBoxTrimmed } from "@u/helper";
-import { SvgDataType, PathDataType, MetaDataType } from "@u/types";
-
-// TODO -- UPDATE WITH NEW STROKE PROPERTIES, strokeOpacity, strokeCap, strokeJoin
+import { SvgDataType, PathDataType, MetaDataType, BrushType } from "@u/types";
+import { Brushes, getBrushSvg } from './brushes';
 
 export const getStaticSvg = (svgData: SvgDataType, trimViewBox = true) => {
   const viewBox = trimViewBox ? getViewBoxTrimmed(svgData.pathData) : svgData.metaData.viewBox;
   let text = `<svg viewBox="${viewBox}">`;
+
   svgData.pathData.forEach((path) => {
+    // Check if the stroke value is a brush guid
+    let brush: BrushType | undefined;
+    if (path.stroke.startsWith("url(#")) {
+      const brushGuid = path.stroke.slice(5, -1);
+      brush = Brushes.find(brush => brush.params.guid === brushGuid);
+    }
+    if (brush) {
+      text += getBrushSvg(brush);
+    }
+
     text +=
       '<path d="' +
       path.path +
@@ -24,9 +34,9 @@ export const getStaticSvg = (svgData: SvgDataType, trimViewBox = true) => {
       path.strokeOpacity +
       '" fill="none" />';
   });
+
   text += "</svg>";
 
-  //   Clipboard.setStringAsync(text);
   return text;
 };
 
@@ -64,7 +74,7 @@ export const getSmilSvg = (svgData: SvgDataType, trimViewBox = true) => {
   });
   text += "</svg>";
 
-  console.log(svgData)
+  // console.log(svgData)
   return text;
 };
 
@@ -143,6 +153,8 @@ export const getCssSvg = (svgData: SvgDataType, trimViewBox = true) => {
 
   return text;
 };
+
+
 export const getLottieTrimmedPath = (svgData: { pathData: PathDataType[]; metaData: MetaDataType; }) => {
   let totalTime = 0;
   let layers = [] as any[];

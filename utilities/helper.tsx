@@ -8,6 +8,8 @@ import { PathDataType, SvgDataType } from "./types";
 const screenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
 
+export const isAndroid = Platform.OS === "android";
+export const isIOS =  Platform.OS === "ios";
 
 
 export const createSvgData = (defaultViewBoxWidth?: number, defaultViewBoxHeight?: number): SvgDataType => ({
@@ -137,11 +139,11 @@ export const getViewBoxTrimmed = (pathData: PathDataType[]) => {
     // console.log("points", points);
     points.forEach((point) => {
       if(point.x === undefined || point.y === undefined) {
-        console.log("point.x or point.y is undefined", point);
+        // console.log("point.x or point.y is undefined", point);
         return;
       }
       if(Number.isNaN(point.x) || Number.isNaN(point.y)) {
-        console.log("point.x or point.y is NaN", point);
+        // console.log("point.x or point.y is NaN", point);
         return;
       }
       minX = Math.min(minX, point.x);
@@ -162,12 +164,11 @@ export const getViewBoxTrimmed = (pathData: PathDataType[]) => {
   return viewBox;
 };
 
-export const isAndroid = Platform.OS === "android";
-export const isIOS =  Platform.OS === "ios";
 
-export const HeaderGradientBackground = ({ children }) =>
-  <>
-    <LinearGradient colors={['#015ccd', '#a805ee', '#1d0f98']} style={{...StyleSheet.absoluteFillObject, 
-                    zIndex: -1,}} />
+export const HeaderGradientBackground = ({ children }) => (<>
+    <LinearGradient 
+          colors={['#015ccd', '#a805ee', '#1d0f98']} 
+          style={{...StyleSheet.absoluteFillObject, 
+          zIndex: -1,}} />
     {children}
-  </>
+  </>)

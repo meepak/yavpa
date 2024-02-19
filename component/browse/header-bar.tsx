@@ -3,6 +3,8 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import Animated, { Extrapolation, SharedValue, interpolate, useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import logo from '@a/logo2.png';
+import MyPath from '@c/my-path';
+import MyPathLogo from '@c/logo/my-path-logo';
 // import MySheetModal from '@c/my-sheet-modal';
 
 
@@ -32,10 +34,13 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({ scrollValue }) => {
           },
         ]}>
         <Animated.View style={headerDetailsContainerAnimatedStyle}>
-          <Image
+          {/* <Image
             source={logo}
             style={styles.headerDetailsImage}
-          />
+          /> */}
+          <View style={{ top: 5 }}>
+            <MyPathLogo animate={false} width={52} height={52} />
+          </View>
         </Animated.View>
         <Animated.View style={[styles.headerDetailsContainer, headerDetailsContainerAnimatedStyle]}>
           <Text

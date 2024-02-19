@@ -1,4 +1,6 @@
 
+import MyPathLogo from "@c/logo/my-path-logo";
+import MyPath from "@c/my-path";
 import { SplashScreen } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Animated, StyleSheet, View, useColorScheme } from "react-native";
@@ -78,6 +80,7 @@ const AnimatedSplash = ({
             onLoadEnd={onImageLoaded}
             fadeDuration={0}
           />
+          {/* <MyPathLogo animate={false} width={"100%"} height={"100%"} /> */}
         </Animated.View>
       )}
     </View>
