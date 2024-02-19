@@ -7,7 +7,7 @@ import { DrawScreen, ExportScreen, Header, PreviewScreen } from "component/file"
 import { useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Crypto from "expo-crypto";
@@ -103,11 +103,11 @@ const FileScreen = () => {
     }, [guid]);
 
     const handleNameChange = (name: string) => {
-        if(name === svgData.metaData.name) {
+        if (name === svgData.metaData.name) {
             return;
         }
         // console.log('name changed to ', name);
-        const updatedSvgData = { ...svgData, metaData: { ...svgData.metaData, name } };   
+        const updatedSvgData = { ...svgData, metaData: { ...svgData.metaData, name } };
         setSvgData(updatedSvgData);
         saveSvgToFile(updatedSvgData);
     }
@@ -167,6 +167,20 @@ const FileScreen = () => {
                         }}
                     >
 
+                        <Text style={{
+                            position: 'absolute',
+                            top: 30,
+                            left: 30,
+                            color: 'rgba(255,255,255,0.8)',
+                            fontSize: 42,
+                            fontWeight: 'bold',
+                            textTransform: 'uppercase',
+                            letterSpacing: 1,
+                            zIndex: -1,
+                        }}>
+                            {currentScreenMode.name.toUpperCase()}
+                        </Text>
+
                         {/* <GestureDetector gesture={pinch}> */}
                         <Animated.View
                             style={{
@@ -185,14 +199,14 @@ const FileScreen = () => {
                     </View>
                     :
                     <View
-                    style={{
-                        flex: 1,
-                        alignContent: "center",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        backgroundColor: 'transparent',
-                    }}
-                >
+                        style={{
+                            flex: 1,
+                            alignContent: "center",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            backgroundColor: 'transparent',
+                        }}
+                    >
 
                         {getCurrentScreen()}
                     </View>

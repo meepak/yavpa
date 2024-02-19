@@ -9,6 +9,7 @@ import ContextMenu from "./context-menu";
 import StrokeWidth from "./stroke-width";
 import { SvgDataContext } from "@x/svg-data";
 import { ScrollView } from "react-native-gesture-handler";
+import { precise } from "@u/helper";
 
 
 
@@ -20,6 +21,7 @@ const PathsAsLayers = () => {
         setSvgData((prevSvgData: SvgDataType) => {
             const newSvgData = { ...prevSvgData };
             newSvgData.pathData[idx].stroke = stroke;
+            newSvgData.pathData[idx].guid = Crypto.randomUUID();
             return newSvgData;
         });
     }
@@ -28,6 +30,7 @@ const PathsAsLayers = () => {
         setSvgData((prevSvgData: SvgDataType) => {
             const newSvgData = { ...prevSvgData };
             newSvgData.pathData[idx].strokeWidth = strokeWidth;
+            newSvgData.pathData[idx].guid = Crypto.randomUUID();
             return newSvgData;
         });
     }
@@ -116,8 +119,8 @@ const PathsAsLayers = () => {
                         </TouchableOpacity>
                     </View>
                     <View style={styles.row}>
-                        <Text style={styles.cell}>Length: {layer.length}</Text>
-                        <Text style={styles.cell}>Time: {layer.time}</Text>
+                        <Text style={styles.cell}>Length: {precise(layer.length)}</Text>
+                        <Text style={styles.cell}>Time: {precise(layer.time)}</Text>
                     </View>
                     </React.Fragment>
                 )

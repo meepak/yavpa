@@ -111,7 +111,7 @@ const createDrawControls = ({
       extraControl: (
         <SelectShape onValueChanged={(value: string) => { drawShape(value); }} value={shape} />
       ),
-      extraPanel: { width: 285, height: 180 }
+      extraPanel: { width: 285, height: 240 }
     }, 
     {
       key: "erasure",
@@ -132,7 +132,7 @@ const createDrawControls = ({
       extraControl: (
         <PathsAsLayers />
       ),
-      extraPanel: { width: 330, height: 300 }
+      extraPanel: { width: 330, height: 'auto' }
     },
   ])};
 

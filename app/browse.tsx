@@ -1,22 +1,15 @@
-import React, { useCallback, useLayoutEffect, useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import { StyleSheet, Dimensions, Text, TouchableOpacity, View, ListRenderItem, Alert, FlatList, ActivityIndicator } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MyIcon from "@c/my-icon";
-import { BrushType, SvgDataType } from "@u/types";
+import { SvgDataType } from "@u/types";
 import { deleteFile, getFiles } from "@u/storage";
-import Svg, { Path } from "react-native-svg";
 import { Link, useRouter } from "expo-router";
-import ErrorBoundary from "@c/error-boundary";
-// import GlassmorphicView from "@c/glassmorphic-view";
-// import Animated, {
-//   ZoomIn,
-// } from 'react-native-reanimated';
 import { StickyHeaderFlatList, useStickyHeaderScrollProps } from 'react-native-sticky-parallax-header';
 import { StatusBar } from "expo-status-bar";
 import { Foreground } from "@c/browse/foreground";
 import { HeaderBar } from "@c/browse/header-bar";
-import { Brushes, getBrush } from "@u/brushes";
-import MyPath from "@c/my-path";
+import MyPreview from "@c/my-preview";
 
 const PARALLAX_HEIGHT = 238;
 const HEADER_BAR_HEIGHT = 92;
@@ -28,6 +21,8 @@ const FILE_PREVIEW_WIDTH = 108;
 const OFFSET = 125;
 const MINIMUM_GAP_BETWEN_PREVIEW = 11;
 const FILE_PREVIEW_BOTTOM_MARGIN = 15;
+
+
 
 const BrowseScreen = () => {
   const router = useRouter(); HEADER_BAR_HEIGHT
@@ -71,11 +66,13 @@ const BrowseScreen = () => {
 
   const fetchFiles = async () => {
     try {
+      setIsLoading(true);
       const svgData = await getFiles();
       setFiles(() => svgData);
       if (svgData.length === 0) {
         setNoSketch(true);
       }
+      setIsLoading(false);
     } catch (error) {
       console.log('error fetching files', error)
     }
@@ -86,7 +83,7 @@ const BrowseScreen = () => {
     fetchFiles();
   }, []);
 
-  const deleteSketch = (guid: string) => {
+  const deleteSketchAlert = (guid: string) => {
     // console.log('confirm delete ' + guid);
     Alert.alert("Delete Sketch", "Are you sure you want to delete this sketch permanently?", [
       { text: "Cancel", style: "cancel" },
@@ -108,7 +105,7 @@ const BrowseScreen = () => {
     return (
       <TouchableOpacity
         onPress={() => router.navigate(`/file?guid=${item.metaData.guid}`)}
-        onLongPress={() => deleteSketch(item.metaData.guid)}
+        onLongPress={() => deleteSketchAlert(item.metaData.guid)}
       >
         <View
           style={{
@@ -132,23 +129,9 @@ const BrowseScreen = () => {
               overflow: 'hidden',
             }}
           >
-            <ErrorBoundary>
-              <Svg width="100%" height="100%" viewBox={item.metaData.viewBox}>
-                {item.pathData.map((path, index) => {
-                  if (!path.visible) {
-                    return null;
-                  }
-                  return (
-                    <React.Fragment key={index}>
-                      <MyPath
-                        prop={path}
-                        keyProp={path.guid}
-                      />
-                    </React.Fragment>
-                  )
-                })}
-              </Svg>
-            </ErrorBoundary>
+          
+          <MyPreview data={item} />
+
           </View>
           <View style={{ alignItems: 'center' }}>
             {item.metaData.name.split(' ').slice(0, 2).map((line, i) => (
@@ -160,6 +143,7 @@ const BrowseScreen = () => {
     )
   };
 
+  // TODO put some animation here
   const NoSketchFound = ({ noSketch }) => (
     noSketch && files.length === 0
       ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -199,16 +183,21 @@ const BrowseScreen = () => {
           data={files}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
-          onContentSizeChange={() => setIsLoading(false)}
+          // onContentSizeChange={() => setIsLoading(false)}
         />
          {isLoading && (
           <View style={{
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: 'rgba(255, 255, 255, 0.8)' // Optional: you can add a semi-transparent background
+            backgroundColor: 'transparent'
           }}>
-            <ActivityIndicator size="large" color="#0000ff" />
+            <ActivityIndicator 
+              style={{ top: -HEADER_BAR_HEIGHT, backgroundColor: 'transparent' }}
+              animating  
+              size={150} 
+              color="#0000ff"
+            />
           </View>
         )}
         </View>

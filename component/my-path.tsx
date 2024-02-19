@@ -21,7 +21,7 @@ class MyPath extends React.PureComponent<{prop: PathDataType, keyProp: string}> 
         <>
           {brush && getBrush(brush)}
           <Path
-            key={this.props.keyProp}
+            key={`${this.props.keyProp}-${this.props.prop.guid}`}
             d={this.props.prop.path}
             stroke={this.props.prop.stroke}
             strokeWidth={this.props.prop.strokeWidth}

@@ -10,6 +10,7 @@ const PreviewScreen = ({ initControls }) => {
   const [speed, setSpeed] = useState(1);
   const [loop, setLoop] = useState(true);
   const [delay, setDelay] = useState(0);
+  const [correction, setCorrection] = useState(0.05);
 
   const { svgData, setSvgData } = useContext(SvgDataContext);
   const previewRef = useRef<SvgAnimateHandle | null>(null);
@@ -21,6 +22,7 @@ const PreviewScreen = ({ initControls }) => {
       setSpeed(animationData.speed || 1);
       setLoop(animationData.loop || true);
       setDelay(animationData.delay || 0)
+      setCorrection(animationData.correction || 0.05)
     }
   }, [])
 
@@ -68,21 +70,23 @@ const PreviewScreen = ({ initControls }) => {
     loop,
     setLoop,
     delay,
-    setDelay
+    setDelay,
+    correction,
+    setCorrection,
   });
 
   useEffect(() => {
     console.log('saving file', speed, loop, delay)
-    svgData.metaData.animation = {speed, loop, delay}
+    svgData.metaData.animation = {speed, loop, delay, correction}
     setSvgData(svgData)
     saveSvgToFile(svgData); // TODO  lets do this way in draw screen too, save where its needed not on every change
     initControls(buttons)
-  }, [speed, loop, delay])
+  }, [speed, loop, delay, correction])
 
 
   return (
     <View style={{ flex: 1 }} onLayout={() => initControls(buttons)}>
-      <SvgAnimate ref={previewRef} svgData={svgData} />
+      <SvgAnimate ref={previewRef} svgData={svgData} correction={correction}/>
     </View>
   );
 };

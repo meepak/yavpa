@@ -159,12 +159,12 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 
                   {completedPaths.map((item, _index) => (
                     item.visible
-                      ? <MyPath prop={item} keyProp={item.guid} key={item.guid} />
+                      ? <MyPath prop={item} keyProp={"completed"} key={item.guid} />
                       : <></>
                   ))}
 
                   {currentPath.guid !== "" && (
-                    <MyPath prop={currentPath} keyProp={"current-" + currentPath.guid} key={currentPath.guid} />
+                    <MyPath prop={currentPath} keyProp={"current"} key={currentPath.guid} />
                   )}
 
                   {/* {selectMode && selectedPaths.map((item, _index) => (

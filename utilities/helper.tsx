@@ -24,6 +24,7 @@ export const createSvgData = (defaultViewBoxWidth?: number, defaultViewBoxHeight
       speed: 1,
       loop: true,
       delay: 0,
+      correction: 0.05,
     }
   },
 });
@@ -55,7 +56,8 @@ export const createPathdata = (
 });
 
 
-export const precise = (num: string | number, precision = PRECISION): number => parseFloat(num as string).toFixed(precision) as unknown as number;
+export const precise = (num: string | number, precision = PRECISION): number => 
+  parseFloat(parseFloat(num as string).toFixed(precision));
 
 export const isValidPath = (path: string): boolean => {
   if(path === undefined || path === null) return false;

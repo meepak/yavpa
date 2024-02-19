@@ -1,6 +1,7 @@
 import { Linecap, Linejoin } from "react-native-svg";
 import { Dimensions } from "react-native";
 
+
 export const PRECISION = 3;
 // ---- fix for the canvas size ---------------------
 const SCREEN_WIDTH = Dimensions.get("window").width;
@@ -56,6 +57,7 @@ export type MetaDataType = {
         speed?: number, // speed of the animation, total time = path.time / (speed * 1000) seconds
         loop?: boolean, // loop the animation
         delay?: number, // delay between animation loop
+        correction?: number
     }
 };
 
@@ -94,3 +96,5 @@ export type GradientBrushPropType = { guid: string, colors: string[] };
 export type PatternBrushPropType = { guid: string, pattern: number };
 
 export type PointType = { x: number, y: number };
+
+export type ShapeType = { name: string, start: PointType, end: PointType };

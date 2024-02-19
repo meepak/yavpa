@@ -1,12 +1,14 @@
+import { Point } from "@turf/turf";
 import { applyErasure } from "@u/erasure";
 import { getPathFromPoints, getPointsFromPath, isValidPath, precise } from "@u/helper";
 import { getD3CurveBasis, isValidShape, shapeData } from "@u/shapes";
-import { PathDataType } from "@u/types";
+import { PathDataType, PointType, ShapeType } from "@u/types";
 import { polygonLength } from "d3-polygon";
 import * as d3 from "d3-shape";
 import * as Crypto from "expo-crypto";
 import { SetStateAction } from "react";
 import { GestureUpdateEvent, PanGestureHandlerEventPayload } from "react-native-gesture-handler";
+import { Shape } from "react-native-svg";
 import simplify from "simplify-js";
 
 export const drawingEvent = (
@@ -19,8 +21,8 @@ export const drawingEvent = (
   startTime: number,
   setStartTime: { (value: SetStateAction<number>): void; },
   newPathData: { (): PathDataType; (): any; },
-  currentShape: { name: any; start?: any; end?: any; },
-  setCurrentShape: { (value: SetStateAction<{ name: string; start: { x: number; y: number; }; end: { x: number; y: number; }; }>): void; },
+  currentShape: ShapeType,
+  setCurrentShape: { (value: SetStateAction<{ name: string; start: PointType; end: PointType; }>): void; },
   completedPaths: PathDataType[],
   setCompletedPaths: { (value: SetStateAction<PathDataType[]>): void; },
   simplifyTolerance: number,
@@ -66,7 +68,7 @@ export const drawingEvent = (
       // shape takes precedance over path
       if (isValidShape(currentShape.name)) {
         setCurrentShape((prev) => {
-          prev.start = { x: pt.x, y: pt.y}
+          prev.start = pt as PointType;
           return prev;
         });
       }
@@ -74,7 +76,7 @@ export const drawingEvent = (
     case "active":
       if (isValidShape(currentShape.name)) {
         setCurrentShape((prev) => {
-          prev.end = { x: pt.x, y: pt.y }
+          prev.end = pt as PointType;
           return prev;
         });
         const { path, length } = shapeData(currentShape);
@@ -127,7 +129,7 @@ export const drawingEvent = (
         }
       }
 
-      let curveBasis;
+      let curveBasis: d3.CurveFactoryLineOnly | undefined;
       if(d3CurveBasis) {
         curveBasis = getD3CurveBasis(d3CurveBasis);
       }

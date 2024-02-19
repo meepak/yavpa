@@ -1,4 +1,5 @@
 import AnimationParams from "@c/controls/animation-params";
+import DashOffsetCorrection from "@c/controls/dash-offset-correction";
 import React from "react";
 
 const createPreviewControls = ({
@@ -9,7 +10,9 @@ const createPreviewControls = ({
   loop,
   setLoop,
   delay,
-  setDelay
+  setDelay,
+  correction,
+  setCorrection
 }) => [
     {
       key: "play",
@@ -42,6 +45,20 @@ const createPreviewControls = ({
         />
       ),
       extraPanel: { width: 250, height: 210 }
+    },
+    {
+      key: "erasure",
+      icon: "erasure",
+      title: "Clear fragments",
+      extraControl: (
+        <DashOffsetCorrection
+          value={correction}
+          onValueChanged={(value: number) => {
+            setCorrection(value);
+          }}
+          />
+      ),
+      extraPanel: { width: 250, height: 140 }
     },
   ];
 

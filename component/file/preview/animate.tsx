@@ -7,6 +7,7 @@ import { Path, Svg } from "react-native-svg";
 
 type Props = {
   svgData: SvgDataType;
+  correction: number;
 };
 
 const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnimate>) => {
@@ -126,7 +127,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
         viewBox={viewBox} // TO be included in SvgData
       >
         {pathData.map((path, index) => {
-          const offsetFactor = 0.05; // Adjust this value as needed
+          const offsetFactor = props.correction ?? 0.05; // Adjust this value as needed
           const strokeDasharray = path.length * (1 + offsetFactor);
           const strokeDashoffset = animatedValues[index].interpolate({
             inputRange: [0, 1],
@@ -139,7 +140,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
             <React.Fragment key={index}>
             <AnimatedPath
               key={index}
-              keyProp={path.guid}
+              keyProp={"animated"}
               prop={{...path }}
             />
             </React.Fragment>

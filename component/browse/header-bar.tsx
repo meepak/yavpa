@@ -3,6 +3,7 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import Animated, { Extrapolation, SharedValue, interpolate, useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import logo from '@a/logo2.png';
+// import MySheetModal from '@c/my-sheet-modal';
 
 
 interface HeaderBarProps {
@@ -13,6 +14,7 @@ const DEFAULT_TOP_INSET = 30;
 
 export const HeaderBar: React.FC<HeaderBarProps> = ({ scrollValue }) => {
   const insets = useSafeAreaInsets();
+  const [showModal, setShowModal] = React.useState(false);
 
   const headerDetailsContainerAnimatedStyle = useAnimatedStyle(() => {
     return { opacity: interpolate(scrollValue.value, [0, 140, 238], [0, 0, 1], Extrapolation.CLAMP) };
@@ -23,10 +25,11 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({ scrollValue }) => {
       <View
         style={[
           styles.headerWrapper,
-          { 
-            top: insets.top || DEFAULT_TOP_INSET, 
-            left: insets.left + 15, 
-            right: insets.right + 15 },
+          {
+            top: insets.top || DEFAULT_TOP_INSET,
+            left: insets.left + 15,
+            right: insets.right + 15
+          },
         ]}>
         <Animated.View style={headerDetailsContainerAnimatedStyle}>
           <Image
@@ -35,9 +38,20 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({ scrollValue }) => {
           />
         </Animated.View>
         <Animated.View style={[styles.headerDetailsContainer, headerDetailsContainerAnimatedStyle]}>
-            <Text style={styles.headerDetailsButtonTitle}>MY PATH</Text>
+          <Text
+            style={styles.headerDetailsButtonTitle}
+          // onPress={() => {
+          //   setShowModal(!showModal)
+          //   console.log ("Model is showing ", {showModal})
+          // }}
+          >
+            MY PATH
+          </Text>
         </Animated.View>
       </View>
+      {/* <MySheetModal isVisible={showModal} height={500} onClose={() => setShowModal(false)}>
+        <Text>Sheet Modal</Text>
+        </MySheetModal> */}
     </>
   );
 };
