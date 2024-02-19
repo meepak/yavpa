@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet } from "react-native";
+
 import { Redirect, SplashScreen } from "expo-router";
 // import { StatusBar } from "expo-status-bar";
 import AnimatedSplashAppLoader from "@s/animated-splash";

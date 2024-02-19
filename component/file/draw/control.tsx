@@ -25,20 +25,13 @@ const createDrawControls = ({
   setSimplifyTolerance,
   d3CurveBasis,
   setD3CurveBasis,
-  // svgData, //get from context
-  // updateSvgData,
   shape,
   drawShape,
+  toggleErasure,
   // onSelectMode,
 }) => {
   // console.log('createDrawControls', strokeWidth);
   return ([
-  // {
-    // key: "unlock"
-  //   icon: "unlock",
-  //   toggleIcons: ["unlock", "lock"],
-  //   onPress: onLock,
-  // },
     {
       key: "undo",
       icon: "undo",
@@ -92,37 +85,6 @@ const createDrawControls = ({
       ),
       extraPanel: { width: 250, height: 200 }
     },
-    // {
-    //   key: "stroke-width",
-    //   icon: "stroke-width",
-    //   title: "Set Stroke Width",
-    //   extraControl: (
-    //     <StrokeWidth
-    //       color={stroke}
-    //       value={strokeWidth}
-    //       onValueChanged={(value: number) => {
-    //         setStrokeWidth(() => value);
-    //       }}
-    //     />
-    //   ),
-    //   extraPanel: { width: 250, height: 100 }
-    // },
-    // {
-    //   key: "opacity",
-    //   icon: "opacity",
-    //   title: "Set Stroke Opacity",
-    //   extraControl: (
-    //     <StrokeOpacity
-    //       color={stroke}
-    //       strokeWidth={strokeWidth}
-    //       value={strokeOpacity}
-    //       onValueChanged={(value: number) => {
-    //         setStrokeOpacity(() => value);
-    //       }}
-    //     />
-    //   ),
-    //   extraPanel: { width: 250, height: 100 }
-    // },
     {
       key: "line-simplify",
       icon: "line-simplify",
@@ -151,26 +113,27 @@ const createDrawControls = ({
       ),
       extraPanel: { width: 285, height: 180 }
     }, 
+    {
+      key: "erasure",
+      icon: "erasure-off",
+      toggleIcons: ["erasure", "erasure-off"],
+      onPress: toggleErasure,
+    },
 
     // {
     //   key: "select",
     //   icon: "select",
     //   onPress: onSelectMode,
     // },
-    // {
-    //   key: "layers",
-    //   icon: "layers",
-    //   title: "Layers",
-    //   extraControl: (
-    //     <PathsAsLayers
-    //       value={svgData.pathData}
-    //       onValueChanged={(value) => {
-    //         updateSvgData(value);
-    //       }}
-    //     />
-    //   ),
-    //   extraPanel: { width: 330, height: (svgData.pathData.length + 2.5) * 32 }
-    // },
+    {
+      key: "layers",
+      icon: "layers",
+      title: "Layers",
+      extraControl: (
+        <PathsAsLayers />
+      ),
+      extraPanel: { width: 330, height: 300 }
+    },
   ])};
 
 export default createDrawControls

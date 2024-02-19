@@ -1,76 +1,69 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
-import { PathDataType } from "@u/helper";
+import { PathDataType, SvgDataType } from "@u/types";
 import * as Crypto from "expo-crypto";
 
 import { Feather } from '@expo/vector-icons';
 import MyColorPicker from "./my-color-picker";
 import ContextMenu from "./context-menu";
 import StrokeWidth from "./stroke-width";
+import { SvgDataContext } from "@x/svg-data";
+import { ScrollView } from "react-native-gesture-handler";
 
-type OnValueChanged = (arg0: PathDataType[]) => void;
 
-interface Props {
-    value: PathDataType[];
-    onValueChanged: OnValueChanged;
-}
 
-const PathsAsLayers: React.FC<Props> = ({ value, onValueChanged }) => {
-    const [layers, setLayers] = useState<PathDataType[]>(value);
-    const [selectedLayers, setSelectedLayers] = useState<PathDataType[]>([]);
+const PathsAsLayers = () => {
+    const {svgData, setSvgData} = useContext(SvgDataContext);
 
-    useEffect(() => {
-        setLayers((value) =>
-            value.map((layer) => {
-                if (layer.guid === null || layer.guid === undefined || !layer.guid) {
-                    layer.guid = Crypto.randomUUID();
-                }
-                if (layer.visible === undefined || layer.visible === null) {
-                    layer.visible = true;
-                }
-                return layer;
-            })
-        );
-    }, []);
 
-    // In React, you should never directly mutate state. 
-    // Instead, you should create a new copy of the state, 
-    // modify that, and then call the state update function with the new state.
-    function updateLayer(layer: PathDataType) {
-        setLayers((prevLayers) => {
-            const newLayers = [...prevLayers]; // Create a new copy of the layers array
-            const index = newLayers.findIndex((l) => l.guid === layer.guid);
-            if (index !== -1) {
-                newLayers[index] = layer; // Modify the new copy, not the original state
-            }
-            onValueChanged(newLayers);
-            return newLayers; // Return the new state
+    function updateStroke(idx, stroke:string) {
+        setSvgData((prevSvgData: SvgDataType) => {
+            const newSvgData = { ...prevSvgData };
+            newSvgData.pathData[idx].stroke = stroke;
+            return newSvgData;
         });
-    };
+    }
+
+    function updateStrokeWidth(idx, strokeWidth:number) {
+        setSvgData((prevSvgData: SvgDataType) => {
+            const newSvgData = { ...prevSvgData };
+            newSvgData.pathData[idx].strokeWidth = strokeWidth;
+            return newSvgData;
+        });
+    }
 
     // Operation on paths as individual layers
 
     // not sure the actual purpose of this
-    function toggleSelectedLayer(layer: PathDataType) {
-        const newSelectedLayers = selectedLayers.includes(layer)
-            ? selectedLayers.filter((l) => l.guid !== layer.guid)
-            : [...selectedLayers, layer];
-        setSelectedLayers(() => newSelectedLayers);
-    }
+    // function toggleSelectedLayer(layer: PathDataType) {
+    //     const newSelectedLayers = selectedLayers.includes(layer)
+    //         ? selectedLayers.filter((l) => l.guid !== layer.guid)
+    //         : [...selectedLayers, layer];
+    //     setSelectedLayers(() => newSelectedLayers);
+    // }
 
     // keep the path but hide/show it from the view
-    function toggleLayerVisibility(layer: PathDataType) {
-        const newLayer = { ...layer, visible: !layer.visible };
-        updateLayer(newLayer);
+    function toggleLayerVisibility(index: number) {
+        setSvgData((prevSvgData: any) => {
+            const newSvgData = { ...prevSvgData };
+            newSvgData.pathData[index].visible = !newSvgData.pathData[index].visible;
+            return newSvgData;
+        });
     }
 
-    // move the layer up or down, change the order they were drawn
+    //  swap the index element in svgData.pathData with up or down element
     function moveLayer(upOrDown: string, index: number) {
-        const newLayers = [...layers];
-        const layer = newLayers.splice(index, 1)[0];
-        newLayers.splice(upOrDown === "up" ? index - 1 : index + 1, 0, layer);
-        setLayers(() => newLayers);
-        onValueChanged(newLayers);
+         const newLayers = [...svgData.pathData];
+            if (upOrDown === "up") {
+                if (index > 0) {
+                    [newLayers[index - 1], newLayers[index]] = [newLayers[index], newLayers[index - 1]];
+                }
+            } else {
+                if (index < newLayers.length - 1) {
+                    [newLayers[index + 1], newLayers[index]] = [newLayers[index], newLayers[index + 1]];
+                }
+            }
+        setSvgData((prevSvgData: SvgDataType) => ({ ...prevSvgData, pathData: newLayers }));
     }
 
     // remove the layer permanently
@@ -80,10 +73,9 @@ const PathsAsLayers: React.FC<Props> = ({ value, onValueChanged }) => {
             {
                 text: "Delete",
                 onPress: () => {
-                    const newLayers = [...layers];
-                    newLayers.splice(index, 1);
-                    setLayers(() => newLayers);
-                    onValueChanged(newLayers);
+                    // delete indexth element from svgData.pathData
+                    const newLayers = svgData.pathData.filter((l: any, idx: number) => idx !== index);
+                    setSvgData((prevSvgData: SvgDataType) => ({ ...prevSvgData, pathData: newLayers }));
                 },
             },
         ]);
@@ -91,38 +83,46 @@ const PathsAsLayers: React.FC<Props> = ({ value, onValueChanged }) => {
 
     return (
         <View style={styles.container}>
-            {[...layers].reverse().map((layer, idx) => {
-                const index = layers.length - 1 - idx;
+            <ScrollView style={{ flex: 1 }}>
+            {[...svgData.pathData].reverse().map((layer, idx) => {
+                const index = svgData.pathData.length - 1 - idx;
                 return (
-                    <View style={styles.row} key={layer.guid}>
+                    <React.Fragment key={layer.guid}>
+                    <View style={styles.row}>
                         {/* <TouchableOpacity style={styles.cell} onPress={() => toggleSelectedLayer(layer)}>
                             <Feather name={selectedLayers.includes(layer) ? "plus-square" : "square"} size={16} />
                         </TouchableOpacity> */}
-                        <TouchableOpacity style={styles.cell} onPress={() => toggleLayerVisibility(layer)}>
+                        <TouchableOpacity style={styles.cell} onPress={() => toggleLayerVisibility(idx)}>
                             <Feather name={layer.visible ? "eye" : "eye-off"} size={16} />
                         </TouchableOpacity>
                         <TouchableOpacity style={{ ...styles.cell, width: 100 }}>
                             <ContextMenu anchor={<Text style={{ fontSize: 12, }}>{layer.stroke}</Text>} width={350} height={200}>
-                                <MyColorPicker initialColor={layer.stroke} onColorSelected={(color) => updateLayer({ ...layer, stroke: color })} />
+                                <MyColorPicker initialColor={layer.stroke} onColorSelected={(color: any) => updateStroke( idx, color )} />
                             </ContextMenu>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.cell}>
                             <ContextMenu anchor={<Text style={{ fontSize: 12, }}>{layer.strokeWidth.toFixed(2).padStart(6)}</Text>} width={250} height={100}>
-                                <StrokeWidth color={layer.stroke} value={layer.strokeWidth} onValueChanged={(value) => updateLayer({ ...layer, strokeWidth: value })} />
+                                <StrokeWidth color={layer.stroke} value={layer.strokeWidth} onValueChanged={(value: any) => updateStrokeWidth(idx, value)} />
                             </ContextMenu>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.cell} onPress={() => moveLayer("up", index)}>
+                        <TouchableOpacity style={styles.cell} onPress={() => moveLayer("up", idx)}>
                             <Feather name="arrow-up" size={16} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.cell} onPress={() => moveLayer("down", index)}>
+                        <TouchableOpacity style={styles.cell} onPress={() => moveLayer("down", idx)}>
                             <Feather name="arrow-down" size={16} />
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.cell} onPress={() => deleteLayer(index)}>
                             <Feather name="trash" size={16} />
                         </TouchableOpacity>
                     </View>
+                    <View style={styles.row}>
+                        <Text style={styles.cell}>Length: {layer.length}</Text>
+                        <Text style={styles.cell}>Time: {layer.time}</Text>
+                    </View>
+                    </React.Fragment>
                 )
             })}
+            </ScrollView>
         </View>
     );
 };

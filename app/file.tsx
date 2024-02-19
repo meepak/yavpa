@@ -1,4 +1,4 @@
-import { CANVAS_HEIGHT, CANVAS_WIDTH, DEFAULT_VIEWBOX, ScreenModes } from "@u/constants";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, DEFAULT_VIEWBOX, ScreenModes, SvgDataType } from "@u/types";
 import { ScreenModeType } from "@u/types";
 import { createSvgData } from "@u/helper";
 import { getFile, saveSvgToFile } from "@u/storage";
@@ -8,14 +8,14 @@ import { useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";
 import { View } from "react-native";
-import Animated, { useSharedValue } from "react-native-reanimated";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as Crypto from "expo-crypto";
 
 
 
 const FileScreen = () => {
     const insets = useSafeAreaInsets();
-    // const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
     const [currentScreenMode, setCurrentScreenMode] = useState(ScreenModes[0]); // default DRAW, but save & read from metadata
     const [controlButtons, setControlButtons] = useState([
         {
@@ -26,69 +26,54 @@ const FileScreen = () => {
     const { guid } = useLocalSearchParams<{ guid: string; }>(); // Capture the GUID from the URL
     const { svgData, setSvgData } = useContext(SvgDataContext);
 
-    const canvasScale = useSharedValue(1);
+    // const canvasScale = useSharedValue(1);
 
-    React.useEffect(() => {
-        // testing auto save to file (if not in preview mode) put as option??
-        console.log('saving...', svgData.metaData.guid)
-        saveSvgToFile(svgData);
-    }, [svgData]);
+    // React.useEffect(() => {
+    //     // testing auto save to file (if not in preview mode) put as option??
+    //     console.log('saving...', svgData.metaData.guid)
+    //     saveSvgToFile(svgData);
+    // }, [svgData]);
 
     const handleScreenModeChanged = (mode: ScreenModeType) => {
         setCurrentScreenMode(mode);
-        setSvgData((prev) => ({
-            ...prev,
-            metaData: {
-                ...prev.metaData,
-                lastScreenMode: mode.name,
-            },
-        }));
+        // setSvgData((prev) => ({
+        //     ...prev,
+        //     metaData: {
+        //         ...prev.metaData,
+        //         lastScreenMode: mode.name,
+        //     },
+        // }));
         // saveSvgToFile(svgData); //enable this later and disable useEffect hook saving
-
     }
 
-    useEffect(() => {
-        return () => {
-            // console.log("reset svg data from context, component unmounted")
-            resetSvgData();
-        };
-    }, []);
-
-    // const canvasLoaded = (layout: any) => {
-    //     if (canvasSize.width == 0 || canvasSize.height == 0) {
-    //         // Update svgData once we have the actual values
-    //         //comment below line if we want canvas for new drawing only?? TO BE TESTED
-    //         setSvgData((prev) => ({ ...prev, metaData: { ...prev.metaData, viewBox: `0 0 ${layout.width} ${layout.height}` } }));
-    //         setCanvasSize({ width: layout.width, height: layout.height });
-    //     }
-    // }
 
 
     async function openSvgDataFile(guid: string) {
         const svgDataFromFile = await getFile(guid);
         if (svgDataFromFile && 'pathData' in svgDataFromFile) {
-            console.log('File found with GUID: ', guid, 'name: ', svgDataFromFile.metaData.name)
+            // console.log('File found with GUID: ', guid, 'name: ', svgDataFromFile.metaData.name)
 
             // set the current viewbox
             // const fittedViewBox = getViewBoxTrimmed(svgDataFromFile.pathData);
-            if (svgDataFromFile.metaData.viewBox !== DEFAULT_VIEWBOX) {
+            if (!svgDataFromFile.metaData.viewBox) {
                 // scale the path data to fit the new viewbox
                 // console.log('setting new viewbox from ', svgDataFromFile.metaData.viewBox, 'to', DEFAULT_VIEWBOX)
                 svgDataFromFile.metaData.viewBox = DEFAULT_VIEWBOX;
             }
 
+            // console.log('Save in state file with GUID: ', guid, ' , paths ', svgDataFromFile.pathData.length)
             // TODO make sure this doesn't trigger resaving.. it is doing at the moment
-            setSvgData(() => svgDataFromFile);
+            setSvgData(svgDataFromFile);
             // find ScreenMode from name
-            console.log('lastScreenMode: ', svgDataFromFile.metaData.lastScreenMode)
-            let screenMode = ScreenModes.find((mode) => mode.name === svgDataFromFile.metaData.lastScreenMode);
-            if (screenMode) {
-                console.log('crrent screen mode is set to ', screenMode)
-                setCurrentScreenMode(screenMode as ScreenModeType);
-            }
+            // console.log('lastScreenMode: ', svgDataFromFile.metaData.lastScreenMode)
+            // let screenMode = ScreenModes.find((mode) => mode.name === svgDataFromFile.metaData.lastScreenMode);
+            // if (screenMode) {
+            //     console.log('current screen mode is set to ', screenMode)
+            //     setCurrentScreenMode(screenMode as ScreenModeType);
+            // }
         } else {
             // TODO  handle error
-            console.log('No file found with GUID: ', guid);
+            // console.log('No file found with GUID: ', guid);
             resetSvgData();
         }
     }
@@ -97,17 +82,34 @@ const FileScreen = () => {
         setSvgData(createSvgData(CANVAS_WIDTH, CANVAS_HEIGHT));
     };
 
+    useEffect(() => {
+        return () => {
+            // console.log("reset svg data from context, component unmounted")
+            resetSvgData();
+        };
+    }, []);
 
+    React.useEffect(() => {
+        if (guid) {
+            // console.log(`Open file with GUID: ${guid}`);
+            openSvgDataFile(guid);
+
+        } else { //create new file
+            // console.log('Create new file');
+            const newSvgData = createSvgData(CANVAS_WIDTH, CANVAS_HEIGHT);
+            newSvgData.metaData.guid = Crypto.randomUUID();
+            setSvgData(newSvgData);
+        }
+    }, [guid]);
 
     const handleNameChange = (name: string) => {
-        setSvgData((existingData) => ({
-            metaData: {
-                ...existingData.metaData,
-                name: name,
-            },
-            pathData: existingData.pathData,
-        }));
-        // saveSvgToFile(svgData); //enable this later and disable useEffect hook saving
+        if(name === svgData.metaData.name) {
+            return;
+        }
+        // console.log('name changed to ', name);
+        const updatedSvgData = { ...svgData, metaData: { ...svgData.metaData, name } };   
+        setSvgData(updatedSvgData);
+        saveSvgToFile(updatedSvgData);
     }
 
     // console.log(controlButtons)
@@ -123,15 +125,6 @@ const FileScreen = () => {
         }
     }, [currentScreenMode]);
 
-    React.useEffect(() => {
-        if (guid) {
-            // console.log(`Load file with GUID: ${guid}`);
-            openSvgDataFile(guid);
-
-        } else {
-            resetSvgData()
-        }
-    }, [guid]);
 
 
 
@@ -170,6 +163,7 @@ const FileScreen = () => {
                             justifyContent: "center",
                             alignItems: "center",
                             backgroundColor: 'transparent',
+                            overflow: 'hidden',
                         }}
                     >
 

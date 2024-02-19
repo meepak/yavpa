@@ -1,3 +1,4 @@
+import MyPath from "@c/my-path";
 import { Brushes, getBrush } from "@u/brushes";
 import { BrushType, SvgDataType } from "@u/types";
 import React, { useEffect, useRef } from "react";
@@ -9,9 +10,10 @@ type Props = {
 };
 
 const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnimate>) => {
-  const AnimatedPath = Animated.createAnimatedComponent(Path);
+  const AnimatedPath = Animated.createAnimatedComponent(MyPath);
 
-  const pathData = props.svgData.pathData;
+  // make a shallow copy of pathData, so any animation changes don't affect the original data
+  const pathData = props.svgData.pathData.map((path) => ({ ...path }));
 
   // console.log('pathData', pathData);
 
@@ -130,26 +132,15 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
             inputRange: [0, 1],
             outputRange: [strokeDasharray, 0],
           });
-          let brush: BrushType | undefined;
-          if (path.stroke.startsWith("url(#")) {
-            const brushGuid = path.stroke.slice(5, -1);
-            brush = Brushes.find(brush => brush.params.guid === brushGuid);
-          }
+          path.strokeDasharray = strokeDasharray as any;
+          path.strokeDashoffset = strokeDashoffset as any;
 
           return (
             <React.Fragment key={index}>
-              {brush && getBrush(brush)}
             <AnimatedPath
               key={index}
-              d={path.path}
-              stroke={path.stroke}
-              strokeWidth={path.strokeWidth}
-              strokeLinecap={path.strokeCap}
-              strokeLinejoin={path.strokeJoin}
-              opacity={path.strokeOpacity}
-              fill="none"
-              strokeDasharray={strokeDasharray}
-              strokeDashoffset={strokeDashoffset}
+              keyProp={path.guid}
+              prop={{...path }}
             />
             </React.Fragment>
           );

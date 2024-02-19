@@ -1,11 +1,12 @@
 import React, { useCallback, useLayoutEffect, useState } from "react";
-import { StyleSheet, Dimensions, Text, TouchableOpacity, View, ListRenderItem, Alert, FlatList } from "react-native";
+import { StyleSheet, Dimensions, Text, TouchableOpacity, View, ListRenderItem, Alert, FlatList, ActivityIndicator } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MyIcon from "@c/my-icon";
-import { SvgDataType } from "@u/types";
+import { BrushType, SvgDataType } from "@u/types";
 import { deleteFile, getFiles } from "@u/storage";
 import Svg, { Path } from "react-native-svg";
 import { Link, useRouter } from "expo-router";
+import ErrorBoundary from "@c/error-boundary";
 // import GlassmorphicView from "@c/glassmorphic-view";
 // import Animated, {
 //   ZoomIn,
@@ -15,6 +16,7 @@ import { StatusBar } from "expo-status-bar";
 import { Foreground } from "@c/browse/foreground";
 import { HeaderBar } from "@c/browse/header-bar";
 import { Brushes, getBrush } from "@u/brushes";
+import MyPath from "@c/my-path";
 
 const PARALLAX_HEIGHT = 238;
 const HEADER_BAR_HEIGHT = 92;
@@ -25,7 +27,7 @@ const SNAP_STOP_THRESHOLD = 238;
 const FILE_PREVIEW_WIDTH = 108;
 const OFFSET = 125;
 const MINIMUM_GAP_BETWEN_PREVIEW = 11;
-const FILE_PREVIEW_BOTTOM_MARGIN = 42;
+const FILE_PREVIEW_BOTTOM_MARGIN = 15;
 
 const BrowseScreen = () => {
   const router = useRouter(); HEADER_BAR_HEIGHT
@@ -33,6 +35,8 @@ const BrowseScreen = () => {
   const [files, setFiles] = useState<SvgDataType[]>([]);
   // const [showPathPlay, setShowPathPlay] = useState(true);
   const [noSketch, setNoSketch] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
 
   const {
     onMomentumScrollEnd,
@@ -66,10 +70,14 @@ const BrowseScreen = () => {
 
 
   const fetchFiles = async () => {
-    const svgData = await getFiles();
-    setFiles(() => svgData);
-    if (svgData.length === 0) {
-      setNoSketch(true);
+    try {
+      const svgData = await getFiles();
+      setFiles(() => svgData);
+      if (svgData.length === 0) {
+        setNoSketch(true);
+      }
+    } catch (error) {
+      console.log('error fetching files', error)
     }
   };
 
@@ -79,7 +87,7 @@ const BrowseScreen = () => {
   }, []);
 
   const deleteSketch = (guid: string) => {
-    console.log('confirm delete ' + guid);
+    // console.log('confirm delete ' + guid);
     Alert.alert("Delete Sketch", "Are you sure you want to delete this sketch permanently?", [
       { text: "Cancel", style: "cancel" },
       {
@@ -96,60 +104,61 @@ const BrowseScreen = () => {
     ]);
   }
 
-  const renderItem: ListRenderItem<SvgDataType> = ({ item }: { item: SvgDataType }) => (
-    <TouchableOpacity
-      onPress={() => router.navigate(`/file?guid=${item.metaData.guid}`)}
-      onLongPress={() => deleteSketch(item.metaData.guid)}
-    >
-      <View
-        style={{
-          width: FILE_PREVIEW_WIDTH,
-          height: filePreviewHeight,
-          borderWidth: 2,
-          borderRadius: 5,
-          marginLeft: gap,
-          marginTop: FILE_PREVIEW_BOTTOM_MARGIN / 2,
-          marginBottom: FILE_PREVIEW_BOTTOM_MARGIN,
-          alignContent: 'center',
-          alignItems: 'center',
-          padding: 5,
-          overflow: 'hidden',
-        }}
+  const renderItem: ListRenderItem<SvgDataType> = ({ item }: { item: SvgDataType }) => {
+    return (
+      <TouchableOpacity
+        onPress={() => router.navigate(`/file?guid=${item.metaData.guid}`)}
+        onLongPress={() => deleteSketch(item.metaData.guid)}
       >
-        <Svg width="100%" height="100%" viewBox={item.metaData.viewBox}>
-          {item.pathData.map((path, index) => {
-            if (!path.visible) {
-              return null;
-            }
-            let brush: BrushType | undefined;
-            if (path.stroke.startsWith("url(#")) {
-              const brushGuid = path.stroke.slice(5, -1);
-              brush = Brushes.find(brush => brush.params.guid === brushGuid);
-            }
-            return (
-              <React.Fragment key={index}>
-                {brush && getBrush(brush)}
-                <Path
-                  key={index}
-                  d={path.path}
-                  stroke={path.stroke}
-                  strokeWidth={path.strokeWidth}
-                  strokeLinecap={path.strokeCap}
-                  strokeLinejoin={path.strokeJoin}
-                  opacity={path.strokeOpacity}
-                  fill={'none'} />
-              </React.Fragment>
-            )
-          })}
-        </Svg>
-        <View style={{ alignItems: 'center' }}>
-          {item.metaData.name.split(' ').map((line, i) => (
-            <Text key={i} style={{ top: 7, flexWrap: 'wrap', justifyContent: 'center' }}>{line}</Text>
-          ))}
+        <View
+          style={{
+            width: FILE_PREVIEW_WIDTH,
+            marginTop: FILE_PREVIEW_BOTTOM_MARGIN / 2,
+            alignContent: 'center',
+            alignItems: 'center',
+            marginLeft: gap,
+            marginBottom: FILE_PREVIEW_BOTTOM_MARGIN,
+          }}
+        >
+          <View
+            style={{
+              width: FILE_PREVIEW_WIDTH,
+              height: filePreviewHeight,
+              borderWidth: 2,
+              borderRadius: 7,
+              alignContent: 'center',
+              alignItems: 'center',
+              padding: 2,
+              overflow: 'hidden',
+            }}
+          >
+            <ErrorBoundary>
+              <Svg width="100%" height="100%" viewBox={item.metaData.viewBox}>
+                {item.pathData.map((path, index) => {
+                  if (!path.visible) {
+                    return null;
+                  }
+                  return (
+                    <React.Fragment key={index}>
+                      <MyPath
+                        prop={path}
+                        keyProp={path.guid}
+                      />
+                    </React.Fragment>
+                  )
+                })}
+              </Svg>
+            </ErrorBoundary>
+          </View>
+          <View style={{ alignItems: 'center' }}>
+            {item.metaData.name.split(' ').slice(0, 2).map((line, i) => (
+              <Text key={i} style={{ top: 4, flexWrap: 'wrap', justifyContent: 'center' }}>{line}</Text>
+            ))}
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    )
+  };
 
   const NoSketchFound = ({ noSketch }) => (
     noSketch && files.length === 0
@@ -190,7 +199,19 @@ const BrowseScreen = () => {
           data={files}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
-        /></View>
+          onContentSizeChange={() => setIsLoading(false)}
+        />
+         {isLoading && (
+          <View style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)' // Optional: you can add a semi-transparent background
+          }}>
+            <ActivityIndicator size="large" color="#0000ff" />
+          </View>
+        )}
+        </View>
       <NoSketchFound noSketch={noSketch} />
       <Link href="/file" asChild>
         <TouchableOpacity style={styles.floatingButton}>

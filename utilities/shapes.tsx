@@ -1,5 +1,6 @@
-import * as d3 from "d3";
-import { getPathFromPoints } from "./helper";
+import * as d3 from "d3-shape";
+import { getPathFromPoints, precise } from "./helper";
+import { PointType } from "./types";
 
 export const AvailableShapes = [
     'freehand',
@@ -53,37 +54,15 @@ export const shapeData = ({ name = "", start = { x: 0, y: 0 }, end = { x: 0, y: 
     }
 }
 
-const LinePoints = ({ start, end, precision = 3 }) => {
-        const x1 = parseFloat(start.x).toFixed(precision);
-        const y1 = parseFloat(start.y).toFixed(precision);
-        const x2 = parseFloat(end.x).toFixed(precision);
-        const y2 = parseFloat(end.y).toFixed(precision);
-        const len = calculateDistance(start, end);
+const LinePoints = ({ start, end }) => {
+        const x1 = precise(start.x);
+        const y1 = precise(start.y);
+        const x2 = precise(end.x);
+        const y2 = precise(end.y);
+        // const len = calculateDistance(start, end);
     return {
         path: `M${x1},${y1}L${x2},${y2}`,
-        length: len.toFixed(precision)
-    };
-}
-
-const CirclePoints = ({ start, end, precision = 3 }) => {
-    // calculate the path of the circle between start and end point
-    const radius = calculateDistance(start, end);
-    // calculate points of the circle where center is start and radius is radius
-    const points = 1000;
-    const circlePoints = [];
-    const step = 360 / points;
-    for (let angle = 0; angle <= 365; angle += step) {
-        const radian = (angle * Math.PI) / 180; // Convert degrees to radians
-        const x = start.x + radius * Math.cos(radian);
-        const y = start.y + radius * Math.sin(radian);
-        circlePoints.push({ x: x.toFixed(precision), y: y.toFixed(precision) } as never);
-    }
-    // remove first point
-    circlePoints.shift();
-
-    return {
-        path: getPathFromPoints(circlePoints),
-        length: 2 * Math.PI * radius
+        length: 0 //len.toFixed(precision) // this could be more efficient than polygonLength
     };
 }
 
@@ -93,15 +72,36 @@ const RectanglePoints = ({ start, end, precision = 3 }) => {
     const width = Math.abs(start.x - end.x);
     const height = Math.abs(start.y - end.y);
     return {
-        path: `M${x},${y}L${x + width},${y}L${x + width},${y + height}L${x},${y + height}L${x},${y}`,
-        length: 2 * (width + height)
+        path: `M${x},${y}L${x + width},${y}L${x + width},${y + height}L${x},${y + height}Z`,
+        length: 0 //2 * (width + height) // this could be more efficient than polygonLength
+    };
+}
+
+const CirclePoints =  ({ start, end }) => {
+    // calculate the path of the circle between start and end point
+    const radius = calculateDistance(start, end);
+    // calculate points of the circle where center is start and radius is radius
+    const points = 1000; // lets do this in proportion of radius
+    const circlePoints:PointType[] = [];
+    const step = 360 / points;
+    for (let angle = 0; angle <= 360; angle += step) {
+        const radian = (angle * Math.PI) / 180; // Convert degrees to radians
+        const x = start.x + radius * Math.cos(radian);
+        const y = start.y + radius * Math.sin(radian);
+        circlePoints.push({ x: precise(x), y: precise(y) });
+    }
+    // remove first point
+    // circlePoints.shift();
+    return {
+        path: getPathFromPoints(circlePoints),
+        length: 0 //2 * Math.PI * radius // this could be more efficient than polygonLength
     };
 }
 
 const StarPoints = ({ start, end, precision = 3 }) => {
     const outerRadius = calculateDistance(start, end);
     const innerRadius = outerRadius / 2.5; // Adjust as needed
-    const points = [];
+    const points:PointType[] = [];
     const angleStep = Math.PI / 5; // Divide by the number of star points
 
     // Calculate the angle between the start and end points
@@ -113,15 +113,15 @@ const StarPoints = ({ start, end, precision = 3 }) => {
         const angle = i * angleStep + startAngle; // Add the start angle to each angle
         const x = start.x + radius * Math.cos(angle);
         const y = start.y + radius * Math.sin(angle);
-        points.push({ x, y } as never);
+        points.push({ x, y });
     }
     // Calculate the length of one side and multiply it by 10
-    const sideLength = calculateDistance(points[0], points[1]);
-    const length = sideLength * 10;
+    // const sideLength = calculateDistance(points[0], points[1]);
+    // const length = sideLength * 10;
 
     return {
         path: getPathFromPoints(points),
-        length: length.toFixed(precision),
+        length: 0, //length.toFixed(precision),
     };
 }
 
@@ -130,14 +130,14 @@ const HeartPoints = ({ start, end, precision = 3}) => {
     const dx = end.x - start.x;
     const dy = end.y - start.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
-    const points = [];
+    const points:PointType[] = [];
     const steps = 100; // Increase for a smoother heart
 
     // Calculate the angle between the start and end points
     const startAngle = Math.PI/2-Math.atan2(dy, dx);
 
-    let length = 0;
-    let lastPoint = null;
+    // let length = 0;
+    // let lastPoint = null;
 
     for (let i = 0; i <= steps; i++) {
         const t = (i / steps) * 2 * Math.PI; // Parameter that goes from 0 to 2PI
@@ -151,18 +151,18 @@ const HeartPoints = ({ start, end, precision = 3}) => {
             x: start.x + rotatedX * distance / 35, // Scale the heart to the distance between the points
             y: start.y - rotatedY * distance / 35, // Subtract y to flip the heart
         };
-        points.push(point as never);
+        points.push(point);
 
         // Calculate the length
-        if (lastPoint) {
-            length += calculateDistance(lastPoint, point);
-        }
-        lastPoint = point as any;
+        // if (lastPoint) {
+        //     length += calculateDistance(lastPoint, point);
+        // }
+        // lastPoint = point as any;
     }
 
     return {
         path: getPathFromPoints(points),
-        length: length.toFixed(precision),
+        length: 0, //0length.toFixed(precision),
     };
 }
 
@@ -170,31 +170,31 @@ const PolygonPoints = ({ start, end, sides, precision = 3 }) => {
     const dx = end.x - start.x;
     const dy = end.y - start.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
-    const points = [];
+    const points:PointType[] = [];
 
     // Calculate the angle between the start and end points
     const startAngle = Math.atan2(dy, dx);
 
-    let length = 0;
-    let lastPoint = null;
+    // let length = 0;
+    // let lastPoint = null;
 
     for (let i = 0; i <= sides; i++) { // Loop until sides + 1 to include the last point
         const angle = (i / sides) * 2 * Math.PI + startAngle; // Calculate the angle, add the start angle to rotate the polygon
         const x = start.x + distance * Math.cos(angle);
         const y = start.y + distance * Math.sin(angle);
         const point = { x, y };
-        points.push(point as never);
+        points.push(point);
 
         // Calculate the length
-        if (lastPoint) {
-            length += calculateDistance(lastPoint, point);
-        }
-        lastPoint = point as any;
+        // if (lastPoint) {
+        //     length += calculateDistance(lastPoint, point);
+        // }
+        // lastPoint = point as any;
     }
 
     return {
         path: getPathFromPoints(points),
-        length: length.toFixed(precision),
+        length: 0,//length.toFixed(precision),
     };
 }
 

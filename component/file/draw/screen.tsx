@@ -5,11 +5,12 @@ import createDrawControls from "./control";
 import { PathDataType } from "@u/types";
 import { AvailableShapes } from "@u/shapes";
 import { SvgDataContext } from "@x/svg-data";
+import { saveSvgToFile } from "@u/storage";
 
 
 
-const DrawScreen = ({initControls}) => {
-  const {svgData, setSvgData} = useContext(SvgDataContext);
+const DrawScreen = ({ initControls }) => {
+  // const { svgData, setSvgData } = useContext(SvgDataContext);
   const [stroke, setStroke] = useState("#000000");
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [strokeOpacity, setStrokeOpacity] = useState(1);
@@ -19,6 +20,7 @@ const DrawScreen = ({initControls}) => {
   const [commandEnforcer, setCommandEnforcer] = useState(0); // since we may need to send same command, we use this increasing id to force update
   const [shape, setShape] = useState(AvailableShapes[0]);
   const [editMode, setEditMode] = useState(true);
+  const [erasureMode, setErasureMode] = useState(false);
 
   const executeCommand = (cmd: string) => {
     if (command === cmd) {
@@ -32,22 +34,21 @@ const DrawScreen = ({initControls}) => {
   //   console.log('recursive probably');
   //   executeCommand("update");
   // }, [commandOVerride])  
-  
+
   // useEffect(() => {
   //   console.log('commandEnforcer probably', commandEnforcer, command);
   // }, [commandEnforcer])
 
-    // React.useEffect(() => {
 
-  //    useEffect(() => {
-  //   executeCommand("open");
-  // }, [])
+  useEffect(() => {
+    executeCommand("open");
+  }, [])
 
   // without this it doesn't display anything in the canvas
-    React.useEffect(() => { 
-      console.log("use effect update")
-    executeCommand("update");
-  }, [svgData]);
+  //   React.useEffect(() => { 
+  //     console.log("use effect update")
+  //   executeCommand("update");
+  // }, [svgData]);
 
   // const updateSvgData = (value: PathDataType[]) => {
   //     setSvgData((prevSvgData) => ({
@@ -66,13 +67,18 @@ const DrawScreen = ({initControls}) => {
   //   setEditMode((prev) => !prev);
   // };
 
+  const toggleErasure = () => {
+    setErasureMode((prev) => !prev);
+    // executeCommand("erase");
+  }
+
   const drawShape = (shape) => {
     setShape(shape);
     executeCommand(shape);
   }
 
   // const onSelectMode = () => executeCommand("select");
-  
+
 
   const buttons = createDrawControls({
     // onLock,
@@ -90,18 +96,21 @@ const DrawScreen = ({initControls}) => {
     setD3CurveBasis,
     shape,
     drawShape,
+    toggleErasure,
     // onSelectMode,
   });
 
   // update svgdata with new path data
-  const handleSvgPathDataChange = (pathData: PathDataType[]) => {
-    console.log('pathdata udpated');
-    setSvgData((existingData) => ({
-      metaData: existingData.metaData,
-      pathData: pathData,
-    }));
-    // saveSvgToFile(svgData); //enable this later and disable useEffect hook saving
-  };
+  // const handleSvgPathDataChange = (pathData: PathDataType[]) => {
+  //   const updatedSvgData = {
+  //     metaData: svgData.metaData,
+  //     pathData: pathData,
+  //   };
+  //   console.log('saving file')
+  //   saveSvgToFile(updatedSvgData);
+  //   setSvgData(updatedSvgData);
+  //   executeCommand("update");
+  // };
 
   useEffect(() => {
     initControls(buttons)
@@ -111,20 +120,21 @@ const DrawScreen = ({initControls}) => {
 
   return (
     <View style={{ flex: 1 }} onLayout={() => initControls(buttons)}>
-        <SvgCanvas
-          editable={editMode} // to do get rid of this, as preview will act as read only mode
-          command={command}
-          forceUpdate={commandEnforcer}
-          onPathDataChange={handleSvgPathDataChange}
-          initialPathData={svgData.pathData}
-          stroke={stroke}
-          strokeWidth={strokeWidth}
-          strokeOpacity={strokeOpacity}
-          simplifyTolerance={simplifyTolerance}
-          d3CurveBasis={d3CurveBasis}
-          viewBox={svgData.metaData.viewBox}
-        />
-      </View>
+      <SvgCanvas
+        editable={editMode} // to do get rid of this, as preview will act as read only mode
+        erasing={erasureMode}
+        command={command}
+        forceUpdate={commandEnforcer}
+        // onPathDataChange={handleSvgPathDataChange}
+        // initialPathData={svgData.pathData}
+        stroke={stroke}
+        strokeWidth={strokeWidth}
+        strokeOpacity={strokeOpacity}
+        simplifyTolerance={simplifyTolerance}
+        d3CurveBasis={d3CurveBasis}
+        // viewBox={svgData.metaData.viewBox}
+      />
+    </View>
   );
 };
 

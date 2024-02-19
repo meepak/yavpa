@@ -72,6 +72,7 @@ const PreviewScreen = ({ initControls }) => {
   });
 
   useEffect(() => {
+    console.log('saving file', speed, loop, delay)
     svgData.metaData.animation = {speed, loop, delay}
     setSvgData(svgData)
     saveSvgToFile(svgData); // TODO  lets do this way in draw screen too, save where its needed not on every change

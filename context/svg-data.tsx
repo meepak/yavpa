@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { createSvgData, SvgDataContextType } from '@u/helper';
-import { CANVAS_HEIGHT, CANVAS_WIDTH } from '@u/constants';
+import { createSvgData } from '@u/helper';
+import { CANVAS_HEIGHT, CANVAS_WIDTH, SvgDataContextType } from '@u/types';
 
 
 export const SvgDataContext = React.createContext<SvgDataContextType>({

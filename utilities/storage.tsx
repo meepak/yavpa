@@ -1,8 +1,8 @@
 import * as FileSystem from "expo-file-system";
 import * as Crypto from "expo-crypto";
-import { isIOS } from "./helper";
+import { isIOS, isValidPath } from "./helper";
 import { svg } from "d3";
-import { DEFAULT_VIEWBOX } from "./constants";
+import { DEFAULT_VIEWBOX, PathDataType } from "./types";
 import { SvgDataType } from "./types";
 
 
@@ -15,16 +15,23 @@ let fileCache: SvgDataType[] | null = null;
 
 
 function parseSvgData(svgData: any, update_updated_at = false): SvgDataType {
-    const isValid = (val: boolean | null | undefined) => (val !== null && val !== undefined && (val || val === false));
+    const isValid = (val:any) => (val !== null && val !== undefined && (val || val === false));
     
+    // console.log(svgData);
       // Create a deep copy of svgData
     const svgDataCopy = JSON.parse(JSON.stringify(svgData));
     ///check if svgData has pathData and if not set default values
-    if (!isValid(svgDataCopy.pathData)) {
+    if (!isValid(svgDataCopy.pathData) && !Array.isArray(svgDataCopy.pathData)) {
         svgDataCopy.pathData = [];
     }
-    //chec if pathData is of type PathDataType else set default values
-    svgDataCopy.pathData = svgDataCopy.pathData.map((pathData) => {
+
+    // filter out invalid path string
+    svgDataCopy.pathData = svgDataCopy.pathData.filter((pathData: any) => {
+        return isValidPath(pathData.path);
+    });
+
+    //check if pathData is of type PathDataType else set default values
+    svgDataCopy.pathData = svgDataCopy.pathData.map((pathData: any) => {
         if (!isValid(pathData.stroke)) {
             pathData.stroke = "#000000";
         }
@@ -40,11 +47,17 @@ function parseSvgData(svgData: any, update_updated_at = false): SvgDataType {
         if (!isValid(pathData.visible)) {
             pathData.visible = true;
         }
-        if (!isValid(pathData.guid)) {
+        if (!isValid(pathData.guid) || pathData.guid === "") {
             pathData.guid = Crypto.randomUUID();
         }
+
+        // we don't want to save dashArray & dashArrayOffset
+        pathData.strokeDasharray = undefined;
+        pathData.strokeDashoffset = undefined;
         return pathData;
     });
+
+
     // check if svgData has metaData and if not set default values
     svgDataCopy.metaData = svgDataCopy.metaData || {};
     if (!isValid(svgDataCopy.metaData.guid)) {
@@ -59,17 +72,13 @@ function parseSvgData(svgData: any, update_updated_at = false): SvgDataType {
     if (!isValid(svgDataCopy.metaData.name) || svgDataCopy.metaData.name === svgDataCopy.metaData.guid) {
         svgDataCopy.metaData.name = svgDataCopy.metaData.updated_at.split('.')[0].split('T').join(' ');
     }
-    // since this will be set during next opening, no need to set it here
-    // if (!isValid(svgDataCopy.metaData.viewBox)) {
-    //     svgDataCopy.metaData.viewBox = getViewBoxTrimmed(svgDataCopy.pathData);
-    // }
-    // console.log(svgData.metaData)
 
     return svgDataCopy;
 }
 
 export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
 
+    console.log('saving file', svgData.metaData.guid, svgData.metaData.updated_at)
     // there should be atleast 1 pathData to qualify for saving
     if (svgData.pathData.length < 1) {
         return false;
@@ -99,16 +108,17 @@ export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
         // console.log("file saved at ", filename);
 
         // Update the cache, not sure cache is effective may need to check more than metadata or always just replace changed stuff??
-        if (fileCache !== null) {
-            const index = fileCache.findIndex(file => file.metaData.guid === svgData.metaData.guid);
-            if (index !== -1) {
-                fileCache[index] = svgData;
-            } else {
-                fileCache.push(svgData);
-            }
-        }
+        // if (fileCache !== null) {
+        //     const index = fileCache.findIndex(file => file.metaData.guid === svgData.metaData.guid);
+        //     if (index !== -1) {
+        //         fileCache[index] = svgData;
+        //     } else {
+        //         fileCache.push(svgData);
+        //     }
+        // }
 
 
+        console.log('file saved', svgData.metaData.guid, svgData.metaData.updated_at)
         return true;
     } catch (err) {
         console.error("Failed to save file:", err);
@@ -117,16 +127,17 @@ export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
     }
 };
 
+
 export const getFiles = async (): Promise<SvgDataType[]> => {
     try {
 
         // If the cache is not empty, return the cached files
-        if (fileCache !== null) {
+        // if (fileCache !== null) {
         // console.log('its from cache', fileCache.length)
          // Sort the files by modification time in descending order
-         fileCache.sort((a, b) => Date.parse(b.metaData.updated_at) - Date.parse(a.metaData.updated_at));
-            return fileCache;
-        }
+        //  fileCache.sort((a, b) => Date.parse(b.metaData.updated_at) - Date.parse(a.metaData.updated_at));
+        //     return fileCache;
+        // }
 
         // check if directory exist
         const dirInfo = await FileSystem.getInfoAsync(AppSaveDirectory);
@@ -157,6 +168,8 @@ export const getFiles = async (): Promise<SvgDataType[]> => {
                 }
                 // ---
 
+                // console.log(svgData);
+                // console.log('--------------------');
                 return svgData;
                 
             })
@@ -164,9 +177,18 @@ export const getFiles = async (): Promise<SvgDataType[]> => {
 
         // Sort the files by modification time in descending order
         svgDataFiles.sort((a, b) => Date.parse(b.metaData.updated_at) - Date.parse(a.metaData.updated_at));
+        //remove everything except last 3
+        //  if (svgDataFiles.length > 1) {
+        //    svgDataFiles.splice(1, svgDataFiles.length - 1);
+        //  }
+        //  console.log(svgDataFiles[0])
+
+        // remove latest file from list
+        // console.log(svgDataFiles[0])
+        // svgDataFiles.shift();
 
         // After reading the files, store them in the cache
-        fileCache = svgDataFiles;
+        // fileCache = svgDataFiles;
 
         return svgDataFiles;
     } catch (err) {
@@ -181,12 +203,12 @@ export const getFile = async (guid: string): Promise<SvgDataType | null> => {
     try {
 
         // If the cache is not empty, try to find the file in the cache
-        if (fileCache !== null) {
-            const file = fileCache.find(file => file.metaData.guid === guid);
-            if (file) {
-                return file;
-            }
-        }
+        // if (fileCache !== null) {
+        //     const file = fileCache.find(file => file.metaData.guid === guid);
+        //     if (file) {
+        //         return file;
+        //     }
+        // }
 
         // Construct the filename from the guid
         const filename = `${guid}.json`; // Adjust this line if your files have a different naming pattern
@@ -216,15 +238,15 @@ export const deleteFile = async (guid: string): Promise<boolean> => {
     try {
 
         // If the cache is not empty, try to find the file in the cache & remove from it
-        if (fileCache !== null) {
-            const file = fileCache.find(file => file.metaData.guid === guid);
-            if (file) {
-                let index = fileCache.indexOf(file);
-                if(index > -1) {
-                    fileCache.splice(index, 1)
-                }
-            }
-        }
+        // if (fileCache !== null) {
+        //     const file = fileCache.find(file => file.metaData.guid === guid);
+        //     if (file) {
+        //         let index = fileCache.indexOf(file);
+        //         if(index > -1) {
+        //             fileCache.splice(index, 1)
+        //         }
+        //     }
+        // }
 
         // Construct the filename from the guid
         const filename = `${guid}.json`; // Adjust this line if your files have a different naming pattern
@@ -238,3 +260,20 @@ export const deleteFile = async (guid: string): Promise<boolean> => {
         // Handle the error appropriately, e.g. show an error message to the user
     }
 };
+
+
+// not necessary any more
+export const deleteMostRecentFile = async () => {
+    try {
+        const files = await getFiles();
+        if (files.length > 0) {
+            const guid = files[0].metaData.guid;
+            const result = await deleteFile(guid);
+            return result;
+        }
+    } catch (err) {
+        console.error("Failed to delete the file:", err);
+        return false;
+        // Handle the error appropriately, e.g. show an error message to the user
+    }
+}

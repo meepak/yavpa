@@ -1,8 +1,7 @@
-import * as Crypto from "expo-crypto";
 import { LinearGradient } from "expo-linear-gradient";
 import { StyleSheet, Dimensions, Platform } from "react-native";
 import { Linecap, Linejoin } from "react-native-svg";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, ScreenModes } from "./constants";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, PRECISION, PointType, ScreenModes } from "./types";
 import { PathDataType, SvgDataType } from "./types";
 
 // TODO move this to constants
@@ -14,7 +13,7 @@ const screenHeight = Dimensions.get("window").height;
 export const createSvgData = (defaultViewBoxWidth?: number, defaultViewBoxHeight?: number): SvgDataType => ({
   pathData: [],
   metaData: {
-    guid: Crypto.randomUUID(),
+    guid: "",
     created_at: Date.now().toString(),
     updated_at: Date.now().toString(),
     name: "",
@@ -35,7 +34,10 @@ export const createPathdata = (
   strokeWidth?: number,
   strokeOpacity?: number,
   strokeCap?: Linecap,
-  strokeJoin?: Linejoin
+  strokeJoin?: Linejoin,
+  strokeFill?: string,
+  strokeDasharray?: string|undefined,
+  strokeDashoffset?: number|undefined,
 ): PathDataType => ({
   path: "",
   stroke: stroke ?? "#000000",
@@ -43,18 +45,50 @@ export const createPathdata = (
   strokeOpacity: strokeOpacity ?? 1,
   strokeCap: strokeCap ?? "round", // other support in next version only
   strokeJoin: strokeJoin ?? "round",
+  fill: strokeFill ?? "none",
+  strokeDasharray: strokeDasharray ?? undefined,
+  strokeDashoffset: strokeDashoffset ?? undefined,
   length: 0,
   time: 0,
   visible: false,
-  guid: Crypto.randomUUID(),
+  guid: "",
 });
 
-export const getPathFromPoints = (points: { x: any; y: any; }[], precision = 3) => {
-  const path = points.map(({ x, y }) => `L${parseFloat(x as unknown as string).toFixed(precision)},${parseFloat(y as unknown as string).toFixed(precision)}`).join("");
-  return `M${path.slice(1)}`;
+
+export const precise = (num: string | number, precision = PRECISION): number => parseFloat(num as string).toFixed(precision) as unknown as number;
+
+export const isValidPath = (path: string): boolean => {
+  if(path === undefined || path === null) return false;
+  if(path === "") return false;
+  let p = path.toUpperCase();
+  if(p === "M" || p === "MZ") return false;
+  // add any other issue that may happen with path
+  return true;
+}
+
+export const getPathFromPoints = (points: PointType[]) => {
+  // check if its a closed path
+  const isClosed = points[0].x === points[points.length - 1].x && points[0].y === points[points.length - 1].y;
+  // remove the last point if its a closed path
+  if (isClosed) {
+    points = points.slice(0, -1);
+  }
+  let path = points.map(({ x, y }) => `L${precise(x as unknown as string)},${precise(y as unknown as string)}`).join("");
+  // attach M at front
+  path = `M${path.slice(1)}`;
+  // attach Z at end if its a closed path
+  if (isClosed) {
+    path = `${path}Z`;
+  }
+  return path;
 };
 
-export const getPointsFromPath = (path) => {
+export const getPointsFromPath = (path: string): PointType[] => {
+  path = path.trim().toUpperCase();
+  // is command closed
+  const isClosed = path[path.length - 1] === "Z";
+  // remove Z command
+  path = isClosed ? path.slice(0, -1) : path;
   const commands = path.split(/(?=[MLC])/); // Split on M, L, or C
   const points = commands.map((command) => {
     const type = command[0];
@@ -67,7 +101,24 @@ export const getPointsFromPath = (path) => {
       return { x: coords[0], y: coords[1] };
     }
   });
+  // Add the first point to the end of the array if the path is closed
+  if (isClosed) {
+    points.push(points[0]);
+  }
   return points;
+}
+
+export const getLastPoint = (path: string) => {
+  // split function to use a regular expression that splits the string 
+  // at the position before any SVG command letter.
+  const commands = path.trim().split(/(?=[MmLlHhVvCcSsQqTtAaZz])/);
+  const lastCommand = commands[commands.length - 1];
+  const commandType = lastCommand[0].toUpperCase();
+  const parameters = lastCommand.slice(1).split(",");
+  let x = parameters[parameters.length - 2];
+  let y = parameters[parameters.length - 1];
+
+  return { commandType, x: precise(x), y: precise(y) };
 };
 
 export const getViewBoxTrimmed = (pathData: PathDataType[]) => {

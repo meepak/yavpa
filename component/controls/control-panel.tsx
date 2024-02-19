@@ -14,9 +14,9 @@ const ICON_SIZE = 28;
 
 const ControlPanel = ({ buttons, paddingLeft=40, paddingRight=40 }) => {
 
-  const [closeMenuAt, setCloseMenuAt] = useState(Date.now());
+  const [forceRerenderAt, setForceRerenderAt] = useState(Date.now());
 
-  const hideMenu = () => setCloseMenuAt(Date.now());
+  const hideMenu = () => setForceRerenderAt(Date.now());
 
   const onButtonPress = (item: {
     onPress: () => void;
@@ -25,15 +25,16 @@ const ControlPanel = ({ buttons, paddingLeft=40, paddingRight=40 }) => {
     extraPanel: { width: number; height: number };
     title: string;
     name: string;
-    // toggleIcons?: string[];
+    toggleIcons?: string[];
   }) => {
     if (!item) return;
     if (item.onPress) {
       item.onPress();
-      // if(item.toggleIcons && item.toggleIcons.length === 2 && item.toggleIcons[0] === item.icon) {
-      //   const iconIndex = item.icon === item.toggleIcons[0] ? 1 : 0;
-      //   item.icon = item.toggleIcons[iconIndex];
-      // }
+      if(item.toggleIcons && item.toggleIcons.length === 2 && item.toggleIcons.includes(item.icon)) {
+        const iconIndex = item.toggleIcons.indexOf(item.icon) === 0 ? 1 : 0;
+        item.icon = item.toggleIcons[iconIndex];
+        setForceRerenderAt(Date.now()); // force rerender
+      }
       return;
     }
   };
@@ -87,7 +88,7 @@ const ControlPanel = ({ buttons, paddingLeft=40, paddingRight=40 }) => {
               }
               width={item.extraPanel?.width || 150}
               height={item.extraPanel?.height || 200}
-              closeMenuAt={closeMenuAt}>
+              closeMenuAt={forceRerenderAt}>
               <>
                 <AcceptButton />
                 {item.extraControl}
