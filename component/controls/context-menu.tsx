@@ -5,6 +5,7 @@ import {
   Dimensions,
   TouchableOpacity
 } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Modal from 'react-native-modal';
 
 const initialRenderTime = Date.now();
@@ -58,9 +59,9 @@ const ContextMenu = ({
       //   console.log(newXPosition, newYPosition)
 
       // If menu goes beyond the bottom edge of the screen, position it above the anchor
-      // if (newYPosition + height > windowHeight) {
-      //   newYPosition = y - height - 5;
-      // }
+      if (newYPosition + height > windowHeight - 25) {
+        newYPosition = y - height - 5;
+      }
       // lets put a scroll bar instead
 
       setXPosition(newXPosition);
@@ -69,9 +70,6 @@ const ContextMenu = ({
     });
   };
 
-  // useEffect(() => {
-  //   console.log('menuVisible', menuVisible);
-  // },[menuVisible]);
 
   return (
     <View>
@@ -92,6 +90,8 @@ const ContextMenu = ({
         animationOut="slideOutDown"
         useNativeDriver
       >
+
+    <GestureHandlerRootView style={{width:'100%', height:'100%'}}>
         <TouchableWithoutFeedback onPress={hideMenu}>
           <View style={{
             flex: 1,
@@ -111,13 +111,14 @@ const ContextMenu = ({
                 backgroundColor: "rgba(220,200,255, 0.6)",
                 borderWidth: 0.7,
                 borderColor: "rgba(0,0,0,0.5)",
-                // elevation: 2,
+                elevation: 2,
               }}>
                 {children}
               </View>
             </TouchableWithoutFeedback>
           </View>
         </TouchableWithoutFeedback>
+        </GestureHandlerRootView>
       </Modal>
     </View>
   );

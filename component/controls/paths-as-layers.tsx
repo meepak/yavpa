@@ -10,6 +10,8 @@ import StrokeWidth from "./stroke-width";
 import { SvgDataContext } from "@x/svg-data";
 import { precise } from "@u/helper";
 import DraggableFlatList, { ScaleDecorator } from "react-native-draggable-flatlist";
+import Divider from "./divider";
+import SelectBrushColor from "./select-brush-color";
 
 
 
@@ -83,46 +85,59 @@ const PathsAsLayers = () => {
             },
         ]);
     }
+
+
     const renderItem = ({ item, drag, isActive }) => (
         <ScaleDecorator key={item.guid}>
             <TouchableOpacity
-                style={{ ...styles.cell, backgroundColor: isActive ? 'white' : '' }}
+                style={{ ...styles.cell, backgroundColor: isActive ? 'rgba(0,0,255,0.2)' : '' }}
                 onLongPress={drag}>
                 <View style={styles.row}>
-                    <Feather name="menu" size={16} />
                     <TouchableOpacity style={styles.cell} onPress={() => toggleLayerVisibility(1)}>
                         <Feather name={item.visible ? "eye" : "eye-off"} size={16} />
                     </TouchableOpacity>
+                </View>
+                <View style={styles.row}>
+                    <Feather name="menu" size={22} />
+
+                    <TouchableOpacity style={styles.cell} onPress={() => console.log('need timer adjustment component')}>
+                        <Text style={styles.cell}>Time: {precise(item.time / 1000)} secs</Text>
+                    </TouchableOpacity>
+
                     <TouchableOpacity style={{ ...styles.cell, width: 100 }}>
-                        <ContextMenu anchor={<Text style={{ fontSize: 12, }}>{item.stroke}</Text>} width={350} height={200}>
-                            <MyColorPicker initialColor={item.stroke} onColorSelected={(color: any) => updateStroke(1, color)} />
+                        <ContextMenu
+                            anchor={
+                                <Text style={{ fontSize: 12, }}>Stroke: {item.stroke}</Text>
+                            }
+                            width={340}
+                            height={360}
+                        >
+                            <SelectBrushColor value={item.stroke} onValueChanged={(color: any) => updateStroke(1, color)} />
                         </ContextMenu>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.cell}>
+
+                    {/* <TouchableOpacity style={styles.cell}>
                         <ContextMenu anchor={<Text style={{ fontSize: 12, }}>{item.strokeWidth.toFixed(2).padStart(6)}</Text>} width={250} height={100}>
                             <StrokeWidth color={item.stroke} value={item.strokeWidth} onValueChanged={(value: any) => updateStrokeWidth(1, value)} />
                         </ContextMenu>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.cell} onPress={() => deleteLayer(1)}>
                         <Feather name="trash" size={16} />
-                    </TouchableOpacity>
-                </View>
-                <View style={styles.row}>
-                    <Text style={styles.cell}>Length: {precise(item.length)}</Text>
-                    <Text style={styles.cell}>Time: {precise(item.time)}</Text>
+                    </TouchableOpacity> */}
                 </View>
             </TouchableOpacity>
+            <Divider width="100%" color="rgba(0,0,0,1)" height={3} />
         </ScaleDecorator>
     );
 
     return (
         <TouchableWithoutFeedback>
-                <DraggableFlatList
-                    data={svgData.pathData}
-                    renderItem={renderItem}
-                    keyExtractor={(item) => `draggable-item-${item.guid}`}
-                    onDragEnd={(data) => console.log(data.from, data.to)}
-                />
+            <DraggableFlatList
+                data={svgData.pathData}
+                renderItem={renderItem}
+                keyExtractor={(item) => `draggable-item-${item.guid}`}
+                onDragEnd={(data) => console.log(data.from, data.to)}
+            />
         </TouchableWithoutFeedback>
     );
 };
@@ -134,14 +149,17 @@ const styles = StyleSheet.create({
     },
     row: {
         flexDirection: "row",
-        alignItems: 'stretch', // Add this line
+        // alignItems: 'stretch', // Add this line
+        justifyContent: "center",
+        alignContent: 'flex-start',
+        alignItems: "center",
     },
     cell: {
         justifyContent: "center",
         alignItems: "center",
         padding: 7,
-        borderWidth: 1,
-        borderColor: "#ccc",
+        // borderWidth: 1,
+        // borderColor: "#ccc",
     },
 });
 export default PathsAsLayers;

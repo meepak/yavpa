@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View } from "react-native";
+import { View, StyleSheet } from "react-native";
 import SvgCanvas from "./canvas";
 import createDrawControls from "./control";
 import { PathDataType } from "@u/types";
 import { AvailableShapes } from "@u/shapes";
 import { SvgDataContext } from "@x/svg-data";
 import { saveSvgToFile } from "@u/storage";
+import { PathsAsLayers } from "@c/controls";
 
 
 

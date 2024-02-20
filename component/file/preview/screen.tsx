@@ -5,6 +5,7 @@ import SvgAnimate from "./animate";
 import createPreviewControls from "./control";
 import { saveSvgToFile } from "@u/storage";
 import { SvgAnimateHandle } from "@u/types";
+import { PathsAsLayers } from "@c/controls";
 
 const PreviewScreen = ({ initControls }) => {
   const [speed, setSpeed] = useState(1);

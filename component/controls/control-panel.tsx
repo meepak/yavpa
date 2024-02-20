@@ -90,7 +90,7 @@ const ControlPanel = ({ buttons, paddingLeft=40, paddingRight=40 }) => {
               height={item.extraPanel?.height || 200}
               closeMenuAt={forceRerenderAt}>
               <>
-                <AcceptButton />
+                {/* <AcceptButton /> */}
                 {item.extraControl}
               </>
             </ContextMenu>

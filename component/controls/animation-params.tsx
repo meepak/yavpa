@@ -10,7 +10,7 @@ const AnimationParams = ({ speed, onSpeedChanged, loopStatus, onLoopStatusChange
 
   return (
     <>
-      <View style={{ position: 'absolute', top: 7 }}>
+      <View style={{ position: 'absolute', top: 7, zIndex: -2, margin: 5 }}>
         <Text style={{fontWeight: 'bold'}}>Animation Speed</Text>
       </View>
       <MySlider
