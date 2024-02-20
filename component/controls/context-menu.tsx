@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { 
-  View, 
-  TouchableWithoutFeedback, 
-  Dimensions, 
-  Modal, 
-  TouchableOpacity } from 'react-native';
+import {
+  View,
+  TouchableWithoutFeedback,
+  Dimensions,
+  TouchableOpacity
+} from 'react-native';
+import Modal from 'react-native-modal';
 
 const initialRenderTime = Date.now();
 
@@ -84,10 +85,12 @@ const ContextMenu = ({
       </View>
 
       <Modal
-        animationType="slide"
-        transparent={true}
-        visible={menuVisible}
-        onRequestClose={hideMenu}
+        isVisible={menuVisible}
+        onBackdropPress={hideMenu}
+        backdropOpacity={0.4}
+        animationIn="slideInUp"
+        animationOut="slideOutDown"
+        useNativeDriver
       >
         <TouchableWithoutFeedback onPress={hideMenu}>
           <View style={{
@@ -105,10 +108,10 @@ const ContextMenu = ({
                 top: yPosition,
                 padding: 20,
                 borderRadius: 10,
-                backgroundColor: "rgba(220,200,255, 0.7)",
+                backgroundColor: "rgba(220,200,255, 0.6)",
                 borderWidth: 0.7,
                 borderColor: "rgba(0,0,0,0.5)",
-                elevation: 2,
+                // elevation: 2,
               }}>
                 {children}
               </View>

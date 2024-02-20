@@ -8,7 +8,7 @@ const CHECKED_ICON_NAME = "checkbox-checked";
 const getIconName = (checked: boolean) => (checked ? CHECKED_ICON_NAME : UNCHECKED_ICON_NAME);
 
 interface MyCheckBoxProps {
-  label: string;
+  label: any;
   checked: boolean;
   onChange: (checked: boolean) => void;
   textStyle?: StyleProp<TextStyle>;
@@ -21,9 +21,13 @@ const MyCheckBox: React.FC<MyCheckBoxProps> = ({label, checked, onChange, textSt
     onChange(!checked);
   };
   const elements = [
-    <MyIcon key="icon" name={getIconName(checked)} style={iconStyle}/>,
-    <Text key="label" style={textStyle}>{label}</Text>  
+    <MyIcon key="icon" name={getIconName(checked)} style={iconStyle}/>
   ]
+  if(typeof label === "string") {
+    elements.push(<Text key="label" style={textStyle}>{label}</Text>);
+  } else {
+    elements.push(<View key="label" style={textStyle}>{label}</View>);
+  }
   return (
     <TouchableOpacity onPress={handlePress}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>

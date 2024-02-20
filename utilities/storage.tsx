@@ -7,12 +7,13 @@ import { SvgDataType } from "./types";
 
 
 // const AppName = "mypath.mahat.au";
-const AppName = isIOS ? "mypath.mahat.au" : "draw-replay-svg-path"; //TODO change this before release
+const AppName = isIOS ? "mypath.mahat.au" : "draw-replay-svg-path"; 
+// const AppName = "mypath.mahat.au"; //TODO change this before release
 
 const AppSaveDirectory = FileSystem.documentDirectory + AppName + "/";
 
 let fileCache: SvgDataType[] | null = null;
-
+console.log(AppSaveDirectory)
 
 function parseSvgData(svgData: any, update_updated_at = false): SvgDataType {
     const isValid = (val: any) => (val !== null && val !== undefined && (val || val === false));
@@ -146,6 +147,10 @@ export const getFiles = async (): Promise<SvgDataType[]> => {
         const dirInfo = await FileSystem.getInfoAsync(AppSaveDirectory);
         if (!dirInfo.exists) {
             console.log('no directory found')
+            // create the directory
+            await FileSystem.makeDirectoryAsync(AppSaveDirectory, {
+                intermediates: true,
+            });
             return [];
         }
 

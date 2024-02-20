@@ -10,6 +10,7 @@ import {
 import { ColorValue } from "react-native";
 import SelectBrush from "@c/controls/select-brush";
 import StrokeWidthOpacity from "@c/controls/stroke-width-opacity";
+import SelectBrushColor from "@c/controls/select-brush-color";
 
 const createDrawControls = ({
   // onLock,
@@ -47,25 +48,25 @@ const createDrawControls = ({
       icon: "palette",
       title: "Select Stroke Color",
       extraControl: (
-        <MyColorPicker
-          initialColor={stroke}
-          onColorSelected={(color: ColorValue) => setStroke(() => color)}
+        <SelectBrushColor
+        value={stroke}
+        onValueChanged={(color) => setStroke(() => color)}
         />
       ),
-      extraPanel: { width: 350, height: 320 }
+      extraPanel: { width: 340, height: 360 }
     },
-    {
-      key: "brush",
-      icon: "palette",
-      title: "Select Brush Stroke",
-      extraControl: (
-        <SelectBrush
-          value={stroke.startsWith('url(#') ? stroke.slice(5, -1) : ''}
-          onValueChanged={(guid: string) => setStroke(() => "url(#" + guid + ")")}
-        />
-      ),
-      extraPanel: { width: 280, height: 320 }
-    },
+    // {
+    //   key: "brush",
+    //   icon: "palette",
+    //   title: "Select Brush Stroke",
+    //   extraControl: (
+    //     <SelectBrush
+    //       value={stroke.startsWith('url(#') ? stroke.slice(5, -1) : ''}
+    //       onValueChanged={(guid: string) => setStroke(() => "url(#" + guid + ")")}
+    //     />
+    //   ),
+    //   extraPanel: { width: 280, height: 320 }
+    // },
     {
       key: "stroke-width-opacity",
       icon: "stroke-width",

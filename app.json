@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#c1c1c1"
+      "backgroundColor": "#7e01c1"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -26,9 +26,6 @@
       },
       "softwareKeyboardLayoutMode": "pan",
       "package": "com.meepak.mypath"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {

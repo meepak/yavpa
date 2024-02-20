@@ -5,10 +5,10 @@ import { BrushType } from "@u/types";
 import { Brushes } from "@u/brushes";
 import Svg, { Line, Defs } from "react-native-svg";
 import { SvgDataContext } from "@x/svg-data";
+import { View } from "react-native";
 
 const SelectBrush = ({ value, onValueChanged }) => {
-    const [brushValue, setBrushValue] = useState(value)
-    const { svgData, setSvgData } = useContext(SvgDataContext);
+    const [brushValue, setBrushValue] = useState(value.slice(5, -1))
 
     const handleBrushSelection = (guid: string) => {
         setBrushValue(guid);
@@ -17,14 +17,14 @@ const SelectBrush = ({ value, onValueChanged }) => {
 
     // lets create brushes & if it's selected save it to the svgData.metadata
     const brushPreview = (brush: BrushType) => 
-    <Svg height="50" width="200">
+    <Svg height="50" width="260">
         <Defs>
             {AvailableBrushes.getBrush(brush)}
         </Defs>
         <Line
             x1="5"
             y1="27"
-            x2="200"
+            x2="260"
             y2="27"
             stroke={"url(#" + brush.params.guid + ")"}
             strokeWidth={25}
@@ -35,6 +35,7 @@ const SelectBrush = ({ value, onValueChanged }) => {
     const brushes = Brushes.map((brush, index) => brushPreview(brush));
 
     return (
+        <View style ={{width: 280}}>
         <MyRadioButtons
             labels={brushes}
             values={guids}
@@ -44,6 +45,7 @@ const SelectBrush = ({ value, onValueChanged }) => {
             textStyle={{ marginLeft: 5, marginBottom: 5 }}
             iconStyle={{ size: 20, color: '#000000' }}
         />
+        </View>
     )
 }
 

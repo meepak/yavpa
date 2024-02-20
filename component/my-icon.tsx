@@ -7,6 +7,7 @@ export interface MyIconStyle {
   color?: string;
   fill?: string;
   strokeWidth?: number;
+  marginBottom?: number;
 }
 
 export interface MyIconProps {
@@ -31,7 +32,7 @@ const MyIcon: React.FC<MyIconProps> = ({
   const { paths, transform } = getPath(name);
   return (
     <TouchableOpacity onPress={onPress}>
-    <Svg width={style.size || size} height={style.size || size} viewBox="0 0 26 26">
+    <Svg style={{marginBottom: style.marginBottom || 0}} width={style.size || size} height={style.size || size} viewBox="0 0 26 26">
       {paths.map((path, index) => (
         <Path
           key={index}

@@ -73,9 +73,22 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     if (svgData.metaData.guid !== "") {
       setIsLoading(false);
       setCompletedPaths(() => svgData.pathData);
+      svgData.metaData.viewBox = DEFAULT_VIEWBOX; // necessary to be able to draw on
     }
   }, [svgData]);
 
+    useEffect(() => {
+    // if (selectMode) return;
+    if (completedPaths === svgData.pathData) {
+      return
+    }
+    const updatedSvgData = {
+      metaData: svgData.metaData,
+      pathData: completedPaths,
+    };
+    saveSvgToFile(updatedSvgData);
+    setSvgData(updatedSvgData);
+  }, [completedPaths]);
 
   useEffect(() => {
     setEditMode(editable);
@@ -99,18 +112,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     forceUpdate
   );
 
-  useEffect(() => {
-    // if (selectMode) return;
-    if (completedPaths === svgData.pathData) {
-      return
-    }
-    const updatedSvgData = {
-      metaData: svgData.metaData,
-      pathData: completedPaths,
-    };
-    saveSvgToFile(updatedSvgData);
-    setSvgData(updatedSvgData);
-  }, [completedPaths]);
+
 
   const handleDrawingEvent = (event: GestureUpdateEvent<PanGestureHandlerEventPayload>, state: string) => {
     drawingEvent(

@@ -8,7 +8,7 @@ const MyColorPicker = ({ initialColor = '#000000', onColorSelected }) => {
   const isValidHex = (text) => /^#([A-Fa-f0-9]{6})?$/.test(text);
 
   return (
-    <View style={{ width: 300, top: -15 }}>
+    <View style={{ width: 280, top: -15 }}>
       <ColorPicker
         color={isValidHex(inputColor) ? inputColor : initialColor}
         swatchesOnly={false}
@@ -60,7 +60,8 @@ const styles = StyleSheet.create({
     height: 30,
     borderColor: 'gray',
     borderBottomWidth: 1,
-    backgroundColor: 'transparent'
+    backgroundColor: 'transparent',
+    marginTop: 10,
   },
   hash: {
     paddingLeft: 5,

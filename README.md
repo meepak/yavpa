@@ -16,9 +16,9 @@ known bugs
 14. What to do when drawn outside of canvas, at the moment its adjust back.. should we really cut off?
 15. Landscape rotate toolbar
 
+Screen mode remember -- unnecessary but done -- removed, will consider later
 
 TODO
-Screen mode remember -- unnecessary but done
 remove select for later -- done
 Remember control value . -- done 
 htybetter color picker, swatches -- done
@@ -51,3 +51,8 @@ fix all bugs -- assuming done, RN taken out, only support static SVG, SMIL, CSS 
 bug reporting, contacting option --- through app store, will put later, no tracking nothing for now!!
 
 -----done------------
+
+Final round --
+
+1. Undo / Redo
+2. No view box trimmed
