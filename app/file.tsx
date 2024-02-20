@@ -28,11 +28,11 @@ const FileScreen = () => {
 
     // const canvasScale = useSharedValue(1);
 
-    // React.useEffect(() => {
-    //     // testing auto save to file (if not in preview mode) put as option??
-    //     console.log('saving...', svgData.metaData.guid)
-    //     saveSvgToFile(svgData);
-    // }, [svgData]);
+    React.useEffect(() => {
+        // testing auto save to file (if not in preview mode) put as option??
+        console.log('saving in file.tsx...', svgData.metaData.guid)
+        saveSvgToFile(svgData);
+    }, [svgData]);
 
     const handleScreenModeChanged = (mode: ScreenModeType) => {
         setCurrentScreenMode(mode);
@@ -109,7 +109,7 @@ const FileScreen = () => {
         // console.log('name changed to ', name);
         const updatedSvgData = { ...svgData, metaData: { ...svgData.metaData, name } };
         setSvgData(updatedSvgData);
-        saveSvgToFile(updatedSvgData);
+        // saveSvgToFile(updatedSvgData);
     }
 
     // console.log(controlButtons)

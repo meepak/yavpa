@@ -2,7 +2,7 @@ import React from 'react';
 import { Svg, Line } from 'react-native-svg';
 
 const Divider = ({ width, color, height=1 }) => (
-  <Svg width={width} height="1" style={{ marginVertical: 10 }}>
+  <Svg width={width} height={height} style={{ marginVertical: 10 }}>
     <Line
       x1="0"
       y1="0"

@@ -132,8 +132,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
         viewBox={viewBox} // TO be included in SvgData
       >
         {pathData.map((path, index) => {
-          const offsetFactor = correction; // Adjust this value as needed
-          const strokeDasharray = path.length * (1 + offsetFactor);
+          const strokeDasharray = path.length * (1 + (props.svgData.metaData.animation?.correction || correction));
           const strokeDashoffset = animatedValues[index].interpolate({
             inputRange: [0, 1],
             outputRange: [strokeDasharray, 0],

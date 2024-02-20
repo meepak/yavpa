@@ -20,6 +20,7 @@ const ContextMenu = ({
   const [menuVisible, setMenuVisible] = useState(false);
   const [xPosition, setXPosition] = useState(0);
   const [yPosition, setYPosition] = useState(0);
+  // const [opacity, setOpacity] = useState(0.8);
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
 
@@ -27,15 +28,19 @@ const ContextMenu = ({
   const anchorRef = useRef<View>(null);
 
   const hideMenu = () => {
-    // console.log('hideMenu trigger closure', closeMenuAt);
+    console.log('hideMenu trigger closure', closeMenuAt);
     setMenuVisible(false);
   };
+
+  useEffect(() => {
+    console.log('menu close -- trigger unknown, rerendering?? ', menuVisible);
+  }, [menuVisible]);
 
   // this lets me close or open menu from outside the component
   useEffect(() => {
     if (menuVisible) {
-      // console.log('closeMenuAt trigger closure', closeMenuAt);
-      setMenuVisible(false);
+      console.log('closeMenuAt trigger closure', closeMenuAt)
+      // setMenuVisible(false);
     }
   }, [closeMenuAt]);
 
@@ -108,7 +113,7 @@ const ContextMenu = ({
                 top: yPosition,
                 padding: 20,
                 borderRadius: 10,
-                backgroundColor: "rgba(220,200,255, 0.6)",
+                backgroundColor: `rgba(150,150,250, 0.8)`, // extra panel background color
                 borderWidth: 0.7,
                 borderColor: "rgba(0,0,0,0.5)",
                 elevation: 2,

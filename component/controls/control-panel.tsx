@@ -18,7 +18,7 @@ const ControlPanel = ({ buttons, paddingLeft=40, paddingRight=40 }) => {
 
   const hideMenu = () => setForceRerenderAt(Date.now());
 
-  const onButtonPress = (item: {
+  const onToolsButtonPress = (item: {
     onPress: () => void;
     icon: string;
     extraControl: React.JSX.Element;
@@ -94,6 +94,7 @@ const ControlPanel = ({ buttons, paddingLeft=40, paddingRight=40 }) => {
                 {item.extraControl}
               </>
             </ContextMenu>
+            // tool bar icon button press
             : <TouchableOpacity
               style={{
                 // width: ICON_SIZE,
@@ -101,7 +102,7 @@ const ControlPanel = ({ buttons, paddingLeft=40, paddingRight=40 }) => {
                 marginHorizontal: 10,
                 marginVertical: 7,
               }}
-              onPress={() => onButtonPress(item)}
+              onPress={() => onToolsButtonPress(item)}
             >
               {item.icon ? (
                 <MyIcon name={item.icon} />

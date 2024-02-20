@@ -1,13 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, StyleSheet } from "react-native";
+import { View } from "react-native";
 import SvgCanvas from "./canvas";
 import createDrawControls from "./control";
-import { PathDataType } from "@u/types";
 import { AvailableShapes } from "@u/shapes";
 import { SvgDataContext } from "@x/svg-data";
-import { saveSvgToFile } from "@u/storage";
-import { PathsAsLayers } from "@c/controls";
-
 
 
 const DrawScreen = ({ initControls }) => {
@@ -22,6 +18,9 @@ const DrawScreen = ({ initControls }) => {
   const [shape, setShape] = useState(AvailableShapes[0]);
   const [editMode, setEditMode] = useState(true);
   const [erasureMode, setErasureMode] = useState(false);
+
+
+  const { svgData, setSvgData } = useContext(SvgDataContext);
 
   const executeCommand = (cmd: string) => {
     if (command === cmd) {

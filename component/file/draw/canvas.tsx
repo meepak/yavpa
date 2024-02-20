@@ -13,7 +13,7 @@ import MyPath from "@c/my-path";
 import { useCommandEffect } from "./canvas/command-effect";
 import { drawingEvent } from "./canvas/drawing-event";
 import { SvgDataContext } from "@x/svg-data";
-import { saveSvgToFile } from "@u/storage";
+// import { saveSvgToFile } from "@u/storage";
 
 
 type SvgCanvasProps = {
@@ -86,7 +86,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
       metaData: svgData.metaData,
       pathData: completedPaths,
     };
-    saveSvgToFile(updatedSvgData);
+    // saveSvgToFile(updatedSvgData);
     setSvgData(updatedSvgData);
   }, [completedPaths]);
 
@@ -161,7 +161,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
                   {completedPaths.map((item, _index) => (
                     item.visible
                       ? <MyPath prop={item} keyProp={"completed"} key={item.guid} />
-                      : <></>
+                      : null
                   ))}
 
                   {currentPath.guid !== "" && (

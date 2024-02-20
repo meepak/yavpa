@@ -133,7 +133,7 @@ const createDrawControls = ({
       extraControl: (
         <PathsAsLayers />
       ),
-      extraPanel: { width: 330, height: 'auto' }
+      extraPanel: { width: 330, height: 'auto'}
     },
   ])};
 

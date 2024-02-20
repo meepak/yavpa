@@ -68,12 +68,12 @@ export const getBrush = (brush: BrushType) => {
 export const Brushes: BrushType[] = [
   {
     name: "LinearGradientBrush",
-    params: {guid: "my-brush-1", colors: ["rgb(255,0,0)", "rgb(0,255,0)", "rgb(0,0,255)"]}
+    params: {guid: "MYB1", colors: ["rgb(255,0,0)", "rgb(0,255,0)", "rgb(0,0,255)"]}
   },
   {
     name: "LinearGradientBrush",
     params: {
-      guid: "my-iridiscent-brush-2",
+      guid: "MYIR1",
       colors: [
               "rgb(255,0,0)", 
               "rgb(255,165,0)", 
@@ -87,44 +87,44 @@ export const Brushes: BrushType[] = [
   },
   {
     name: "LinearGradientBrush",
-    params: {  guid: "my-brush-3", colors: ["rgba(105,105,105,1)", "rgba(169,169,169,0.5)", "rgba(192,192,192,1)", "rgba(169,169,169,0.5)", "rgba(105,105,105,1)"] }
+    params: {  guid: "MYB3", colors: ["rgba(105,105,105,1)", "rgba(169,169,169,0.5)", "rgba(192,192,192,1)", "rgba(169,169,169,0.5)", "rgba(105,105,105,1)"] }
   },
   {
    
     name: "LinearGradientBrush",
-    params: { guid: "my-brush-4", colors: ["rgba(112,128,144,1)", "rgba(192,192,192,0.5)", "rgba(112,128,144,1)"] }
+    params: { guid: "MYB4", colors: ["rgba(112,128,144,1)", "rgba(192,192,192,0.5)", "rgba(112,128,144,1)"] }
   },
   {
     name: "PatternBrush",
-    params: { guid: "my-brush-5", pattern: require("@a/pattern/1.jpg")}
+    params: { guid: "MYB5", pattern: require("@a/pattern/1.jpg")}
   },
   {
     name: "PatternBrush",
-    params: { guid: "my-brush-6", pattern: require("@a/pattern/2.jpg")}
+    params: { guid: "MYB6", pattern: require("@a/pattern/2.jpg")}
   },
   {
     name: "PatternBrush",
-    params: { guid: "my-brush-7", pattern: require("@a/pattern/3.jpg")}
+    params: { guid: "MYB7", pattern: require("@a/pattern/3.jpg")}
   },
   {
     name: "PatternBrush",
-    params: { guid: "my-brush-8", pattern: require("@a/pattern/4.jpg")}
+    params: { guid: "MYB8", pattern: require("@a/pattern/4.jpg")}
   },
   {
     name: "RadialGradientBrush",
-    params: {guid: "my-brush-9", colors: ["rgb(255,0,0)", "rgb(0,255,0)"]}
+    params: {guid: "MYB9", colors: ["rgb(255,0,0)", "rgb(0,255,0)"]}
   },
   // {
   //   name: "RadialGradientBrush",
-  //   params: {guid: "my-brush-2", colors: ["rgb(255,0,0)", "rgb(0,0,255)"] }
+  //   params: {guid: "MYB2", colors: ["rgb(255,0,0)", "rgb(0,0,255)"] }
   // },
   // {
   //   name: "RadialGradientBrush",
-  //   params: {guid: "my-brush-5", colors: ["rgba(105,105,105,1)", "rgba(169,169,169,0.5)", "rgba(192,192,192,1)", "rgba(169,169,169,0.5)", "rgba(105,105,105,1)"] }
+  //   params: {guid: "MYB5", colors: ["rgba(105,105,105,1)", "rgba(169,169,169,0.5)", "rgba(192,192,192,1)", "rgba(169,169,169,0.5)", "rgba(105,105,105,1)"] }
   // },
   // {
   //   name: "RadialGradientBrush",
-  //   params: {guid: "my-brush-7", colors: ["rgba(112,128,144,1)", "rgba(192,192,192,0.5)", "rgba(112,128,144,1)"] }
+  //   params: {guid: "MYB7", colors: ["rgba(112,128,144,1)", "rgba(192,192,192,0.5)", "rgba(112,128,144,1)"] }
   // }
   
 ]

@@ -18,10 +18,9 @@ class MyPath extends React.PureComponent<{prop: PathDataType, keyProp: string}> 
         brush = Brushes.find(brush => brush.params.guid === brushGuid);
       }
       return (
-        <>
+        <React.Fragment key={`${this.props.keyProp}-${this.props.prop.guid}`}>
           {brush && getBrush(brush)}
           <Path
-            key={`${this.props.keyProp}-${this.props.prop.guid}`}
             d={this.props.prop.path}
             stroke={this.props.prop.stroke}
             strokeWidth={this.props.prop.strokeWidth}
@@ -32,7 +31,7 @@ class MyPath extends React.PureComponent<{prop: PathDataType, keyProp: string}> 
             strokeDasharray={this.props.prop.strokeDasharray ?? undefined}
             strokeDashoffset={this.props.prop.strokeDashoffset ?? undefined}
           />
-        </>
+        </React.Fragment>
       )
     }
   }

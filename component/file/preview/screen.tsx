@@ -3,9 +3,8 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import SvgAnimate from "./animate";
 import createPreviewControls from "./control";
-import { saveSvgToFile } from "@u/storage";
+// import { saveSvgToFile } from "@u/storage";
 import { SvgAnimateHandle } from "@u/types";
-import { PathsAsLayers } from "@c/controls";
 
 const PreviewScreen = ({ initControls }) => {
   const [speed, setSpeed] = useState(1);
@@ -85,7 +84,7 @@ const PreviewScreen = ({ initControls }) => {
     svgData.metaData.animation = {speed, loop, delay, correction}
     setSvgData(svgData)
     // throttle saving to file
-    saveSvgToFile(svgData); // TODO  lets do this way in draw screen too, save where its needed not on every change
+    // saveSvgToFile(svgData); // TODO  lets do this way in draw screen too, save where its needed not on every change
     initControls(buttons)
   }, [speed, loop, delay, correction])
 

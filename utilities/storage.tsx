@@ -82,9 +82,9 @@ export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
     // Clear the previous timeout
     if (saveTimeout) {
         clearTimeout(saveTimeout);
-        console.log('saving cancelled', svgData.metaData.guid, svgData.metaData.updated_at)
+        console.log('saveSvgToFile:: saving cancelled', svgData.metaData.guid, svgData.metaData.updated_at)
     }
-    console.log('saving file', svgData.metaData.guid, svgData.metaData.updated_at)
+    console.log('saveSvgToFile:: saving file', svgData.metaData.guid, svgData.metaData.updated_at)
 
     // Set a new timeout to save the data after 2 seconds
     saveTimeout = setTimeout(async () => save(svgData, name), 2000);
@@ -129,10 +129,10 @@ export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
             // }
 
 
-            console.log('file saved', svgData.metaData.guid, svgData.metaData.updated_at)
+            console.log('saveSvgToFile:: file saved', svgData.metaData.guid, svgData.metaData.updated_at)
             return true;
         } catch (err) {
-            console.error("Failed to save file:", err);
+            console.error("saveSvgToFile:: Failed to save file:", err);
             return false;
             // Handle the error appropriately, e.g. show an error message to the user
         }
@@ -169,11 +169,11 @@ export const getFiles = async (): Promise<SvgDataType[]> => {
 
                 // TODO remove this from release version
                 // correction for already saved files
-                if (svgData.metaData.viewBox.includes('NaN')) {
-                    console.log(svgData.metaData.guid, 'viewbox is wrong', svgData.metaData.viewBox)
-                    svgData.metaData.viewBox = DEFAULT_VIEWBOX;
-                    saveSvgToFile(svgData);
-                }
+                // if (svgData.metaData.viewBox.includes('NaN')) {
+                //     console.log(svgData.metaData.guid, 'viewbox is wrong', svgData.metaData.viewBox)
+                //     svgData.metaData.viewBox = DEFAULT_VIEWBOX;
+                //     // saveSvgToFile(svgData);
+                // }
                 return svgData;
 
             })
