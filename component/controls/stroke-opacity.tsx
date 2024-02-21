@@ -3,26 +3,30 @@ import MySlider from "@c/controls/my-slider";
 import Svg, { Line } from "react-native-svg";
 import { useState } from "react";
 
-const StrokeOpacity = ({ color, strokeWidth, value, onValueChanged }) => {
+const StrokeOpacity = ({ indicator, color, strokeWidth, value, onValueChanged, w = 250, h = 100 }) => {
   const [currentValue, setCurrentValue] = useState(value)
   return (
     <>
       <View style={{ position: 'absolute', top: 7, zIndex: -2, margin: 5 }}>
-        <Text style={{fontWeight: 'bold'}}>Stroke Opacity</Text>
-        <Svg height="100" width="250">
-          <Line
-            x1="5"
-            y1="25"
-            x2="25"
-            y2="25"
-            stroke={color ?? '#000000'}
-            strokeWidth={strokeWidth ?? 10}
-            opacity={value}
-          />
-        </Svg>
+        {
+          indicator
+            ? <Svg width={w} height={h}>
+              <Line
+                x1="5"
+                y1="25"
+                x2="25"
+                y2="25"
+                stroke={color ?? '#000000'}
+                strokeWidth={strokeWidth ?? 10}
+                opacity={value}
+              />
+            </Svg>
+            : null
+        }
       </View>
       <MySlider
-        style={{ width: 250, height: 40, top: -10 }}
+        style={{ width: w - 20, height: 40, top: -10 }}
+        name={"Stroke Opacity"}
         minimumValue={0}
         maximumValue={1}
         value={currentValue}

@@ -103,7 +103,7 @@ const Header = ({
             </View>
         </HeaderGradientBackground>
             <TouchableOpacity
-                style={{ position: 'absolute', left: 10, bottom: isIOS ? 10 : -2 }}
+                style={{ position: 'absolute', left: 10, bottom: isIOS ? 15 : -2 }}
                 onPress={handleScreenModeButtonPress}
             >
                 <View

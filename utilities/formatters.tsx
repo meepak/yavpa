@@ -155,7 +155,7 @@ export const getCssSvg = (svgData: SvgDataType, trimViewBox = true) => {
 };
 
 
-export const getLottieTrimmedPath = (svgData: { pathData: PathDataType[]; metaData: MetaDataType; }) => {
+export const getLottieTrimmedPath = (svgData: SvgDataType) => {
   let totalTime = 0;
   let layers = [] as any[];
   let beginTime = 0;

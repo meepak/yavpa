@@ -10,34 +10,38 @@ const AnimationParams = ({ speed, onSpeedChanged, loopStatus, onLoopStatusChange
 
   return (
     <>
-      <View style={{ position: 'absolute', top: 7, zIndex: -2, margin: 5 }}>
-        <Text style={{fontWeight: 'bold'}}>Animation Speed</Text>
+      <View style={{ position: 'absolute', top: 17, zIndex: -2, margin: 5 }}>
       </View>
       <MySlider
         style={{ width: 250, height: 40, top: -10 }}
-        minimumValue={0.1}
-        maximumValue={3}
+        name={"Animation Speed"}
+        minimumValue={0}
+        maximumValue={10}
+        step={0.01}
+        suffix={" x Current Path Time"}
         value={speedValue}
         onValueChange={(value) => {
           setSpeedValue(() => value);
           onSpeedChanged(value);
         }}
       /> 
+      <View style={{ top: -10, alignItems: 'center' }}>
       <MyCheckBox 
       checked={loopStatusValue} 
-      label="Loop Playback" 
+      label="Loop the animation:" 
       iconStyle={{ color: '#000000', size: 22 }}
+      textStyle={{ color: '#000000', fontSize: 16 , fontWeight: 'bold'}}  
       onChange={(value) => {
         setLoopStatusValue(() => value)
         onLoopStatusChanged(value);
       }} />
-      <View style={{ top: 10, left: -20 }}>
-      <Text style={{fontWeight: 'bold'}}>Loop Delay</Text>
     </View>
     <MySlider
       style={{ width: 250, height: 40, top: -5 }}
+      name={"Delay between each loop"}
       minimumValue={0}
-      maximumValue={10}
+      maximumValue={15}
+      suffix={' secs'}
       value={loopDelayValue}
       onValueChange={(value) => {
         setLoopDelayValue(() => value);

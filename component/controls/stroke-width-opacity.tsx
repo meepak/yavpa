@@ -1,20 +1,19 @@
-import { View, Text } from "react-native";
-import MySlider from "@c/controls/my-slider";
-import Svg, { Line } from "react-native-svg";
-import { useEffect, useState } from "react";
+import { View } from "react-native";
 import StrokeWidth from "./stroke-width";
 import StrokeOpacity from "./stroke-opacity";
 import Divider from "./divider";
 
-const StrokeWidthOpacity = ({ color, width, opacity, onWidthChanged, onOpacityChanged }) => {
+const StrokeWidthOpacity = ({ color, width, opacity, onWidthChanged, onOpacityChanged , w = 250, h=200}) => {
   return (
-    <><View style={{ position: 'absolute', top: 7, zIndex: -2, margin: 5 }}>
-      <StrokeWidth color={color} opacity={opacity} value={width} onValueChanged={onWidthChanged} />
-    </View>
-    <View style={{ position: 'absolute', top: 77, zIndex: -2, margin: 5 }}>
+    <>
+      <View style={{ position: 'absolute', top: 17, zIndex: -2, margin: 5 }}>
+        <StrokeWidth color={color} opacity={opacity} value={width} onValueChanged={onWidthChanged} w={w} h={h/2}/>
+      </View>
+      <View style={{ position: 'absolute', top: 80, zIndex: -2, margin: 5 }}>
         <Divider width={1} color={color} />
-        <StrokeOpacity color={color} strokeWidth={width} value={opacity} onValueChanged={onOpacityChanged} />
-      </View></>
+        <StrokeOpacity indicator={false} color={color} strokeWidth={width} value={opacity} onValueChanged={onOpacityChanged} w={w} h={h/2}/>
+      </View>
+    </>
   )
 }
 

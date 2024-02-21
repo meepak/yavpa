@@ -6,13 +6,13 @@ const DashOffsetCorrection = ({ value, onValueChanged }) => {
   const [currentValue, setCurrentValue] = useState(value)
   return (
     <>
-      <View style={{ position: 'absolute', top: 7, zIndex: -2, margin: 5 }}>
+      {/* <View style={{ position: 'absolute', top: 7, zIndex: -2, margin: 5 }}>
         <Text style={{fontWeight: 'bold'}}>Adjust this value till,</Text>
         <Text style={{fontWeight: 'bold'}}>all fragments disappears.</Text>
-      </View>
+      </View> */}
 
-      <View style={{ top: 37, zIndex: -2, margin: 5 }}>
       <MySlider
+        name = {"Adjust value to cleanup pre-animation artifacts"}
         style={{ width: 250, height: 40, top: -10 }}
         minimumValue={0.001}
         maximumValue={0.15}
@@ -23,7 +23,6 @@ const DashOffsetCorrection = ({ value, onValueChanged }) => {
           onValueChanged(value);
         }}
       />
-         </View>
     </>
   )
 }

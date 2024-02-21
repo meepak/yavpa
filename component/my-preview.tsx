@@ -2,7 +2,7 @@ import Svg from "react-native-svg";
 import ErrorBoundary from "./error-boundary";
 import React from "react";
 import MyPath from "./my-path";
-import { PathDataType } from "@u/types";
+import { PathDataType, SvgDataType } from "@u/types";
 import SvgAnimate from "./file/preview/animate";
 
 const MyPreview = ({ data, animate }: { data: SvgDataType, animate: boolean|undefined }) => (

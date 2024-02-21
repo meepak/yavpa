@@ -82,9 +82,11 @@ const createDrawControls = ({
           onWidthChanged={(value: number) => {
             setStrokeWidth(() => value);
           }}
+          w={320}
+          h={200}
         />
       ),
-      extraPanel: { width: 250, height: 200 }
+      extraPanel: { width: 310, height: 200 }
     },
     {
       key: "line-simplify",

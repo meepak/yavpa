@@ -6,12 +6,14 @@ import * as Crypto from "expo-crypto";
 import { Feather } from '@expo/vector-icons';
 import ContextMenu from "./context-menu";
 import { SvgDataContext } from "@x/svg-data";
-import { precise } from "@u/helper";
+import { createSvgData, getViewBoxTrimmed, precise } from "@u/helper";
 import DraggableFlatList, { ScaleDecorator } from "react-native-draggable-flatlist";
 import Divider from "./divider";
 import SelectBrushColor from "./select-brush-color";
 import MyIcon from "@c/my-icon";
 import StrokeWidthOpacity from "./stroke-width-opacity";
+import MyPreview from "@c/my-preview";
+import { path } from "d3";
 
 
 
@@ -19,66 +21,8 @@ const PathsAsLayers = () => {
     const { svgData, setSvgData } = useContext(SvgDataContext);
 
 
-
-    // function updateVisiblity(item: PathDataType) {
-    //     const index = svgData.pathData.indexOf(item);
-    //     item.visible = !item.visible;
-    //     item.guid = Crypto.randomUUID();
-    //     setSvgData((prevSvgData: SvgDataType) => {
-    //         const newSvgData = { ...prevSvgData };
-    //         newSvgData.pathData[index] = item
-    //         return newSvgData;
-    //     });
-    // }
-
-    // function updateStrokeWidth(idx, strokeWidth: number) {
-    //     setSvgData((prevSvgData: SvgDataType) => {
-    //         const newSvgData = { ...prevSvgData };
-    //         newSvgData.pathData[idx].strokeWidth = strokeWidth;
-    //         newSvgData.pathData[idx].guid = Crypto.randomUUID();
-    //         return newSvgData;
-    //     });
-    // }
-
-    // Operation on paths as individual layers
-
-    // not sure the actual purpose of this
-    // function toggleSelectedLayer(layer: PathDataType) {
-    //     const newSelectedLayers = selectedLayers.includes(layer)
-    //         ? selectedLayers.filter((l) => l.guid !== layer.guid)
-    //         : [...selectedLayers, layer];
-    //     setSelectedLayers(() => newSelectedLayers);
-    // }
-
-    // // keep the path but hide/show it from the view
-    // function toggleLayerVisibility(item: PathDataType) {
-    //         const index = svgData.pathData.indexOf(item);
-    //         item.visible = !item.visible;
-    //         console.log('toggleLayerVisibility', index, item);
-    //     setSvgData((prevSvgData: any) => {
-    //         prevSvgData.pathData[index] = {...item};
-    //         return prevSvgData;
-    //     });
-    // }
-
-
-    //  swap the index element in svgData.pathData with up or down element
-    // function moveLayer(upOrDown: string, index: number) {
-    //     const newLayers = [...svgData.pathData];
-    //     if (upOrDown === "up") {
-    //         if (index > 0) {
-    //             [newLayers[index - 1], newLayers[index]] = [newLayers[index], newLayers[index - 1]];
-    //         }
-    //     } else {
-    //         if (index < newLayers.length - 1) {
-    //             [newLayers[index + 1], newLayers[index]] = [newLayers[index], newLayers[index + 1]];
-    //         }
-    //     }
-    //     setSvgData((prevSvgData: SvgDataType) => ({ ...prevSvgData, pathData: newLayers }));
-    // }
-
-    // remove the layer permanently
-    function deleteLayer(item: PathDataType) {
+    // remove the path permanently
+    function deletePath(item: PathDataType) {
         Alert.alert("Delete Path", "Are you sure you want to delete this path permanently?", [
             { text: "Cancel", style: "cancel" },
             {
@@ -88,30 +32,17 @@ const PathsAsLayers = () => {
                     setSvgData((prevSvgData: SvgDataType) => {
                         const newLayers = prevSvgData.pathData.filter((path) => path !== item);
                         return { ...prevSvgData, pathData: newLayers };
-                      });
+                    });
                 },
             },
         ]);
     }
 
-
-    // function updateStroke(path: PathDataType,  stroke: string) {
-    //         if(path.stroke === stroke) return;
-    //     const index = svgData.pathData.indexOf(path);
-    //     setSvgData((prevSvgData: SvgDataType) => {
-    //         const newSvgData = { ...prevSvgData };
-    //         newSvgData.pathData[index].stroke = stroke;
-    //         newSvgData.pathData[index].guid = Crypto.randomUUID();
-    //         return newSvgData;
-    //     });
-    // }
-
-
     const handlePathUpdate = (path: PathDataType, prop: any, value: any) => {
         if (path[prop] === value) return;
         const index = svgData.pathData.indexOf(path);
 
-        setSvgData((prevSvgData: SvgDataType) => { 
+        setSvgData((prevSvgData: SvgDataType) => {
             const newLayers = [...prevSvgData.pathData];
             newLayers[index] = { ...path, [prop]: value, guid: Crypto.randomUUID() };
             return { ...prevSvgData, pathData: newLayers };
@@ -119,7 +50,9 @@ const PathsAsLayers = () => {
     }
 
     const cleanBrushName = (brushName: string) => brushName.startsWith('url') ? brushName.slice(4, -1) : brushName;
+    
     const ItemSeparator = () => <Divider width="100%" color="rgba(0,0,0,1)" height={2} />;
+    
     const HeaderComponent = () =>
         <>
             <View style={styles.column}>
@@ -130,91 +63,117 @@ const PathsAsLayers = () => {
 
         </>;
 
-    const renderItem = ({ item, drag, isActive }) => (
-        <ScaleDecorator key={item.guid}>
-            <View
-                style={{ ...styles.cell, backgroundColor: isActive ? 'rgba(0,0,255,0.2)' : '' }}>
-                <View style={styles.row}>
-                    <View style={{ width: '10%' }}>
-                        <TouchableOpacity style={styles.cell} onPress={() => handlePathUpdate(item, "visible", !item.visible)}>
-                            <Feather name={item.visible ? "eye" : "eye-off"} size={16} />
-                        </TouchableOpacity>
-                    </View>
+    const pathToSvgData = (path: PathDataType): SvgDataType => {
+        path.visible = true; //override for preview
+        // path.strokeOpacity = 0.5; //override for preview
+        return {
+            ...createSvgData(),
+            pathData: [path],
+            metaData: {
+                ...createSvgData().metaData,
+                guid: Crypto.randomUUID(),
+                viewBox: getViewBoxTrimmed([path]),
+            }
+        };
+    }
 
-                    <View style={{ width: '10%' }}>
-                        <TouchableOpacity style={styles.cell} onPress={() => deleteLayer(item)}>
-                            <Feather name="trash" size={16} />
-                        </TouchableOpacity>
-                    </View>
+    const renderItem = ({ item, drag, isActive }) => {
+        const svgData = pathToSvgData(item);
+        const width = precise(svgData.metaData.viewBox.split(' ')[2]);
+        const height = precise(svgData.metaData.viewBox.split(' ')[3]);
+        const maxPreviewSize = 50;
+        const previewSize = (width > height)
+            ? { width: maxPreviewSize, height: height * maxPreviewSize / width }
+            : { width: width * maxPreviewSize / height, height: maxPreviewSize }
 
-                    <View style={{ width: '30%' }}>
-                        <TouchableOpacity style={styles.cell} onPress={() => console.log('need timer adjustment component')}>
-                            <Text style={styles.cell}>T:&nbsp;{precise(item.time / 1000)}</Text>
-                        </TouchableOpacity>
+        return (
+            <ScaleDecorator key={item.guid}>
+                <View
+                    style={{ ...styles.cell, backgroundColor: isActive ? 'rgba(0,0,255,0.2)' : '' }}>
+                    <View style={styles.row}>
+                        <View style={{ width: '10%' }}>
+                            <TouchableOpacity style={styles.cell} onPress={() => handlePathUpdate(item, "visible", !item.visible)}>
+                                <Feather name={item.visible ? "eye" : "eye-off"} size={16} />
+                            </TouchableOpacity>
+                        </View>
 
-                        <TouchableOpacity style={{ ...styles.cell, width: 100 }}>
-                            <ContextMenu
-                                anchor={
-                                    <Text style={{ fontSize: 12, }}>S:&nbsp;{cleanBrushName(item.stroke)}</Text>
-                                }
-                                width={340}
-                                height={360}
-                            >
-                                <SelectBrushColor value={item.stroke} onValueChanged={(color: any) => handlePathUpdate(item, "stroke", color)} />
-                            </ContextMenu>
-                        </TouchableOpacity>
-                    </View>
+                        <View style={{ width: '10%' }}>
+                            <TouchableOpacity style={styles.cell} onPress={() => deletePath(item)}>
+                                <Feather name="trash" size={16} />
+                            </TouchableOpacity>
+                        </View>
+
+                        <View style={{ width: '30%' }}>
+                            <TouchableOpacity style={styles.cell} onPress={() => console.log('need timer adjustment component')}>
+                                <Text style={{...styles.cell, ...styles.link}}>T:&nbsp;{precise(item.time / 1000)}</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={{ ...styles.cell, width: 100 }}>
+                                <ContextMenu
+                                    anchor={
+                                        <Text style={{...styles.cell, ...styles.link}}>S:&nbsp;{cleanBrushName(item.stroke)}</Text>
+                                    }
+                                    width={340}
+                                    height={360}
+                                >
+                                    <SelectBrushColor value={item.stroke} onValueChanged={(color: any) => handlePathUpdate(item, "stroke", color)} />
+                                </ContextMenu>
+                            </TouchableOpacity>
+                        </View>
 
 
-                    <View style={{ width: '30%' }}>
-                        <TouchableOpacity style={styles.cell}>
-                            <ContextMenu anchor=
-                                {
-                                    <>
-                                        <Text style={{ fontSize: 12, }}>W:&nbsp;{precise(item.strokeWidth)}</Text>
-                                        <Text style={{ fontSize: 12, }}>O:&nbsp;{precise(item.strokeOpacity)}</Text>
-                                    </>
-                                }
-                                width={250}
-                                height={200}
-                            >
-                                <StrokeWidthOpacity
-                                    color={item.stroke}
-                                    width={item.strokeWidth}
-                                    opacity={item.strokeOpacity}
-                                    onWidthChanged={(value: any) => handlePathUpdate(item, "strokeWidth", value)}
-                                    onOpacityChanged={(value: any) => handlePathUpdate(item, "strokeOpacity", value)}
-                                />
-                            </ContextMenu>
-                        </TouchableOpacity>
-                    </View>
+                        <View style={{ width: '30%' }}>
+                            <TouchableOpacity style={styles.cell}>
+                                <ContextMenu anchor=
+                                    {
+                                        <>
+                                            <Text style={{...styles.cell, ...styles.link}}>W:&nbsp;{precise(item.strokeWidth)}</Text>
+                                            <Text style={{...styles.cell, ...styles.link}}>O:&nbsp;{precise(item.strokeOpacity)}</Text>
+                                        </>
+                                    }
+                                    width={250}
+                                    height={200}
+                                >
+                                    <StrokeWidthOpacity
+                                        color={item.stroke}
+                                        width={item.strokeWidth}
+                                        opacity={item.strokeOpacity}
+                                        onWidthChanged={(value: any) => handlePathUpdate(item, "strokeWidth", value)}
+                                        onOpacityChanged={(value: any) => handlePathUpdate(item, "strokeOpacity", value)}
+                                    />
+                                </ContextMenu>
+                            </TouchableOpacity>
+                        </View>
 
-                    <View style={{ width: '10%' }}>
-                        <TouchableOpacity
-                            style={{ width: 48 }}
-                            onPressIn={drag}>
-                            <View style={{ ...styles.row, width: 48, alignItems: 'flex-end' }}>
-                                <MyIcon name="drag" size={24} color={'rgba(0,0,0,0.5)'} fill={'rgba(0,0,0,0.4)'} />
-                                <MyIcon name="drag" size={24} color={'rgba(0,0,0,0.5)'} fill={'rgba(0,0,0,0.4)'} style={{ marginLeft: -5 }} />
-                            </View>
-                        </TouchableOpacity>
+                        <View style={{ width: '10%' }}>
+                            <TouchableOpacity
+                                style={{ width: 48 }}
+                                onLongPress={drag}>
+                                <View style={{ ...styles.row, width: previewSize.width, height: previewSize.height, alignItems: 'flex-end' }}>
+                                    <MyIcon name="drag" size={24} color={'rgba(0,0,0,0.5)'} fill={'rgba(0,0,0,0.4)'} />
+                                    <MyPreview animate={false} data={svgData} />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
-            </View>
-        </ScaleDecorator>
-    );
+            </ScaleDecorator>
+        )
+    };
 
+    // If 85% causes any issue, remove sticky header and live with it getting scrolled up
     return (
         <TouchableWithoutFeedback>
-            <View style={{ width: '100%', height: '100%' }}>
+            <View style={{ width: '100%', height: '85%' }}>
+                <HeaderComponent />
                 <DraggableFlatList
                     data={[...svgData.pathData].reverse()}
                     renderItem={renderItem}
                     keyExtractor={(item) => `draggable-item-${item.guid}`}
                     onDragEnd={(data) => setSvgData((prevSvgData: SvgDataType) => ({ ...prevSvgData, pathData: data.data.reverse() }))} // update the svgData.pathData with new order
                     ItemSeparatorComponent={ItemSeparator}
-                    ListHeaderComponent={HeaderComponent}
-
+                // ListHeaderComponent={HeaderComponent}
+                // stickyHeaderIndices={[0]}
                 />
 
             </View>
@@ -254,6 +213,11 @@ const styles = StyleSheet.create({
     th: {
         fontWeight: "bold",
         fontStyle: "italic",
+    },
+    link: {
+        fontSize: 12,
+        color: "blue",
+        textDecorationLine: "underline",
     }
 });
 export default PathsAsLayers;

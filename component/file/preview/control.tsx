@@ -44,7 +44,7 @@ const createPreviewControls = ({
           }}
         />
       ),
-      extraPanel: { width: 300, height: 210 }
+      extraPanel: { width: 310, height: 220 }
     },
     {
       key: "erasure",

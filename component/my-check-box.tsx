@@ -26,7 +26,7 @@ const MyCheckBox: React.FC<MyCheckBoxProps> = ({label, checked, onChange, textSt
   if(typeof label === "string") {
     elements.push(<Text key="label" style={textStyle}>{label}</Text>);
   } else {
-    elements.push(<View key="label" style={textStyle}>{label}</View>);
+    elements.push(<View key="label">{label}</View>);
   }
   return (
     <TouchableOpacity onPress={handlePress}>

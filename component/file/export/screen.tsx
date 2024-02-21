@@ -15,6 +15,7 @@ import MyPreview from "@c/my-preview";
 import SvgAnimate from "../preview/animate";
 import { getViewBoxTrimmed } from "@u/helper";
 import { SvgDataType } from "@u/types";
+import formatLottieData from "@u/lottie";
 
 const ExportScreen = ({ initControls }) => {
   const { svgData } = useContext(SvgDataContext);
@@ -125,8 +126,9 @@ const ExportScreen = ({ initControls }) => {
         <Button title="Download" onPress={download} />
         <Button title="Copy to Clipboard" onPress={copyToClipboard} />
       </View>
-      <View style={styles.section}>
+      <View style={{...styles.section, width: 400, height: 400}}>
         <Text>Lottie - coming soon!!</Text>
+        <LottieView style={{ flex: 1 }} resizeMode="contain" source={formatLottieData(svgData)} autoPlay loop />
       </View>
     </ScrollView>
 

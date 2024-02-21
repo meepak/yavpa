@@ -1,15 +1,14 @@
 import { View , Text} from "react-native";
 import MySlider from "@c/controls/my-slider";
 import Svg, { Line } from "react-native-svg";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-const StrokeWidth = ({ color, opacity=1, value, onValueChanged }) => {
+const StrokeWidth = ({ color, opacity=1, value, onValueChanged, w = 250, h = 100 }) => {
   const [currentValue, setCurrentValue] = useState(value)
   return (
     <>
       <View style={{ position: 'absolute', top: 7, zIndex: -2, margin: 5 }}>
-        <Text style={{fontWeight: 'bold'}}>Stroke Width</Text>
-        <Svg height="100" width="250">
+        <Svg width={w} height={h}>
           <Line
             x1="5"
             y1="25"
@@ -22,9 +21,11 @@ const StrokeWidth = ({ color, opacity=1, value, onValueChanged }) => {
         </Svg>
       </View>
       <MySlider
-        style={{ width: 250, height: 40, top: -10 }}
+        style={{ width: w - 20, height: 40, top: -10 }}
+        name={"Stroke Width"}
         minimumValue={1}
         maximumValue={100}
+        step={1}
         value={value}
         onValueChange={(value) => {
           setCurrentValue(() => value);
