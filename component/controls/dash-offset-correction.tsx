@@ -12,7 +12,7 @@ const DashOffsetCorrection = ({ value, onValueChanged }) => {
       </View>
 
       <View style={{ top: 37, zIndex: -2, margin: 5 }}>
-      <MySlider
+      {/* <MySlider
         style={{ width: 250, height: 40, top: -10 }}
         minimumValue={0.001}
         maximumValue={0.15}
@@ -22,7 +22,7 @@ const DashOffsetCorrection = ({ value, onValueChanged }) => {
           setCurrentValue(() => value);
           onValueChanged(value);
         }}
-      />
+      /> */}
          </View>
     </>
   )

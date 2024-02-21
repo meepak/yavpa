@@ -84,7 +84,7 @@ const createDrawControls = ({
           }}
         />
       ),
-      extraPanel: { width: 250, height: 200 }
+      extraPanel: { width: 320, height: 200 }
     },
     {
       key: "line-simplify",

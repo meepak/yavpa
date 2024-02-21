@@ -97,7 +97,7 @@ const SimplifySmooth = ({
                 </View>
             </View>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 15, }}>
-                <MySlider
+                {/* <MySlider
                     style={{ width: 250, height: 40 }}
                     minimumValue={0}
                     maximumValue={30}
@@ -107,7 +107,7 @@ const SimplifySmooth = ({
                         setCurrentSimplify(value);
                         onSimplifyValueChanged(value);
                     }}
-                />
+                /> */}
             </View>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <MyRadioButtons

@@ -7,8 +7,8 @@ const StrokeWidth = ({ color, opacity=1, value, onValueChanged }) => {
   const [currentValue, setCurrentValue] = useState(value)
   return (
     <>
+        <Text style={{fontWeight: 'bold',}}>Stroke Width</Text>
       <View style={{ position: 'absolute', top: 7, zIndex: -2, margin: 5 }}>
-        <Text style={{fontWeight: 'bold'}}>Stroke Width</Text>
         <Svg height="100" width="250">
           <Line
             x1="5"
@@ -21,7 +21,7 @@ const StrokeWidth = ({ color, opacity=1, value, onValueChanged }) => {
           />
         </Svg>
       </View>
-      <MySlider
+      {/* <MySlider
         style={{ width: 250, height: 40, top: -10 }}
         minimumValue={1}
         maximumValue={100}
@@ -30,7 +30,7 @@ const StrokeWidth = ({ color, opacity=1, value, onValueChanged }) => {
           setCurrentValue(() => value);
           onValueChanged(value);
         }}
-      />
+      /> */}
     </>
   )
 }

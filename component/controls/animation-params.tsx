@@ -13,7 +13,7 @@ const AnimationParams = ({ speed, onSpeedChanged, loopStatus, onLoopStatusChange
       <View style={{ position: 'absolute', top: 7, zIndex: -2, margin: 5 }}>
         <Text style={{fontWeight: 'bold'}}>Animation Speed</Text>
       </View>
-      <MySlider
+      {/* <MySlider
         style={{ width: 250, height: 40, top: -10 }}
         minimumValue={0.1}
         maximumValue={3}
@@ -22,7 +22,7 @@ const AnimationParams = ({ speed, onSpeedChanged, loopStatus, onLoopStatusChange
           setSpeedValue(() => value);
           onSpeedChanged(value);
         }}
-      /> 
+      />  */}
       <MyCheckBox 
       checked={loopStatusValue} 
       label="Loop Playback" 
@@ -34,7 +34,7 @@ const AnimationParams = ({ speed, onSpeedChanged, loopStatus, onLoopStatusChange
       <View style={{ top: 10, left: -20 }}>
       <Text style={{fontWeight: 'bold'}}>Loop Delay</Text>
     </View>
-    <MySlider
+    {/* <MySlider
       style={{ width: 250, height: 40, top: -5 }}
       minimumValue={0}
       maximumValue={10}
@@ -43,7 +43,7 @@ const AnimationParams = ({ speed, onSpeedChanged, loopStatus, onLoopStatusChange
         setLoopDelayValue(() => value);
         onLoopDelayChanged(value);
       }}
-    />
+    /> */}
     </>
   )
 }
