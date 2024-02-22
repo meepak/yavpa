@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Button, ScrollView, StyleSheet, Text, View } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import * as FileSystem from "expo-file-system";
-import LottieView from "lottie-react-native";
+import LottieView, { AnimationObject } from "lottie-react-native";
 import {
   getCssSvg,
   getLottieTrimmedPath,
@@ -14,7 +14,7 @@ import { SvgDataContext } from "@x/svg-data";
 import MyPreview from "@c/my-preview";
 import SvgAnimate from "../preview/animate";
 import { getViewBoxTrimmed } from "@u/helper";
-import { SvgDataType } from "@u/types";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, SvgDataType } from "@u/types";
 import formatLottieData from "@u/lottie";
 
 const ExportScreen = ({ initControls }) => {
@@ -26,6 +26,8 @@ const ExportScreen = ({ initControls }) => {
   const [fileName, setFileName] = useState("untitled.svg");
   const [lottie, setLottie] = useState({});
   const [svgDataVbTrimmed, setSvgDataVbTrimmed] = useState<SvgDataType>();
+
+  const [lottieJson, setLottieJson] = useState({} as AnimationObject);
 
   useEffect(() => {
     if (svgData === undefined) return;
@@ -105,6 +107,12 @@ const ExportScreen = ({ initControls }) => {
     setTimeout(() => {setAnimate(true)}, 2000);
   }, []);
 
+  useEffect(() => {
+    const lj = formatLottieData(svgData);
+    console.log(lj)
+    setLottieJson(JSON.parse(lj));
+  }, [svgData]);
+
   return (
     <ScrollView style={styles.container} onLayout={() => initControls(buttons)}>
       <Text style={styles.title}>Export your paths!</Text>
@@ -126,9 +134,8 @@ const ExportScreen = ({ initControls }) => {
         <Button title="Download" onPress={download} />
         <Button title="Copy to Clipboard" onPress={copyToClipboard} />
       </View>
-      <View style={{...styles.section, width: 400, height: 400}}>
-        <Text>Lottie - coming soon!!</Text>
-        <LottieView style={{ flex: 1 }} resizeMode="contain" source={formatLottieData(svgData)} autoPlay loop />
+      <View style={{...styles.section, width: CANVAS_WIDTH, height: CANVAS_HEIGHT,  borderWidth: 1, borderColor: 'red'}}>
+        <LottieView style={{ width: CANVAS_WIDTH, height: CANVAS_HEIGHT, }} resizeMode="cover" source={lottieJson} autoPlay={false} loop={false} />
       </View>
     </ScrollView>
 

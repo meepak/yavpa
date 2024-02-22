@@ -1,15 +1,16 @@
 // https://github.com/dabbott/svg-to-lottie
 import { format } from "d3";
+import * as Crypto from "expo-crypto";
 import { getPointsFromPath } from "./helper";
-import { PointType } from "./types";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, PointType } from "./types";
 
-type curvePointType = {point:[number, number], curveFrom:[number, number], curveTo: [number, number]};
+type curvePointType = { point: [number, number], curveFrom: [number, number], curveTo: [number, number] };
 
 function convertPath(path: string) {
   const points = getPointsFromPath(path);
 
-  const groups:any[] = []; //to be defined type later
-  const curvePoints:curvePointType[] = [];
+  const groups: any[] = []; //to be defined type later
+  const curvePoints: curvePointType[] = [];
 
   function convertPoints(curvePoints: any[], isClosed: boolean) {
     return curvePoints.reduce(
@@ -44,7 +45,7 @@ function convertPath(path: string) {
   return groups;
 }
 
-function hexToRgba(hex: string, opacity?: number) {
+function hexToRgba(hex: string) {
   let r = 0, g = 0, b = 0;
   if (hex.length == 4) {
     r = parseInt(hex[1] + hex[1], 16);
@@ -55,10 +56,10 @@ function hexToRgba(hex: string, opacity?: number) {
     g = parseInt(hex[3] + hex[4], 16);
     b = parseInt(hex[5] + hex[6], 16);
   }
-  const rgb = [r / 255, g / 255, b / 255];
-  if(opacity) {
-    rgb.push(opacity);
-  }
+  const rgb: number[] = [];
+  if (r >= 0 && r <= 255) rgb.push(r); else rgb.push(0);
+  if (g >= 0 && g <= 255) rgb.push(g); else rgb.push(0);
+  if (b >= 0 && b <= 255) rgb.push(b); else rgb.push(0);
   return rgb;
 }
 
@@ -69,12 +70,10 @@ function createEllipseShape({ x, y, width, height }) {
     s: {
       a: 0,
       k: [width, height],
-      ix: 2
     },
     p: {
       a: 0,
       k: [x, y],
-      ix: 3
     },
     nm: "Ellipse Path 1",
     mn: "ADBE Vector Shape - Ellipse",
@@ -86,20 +85,23 @@ function createShapeItem(points: curvePointType) {
   return {
     hd: false,
     ind: 0,
-    ix: 1,
     ks: {
       a: 0,
-      ix: 2,
       k: points
     },
-    mn: "ADBE Vector Shape - Group",
-    nm: "Path 1",
+    mn: "{" + Crypto.randomUUID() + "}",
+    nm: "Shape",
     ty: "sh"
   };
 }
 
-function createShape(items: any, hexColor: string, opacity?: number) {
-  const fillColor = hexToRgba(hexColor, opacity);
+function createShape(items: any, guid: string, strokeColorHex: string, strokeOpacity: number, strokeWidth: number, fillColorHex?: string, fillOpacity?: number,) {
+  const strokeColor = hexToRgba(strokeColorHex);
+  const strokeOpacityValue = strokeOpacity * 100;
+
+  const fillColor = [0, 0, 0]; //hexToRgba(fillColorHex || '#0000FF'); // default color just for debug, it seems black is default if nothing given
+  const fillOpacityValue = 0; //fillOpacity || 0;
+
 
   return {
     cix: 2,
@@ -109,68 +111,74 @@ function createShape(items: any, hexColor: string, opacity?: number) {
       {
         c: {
           a: 0,
-          ix: 4,
-          k: [
-            fillColor[0],
-            fillColor[1],
-            fillColor[2],
-            fillColor[3] || 1
-          ]
+          k: fillColor
         },
         hd: false,
-        mn: "ADBE Vector Graphic - Fill",
-        nm: "Fill 1",
+        mn: "{" + Crypto.randomUUID() + "}",
+        nm: "Fill",
         o: {
           a: 0,
-          ix: 5,
-          k: 100
+          k: fillOpacityValue
         },
         r: 1,
         ty: "fl"
       },
       {
+        c: {
+          a: 0,
+          k: strokeColor
+        },
+        hd: false,
+        mn: "{" + Crypto.randomUUID() + "}",
+        nm: "Stroke",
+        o: {
+          a: 0,
+          k: strokeOpacityValue
+        },
+        w: {
+          a: 0,
+          k: strokeWidth || 1
+        },
+        lc: 1,
+        lj: 1,
+        ml: 4,
+        ty: "st"
+      },
+      {
         a: {
           a: 0,
-          ix: 1,
           k: [0, 0]
         },
         nm: "Transform",
         o: {
           a: 0,
-          ix: 7,
           k: 100
         },
         p: {
           a: 0,
-          ix: 2,
           k: [0, 0]
         },
         r: {
           a: 0,
-          ix: 6,
           k: 0
         },
         s: {
           a: 0,
-          ix: 3,
           k: [100, 100]
         },
         sa: {
           a: 0,
-          ix: 5,
           k: 0
         },
         sk: {
           a: 0,
-          ix: 4,
           k: 0
         },
         ty: "tr"
       }
     ],
-    ix: 1,
-    mn: "ADBE Vector Group",
-    nm: "Shape 1",
+    mn: "{" + guid + "}",
+    nm: "Group",
     np: 3,
     ty: "gr"
   };
@@ -187,31 +195,27 @@ function createLayer(shapes: any) {
     ks: {
       a: {
         a: 0,
-        ix: 1,
         k: [0, 0, 0]
       },
       o: {
         a: 0,
-        ix: 11,
         k: 100
       },
       p: {
         a: 0,
-        ix: 2,
         k: [0, 0, 0]
       },
       r: {
         a: 0,
-        ix: 10,
         k: 0
       },
       s: {
         a: 0,
-        ix: 6,
         k: [100, 100, 100]
       }
     },
-    nm: "Shape Layer 1",
+    mn: "{" + Crypto.randomUUID() + "}",
+    nm: "Layer",
     op: 120,
     sr: 1,
     st: 0,
@@ -219,6 +223,7 @@ function createLayer(shapes: any) {
   };
 }
 
+// 4.12.0
 function createFile(options: { width: number; height: number; }) {
   const { width, height } = options;
 
@@ -228,9 +233,10 @@ function createFile(options: { width: number; height: number; }) {
     fr: 24,
     h: height,
     ip: 0,
-    nm: "Comp 1",
+    mn: "{" + Crypto.randomUUID() + "}",
+    nm: "Composition",
     op: 120,
-    v: "4.12.0",
+    v: "5.7.1",
     w: width,
     layers: []
   };
@@ -247,25 +253,26 @@ function createFile(options: { width: number; height: number; }) {
 
 // lets just worry about display static lottie, and than we will see about animation
 function formatLottieData(svgData: SvgDataType) {
-
   // Extract width and height from viewBox
-  const viewBox = svgData.metaData.viewBox.split(' ');
-  const width = Math.round(parseFloat(viewBox[2]));
-  const height = Math.round(parseFloat(viewBox[3]));
+  // const viewBox = svgData.metaData.viewBox.split(' ');
+  // const width = Math.round(parseFloat(viewBox[2]));
+  // const height = Math.round(parseFloat(viewBox[3]));
+  const width = CANVAS_WIDTH;
+  const height = CANVAS_HEIGHT;
 
-  const layers:any[] = [];
+  const layers: any[] = [];
   svgData.pathData.forEach((path) => {
-    const pathData = convertPath(path.path);
-    const items = pathData.map(createShapeItem);
-    const shape = createShape(items, path.stroke, path.strokeOpacity);
+    const lottiePath = convertPath(path.path);
+    const items = lottiePath.map(createShapeItem);
+    const shape = createShape(items, path.guid, path.stroke, path.strokeOpacity, path.strokeWidth);
     const layer = createLayer([shape]);
     layers.push(layer);
   });
-    const file = createFile({ width, height });
-    file.layers  = layers as never;
-    const lottieJson = JSON.stringify(file);
-    // console.log(lottieJson);
-    return lottieJson;
+  const file = createFile({ width, height });
+  file.layers = layers as never;
+  const lottieJson = JSON.stringify(file);
+  // console.log(lottieJson);
+  return lottieJson;
 }
 
 export default formatLottieData;
