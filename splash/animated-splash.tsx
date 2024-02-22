@@ -1,9 +1,7 @@
 
-import MyPathLogo from "@c/logo/my-path-logo";
-import MyPath from "@c/my-path";
 import { SplashScreen } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Animated, StyleSheet, View, useColorScheme } from "react-native";
+import { Animated, StyleSheet, View } from "react-native";
 
 
 const AnimatedSplash = ({
