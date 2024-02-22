@@ -34,7 +34,7 @@ export type PathDataType = {
     time: number; // total time in ms taken to draw the path
     stroke: string; // stroke color or brush name
     strokeWidth: number; // stroke width
-    strokeOpacity?: number; // stroke opacity
+    strokeOpacity: number; // stroke opacity
     strokeCap?: Linecap; // stroke linecap
     strokeJoin?: Linejoin; // stroke linejoin
     strokeDasharray?: string|undefined; // stroke dasharray

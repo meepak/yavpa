@@ -2,7 +2,7 @@
 import { format } from "d3";
 import * as Crypto from "expo-crypto";
 import { getPointsFromPath } from "./helper";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, PointType } from "./types";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, PointType, SvgDataType } from "./types";
 
 type curvePointType = { point: [number, number], curveFrom: [number, number], curveTo: [number, number] };
 
@@ -77,21 +77,19 @@ function createEllipseShape({ x, y, width, height }) {
     },
     nm: "Ellipse Path 1",
     mn: "ADBE Vector Shape - Ellipse",
-    hd: false
   };
 }
 
 function createShapeItem(points: curvePointType) {
   return {
-    hd: false,
-    ind: 0,
+    d: 1,
+    mn: "{" + Crypto.randomUUID() + "}",
+    nm: "Shape",
+    ty: "sh",
     ks: {
       a: 0,
       k: points
-    },
-    mn: "{" + Crypto.randomUUID() + "}",
-    nm: "Shape",
-    ty: "sh"
+    }
   };
 }
 
@@ -102,33 +100,34 @@ function createShape(items: any, guid: string, strokeColorHex: string, strokeOpa
   const fillColor = [0, 0, 0]; //hexToRgba(fillColorHex || '#0000FF'); // default color just for debug, it seems black is default if nothing given
   const fillOpacityValue = 0; //fillOpacity || 0;
 
+  //use guid for group mn
 
   return {
-    cix: 2,
-    hd: false,
+    ty: "gr",
+    mn: "{" + Crypto.randomUUID() + "}",
+    nm: "Group",
     it: [
       ...items,
       {
+        ty: "fl",
         c: {
           a: 0,
           k: fillColor
         },
-        hd: false,
         mn: "{" + Crypto.randomUUID() + "}",
         nm: "Fill",
         o: {
           a: 0,
           k: fillOpacityValue
         },
-        r: 1,
-        ty: "fl"
+        r: 1
       },
       {
+        ty: "st",
         c: {
           a: 0,
           k: strokeColor
         },
-        hd: false,
         mn: "{" + Crypto.randomUUID() + "}",
         nm: "Stroke",
         o: {
@@ -139,17 +138,16 @@ function createShape(items: any, guid: string, strokeColorHex: string, strokeOpa
           a: 0,
           k: strokeWidth || 1
         },
-        lc: 1,
-        lj: 1,
-        ml: 4,
-        ty: "st"
+        lc: 2,
+        lj: 2,
+        ml: 0,
       },
       {
+        ty: "tr",
         a: {
           a: 0,
           k: [0, 0]
         },
-        nm: "Transform",
         o: {
           a: 0,
           k: 100
@@ -165,33 +163,22 @@ function createShape(items: any, guid: string, strokeColorHex: string, strokeOpa
         s: {
           a: 0,
           k: [100, 100]
-        },
-        sa: {
-          a: 0,
-          k: 0
-        },
-        sk: {
-          a: 0,
-          k: 0
-        },
-        ty: "tr"
+        }
       }
-    ],
-    mn: "{" + guid + "}",
-    nm: "Group",
-    np: 3,
-    ty: "gr"
+    ]
   };
 }
 
 function createLayer(shapes: any) {
   return {
-    shapes,
-    ao: 0,
-    bm: 0,
     ddd: 0,
-    ind: 1,
+    ty: 4,
+    st: 0,
     ip: 0,
+    op: 120,
+    nm: "Layer",
+    mn: "{" + Crypto.randomUUID() + "}",
+    ao: 0,
     ks: {
       a: {
         a: 0,
@@ -214,30 +201,23 @@ function createLayer(shapes: any) {
         k: [100, 100, 100]
       }
     },
-    mn: "{" + Crypto.randomUUID() + "}",
-    nm: "Layer",
-    op: 120,
-    sr: 1,
-    st: 0,
-    ty: 4
+    shapes,
   };
 }
 
-// 4.12.0
 function createFile(options: { width: number; height: number; }) {
   const { width, height } = options;
 
   return {
-    assets: [],
-    ddd: 0,
-    fr: 24,
-    h: height,
-    ip: 0,
-    mn: "{" + Crypto.randomUUID() + "}",
-    nm: "Composition",
-    op: 120,
     v: "5.7.1",
+    ip: 0,
+    op: 120,
+    nm: "Composition",
+    mn: "{" + Crypto.randomUUID() + "}",
+    fr: 24,
     w: width,
+    h: height,
+    assets: [],
     layers: []
   };
 }
@@ -257,8 +237,8 @@ function formatLottieData(svgData: SvgDataType) {
   // const viewBox = svgData.metaData.viewBox.split(' ');
   // const width = Math.round(parseFloat(viewBox[2]));
   // const height = Math.round(parseFloat(viewBox[3]));
-  const width = CANVAS_WIDTH;
-  const height = CANVAS_HEIGHT;
+  const width =  parseInt(CANVAS_WIDTH.toFixed(0));
+  const height = parseInt(CANVAS_HEIGHT.toFixed(0));
 
   const layers: any[] = [];
   svgData.pathData.forEach((path) => {
@@ -269,7 +249,7 @@ function formatLottieData(svgData: SvgDataType) {
     layers.push(layer);
   });
   const file = createFile({ width, height });
-  file.layers = layers as never;
+  file.layers = layers as any;
   const lottieJson = JSON.stringify(file);
   // console.log(lottieJson);
   return lottieJson;

@@ -19,7 +19,7 @@ import formatLottieData from "@u/lottie";
 
 const ExportScreen = ({ initControls }) => {
   const { svgData } = useContext(SvgDataContext);
- const [animate, setAnimate] = useState(false);
+  const [animate, setAnimate] = useState(false);
 
 
   const [exportSource, setExportSource] = useState("");
@@ -86,9 +86,9 @@ const ExportScreen = ({ initControls }) => {
     console.log(svgData);
     Clipboard.setStringAsync(getStaticSvg(svgData));
   }
-  const copyToClipboard = () => {
-    console.log(exportSource)
-    Clipboard.setStringAsync(exportSource);
+  const copyToClipboard = (data = "") => {
+    console.log(data)
+    Clipboard.setStringAsync(data);
   };
 
   const download = async () => {
@@ -104,7 +104,7 @@ const ExportScreen = ({ initControls }) => {
   {/* <TextInput editable={false} multiline>{exportSource}</TextInput> */ }
 
   useEffect(() => {
-    setTimeout(() => {setAnimate(true)}, 2000);
+    setTimeout(() => { setAnimate(true) }, 2000);
   }, []);
 
   useEffect(() => {
@@ -122,19 +122,25 @@ const ExportScreen = ({ initControls }) => {
       <View style={styles.section}>
         <Text>Static SVG</Text>
         <Button title="Download" onPress={download} />
-        <Button title="Copy to Clipboard" onPress={copySvgToClipboard} />
+        <Button title="Copy to Clipboard" onPress={() => copySvgToClipboard()} />
       </View>
       <View style={styles.section}>
         <Text>SMIL SVG</Text>
         <Button title="Download" onPress={download} />
-        <Button title="Copy to Clipboard" onPress={copyToClipboard} />
+        <Button title="Copy to Clipboard" onPress={() => copyToClipboard(getSmilSvg(svgData))} />
       </View>
       <View style={styles.section}>
         <Text>SVG + CSS</Text>
         <Button title="Download" onPress={download} />
-        <Button title="Copy to Clipboard" onPress={copyToClipboard} />
+        <Button title="Copy to Clipboard" onPress={() => copyToClipboard(getCssSvg(svgData))} />
       </View>
-      <View style={{...styles.section, width: CANVAS_WIDTH, height: CANVAS_HEIGHT,  borderWidth: 1, borderColor: 'red'}}>
+      <View style={styles.section}>
+        <Text>Lottie</Text>
+        <Button title="Download" onPress={download} />
+        <Button title="Copy to Clipboard" onPress={() => copyToClipboard(JSON.stringify(lottieJson))} />
+      </View>
+
+      <View style={{ ...styles.section, width: CANVAS_WIDTH, height: CANVAS_HEIGHT, borderWidth: 1, borderColor: 'red' }}>
         <LottieView style={{ width: CANVAS_WIDTH, height: CANVAS_HEIGHT, }} resizeMode="cover" source={lottieJson} autoPlay={false} loop={false} />
       </View>
     </ScrollView>
