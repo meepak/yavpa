@@ -1,5 +1,5 @@
 import { View, Text } from "react-native";
-import MySlider from "@c/controls/my-slider";
+import MySlider from "@c/my-slider";
 import Svg, { Line } from "react-native-svg";
 import { useState } from "react";
 

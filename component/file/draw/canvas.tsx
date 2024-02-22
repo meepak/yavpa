@@ -13,6 +13,7 @@ import MyPath from "@c/my-path";
 import { useCommandEffect } from "./canvas/command-effect";
 import { drawingEvent } from "./canvas/drawing-event";
 import { SvgDataContext } from "@x/svg-data";
+import { svg } from "d3";
 // import { saveSvgToFile } from "@u/storage";
 
 

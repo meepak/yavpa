@@ -53,15 +53,15 @@ export const drawingEvent = (
         path: `M${pt.x},${pt.y}`,
         ...(erasureMode
           ? {
-              stroke: "#0000FF",
-              strokeWidth: 2,
-              strokeOpacity: 0.5,
-              strokeLinecap: "round",
-              strokeLinejoin: "round",
-              fill: "#FF0000",
-              strokeDasharray: "5,5",
-              strokeDashoffset: 0
-            }
+            stroke: "#0000FF",
+            strokeWidth: 2,
+            strokeOpacity: 0.5,
+            strokeLinecap: "round",
+            strokeLinejoin: "round",
+            fill: "#FF0000",
+            strokeDasharray: "5,5",
+            strokeDashoffset: 0
+          }
           : {})
       });
 
@@ -130,7 +130,7 @@ export const drawingEvent = (
       }
 
       let curveBasis: d3.CurveFactoryLineOnly | undefined;
-      if(d3CurveBasis) {
+      if (d3CurveBasis) {
         curveBasis = getD3CurveBasis(d3CurveBasis);
       }
       if (curveBasis && points.length >= 2) {
@@ -138,27 +138,29 @@ export const drawingEvent = (
           point.x,
           point.y,
         ]);
-          // Create a line generator
-          if (curveBasis) {
-            const line = d3.line().curve(curveBasis);
-            // Generate the path data
-            currentPath.path = line(pointsXY as [number, number][]) || "";
-            // points = getPointsFromPath(currentPath.path);
-          }
+        // Create a line generator
+        if (curveBasis) {
+          const line = d3.line().curve(curveBasis);
+          // Generate the path data
+          currentPath.path = line(pointsXY as [number, number][]) || "";
+          // points = getPointsFromPath(currentPath.path);
+        }
       } else {
-      currentPath.path = getPathFromPoints(points);
+        currentPath.path = getPathFromPoints(points);
       }
-      
 
-      if (isValidPath(currentPath.path)) {  
+
+      if (isValidPath(currentPath.path)) {
         currentPath.visible = true;
         currentPath.length = polygonLength(points.map(point => [point.x, point.y]));
-      //  console.log('updating completed path');
+        //  console.log('updating completed path');
+
+        // console.log(currentPath.path);
 
         setCompletedPaths((prev) => [...prev, currentPath]);
       }
       // console.log("completedPaths", completedPaths.length);
-      setCurrentPath(newPathData()); 
+      setCurrentPath(newPathData());
       setStartTime(0);
       break;
     default:

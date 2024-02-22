@@ -13,7 +13,7 @@ const MySlider = (props: MySliderProps) => {
   return (
     <View style={{ alignItems: "center" }}>
     <Text style={{fontWeight: 'bold', alignSelf: 'center', marginBottom: 5 }}>{props.name}</Text>
-      <Text>{value && value.toFixed(2)}{props.suffix || ""}</Text>
+      <Text>{value && value.toFixed(4)}{props.suffix || ""}</Text>
       <Slider
         {...props}
         tapToSeek={true}

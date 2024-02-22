@@ -2,18 +2,19 @@
 import { format } from "d3";
 import * as Crypto from "expo-crypto";
 import { getPointsFromPath } from "./helper";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, PointType, SvgDataType } from "./types";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, PathDataType, PointType, SvgDataType } from "./types";
 
-type curvePointType = { point: [number, number], curveFrom: [number, number], curveTo: [number, number] };
+type lottiePointType = { point: [number, number], curveFrom: [number, number], curveTo: [number, number] };
+
 
 function convertPath(path: string) {
   const points = getPointsFromPath(path);
 
   const groups: any[] = []; //to be defined type later
-  const curvePoints: curvePointType[] = [];
+  const lottiePoints: lottiePointType[] = [];
 
-  function convertPoints(curvePoints: any[], isClosed: boolean) {
-    return curvePoints.reduce(
+  function convertPoints(lottiePoints: any[], isClosed: boolean) {
+    return lottiePoints.reduce(
       (result: { i: any; o: any; v: any; }, curvePoint: { point: any; curveFrom: any; curveTo: any; }) => {
         const { point, curveFrom, curveTo } = curvePoint;
         const { i, o, v } = result;
@@ -30,7 +31,7 @@ function convertPath(path: string) {
 
   points.forEach((point: PointType) => {
     // Do something with each point
-    curvePoints.push({
+    lottiePoints.push({
       point: [point.x, point.y],
       curveFrom: [0, 0],
       curveTo: [0, 0]
@@ -38,14 +39,14 @@ function convertPath(path: string) {
   });
 
 
-  if (curvePoints.length > 0) {
-    groups.push(convertPoints(curvePoints, false) as any);
+  if (lottiePoints.length > 0) {
+    groups.push(convertPoints(lottiePoints, false) as any);
   }
 
   return groups;
 }
 
-function hexToRgba(hex: string) {
+function hexToRgb(hex: string) {
   let r = 0, g = 0, b = 0;
   if (hex.length == 4) {
     r = parseInt(hex[1] + hex[1], 16);
@@ -63,24 +64,7 @@ function hexToRgba(hex: string) {
   return rgb;
 }
 
-function createEllipseShape({ x, y, width, height }) {
-  return {
-    d: 1,
-    ty: "el",
-    s: {
-      a: 0,
-      k: [width, height],
-    },
-    p: {
-      a: 0,
-      k: [x, y],
-    },
-    nm: "Ellipse Path 1",
-    mn: "ADBE Vector Shape - Ellipse",
-  };
-}
-
-function createShapeItem(points: curvePointType) {
+function createShape(points: lottiePointType) {
   return {
     d: 1,
     mn: "{" + Crypto.randomUUID() + "}",
@@ -93,83 +77,106 @@ function createShapeItem(points: curvePointType) {
   };
 }
 
-function createShape(items: any, guid: string, strokeColorHex: string, strokeOpacity: number, strokeWidth: number, fillColorHex?: string, fillOpacity?: number,) {
-  const strokeColor = hexToRgba(strokeColorHex);
-  const strokeOpacityValue = strokeOpacity * 100;
+function createFill(color: number[], opacity: number) {
+  return {
+    ty: "fl",
+    c: {
+      a: 0,
+      k: color
+    },
+    mn: "{" + Crypto.randomUUID() + "}",
+    nm: "Fill",
+    o: {
+      a: 0,
+      k: opacity
+    },
+    r: 1
+  };
+}
 
-  const fillColor = [0, 0, 0]; //hexToRgba(fillColorHex || '#0000FF'); // default color just for debug, it seems black is default if nothing given
-  const fillOpacityValue = 0; //fillOpacity || 0;
+function createStroke(color: number[], opacity: number, width: number) {
+  return {
+    ty: "st",
+    c: {
+      a: 0,
+      k: color
+    },
+    mn: "{" + Crypto.randomUUID() + "}",
+    nm: "Stroke",
+    o: {
+      a: 0,
+      k: opacity
+    },
+    w: {
+      a: 0,
+      k: width
+    },
+    lc: 2,
+    lj: 2,
+    ml: 0,
+  };
+}
 
-  //use guid for group mn
+function createTransform() {
+  return {
+    ty: "tr",
+    a: {
+      a: 0,
+      k: [0, 0]
+    },
+    o: {
+      a: 0,
+      k: 100
+    },
+    p: {
+      a: 0,
+      k: [0, 0]
+    },
+    r: {
+      a: 0,
+      k: 0
+    },
+    s: {
+      a: 0,
+      k: [100, 100]
+    }
+  };
+}
+
+function createGroup(path: PathDataType, startTime: number) {
+
+  const strokeColor = hexToRgb(path.stroke);
+  const strokeOpacity = path.strokeOpacity * 100;
+  const strokeWidth = path.strokeWidth;
+  path.time / 1000
+  const fillColor = [0, 0, 0];
+  const fillOpacity = 0;
+
+
+  const lottiePath = convertPath(path.path);
+  const shapes = lottiePath.map(createShape);
+  const shapeFill = createFill(fillColor, fillOpacity);
+  const shapeStroke = createStroke(strokeColor, strokeOpacity, strokeWidth);
+  const shapeTransform = createTransform();
+
+  const trimPaths = createTrimPaths(startTime);
 
   return {
     ty: "gr",
-    mn: "{" + Crypto.randomUUID() + "}",
+    mn: "{" + path.guid + "}",
     nm: "Group",
     it: [
-      ...items,
-      {
-        ty: "fl",
-        c: {
-          a: 0,
-          k: fillColor
-        },
-        mn: "{" + Crypto.randomUUID() + "}",
-        nm: "Fill",
-        o: {
-          a: 0,
-          k: fillOpacityValue
-        },
-        r: 1
-      },
-      {
-        ty: "st",
-        c: {
-          a: 0,
-          k: strokeColor
-        },
-        mn: "{" + Crypto.randomUUID() + "}",
-        nm: "Stroke",
-        o: {
-          a: 0,
-          k: strokeOpacityValue
-        },
-        w: {
-          a: 0,
-          k: strokeWidth || 1
-        },
-        lc: 2,
-        lj: 2,
-        ml: 0,
-      },
-      {
-        ty: "tr",
-        a: {
-          a: 0,
-          k: [0, 0]
-        },
-        o: {
-          a: 0,
-          k: 100
-        },
-        p: {
-          a: 0,
-          k: [0, 0]
-        },
-        r: {
-          a: 0,
-          k: 0
-        },
-        s: {
-          a: 0,
-          k: [100, 100]
-        }
-      }
+      ...shapes,
+      shapeFill,
+      shapeStroke,
+      shapeTransform,
+      trimPaths
     ]
   };
 }
 
-function createLayer(shapes: any) {
+function createLayer(path: PathDataType, startTime: number) {
+  const group = [createGroup(path, startTime)];
   return {
     ddd: 0,
     ty: 4,
@@ -201,11 +208,11 @@ function createLayer(shapes: any) {
         k: [100, 100, 100]
       }
     },
-    shapes,
+    shapes: group,
   };
 }
 
-function createFile(options: { width: number; height: number; }) {
+function createComposition(options: { width: number; height: number; }) {
   const { width, height } = options;
 
   return {
@@ -222,37 +229,76 @@ function createFile(options: { width: number; height: number; }) {
   };
 }
 
-// module.exports = {
-//   createShapeItem,
-//   createEllipseShape,
-//   createShape,
-//   createLayer,
-//   createFile,
-//   convertPath
-// };
+// ----------- animation function start ------------
 
-// lets just worry about display static lottie, and than we will see about animation
-function formatLottieData(svgData: SvgDataType) {
+function createTrimPaths(startTime: number) {
+  const start = 0;
+  const end = 100;
+  const offset = 0;
+  return {
+    ty: "tm",
+    s: {
+      a: 1,
+      k: [
+        {
+          t: startTime,
+          s: [end],
+          e: [start]
+        }
+      ]
+    },
+    e: {
+      a: 1,
+      k: [
+        {
+          t: startTime,
+          s: [start],
+          e: [end]
+        }
+      ]
+    },
+    o: {
+      a: 1,
+      k: [
+        {
+          t: startTime,
+          s: [offset],
+          e: [offset]
+        }
+      ]
+    },
+    m: 1,
+    nm: "Trim Paths 1",
+    mn: "{" + Crypto.randomUUID() + "}"
+  };
+}
+
+// ------------ animation function end ------------
+
+function createLottie(svgData: SvgDataType) {
   // Extract width and height from viewBox
   // const viewBox = svgData.metaData.viewBox.split(' ');
   // const width = Math.round(parseFloat(viewBox[2]));
   // const height = Math.round(parseFloat(viewBox[3]));
-  const width =  parseInt(CANVAS_WIDTH.toFixed(0));
+  const width = parseInt(CANVAS_WIDTH.toFixed(0));
   const height = parseInt(CANVAS_HEIGHT.toFixed(0));
 
   const layers: any[] = [];
-  svgData.pathData.forEach((path) => {
-    const lottiePath = convertPath(path.path);
-    const items = lottiePath.map(createShapeItem);
-    const shape = createShape(items, path.guid, path.stroke, path.strokeOpacity, path.strokeWidth);
-    const layer = createLayer([shape]);
+  const reversedPathData = [...svgData.pathData].reverse()
+  let startTime = 0;
+
+  reversedPathData.forEach((path) => {
+    const layer = createLayer(path, startTime);
     layers.push(layer);
+    startTime += path.time / 1000;
   });
-  const file = createFile({ width, height });
-  file.layers = layers as any;
-  const lottieJson = JSON.stringify(file);
+
+  const lottie = createComposition({ width, height });
+  lottie.layers = layers as any;
+  
+  const lottieJson = JSON.stringify(lottie);
   // console.log(lottieJson);
   return lottieJson;
 }
 
-export default formatLottieData;
+export default createLottie;

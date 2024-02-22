@@ -1,5 +1,5 @@
 import { View , Text} from "react-native";
-import MySlider from "@c/controls/my-slider";
+import MySlider from "@c/my-slider";
 import { useEffect, useState } from "react";
 import MyCheckBox from "@c/my-check-box";
 
@@ -15,7 +15,7 @@ const AnimationParams = ({ speed, onSpeedChanged, loopStatus, onLoopStatusChange
       <MySlider
         style={{ width: 250, height: 40, top: -10 }}
         name={"Animation Speed"}
-        minimumValue={0}
+        minimumValue={0.01}
         maximumValue={10}
         step={0.01}
         suffix={" x Current Path Time"}
