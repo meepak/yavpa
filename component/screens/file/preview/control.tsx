@@ -1,18 +1,13 @@
 import AnimationParams from "@c/controls/animation-params";
 import DashOffsetCorrection from "@c/controls/dash-offset-correction";
+import { AnimationParamsType } from "@u/types";
 import React from "react";
 
 const createPreviewControls = ({
   onPreviewPlay,
   onPreviewStop,
-  speed,
-  setSpeed,
-  loop,
-  setLoop,
-  delay,
-  setDelay,
-  correction,
-  setCorrection
+  animationParams,
+  setAnimationParams
 }) => [
     {
       key: "play",
@@ -30,17 +25,14 @@ const createPreviewControls = ({
       title: "Set Animation Params",
       extraControl: (
         <AnimationParams
-          speed={speed}
-          onSpeedChanged={(value: number) => {
-            setSpeed(() => value);
-          }}
-          loopStatus={loop}
-          onLoopStatusChanged={(value: boolean) => {
-            setLoop(() => value);
-          }}
-          loopDelay={delay}
-          onLoopDelayChanged={(value: number) => {
-            setDelay(() => value);
+          animationParams={animationParams}
+          onAnimationParamsChanged={(value: AnimationParamsType) => {
+            setAnimationParams((prev: AnimationParamsType) => ({ 
+              ...prev, 
+              speed: value.speed,
+              loop: value.loop,
+              delay: value.delay
+            }));
           }}
         />
       ),
@@ -52,9 +44,9 @@ const createPreviewControls = ({
       title: "Clear fragments",
       extraControl: (
         <DashOffsetCorrection
-          value={correction}
+          value={animationParams.correction}
           onValueChanged={(value: number) => {
-            setCorrection(value);
+            setAnimationParams((prev: AnimationParamsType) => ({...prev, correction: value}));
           }}
           />
       ),

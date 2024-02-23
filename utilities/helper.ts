@@ -9,7 +9,7 @@ const screenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
 
 export const isAndroid = Platform.OS === "android";
-export const isIOS =  Platform.OS === "ios";
+export const isIOS = Platform.OS === "ios";
 
 
 export const createSvgData = (defaultViewBoxWidth?: number, defaultViewBoxHeight?: number): SvgDataType => ({
@@ -39,8 +39,8 @@ export const createPathdata = (
   strokeCap?: Linecap,
   strokeJoin?: Linejoin,
   strokeFill?: string,
-  strokeDasharray?: string|undefined,
-  strokeDashoffset?: number|undefined,
+  strokeDasharray?: string | undefined,
+  strokeDashoffset?: number | undefined,
 ): PathDataType => ({
   path: "",
   stroke: stroke ?? "#000000",
@@ -58,14 +58,14 @@ export const createPathdata = (
 });
 
 
-export const precise = (num: string | number, precision = PRECISION): number => 
+export const precise = (num: string | number, precision = PRECISION): number =>
   parseFloat(parseFloat(num as string).toFixed(precision));
 
 export const isValidPath = (path: string): boolean => {
-  if(path === undefined || path === null) return false;
-  if(path === "") return false;
+  if (path === undefined || path === null) return false;
+  if (path === "") return false;
   let p = path.toUpperCase();
-  if(p === "M" || p === "MZ") return false;
+  if (p === "M" || p === "MZ") return false;
   // add any other issue that may happen with path
   return true;
 }
@@ -138,11 +138,11 @@ export const getViewBoxTrimmed = (pathData: PathDataType[]) => {
     const points = getPointsFromPath(path.path);
     // console.log("points", points);
     points.forEach((point) => {
-      if(point.x === undefined || point.y === undefined) {
+      if (point.x === undefined || point.y === undefined) {
         // console.log("point.x or point.y is undefined", point);
         return;
       }
-      if(Number.isNaN(point.x) || Number.isNaN(point.y)) {
+      if (Number.isNaN(point.x) || Number.isNaN(point.y)) {
         // console.log("point.x or point.y is NaN", point);
         return;
       }
@@ -152,7 +152,7 @@ export const getViewBoxTrimmed = (pathData: PathDataType[]) => {
       maxY = Math.max(maxY, point.y);
     });
   });
-  
+
   const r = (value) => Math.round(value);
   minX = r(minX) ?? 0;
   minY = r(minY) ?? 0;
@@ -160,15 +160,30 @@ export const getViewBoxTrimmed = (pathData: PathDataType[]) => {
   maxY = r(maxY) ?? CANVAS_HEIGHT ?? screenHeight;
 
   const viewBox = `${minX - offset} ${minY - offset} ${maxX - minX + 2 * offset} ${maxY - minY + 2 * offset}`;
-  console.log("viewBox trimmed", viewBox);
+  // console.log("viewBox trimmed", viewBox);
   return viewBox;
 };
 
 
-export const HeaderGradientBackground = ({ children }) => (<>
-    <LinearGradient 
-          colors={['#015ccd', '#a805ee', '#1d0f98']} 
-          style={{...StyleSheet.absoluteFillObject, 
-          zIndex: -1,}} />
-    {children}
-  </>)
+
+/**
+ * Compares two JSON arrays and returns the difference between them as a string.
+ * @param json1 - The first JSON array.
+ * @param json2 - The second JSON array.
+ * @returns The difference between the two JSON arrays as a string.
+ */
+export const jsonDeepCompare = (json1: any, json2: any, log = false) => {
+  const stringDifference = (a: string, b: string) => {
+    const set = new Set([...a, ...b]);
+    const diff = [...set].filter((char) => !a.includes(char) || !b.includes(char)).join("");
+    if(log) {
+      console.log("Difference", diff);
+    }
+    return diff === "";
+  } 
+  const aJson = JSON.stringify(json1);
+  const bJson = JSON.stringify(json2);
+  if (bJson === aJson || json2 === json1) return "";
+  return stringDifference(aJson.trim(), bJson.trim());
+}
+

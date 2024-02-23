@@ -1,6 +1,6 @@
 import { getViewBoxTrimmed } from "@u/helper";
 import { SvgDataType, BrushType } from "@u/types";
-import { Brushes, getBrushSvg } from './brushes';
+import { Brushes, getBrushSvg } from '../component/my-brushes';
 
 export const getStaticSvg = (svgData: SvgDataType, trimViewBox = true) => {
   const viewBox = trimViewBox ? getViewBoxTrimmed(svgData.pathData) : svgData.metaData.viewBox;

@@ -11,23 +11,28 @@ import { GestureUpdateEvent, PanGestureHandlerEventPayload } from "react-native-
 import { Shape } from "react-native-svg";
 import simplify from "simplify-js";
 
+/*
+ERASURE MODE IS NOT USED IN THIS VERSION, WILL REFINE IT LATER
+*/
 export const drawingEvent = (
   event: GestureUpdateEvent<PanGestureHandlerEventPayload>,
   state: string,
   editMode: boolean,
-  erasureMode: boolean,
+  // erasureMode: boolean,
   currentPath: PathDataType,
   setCurrentPath: { (value: SetStateAction<PathDataType>): void; },
   startTime: number,
   setStartTime: { (value: SetStateAction<number>): void; },
   newPathData: { (): PathDataType; (): any; },
   currentShape: ShapeType,
-  setCurrentShape: { (value: SetStateAction<{ name: string; start: PointType; end: PointType; }>): void; },
+  setCurrentShape: { (value: SetStateAction<ShapeType>): void; },
   completedPaths: PathDataType[],
   setCompletedPaths: { (value: SetStateAction<PathDataType[]>): void; },
   simplifyTolerance: number,
   d3CurveBasis: string
 ) => {
+
+  const erasureMode = false; //disabling for safety in this version
 
   if (event.numberOfPointers !== 1) return;
   if (!editMode) return;
@@ -79,7 +84,7 @@ export const drawingEvent = (
           prev.end = pt as PointType;
           return prev;
         });
-        const { path, length } = shapeData(currentShape);
+        const path = shapeData(currentShape);
 
         setCurrentPath({
           ...currentPath,
@@ -105,7 +110,6 @@ export const drawingEvent = (
         setCurrentPath({
           ...currentPath,
           path: pathExtend,
-          // length: length,
         });
       }
       break;
@@ -115,14 +119,13 @@ export const drawingEvent = (
       if (erasureMode) {
         // use currentPath as erasure
         const newCompletedPaths = applyErasure(currentPath, completedPaths);
-        setCompletedPaths(newCompletedPaths);
+        setCompletedPaths(() => newCompletedPaths);
         setCurrentPath(newPathData());
         setStartTime(0);
         return;
       }
 
       let points = getPointsFromPath(currentPath.path);
-      // console.log("path", currentPath.path);
       if (simplifyTolerance > 0) {
         if (points.length >= 2) {
           points = simplify(points, simplifyTolerance);
@@ -143,23 +146,17 @@ export const drawingEvent = (
           const line = d3.line().curve(curveBasis);
           // Generate the path data
           currentPath.path = line(pointsXY as [number, number][]) || "";
-          // points = getPointsFromPath(currentPath.path);
         }
       } else {
         currentPath.path = getPathFromPoints(points);
       }
 
-
       if (isValidPath(currentPath.path)) {
         currentPath.visible = true;
         currentPath.length = polygonLength(points.map(point => [point.x, point.y]));
-        //  console.log('updating completed path');
-
-        // console.log(currentPath.path);
-
         setCompletedPaths((prev) => [...prev, currentPath]);
       }
-      // console.log("completedPaths", completedPaths.length);
+      
       setCurrentPath(newPathData());
       setStartTime(0);
       break;

@@ -1,9 +1,9 @@
-import { View , Text} from "react-native";
+import { View, Text } from "react-native";
 import MySlider from "@c/my-slider";
 import Svg, { Line } from "react-native-svg";
 import { useState } from "react";
 
-const StrokeWidth = ({ color, opacity=1, value, onValueChanged, w = 250, h = 100 }) => {
+const StrokeWidth = ({ color, opacity = 1, value, onValueChanged, w = 250, h = 100 }) => {
   const [currentValue, setCurrentValue] = useState(value)
   return (
     <>

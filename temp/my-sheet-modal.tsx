@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { View, Modal, Text, TouchableWithoutFeedback } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import MyIcon from './my-icon';
+import MyIcon from '../component/my-icon';
 
 interface MySheetModalProps {
     isVisible: boolean;

@@ -21,7 +21,7 @@ const AnimatedSplash = ({
 
   useEffect(() => {
     if (isAppReady) {
-      console.log('app ready')
+      console.log('[ANIMATED SPLASH] app ready')
       Animated.timing(animation, {
         toValue: 0,
         duration: 1000,

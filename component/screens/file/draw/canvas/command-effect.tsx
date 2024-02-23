@@ -1,5 +1,5 @@
 import { createPathdata } from "@u/helper";
-import { PathDataType } from "@u/types";
+import { PathDataType, ShapeType } from "@u/types";
 import { SetStateAction, useEffect } from "react";
 
 export const useCommandEffect = (
@@ -12,7 +12,7 @@ export const useCommandEffect = (
   undonePaths: PathDataType[],
   setUndonePaths: { (value: SetStateAction<PathDataType[]>):  void; },
   setCurrentPath: { (value: SetStateAction<PathDataType>): void; },
-  setCurrentShape: { (value: SetStateAction<{ name: string; start: { x: number; y: number; }; end: { x: number; y: number; }; }>): void; },
+  setCurrentShape: { (value: SetStateAction<ShapeType>): void; },
   forceUpdate: number
 ) => {
   useEffect(() => {

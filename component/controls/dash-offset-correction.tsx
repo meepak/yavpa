@@ -19,7 +19,7 @@ const DashOffsetCorrection = ({ value, onValueChanged }) => {
         step={0.001}
         value={currentValue}
         onValueChange={(value) => {
-          setCurrentValue(() => value);
+          setCurrentValue(() => value); // should be remvoable
           onValueChanged(value);
         }}
       />

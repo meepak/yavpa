@@ -18,16 +18,12 @@ export const ScreenModes: ScreenModeType[] = [
     { name: "Draw", icon: "edit" },
     { name: "Preview", icon: "preview" },
     { name: "Export", icon: "export" },
-  ];
-
+];
 
 
 export type ScreenModeType = { name: string, icon: string };
 
 
-// TODO -- once stroke styles are added, have to update in 
-// canvas, preview, formatter for export
-// Define Type of PathData
 export type PathDataType = {
     path: string; // svg path, e.g. "M0,0 L100,100" only contains M & L commands
     length: number; // length of the path calculated by summing distance between two consecutive points
@@ -37,8 +33,8 @@ export type PathDataType = {
     strokeOpacity: number; // stroke opacity
     strokeCap?: Linecap; // stroke linecap
     strokeJoin?: Linejoin; // stroke linejoin
-    strokeDasharray?: string|undefined; // stroke dasharray
-    strokeDashoffset?: number|undefined; // stroke dashoffset
+    strokeDasharray?: string | undefined; // stroke dasharray
+    strokeDashoffset?: number | undefined; // stroke dashoffset
     fill?: string; // fill color
     guid: string; // unique identifier for each path
     visible: boolean; // is path visible (allows to hide path without deleting them permanently)
@@ -53,15 +49,10 @@ export type MetaDataType = {
     viewBox: string; // viewBox of the svg
     lastScreenMode?: string; // last screen mode
     editable?: boolean; // is svg editable
-    animation?: {
-        speed?: number, // speed of the animation, total time = path.time / (speed * 1000) seconds
-        loop?: boolean, // loop the animation
-        delay?: number, // delay between animation loop
-        correction?: number
-    }
+    animation?: AnimationParamsType;
 };
 
-// Define type of SvgData
+
 export type SvgDataType = {
     pathData: PathDataType[];
     metaData: MetaDataType;
@@ -72,16 +63,19 @@ export interface SvgDataContextType {
     setSvgData: React.Dispatch<React.SetStateAction<SvgDataType>>;
 }
 
+export type AnimationParamsType = {
+    speed: number;
+    loop: boolean;
+    delay: number;
+    correction: number;
+}
 
 export interface SvgAnimateHandle {
     playAnimation: () => void;
     loopAnimation: () => void;
     replayAnimation: () => void;
     stopAnimation: () => void;
-    animationSpeed: (value: number) => void;
-    animationLoop: (value: boolean) => void;
-    animationDelay: (value: number) => void;
-    animationCleanup: (value: number) => void;
+    setAnimationParams: (value: AnimationParamsType) => void;
 }
 
 export type BrushType = {
@@ -99,3 +93,20 @@ export type PatternBrushPropType = { guid: string, pattern: number };
 export type PointType = { x: number, y: number };
 
 export type ShapeType = { name: string, start: PointType, end: PointType };
+
+export const AvailableShapes = [
+    'freehand',
+    '— line',
+    '◯ circle',
+    '□ square',
+    '▭ rectangle',
+    '☆ star',
+    '♡ heart',
+    '⬠ pentagon',
+    '⬡ hexagon',
+    'octagon',
+    'triangle',
+    'star-6',
+    'star-8',
+    'star-10',
+];

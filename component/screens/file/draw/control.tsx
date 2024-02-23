@@ -1,19 +1,16 @@
 import React, { } from "react";
 import {
-  MyColorPicker,
-  StrokeWidth, 
-  StrokeOpacity,
   SimplifySmooth, 
   PathsAsLayers, 
   SelectShape
 } from "component/controls"
-import { ColorValue } from "react-native";
-import SelectBrush from "@c/controls/select-brush";
 import StrokeWidthOpacity from "@c/controls/stroke-width-opacity";
 import SelectBrushColor from "@c/controls/select-brush-color";
 
 const createDrawControls = ({
   // onLock,
+  svgData,
+  setSvgData,
   onUndo,
   onRedo,
   strokeWidth,
@@ -28,7 +25,7 @@ const createDrawControls = ({
   setD3CurveBasis,
   shape,
   drawShape,
-  toggleErasure,
+  // toggleErasure,
   // onSelectMode,
 }) => {
   // console.log('createDrawControls', strokeWidth);
@@ -50,7 +47,7 @@ const createDrawControls = ({
       extraControl: (
         <SelectBrushColor
         value={stroke}
-        onValueChanged={(color) => setStroke(() => color)}
+        onValueChanged={(color: string) => setStroke(() => color)}
         />
       ),
       extraPanel: { width: 340, height: 360 }
@@ -116,12 +113,12 @@ const createDrawControls = ({
       ),
       extraPanel: { width: 285, height: 240 }
     }, 
-    {
-      key: "erasure",
-      icon: "erasure-off",
-      toggleIcons: ["erasure", "erasure-off"],
-      onPress: toggleErasure,
-    },
+    // {
+    //   key: "erasure",
+    //   icon: "erasure-off",
+    //   toggleIcons: ["erasure", "erasure-off"],
+    //   onPress: toggleErasure,
+    // },
 
     // {
     //   key: "select",
@@ -133,7 +130,7 @@ const createDrawControls = ({
       icon: "layers",
       title: "Layers",
       extraControl: (
-        <PathsAsLayers />
+        <PathsAsLayers svgData={svgData} setSvgData={setSvgData}/>
       ),
       extraPanel: { width: 330, height: 'auto'}
     },

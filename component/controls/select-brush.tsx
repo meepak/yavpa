@@ -1,8 +1,8 @@
 import { useContext, useState } from "react";
-import * as AvailableBrushes from "@u/brushes";
+import * as AvailableBrushes from "@c/my-brushes";
 import MyRadioButtons from '@c/my-radio-buttons';
 import { BrushType } from "@u/types";
-import { Brushes } from "@u/brushes";
+import { Brushes } from "@c/my-brushes";
 import Svg, { Line, Defs } from "react-native-svg";
 import { SvgDataContext } from "@x/svg-data";
 import { View } from "react-native";

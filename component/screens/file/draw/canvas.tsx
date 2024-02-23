@@ -7,102 +7,98 @@ import {
   GestureUpdateEvent,
   PanGestureHandlerEventPayload,
 } from "react-native-gesture-handler";
-import { createPathdata } from "@u/helper";
-import { DEFAULT_VIEWBOX, PathDataType } from "@u/types";
+import { createPathdata, jsonDeepCompare } from "@u/helper";
+import { DEFAULT_VIEWBOX, PathDataType, ShapeType } from "@u/types";
 import MyPath from "@c/my-path";
 import { useCommandEffect } from "./canvas/command-effect";
 import { drawingEvent } from "./canvas/drawing-event";
 import { SvgDataContext } from "@x/svg-data";
-import { svg } from "d3";
-// import { saveSvgToFile } from "@u/storage";
+import { defaultShape } from "@u/shapes";
 
 
 type SvgCanvasProps = {
-  editable?: boolean;
-  erasing?: boolean;
+  editable?: boolean; completedPaths
   command?: string;
   forceUpdate?: number;
-  // onPathDataChange?: (arg0: PathDataType[]) => void;
-  // initialPathData?: PathDataType[];
+  initialPathData: PathDataType[];
   strokeWidth?: number;
   stroke?: string;
   strokeOpacity?: number;
   simplifyTolerance?: number;
-  d3CurveBasis?: any; // Replace 'any' with the actual type if known
-  // viewBox?: string;
+  d3CurveBasis?: any;
 };
 
 const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   const {
     editable = true,
-    erasing = false,
     command = "",
     forceUpdate = 0,
-    // onPathDataChange = () => { },
-    // initialPathData = [],
+    initialPathData = [],
     strokeWidth = 2,
     strokeOpacity = 1,
     stroke = "#000000",
     simplifyTolerance = 0,
     d3CurveBasis = null,
-    // viewBox = DEFAULT_VIEWBOX,
   } = props;
 
-  const { svgData, setSvgData } = useContext(SvgDataContext);
+  const { setSvgData } = useContext(SvgDataContext);
   const newPathData = () => createPathdata(stroke, strokeWidth, strokeOpacity);
 
   const [undonePaths, setUndonePaths] = useState([] as PathDataType[]);
-  const [completedPaths, setCompletedPaths] = useState(svgData.pathData);
+  const [completedPaths, setCompletedPaths] = useState(initialPathData);
   const [currentPath, setCurrentPath] = useState(newPathData());
   const [startTime, setStartTime] = useState(0);
-  // to draw various shapes
-  const resetShape = { name: "", start: { x: 0, y: 0 }, end: { x: 0, y: 0 } };
-  const [currentShape, setCurrentShape] = useState(resetShape);
-  // for select mode
+  const [currentShape, setCurrentShape] = useState<ShapeType>(defaultShape);
   const [editMode, setEditMode] = useState(editable);
-  // selectedPaths hold 1 path and it's boundary box path
+
+  const [isLoading, setIsLoading] = useState(true);
+
+
+  // This is be enabled in next version only
   // const [selectMode, setSelectMode] = useState(false);
   // const [selectedPathIndex, setSelectedPathIndex] = useState(-1);
   // const [selectedPaths, setSelectedPaths] = useState([] as PathDataType[]);
-
   // erasure mode - erasure shape can be square or circle 
-  const [erasureMode, setErasureMode] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  // const [erasureMode, setErasureMode] = useState(false);
+
+
 
   useEffect(() => {
-    // console.log('new request');
-    if (svgData.metaData.guid !== "") {
-      setIsLoading(false);
-      setCompletedPaths(() => svgData.pathData);
-      svgData.metaData.viewBox = DEFAULT_VIEWBOX; // necessary to be able to draw on
-    }
-  }, [svgData]);
+  }, []);
 
-    useEffect(() => {
-    // if (selectMode) return;
-    if (completedPaths === svgData.pathData) {
-      return
-    }
-    const updatedSvgData = {
-      metaData: svgData.metaData,
-      pathData: completedPaths,
-    };
-    // saveSvgToFile(updatedSvgData);
-    setSvgData(updatedSvgData);
+  // const difference = jsonDeepCompare(svgData.pathData, completedPaths);
+  // if (!difference) {
+  //   console.log(`[SVG CANVAS, completedPaths] new path data same as in completed paths`);
+  //   return;
+  // }
+  // console.log(`[SVG CANVAS, completedPaths] new path data different from completed paths`, difference);
+  useEffect(() => {
+    setSvgData((prev) => {
+      const current = jsonDeepCompare(prev.pathData, completedPaths, true)
+        ? prev
+        : {
+          ...prev,
+          pathData: completedPaths
+        }
+      setIsLoading(false);
+      return current;
+    });
   }, [completedPaths]);
+
+
 
   useEffect(() => {
     setEditMode(editable);
   }, [editable])
 
-  useEffect(() => {
-    setErasureMode(erasing);
-  }, [erasing])
+  // useEffect(() => {
+  //   setErasureMode(erasing);
+  // }, [erasing])
 
   useCommandEffect(
     command,
     editMode,
-    svgData.pathData,
+    initialPathData,
     newPathData,
     completedPaths,
     setCompletedPaths,
@@ -114,13 +110,11 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   );
 
 
-
   const handleDrawingEvent = (event: GestureUpdateEvent<PanGestureHandlerEventPayload>, state: string) => {
     drawingEvent(
       event,
       state,
       editMode,
-      erasureMode,
       currentPath,
       setCurrentPath,
       startTime,
@@ -146,18 +140,21 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
       {
         isLoading
           ? (
-            <View style={{flex:1, justifyContent: 'center', alignItems: 'center'}}>
-            <ActivityIndicator 
-              animating  
-              size={200} 
-              color="#0000ff"
-            />
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator
+                animating
+                size={200}
+                color="#0000ff"
+              />
             </View>
           )
           : (
             <GestureDetector gesture={pan}>
               <View style={styles.container}>
-                <Svg style={styles.svg} viewBox={svgData.metaData.viewBox}>
+                {/* All drawings were drawin in this canvas with this viewbox
+                They need to be edited in this dimension, 
+                we can save and play on whatever dimension we want, thus using fixed default viewbox*/}
+                <Svg style={styles.svg} viewBox={DEFAULT_VIEWBOX} onLayout={() => setIsLoading(false)}>
 
                   {completedPaths.map((item, _index) => (
                     item.visible

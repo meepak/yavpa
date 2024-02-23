@@ -1,41 +1,40 @@
 import React from 'react';
 import { Defs, LinearGradient, Pattern, RadialGradient, Stop, Image } from 'react-native-svg';
-import { BrushType, GradientBrushPropType, PatternBrushPropType } from './types';
+import { BrushType, GradientBrushPropType, PatternBrushPropType } from '../utilities/types';
 
-export const LinearGradientBrush = 
-({ guid, colors }: GradientBrushPropType) => (
-  <Defs key={guid}>
-    <LinearGradient gradientUnits="objectBoundingBox" id={guid} x1="0%" y1="0%" x2="100%" y2="0%">
-      {colors.map((color, index) => (
-        <Stop
-          key={index}
-          offset={`${(index / (colors.length - 1)) * 100}%`}
-          stopColor={color}
-          stopOpacity="1"
-        />
-      ))}
-    </LinearGradient>
-  </Defs>
-);
+export const LinearGradientBrush =
+  ({ guid, colors }: GradientBrushPropType) => (
+    <Defs key={guid}>
+      <LinearGradient gradientUnits="objectBoundingBox" id={guid} x1="0%" y1="0%" x2="100%" y2="0%">
+        {colors.map((color, index) => (
+          <Stop
+            key={index}
+            offset={`${(index / (colors.length - 1)) * 100}%`}
+            stopColor={color}
+            stopOpacity="1"
+          />
+        ))}
+      </LinearGradient>
+    </Defs>
+  );
 
-//  rx="50%" ry="50%" fx="50%" fy="50%">
-export const RadialGradientBrush = 
-({ guid, colors }: { guid: string, colors: string[] }) => (
-  <Defs key={guid}>
-    <RadialGradient gradientUnits="userSpaceOnUse" id={guid} cx="0.5" cy="0.5" r="0.5">
-      {colors.map((color, index) => (
-        <Stop
-          key={index}
-          offset={`${(index / (colors.length - 1)) * 100}%`}
-          stopColor={color}
-          stopOpacity="1"
-        />
-      ))}
-    </RadialGradient>
-  </Defs>
-);
+export const RadialGradientBrush =
+  ({ guid, colors }: { guid: string, colors: string[] }) => (
+    <Defs key={guid}>
+      <RadialGradient gradientUnits="userSpaceOnUse" id={guid} cx="0.5" cy="0.5" r="0.5">
+        {colors.map((color, index) => (
+          <Stop
+            key={index}
+            offset={`${(index / (colors.length - 1)) * 100}%`}
+            stopColor={color}
+            stopOpacity="1"
+          />
+        ))}
+      </RadialGradient>
+    </Defs>
+  );
 
-export const PatternBrush = ({guid, pattern}: PatternBrushPropType) => (
+export const PatternBrush = ({ guid, pattern }: PatternBrushPropType) => (
   <Defs key={guid}>
     <Pattern id={guid} patternUnits="userSpaceOnUse" x="0" y="0" width="50" height="50">
       <Image href={pattern} x="0" y="0" width="200" height="200" />
@@ -46,18 +45,18 @@ export const PatternBrush = ({guid, pattern}: PatternBrushPropType) => (
 export const getBrush = (brush: BrushType) => {
   switch (brush.name) {
     case "LinearGradientBrush":
-        return LinearGradientBrush({
-          guid: brush.params.guid, 
-          colors: (brush.params as GradientBrushPropType).colors
-        });
+      return LinearGradientBrush({
+        guid: brush.params.guid,
+        colors: (brush.params as GradientBrushPropType).colors
+      });
     case "RadialGradientBrush":
       return RadialGradientBrush({
-        guid: brush.params.guid, 
+        guid: brush.params.guid,
         colors: (brush.params as GradientBrushPropType).colors
       });
     case "PatternBrush":
       return PatternBrush({
-        guid: brush.params.guid, 
+        guid: brush.params.guid,
         pattern: (brush.params as PatternBrushPropType).pattern
       });
     default:
@@ -65,54 +64,55 @@ export const getBrush = (brush: BrushType) => {
   }
 }
 
+// Brush GUID once assigned should always be same
 export const Brushes: BrushType[] = [
   {
     name: "LinearGradientBrush",
-    params: {guid: "MYB1", colors: ["rgb(255,0,0)", "rgb(0,255,0)", "rgb(0,0,255)"]}
+    params: { guid: "MYB1", colors: ["rgb(255,0,0)", "rgb(0,255,0)", "rgb(0,0,255)"] }
   },
   {
     name: "LinearGradientBrush",
     params: {
       guid: "MYIR1",
       colors: [
-              "rgb(255,0,0)", 
-              "rgb(255,165,0)", 
-              "rgb(255,255,0)", 
-              "rgb(0,128,0)", 
-              "rgb(0,0,255)", 
-              "rgb(75,0,130)", 
-              "rgb(238,130,238)"
-            ]
+        "rgb(255,0,0)",
+        "rgb(255,165,0)",
+        "rgb(255,255,0)",
+        "rgb(0,128,0)",
+        "rgb(0,0,255)",
+        "rgb(75,0,130)",
+        "rgb(238,130,238)"
+      ]
     }
   },
   {
     name: "LinearGradientBrush",
-    params: {  guid: "MYB3", colors: ["rgba(105,105,105,1)", "rgba(169,169,169,0.5)", "rgba(192,192,192,1)", "rgba(169,169,169,0.5)", "rgba(105,105,105,1)"] }
+    params: { guid: "MYB3", colors: ["rgba(105,105,105,1)", "rgba(169,169,169,0.5)", "rgba(192,192,192,1)", "rgba(169,169,169,0.5)", "rgba(105,105,105,1)"] }
   },
   {
-   
+
     name: "LinearGradientBrush",
     params: { guid: "MYB4", colors: ["rgba(112,128,144,1)", "rgba(192,192,192,0.5)", "rgba(112,128,144,1)"] }
   },
   {
     name: "PatternBrush",
-    params: { guid: "MYB5", pattern: require("@a/pattern/1.jpg")}
+    params: { guid: "MYB5", pattern: require("@a/pattern/1.jpg") }
   },
   {
     name: "PatternBrush",
-    params: { guid: "MYB6", pattern: require("@a/pattern/2.jpg")}
+    params: { guid: "MYB6", pattern: require("@a/pattern/2.jpg") }
   },
   {
     name: "PatternBrush",
-    params: { guid: "MYB7", pattern: require("@a/pattern/3.jpg")}
+    params: { guid: "MYB7", pattern: require("@a/pattern/3.jpg") }
   },
   {
     name: "PatternBrush",
-    params: { guid: "MYB8", pattern: require("@a/pattern/4.jpg")}
+    params: { guid: "MYB8", pattern: require("@a/pattern/4.jpg") }
   },
   {
     name: "RadialGradientBrush",
-    params: {guid: "MYB9", colors: ["rgb(255,0,0)", "rgb(0,255,0)"]}
+    params: { guid: "MYB9", colors: ["rgb(255,0,0)", "rgb(0,255,0)"] }
   },
   // {
   //   name: "RadialGradientBrush",
@@ -126,7 +126,7 @@ export const Brushes: BrushType[] = [
   //   name: "RadialGradientBrush",
   //   params: {guid: "MYB7", colors: ["rgba(112,128,144,1)", "rgba(192,192,192,0.5)", "rgba(112,128,144,1)"] }
   // }
-  
+
 ]
 
 // get svg for brush

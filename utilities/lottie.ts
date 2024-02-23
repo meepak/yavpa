@@ -1,8 +1,11 @@
-// https://github.com/dabbott/svg-to-lottie
-import { format } from "d3";
 import * as Crypto from "expo-crypto";
 import { getPointsFromPath } from "./helper";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, PathDataType, PointType, SvgDataType } from "./types";
+import { 
+  CANVAS_HEIGHT, 
+  CANVAS_WIDTH, 
+  PathDataType, 
+  PointType, 
+  SvgDataType } from "./types";
 
 type lottiePointType = { point: [number, number], curveFrom: [number, number], curveTo: [number, number] };
 
@@ -148,7 +151,6 @@ function createGroup(path: PathDataType, startTime: number) {
   const strokeColor = hexToRgb(path.stroke);
   const strokeOpacity = path.strokeOpacity * 100;
   const strokeWidth = path.strokeWidth;
-  path.time / 1000
   const fillColor = [0, 0, 0];
   const fillOpacity = 0;
 
@@ -159,7 +161,7 @@ function createGroup(path: PathDataType, startTime: number) {
   const shapeStroke = createStroke(strokeColor, strokeOpacity, strokeWidth);
   const shapeTransform = createTransform();
 
-  const trimPaths = createTrimPaths(startTime);
+  const trimPaths = createTrimPaths(path, startTime);
 
   return {
     ty: "gr",
@@ -181,8 +183,8 @@ function createLayer(path: PathDataType, startTime: number) {
     ddd: 0,
     ty: 4,
     st: 0,
-    ip: 0,
-    op: 120,
+    ip: startTime, // 0,
+    op: 24 * path.time , // 120,
     nm: "Layer",
     mn: "{" + Crypto.randomUUID() + "}",
     ao: 0,
@@ -212,13 +214,13 @@ function createLayer(path: PathDataType, startTime: number) {
   };
 }
 
-function createComposition(options: { width: number; height: number; }) {
-  const { width, height } = options;
+function createComposition(options: { width: number; height: number; totalTime: number}) {
+  const { width, height, totalTime } = options;
 
   return {
     v: "5.7.1",
     ip: 0,
-    op: 120,
+    op: 24 * totalTime,
     nm: "Composition",
     mn: "{" + Crypto.randomUUID() + "}",
     fr: 24,
@@ -231,7 +233,7 @@ function createComposition(options: { width: number; height: number; }) {
 
 // ----------- animation function start ------------
 
-function createTrimPaths(startTime: number) {
+function createTrimPaths(path: PathDataType, startTime: number) {
   const start = 0;
   const end = 100;
   const offset = 0;
@@ -251,7 +253,7 @@ function createTrimPaths(startTime: number) {
       a: 1,
       k: [
         {
-          t: startTime,
+          t: startTime * 24,
           s: [start],
           e: [end]
         }
@@ -284,20 +286,28 @@ function createLottie(svgData: SvgDataType) {
   const height = parseInt(CANVAS_HEIGHT.toFixed(0));
 
   const layers: any[] = [];
-  const reversedPathData = [...svgData.pathData].reverse()
+
+  // make deep copy of svgData.pathData and reverse it
+  const reversedPathData = JSON.parse(JSON.stringify(svgData.pathData)).reverse();
+  
+  const speed = svgData.metaData.animation?.speed || 1;
+  // let totalTime = reversedPathData.reduce((acc, path) => acc + path.time * speed / 1000, 0);
+  
   let startTime = 0;
 
   reversedPathData.forEach((path) => {
-    const layer = createLayer(path, startTime);
+    const layer = createLayer(path, parseInt(startTime.toString()));
     layers.push(layer);
-    startTime += path.time / 1000;
+    path.time = path.time * speed/ 1000; // correct time, as js does pass by reference as default, this should persist
+    startTime += path.time;
   });
 
-  const lottie = createComposition({ width, height });
+  const totalTime = parseInt(startTime.toString());
+  const lottie = createComposition({ width, height,  totalTime});
   lottie.layers = layers as any;
   
   const lottieJson = JSON.stringify(lottie);
-  // console.log(lottieJson);
+  console.log(lottieJson);
   return lottieJson;
 }
 

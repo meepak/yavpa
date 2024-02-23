@@ -1,19 +1,16 @@
-import { useState } from "react";
-import { AvailableShapes } from "@u/shapes";
+import { AvailableShapes } from "@u/types";
 import MyRadioButtons from '@c/my-radio-buttons';
 
 const SelectShape = ({ color = 'black', value, onValueChanged }) => {
-    const [currentValue, setCurrentValue] = useState(value)
 
     const handleShapeSelection = (shape: string) => {
-        setCurrentValue(shape);
         onValueChanged(shape);
     };
 
     return (
         <MyRadioButtons
             labels={AvailableShapes}
-            initialValue={currentValue}
+            initialValue={value}
             onChange={handleShapeSelection}
             numOfColumns={2}
             textStyle={{ marginLeft: 10, marginBottom: 15 }}
