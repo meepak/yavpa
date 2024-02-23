@@ -3,7 +3,7 @@ import ErrorBoundary from "./error-boundary";
 import React from "react";
 import MyPath from "./my-path";
 import { PathDataType, SvgDataType } from "@u/types";
-import SvgAnimate from "./file/preview/animate";
+import SvgAnimate from "./screens/file/preview/animate";
 
 const MyPreview = ({ data, animate }: { data: SvgDataType, animate: boolean|undefined }) => (
   <ErrorBoundary>

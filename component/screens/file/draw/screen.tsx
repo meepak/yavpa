@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { View } from "react-native";
 import SvgCanvas from "./canvas";
 import createDrawControls from "./control";
-import { AvailableShapes } from "@u/shapes";
+import { AvailableShapes } from "@u/types";
 import { SvgDataContext } from "@x/svg-data";
 
 
@@ -44,6 +44,12 @@ const DrawScreen = ({ initControls }) => {
     executeCommand("open");
   }, [])
 
+
+  useEffect(() => {
+    initControls(buttons)
+  }, [stroke, strokeOpacity, strokeWidth, simplifyTolerance, d3CurveBasis, shape, svgData])
+
+  
   // without this it doesn't display anything in the canvas
   //   React.useEffect(() => { 
   //     console.log("use effect update")
@@ -67,10 +73,10 @@ const DrawScreen = ({ initControls }) => {
   //   setEditMode((prev) => !prev);
   // };
 
-  const toggleErasure = () => {
-    setErasureMode((prev) => !prev);
-    // executeCommand("erase");
-  }
+  // const toggleErasure = () => {
+  //   setErasureMode((prev) => !prev);
+  //   // executeCommand("erase");
+  // }
 
   const drawShape = (shape) => {
     setShape(shape);
@@ -82,6 +88,8 @@ const DrawScreen = ({ initControls }) => {
 
   const buttons = createDrawControls({
     // onLock,
+    svgData,
+    setSvgData,
     onUndo,
     onRedo,
     strokeWidth,
@@ -96,7 +104,7 @@ const DrawScreen = ({ initControls }) => {
     setD3CurveBasis,
     shape,
     drawShape,
-    toggleErasure,
+    // toggleErasure,
     // onSelectMode,
   });
 
@@ -109,12 +117,8 @@ const DrawScreen = ({ initControls }) => {
   //   console.log('saving file')
   //   saveSvgToFile(updatedSvgData);
   //   setSvgData(updatedSvgData);
-  //   executeCommand("update");
+  //   executeCommand("update");SvgCanvas
   // };
-
-  useEffect(() => {
-    initControls(buttons)
-  }, [stroke, strokeOpacity, strokeWidth, simplifyTolerance, d3CurveBasis, shape])
 
 
 
@@ -122,11 +126,11 @@ const DrawScreen = ({ initControls }) => {
     <View style={{ flex: 1 }} onLayout={() => initControls(buttons)}>
       <SvgCanvas
         editable={editMode} // to do get rid of this, as preview will act as read only mode
-        erasing={erasureMode}
+        // erasing={erasureMode}
         command={command}
         forceUpdate={commandEnforcer}
         // onPathDataChange={handleSvgPathDataChange}
-        // initialPathData={svgData.pathData}
+        initialPathData={svgData.pathData}
         stroke={stroke}
         strokeWidth={strokeWidth}
         strokeOpacity={strokeOpacity}

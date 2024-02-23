@@ -6,6 +6,9 @@ import { DEFAULT_VIEWBOX, PathDataType } from "./types";
 import { SvgDataType } from "./types";
 
 
+// TODO ENABLE CACHE -- THINGS SLOWING DOWN!!! 
+// ALSO WRITING TO DISK ALL THE TIME IS NO GOOD!!
+
 // const AppName = "mypath.mahat.au";
 const AppName = isIOS ? "mypath.mahat.au" : "draw-replay-svg-path"; 
 // const AppName = "mypath.mahat.au"; //TODO change this before release
@@ -82,12 +85,13 @@ export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
     // Clear the previous timeout
     if (saveTimeout) {
         clearTimeout(saveTimeout);
-        console.log('saveSvgToFile:: saving cancelled', svgData.metaData.guid, svgData.metaData.updated_at)
+        console.log('[SAVE SVG TO FILE] saving cancelled', svgData.metaData.guid, svgData.metaData.updated_at)
     }
-    console.log('saveSvgToFile:: saving file', svgData.metaData.guid, svgData.metaData.updated_at)
+
+    console.log('[SAVE SVG TO FILE] saving file in 1s', svgData.metaData.guid, svgData.metaData.updated_at)
 
     // Set a new timeout to save the data after 2 seconds
-    saveTimeout = setTimeout(async () => save(svgData, name), 2000);
+    saveTimeout = setTimeout(async () => save(svgData, name), 1000);
 
     const save = async (svgData: SvgDataType, name: string) => {
         // there should be atleast 1 pathData to qualify for saving
@@ -129,10 +133,10 @@ export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
             // }
 
 
-            console.log('saveSvgToFile:: file saved', svgData.metaData.guid, svgData.metaData.updated_at)
+            console.log('[SAVE SVG TO FILE] ****file saved****', svgData.metaData.guid, svgData.metaData.updated_at)
             return true;
         } catch (err) {
-            console.error("saveSvgToFile:: Failed to save file:", err);
+            console.error("[SAVE SVG TO FILE] Failed to save file:", err);
             return false;
             // Handle the error appropriately, e.g. show an error message to the user
         }

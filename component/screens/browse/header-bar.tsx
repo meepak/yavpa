@@ -14,13 +14,15 @@ interface HeaderBarProps {
 
 const DEFAULT_TOP_INSET = 30;
 
+
 export const HeaderBar: React.FC<HeaderBarProps> = ({ scrollValue }) => {
   const insets = useSafeAreaInsets();
-  const [showModal, setShowModal] = React.useState(false);
+  // const [showModal, setShowModal] = React.useState(false);
 
   const headerDetailsContainerAnimatedStyle = useAnimatedStyle(() => {
     return { opacity: interpolate(scrollValue.value, [0, 140, 238], [0, 0, 1], Extrapolation.CLAMP) };
   }, [scrollValue]);
+
 
   return (
     <>

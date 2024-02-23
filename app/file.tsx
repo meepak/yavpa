@@ -1,12 +1,12 @@
 import { CANVAS_HEIGHT, CANVAS_WIDTH, DEFAULT_VIEWBOX, ScreenModes, SvgDataType } from "@u/types";
 import { ScreenModeType } from "@u/types";
-import { createSvgData } from "@u/helper";
+import { createSvgData, stringDifference } from "@u/helper";
 import { getFile, saveSvgToFile } from "@u/storage";
 import { SvgDataContext } from "@x/svg-data";
-import { DrawScreen, ExportScreen, Header, PreviewScreen } from "component/file";
+import { DrawScreen, ExportScreen, Header, PreviewScreen } from "@c/screens/file";
 import { useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { View, Text } from "react-native";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -28,11 +28,25 @@ const FileScreen = () => {
 
     // const canvasScale = useSharedValue(1);
 
+    useEffect(() => {
+        return () => {
+            // console.log("reset svg data from context, component unmounted")
+            resetSvgData();
+        };
+    }, []);
+
     React.useEffect(() => {
-        // testing auto save to file (if not in preview mode) put as option??
-        console.log('saving in file.tsx...', svgData.metaData.guid)
-        saveSvgToFile(svgData);
-    }, [svgData]);
+        if (guid) {
+            // console.log(`Open file with GUID: ${guid}`);
+            openSvgDataFile(guid);
+
+        } else { //create new file
+            // console.log('Create new file');
+            const newSvgData = createSvgData(CANVAS_WIDTH, CANVAS_HEIGHT);
+            newSvgData.metaData.guid = Crypto.randomUUID();
+            setSvgData(newSvgData);
+        }
+    }, [guid]);
 
     const handleScreenModeChanged = (mode: ScreenModeType) => {
         setCurrentScreenMode(mode);
@@ -82,25 +96,6 @@ const FileScreen = () => {
         setSvgData(createSvgData(CANVAS_WIDTH, CANVAS_HEIGHT));
     };
 
-    useEffect(() => {
-        return () => {
-            // console.log("reset svg data from context, component unmounted")
-            resetSvgData();
-        };
-    }, []);
-
-    React.useEffect(() => {
-        if (guid) {
-            // console.log(`Open file with GUID: ${guid}`);
-            openSvgDataFile(guid);
-
-        } else { //create new file
-            // console.log('Create new file');
-            const newSvgData = createSvgData(CANVAS_WIDTH, CANVAS_HEIGHT);
-            newSvgData.metaData.guid = Crypto.randomUUID();
-            setSvgData(newSvgData);
-        }
-    }, [guid]);
 
     const handleNameChange = (name: string) => {
         if (name === svgData.metaData.name) {

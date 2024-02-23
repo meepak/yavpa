@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 
 import { Redirect, SplashScreen } from "expo-router";
@@ -13,6 +13,10 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 });
 
 import splashImage from "../assets/splash.png";
+import { SvgDataContext } from "@x/svg-data";
+import { stringDifference } from "@u/helper";
+import { saveSvgToFile } from "@u/storage";
+import { SvgDataType } from "@u/types";
 const bgColor = 'transparent';
 // const bgImage = require("../assets/bg2.png");
 
@@ -20,17 +24,17 @@ const App = () => {
   const [isAnimationComplete, setAnimationComplete] = useState(false);
 
   const runTypeMessage = Updates.isEmbeddedLaunch
-  ? 'This app is running from built-in code'
-  : 'This app is running an update';
-  
+    ? 'This app is running from built-in code'
+    : 'This app is running an update';
+
   return (
-      <AnimatedSplashAppLoader
-        image={splashImage}
-        bgColor={bgColor}
-        onAnimationComplete={(value) => setAnimationComplete(value)}
-      >
-        {isAnimationComplete && <Redirect href={"/browse"} />}
-      </AnimatedSplashAppLoader>
+    <AnimatedSplashAppLoader
+      image={splashImage}
+      bgColor={bgColor}
+      onAnimationComplete={(value) => setAnimationComplete(value)}
+    >
+      {isAnimationComplete && <Redirect href={"/browse"} />}
+    </AnimatedSplashAppLoader>
   )
 };
 

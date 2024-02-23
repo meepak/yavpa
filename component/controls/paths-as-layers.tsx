@@ -17,9 +17,12 @@ import { path } from "d3";
 
 
 
-const PathsAsLayers = () => {
-    const { svgData, setSvgData } = useContext(SvgDataContext);
-
+const PathsAsLayers = (
+    {svgData, setSvgData}: 
+    {
+        svgData: SvgDataType, 
+        setSvgData:(value: React.SetStateAction<SvgDataType>) => {}
+    }) => {
 
     // remove the path permanently
     function deletePath(item: PathDataType) {

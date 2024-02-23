@@ -1,5 +1,14 @@
 import React, { useLayoutEffect, useState } from "react";
-import { StyleSheet, Dimensions, Text, TouchableOpacity, View, ListRenderItem, Alert, FlatList, ActivityIndicator } from "react-native";
+import { 
+  StyleSheet, 
+  Dimensions, 
+  Text, 
+  TouchableOpacity, 
+  View, 
+  ListRenderItem, 
+  Alert, 
+  FlatList, 
+  ActivityIndicator } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MyIcon from "@c/my-icon";
 import { SvgDataType } from "@u/types";
@@ -7,8 +16,7 @@ import { deleteFile, getFiles } from "@u/storage";
 import { Link, useRouter } from "expo-router";
 import { StickyHeaderFlatList, useStickyHeaderScrollProps } from 'react-native-sticky-parallax-header';
 import { StatusBar } from "expo-status-bar";
-import { Foreground } from "@c/browse/foreground";
-import { HeaderBar } from "@c/browse/header-bar";
+import { HeaderBar, Foreground } from "@c/screens/browse";
 import MyPreview from "@c/my-preview";
 
 const PARALLAX_HEIGHT = 238;
@@ -21,8 +29,6 @@ const FILE_PREVIEW_WIDTH = 108;
 const OFFSET = 125;
 const MINIMUM_GAP_BETWEN_PREVIEW = 11;
 const FILE_PREVIEW_BOTTOM_MARGIN = 15;
-
-
 
 const BrowseScreen = () => {
   const router = useRouter(); HEADER_BAR_HEIGHT
@@ -90,6 +96,7 @@ const BrowseScreen = () => {
       {
         text: "Delete",
         onPress: async () => {
+          
           // console.log('delete', guid)
           const result = await deleteFile(guid)
           if (result) {
@@ -130,7 +137,7 @@ const BrowseScreen = () => {
             }}
           >
           
-          <MyPreview data={item} />
+          <MyPreview animate={false} data={item} />
 
           </View>
           <View style={{ alignItems: 'center' }}>

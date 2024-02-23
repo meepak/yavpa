@@ -1,10 +1,10 @@
-import { HeaderGradientBackground } from '@u/helper';
 import * as React from 'react';
 import { Dimensions, Image, StyleSheet, Text, View } from 'react-native';
 import Animated, { Extrapolation, SharedValue, interpolate, useAnimatedStyle } from 'react-native-reanimated';
 import banner from '@a/banner.png';
 import alphaVersion from '@a/alpha-version.png';
 import MyPathLogo from '@c/logo/my-path-logo';
+import { HeaderGradientBackground } from '@c/screens/file/header';
 
 const screenWidth = Dimensions.get('window').width;
 

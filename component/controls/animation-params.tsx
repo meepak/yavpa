@@ -2,11 +2,12 @@ import { View , Text} from "react-native";
 import MySlider from "@c/my-slider";
 import { useEffect, useState } from "react";
 import MyCheckBox from "@c/my-check-box";
+import { AnimationParamsType } from "@u/types";
 
-const AnimationParams = ({ speed, onSpeedChanged, loopStatus, onLoopStatusChanged, loopDelay, onLoopDelayChanged }) => {
-  const [speedValue, setSpeedValue] = useState(speed ?? 1)
-  const [loopStatusValue, setLoopStatusValue] = useState(loopStatus ?? true)
-  const [loopDelayValue, setLoopDelayValue] = useState(loopDelay ?? 0)
+const AnimationParams = ({ animationParams, onAnimationParamsChanged }) => {
+  const [speedValue, setSpeedValue] = useState(animationParams.speed ?? 1)
+  const [loopStatusValue, setLoopStatusValue] = useState(animationParams.loop ?? true)
+  const [loopDelayValue, setLoopDelayValue] = useState(animationParams.delay ?? 0)
 
   return (
     <>
@@ -21,8 +22,8 @@ const AnimationParams = ({ speed, onSpeedChanged, loopStatus, onLoopStatusChange
         suffix={" x Current Path Time"}
         value={speedValue}
         onValueChange={(value) => {
-          setSpeedValue(() => value);
-          onSpeedChanged(value);
+          setSpeedValue(() => value); // TODO this should be removable as it is updated back from below event
+          onAnimationParamsChanged({ ...animationParams, speed: value });
         }}
       /> 
       <View style={{ top: -10, alignItems: 'center' }}>
@@ -32,8 +33,8 @@ const AnimationParams = ({ speed, onSpeedChanged, loopStatus, onLoopStatusChange
       iconStyle={{ color: '#000000', size: 22 }}
       textStyle={{ color: '#000000', fontSize: 16 , fontWeight: 'bold'}}  
       onChange={(value) => {
-        setLoopStatusValue(() => value)
-        onLoopStatusChanged(value);
+        setLoopStatusValue(() => value);
+        onAnimationParamsChanged({ ...animationParams, loop: value });
       }} />
     </View>
     <MySlider
@@ -45,7 +46,7 @@ const AnimationParams = ({ speed, onSpeedChanged, loopStatus, onLoopStatusChange
       value={loopDelayValue}
       onValueChange={(value) => {
         setLoopDelayValue(() => value);
-        onLoopDelayChanged(value);
+        onAnimationParamsChanged({ ...animationParams, delay: value });
       }}
     />
     </>

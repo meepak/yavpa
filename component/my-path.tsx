@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Brushes, getBrush } from "@u/brushes";
+import { Brushes, getBrush } from "@c/my-brushes";
 import { Path } from "react-native-svg";
 import { BrushType, PathDataType } from "@u/types";
 import { isValidPath } from "@u/helper";
