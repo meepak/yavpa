@@ -13,12 +13,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 });
 
 import splashImage from "../assets/splash.png";
-import { SvgDataContext } from "@x/svg-data";
-import { stringDifference } from "@u/helper";
-import { saveSvgToFile } from "@u/storage";
-import { SvgDataType } from "@u/types";
 const bgColor = 'transparent';
-// const bgImage = require("../assets/bg2.png");
 
 const App = () => {
   const [isAnimationComplete, setAnimationComplete] = useState(false);

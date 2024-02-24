@@ -1,6 +1,6 @@
 import * as FileSystem from "expo-file-system";
 import * as Crypto from "expo-crypto";
-import { isIOS, isValidPath } from "./helper";
+import { getViewBoxTrimmed, isIOS, isValidPath } from "./helper";
 import { svg } from "d3";
 import { DEFAULT_VIEWBOX, PathDataType } from "./types";
 import { SvgDataType } from "./types";
@@ -21,21 +21,18 @@ console.log(AppSaveDirectory)
 function parseSvgData(svgData: any, update_updated_at = false): SvgDataType {
     const isValid = (val: any) => (val !== null && val !== undefined && (val || val === false));
 
-    // console.log(svgData);
-    // Create a deep copy of svgData
-    const svgDataCopy = JSON.parse(JSON.stringify(svgData));
     ///check if svgData has pathData and if not set default values
-    if (!isValid(svgDataCopy.pathData) && !Array.isArray(svgDataCopy.pathData)) {
-        svgDataCopy.pathData = [];
+    if (!isValid(svgData.pathData) && !Array.isArray(svgData.pathData)) {
+        svgData.pathData = [];
     }
 
     // filter out invalid path string
-    svgDataCopy.pathData = svgDataCopy.pathData.filter((pathData: any) => {
+    svgData.pathData = svgData.pathData.filter((pathData: any) => {
         return isValidPath(pathData.path);
     });
 
     //check if pathData is of type PathDataType else set default values
-    svgDataCopy.pathData = svgDataCopy.pathData.map((pathData: any) => {
+    svgData.pathData = svgData.pathData.map((pathData: any) => {
         if (!isValid(pathData.stroke)) {
             pathData.stroke = "#000000";
         }
@@ -55,7 +52,7 @@ function parseSvgData(svgData: any, update_updated_at = false): SvgDataType {
             pathData.guid = Crypto.randomUUID();
         }
 
-        // we don't want to save dashArray & dashArrayOffset
+        // we don't want to save dashArray & dashArrayOffset, WHY NOT??
         pathData.strokeDasharray = undefined;
         pathData.strokeDashoffset = undefined;
         return pathData;
@@ -63,21 +60,26 @@ function parseSvgData(svgData: any, update_updated_at = false): SvgDataType {
 
 
     // check if svgData has metaData and if not set default values
-    svgDataCopy.metaData = svgDataCopy.metaData || {};
-    if (!isValid(svgDataCopy.metaData.guid)) {
-        svgDataCopy.metaData.guid = Crypto.randomUUID();
+    svgData.metaData = svgData.metaData || {};
+    if (!isValid(svgData.metaData.guid)) {
+        svgData.metaData.guid = Crypto.randomUUID();
     }
-    if (!isValid(svgDataCopy.metaData.created_at)) {
-        svgDataCopy.metaData.created_at = new Date().toISOString();
+    if (!isValid(svgData.metaData.created_at)) {
+        svgData.metaData.created_at = new Date().toISOString();
     }
-    if (!isValid(svgDataCopy.metaData.updated_at) || update_updated_at) {
-        svgDataCopy.metaData.updated_at = new Date().toISOString();
+    if (!isValid(svgData.metaData.updated_at) || update_updated_at) {
+        svgData.metaData.updated_at = new Date().toISOString();
     }
-    if (!isValid(svgDataCopy.metaData.name) || svgDataCopy.metaData.name === svgDataCopy.metaData.guid) {
-        svgDataCopy.metaData.name = svgDataCopy.metaData.updated_at.split('.')[0].split('T').join(' ');
+    if (!isValid(svgData.metaData.name) || svgData.metaData.name === svgData.metaData.guid) {
+        svgData.metaData.name = svgData.metaData.updated_at.split('.')[0].split('T').join(' ');
     }
-
-    return svgDataCopy;
+    if (!isValid(svgData.metaData.viewBox)) {
+        svgData.metaData.viewBox = DEFAULT_VIEWBOX;
+    }
+    if (!isValid(svgData.metaData.viewBoxTrimmed)) {
+        svgData.metaData.viewBoxTrimmed = getViewBoxTrimmed(svgData.pathData);
+    }
+    return svgData;
 }
 
 let saveTimeout: NodeJS.Timeout;
@@ -92,8 +94,8 @@ export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
 
     // Set a new timeout to save the data after 2 seconds
     saveTimeout = setTimeout(async () => save(svgData, name), 1000);
-
-    const save = async (svgData: SvgDataType, name: string) => {
+    
+    const save = async (svgData: { pathData: any; metaData: any; }, name: string) => {
         // there should be atleast 1 pathData to qualify for saving
         if (svgData.pathData.length < 1) {
             return false;
@@ -134,7 +136,6 @@ export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
 
 
             console.log('[SAVE SVG TO FILE] ****file saved****', svgData.metaData.guid, svgData.metaData.updated_at)
-            return true;
         } catch (err) {
             console.error("[SAVE SVG TO FILE] Failed to save file:", err);
             return false;

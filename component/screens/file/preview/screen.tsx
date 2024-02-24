@@ -3,24 +3,17 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import SvgAnimate from "./animate";
 import createPreviewControls from "./control";
-// import { saveSvgToFile } from "@u/storage";
 import { AnimationParamsType, SvgAnimateHandle } from "@u/types";
-import { saveSvgToFile } from "@u/storage";
 
-const PreviewScreen = ({ initControls }) => {
+const PreviewScreen = ({ svgData, setSvgData, initControls }) => {
 
-  const { svgData, setSvgData } = useContext(SvgDataContext);
+  // const { svgData, setSvgData } = useContext(SvgDataContext);
   const [animationParams, setAnimationParams] = useState<AnimationParamsType>({
-    speed: 1,
-    loop: true,
-    delay: 0,
-    correction: 0.05,
+    speed: svgData.metaData.animations?.speed || 1,
+    loop: svgData.metaData.animations?.loop || true,
+    delay: svgData.metaData.animations?.delay || 0,
+    correction: svgData.metaData.animations?.correction || 0.05,
   });
-
-  // const [speed, setSpeed] = useState(1);
-  // const [loop, setLoop] = useState(true);
-  // const [delay, setDelay] = useState(0);
-  // const [correction, setCorrection] = useState(0.05);
 
   const previewRef = useRef<SvgAnimateHandle | null>(null);
 
@@ -34,11 +27,11 @@ const PreviewScreen = ({ initControls }) => {
     if (previewRef.current) {
       previewRef.current.setAnimationParams(animationParams);
     }
-    console.log('animation params updated, should trigger saving to file');
-    svgData.metaData.animation = animationParams;
-    setSvgData((prev) => ({...prev, metaData: { ...prev.metaData, animation: animationParams}}));
-    // throttle saving to file
-    // saveSvgToFile(svgData); // TODO  lets do this way in draw screen too, save where its needed not on every change
+    if (svgData.metaData.animation && svgData.metaData.animation !== animationParams) {
+      console.log('animation params updated, should trigger saving to file');
+      setSvgData((prev) => ({ ...prev, metaData: { ...prev.metaData, animation: animationParams, updated_at: "" } }));
+    }
+
     initControls(buttons)
   }, [animationParams]);
 
@@ -53,27 +46,6 @@ const PreviewScreen = ({ initControls }) => {
       previewRef.current.stopAnimation();
     }
   }
-
-
-
-  // useEffect(() => {
-  //   if (previewRef.current) {
-  //     previewRef.current.animationLoop(loop);
-  //   }
-  // }, [loop]);
-
-  // useEffect(() => {
-  //   if (previewRef.current) {
-  //     previewRef.current.animationDelay(delay);
-  //   }
-  // }, [delay]);
-
-  // useEffect(() => {
-  //   if (previewRef.current) {
-  //     previewRef.current.animationCleanup(correction);
-  //   }
-  // }, [correction]);
-
 
   // In your component:
   const buttons = createPreviewControls({

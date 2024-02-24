@@ -46,7 +46,8 @@ export type MetaDataType = {
     created_at: string; // timestamp when svg was created
     updated_at: string; // timestamp when svg was last updated
     name: string; // name of the svg
-    viewBox: string; // viewBox of the svg
+    viewBox: string; // default viewBox of the svg
+    viewBoxTrimmed?: string; // viewBox of the svg after trimming
     lastScreenMode?: string; // last screen mode
     editable?: boolean; // is svg editable
     animation?: AnimationParamsType;

@@ -69,7 +69,6 @@ const BrowseScreen = () => {
     gap = (actualWindowsWidth - numberOfColumns * FILE_PREVIEW_WIDTH) / (numberOfColumns + 1)
   }
 
-
   const fetchFiles = async () => {
     try {
       setIsLoading(true);

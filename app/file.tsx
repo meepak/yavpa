@@ -1,6 +1,6 @@
 import { CANVAS_HEIGHT, CANVAS_WIDTH, DEFAULT_VIEWBOX, ScreenModes, SvgDataType } from "@u/types";
 import { ScreenModeType } from "@u/types";
-import { createSvgData, stringDifference } from "@u/helper";
+import { createSvgData  } from "@u/helper";
 import { getFile, saveSvgToFile } from "@u/storage";
 import { SvgDataContext } from "@x/svg-data";
 import { DrawScreen, ExportScreen, Header, PreviewScreen } from "@c/screens/file";
@@ -11,12 +11,13 @@ import { View, Text } from "react-native";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Crypto from "expo-crypto";
+import { Svg } from "react-native-svg";
 
 
 
 const FileScreen = () => {
     const insets = useSafeAreaInsets();
-    const [currentScreenMode, setCurrentScreenMode] = useState(ScreenModes[0]); // default DRAW, but save & read from metadata
+    const { svgData, setSvgData } = useContext(SvgDataContext);
     const [controlButtons, setControlButtons] = useState([
         {
             name: "Loading...",
@@ -24,9 +25,30 @@ const FileScreen = () => {
         },
     ]);
     const { guid } = useLocalSearchParams<{ guid: string; }>(); // Capture the GUID from the URL
-    const { svgData, setSvgData } = useContext(SvgDataContext);
+ const [currentScreenMode, setCurrentScreenMode] = useState(ScreenModes[0]); // default DRAW, but save & read from metadata
+   
 
-    // const canvasScale = useSharedValue(1);
+  //****************************IMPORTANT********************************** */
+    // If you are updating svgData through context and if it requires saving to file
+    // set the updated_at date to blank, so that it will be saved to file
+    useEffect(() => {
+      const saveData = async () => {
+          await saveSvgToFile(svgData);
+          setSvgData({...svgData, metaData: {...svgData.metaData, updated_at: Date.now().toString()}});
+      };
+  
+      if (svgData && svgData.metaData && svgData.metaData.guid != "" && svgData.metaData.updated_at === "") {
+        saveData();
+      }
+    }, [svgData]);
+    //**************************************************************************** */
+
+    useEffect(() => {
+        return () => {
+            // console.log("reset svg data from context, component unmounted")
+            resetSvgData();
+        };
+    }, []);
 
     useEffect(() => {
         return () => {
@@ -37,12 +59,12 @@ const FileScreen = () => {
 
     React.useEffect(() => {
         if (guid) {
-            // console.log(`Open file with GUID: ${guid}`);
+            console.log(`Open file with GUID: ${guid}`);
             openSvgDataFile(guid);
 
         } else { //create new file
             // console.log('Create new file');
-            const newSvgData = createSvgData(CANVAS_WIDTH, CANVAS_HEIGHT);
+            const newSvgData = createSvgData();
             newSvgData.metaData.guid = Crypto.randomUUID();
             setSvgData(newSvgData);
         }
@@ -64,59 +86,38 @@ const FileScreen = () => {
 
     async function openSvgDataFile(guid: string) {
         const svgDataFromFile = await getFile(guid);
-        if (svgDataFromFile && 'pathData' in svgDataFromFile) {
-            // console.log('File found with GUID: ', guid, 'name: ', svgDataFromFile.metaData.name)
-
-            // set the current viewbox
-            // const fittedViewBox = getViewBoxTrimmed(svgDataFromFile.pathData);
-            if (!svgDataFromFile.metaData.viewBox) {
-                // scale the path data to fit the new viewbox
-                // console.log('setting new viewbox from ', svgDataFromFile.metaData.viewBox, 'to', DEFAULT_VIEWBOX)
-                svgDataFromFile.metaData.viewBox = DEFAULT_VIEWBOX;
-            }
-
-            // console.log('Save in state file with GUID: ', guid, ' , paths ', svgDataFromFile.pathData.length)
-            // TODO make sure this doesn't trigger resaving.. it is doing at the moment
+        if (svgDataFromFile && svgDataFromFile.metaData.guid === guid) {
+            console.log('File found with GUID: ', guid);
             setSvgData(svgDataFromFile);
-            // find ScreenMode from name
-            // console.log('lastScreenMode: ', svgDataFromFile.metaData.lastScreenMode)
-            // let screenMode = ScreenModes.find((mode) => mode.name === svgDataFromFile.metaData.lastScreenMode);
-            // if (screenMode) {
-            //     console.log('current screen mode is set to ', screenMode)
-            //     setCurrentScreenMode(screenMode as ScreenModeType);
-            // }
         } else {
-            // TODO  handle error
-            // console.log('No file found with GUID: ', guid);
+            console.log('No file found with GUID: ', guid);
             resetSvgData();
         }
     }
 
     const resetSvgData = () => {
-        setSvgData(createSvgData(CANVAS_WIDTH, CANVAS_HEIGHT));
+        setSvgData(createSvgData());
     };
-
 
     const handleNameChange = (name: string) => {
         if (name === svgData.metaData.name) {
             return;
         }
-        // console.log('name changed to ', name);
-        const updatedSvgData = { ...svgData, metaData: { ...svgData.metaData, name } };
-        setSvgData(updatedSvgData);
-        // saveSvgToFile(updatedSvgData);
+        console.log('name changed to ', name);
+        setSvgData((prev) => ({ ...prev, metaData: { ...prev.metaData, name, updated_at: "" } }));
     }
 
     // console.log(controlButtons)
     const getCurrentScreen = React.useCallback(() => {
         switch (currentScreenMode.name) {
             case ScreenModes[1].name: // Preview
-                return <PreviewScreen initControls={setControlButtons} />;
+                return <PreviewScreen svgData={svgData} setSvgData={setSvgData} initControls={setControlButtons} />;
             case ScreenModes[2].name: // Export
                 return <ExportScreen initControls={setControlButtons} />
             case ScreenModes[0].name: // Draw
             default:
                 return <DrawScreen initControls={setControlButtons} />
+                break;
         }
     }, [currentScreenMode]);
 

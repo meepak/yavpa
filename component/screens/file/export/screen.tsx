@@ -7,7 +7,7 @@ import * as Clipboard from "expo-clipboard";
 import LottieView, { AnimationObject } from "lottie-react-native";
 import { SvgDataContext } from "@x/svg-data";
 import MyPreview from "@c/my-preview";
-import { getViewBoxTrimmed } from "@u/helper";
+import { getViewBoxTrimmed, isIOS } from "@u/helper";
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from "@u/types";
 import * as format from "@u/formatters";
 import createLottie from "@u/lottie";
@@ -21,12 +21,14 @@ const ExportScreen = ({ initControls }) => {
   const [smilSvg, setSmilSvg] = useState("");
   const [cssSvg, setCssSvg] = useState("");
 
+  const [viewBoxTrimmed, setViewBoxTrimmed] = useState("");
+
   useEffect(() => {
     if (svgData === undefined) return;
     const lottieData = createLottie(svgData);
     setLottieJson(JSON.parse(lottieData));
 
-    svgData.metaData.viewBox = getViewBoxTrimmed(svgData.pathData);
+    setViewBoxTrimmed(() => getViewBoxTrimmed(svgData.pathData));
     setStaticSvg(format.getStaticSvg(svgData));
     setSmilSvg(format.getSmilSvg(svgData));
     setCssSvg(format.getCssSvg(svgData));
@@ -52,7 +54,7 @@ const ExportScreen = ({ initControls }) => {
       alert(`Uh oh, sharing isn't available on your platform`);
       return;
     }
-    await Sharing.shareAsync(cUri);
+    await Sharing.shareAsync(isIOS ? cUri : uri);
   };
 
   useEffect(() => {
@@ -98,7 +100,7 @@ const ExportScreen = ({ initControls }) => {
             <Text style={{ marginBottom: 20 }}>There are still lots of rough edges. Thank you for your understanding.</Text>
           </View>
           <View style={{ width: 130, height: 150, marginRight: 5, alignSelf: 'flex-start' }}>
-            <MyPreview data={svgData} animate={animate} />
+            <MyPreview data={svgData} animate={animate} viewBox={viewBoxTrimmed} />
           </View>
         </View>
 
@@ -118,11 +120,12 @@ const ExportScreen = ({ initControls }) => {
           </View>
         ))}
 
-        <View style={{ position: 'absolute', width: 130, height: 150, right: -10, bottom: 40, borderWidth: 1, borderColor: 'rgba(0,0,0, 0.2)' }}>
+        <Text style={{ marginTop: 20, fontStyle: 'italic', marginBottom: 100 }}>Happy exporting!</Text>
+        
+        <View style={{ width: 320, height: 402, right: -10, bottom: 40, borderWidth: 1, borderColor: 'rgba(0,0,0, 0.2)' }}>
           <LottieView style={{ flex: 1 }} resizeMode="contain" source={lottieJson} autoPlay={true} loop={true} />
         </View>
 
-        <Text style={{ marginTop: 20, fontStyle: 'italic', marginBottom: 100 }}>Happy exporting!</Text>
       </View>
     </ScrollView>
   );
