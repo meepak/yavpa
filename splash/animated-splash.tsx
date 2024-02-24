@@ -1,4 +1,5 @@
 
+import {Background, BackgroundOptions} from "@c/background";
 import { SplashScreen } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Animated, StyleSheet, View } from "react-native";
@@ -24,7 +25,7 @@ const AnimatedSplash = ({
       console.log('[ANIMATED SPLASH] app ready')
       Animated.timing(animation, {
         toValue: 0,
-        duration: 1000,
+        duration: 1200,
         useNativeDriver: true,
       }).start(() => {
         setAnimationComplete(true)
@@ -53,16 +54,7 @@ const AnimatedSplash = ({
     <View style={{ flex: 1 }}>
       {isAppReady && children}
       {!isAnimationComplete && (
-        <Animated.View
-          pointerEvents="none"
-          style={[
-            StyleSheet.absoluteFill,
-            {
-              backgroundColor: bgColor,
-              opacity: animation,
-            },
-          ]}
-        >
+        <Background option={BackgroundOptions.splash}>
           <Animated.Image
             style={{
               width: "100%",
@@ -79,7 +71,7 @@ const AnimatedSplash = ({
             fadeDuration={0}
           />
           {/* <MyPathLogo animate={false} width={"100%"} height={"100%"} /> */}
-        </Animated.View>
+          </Background>
       )}
     </View>
   );

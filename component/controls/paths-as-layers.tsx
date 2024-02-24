@@ -34,7 +34,7 @@ const PathsAsLayers = (
                     // delete indexth element from svgData.pathData
                     setSvgData((prevSvgData: SvgDataType) => {
                         const newLayers = prevSvgData.pathData.filter((path) => path !== item);
-                        return { ...prevSvgData, pathData: newLayers };
+                        return { metaData: {...prevSvgData.metaData, updated_at: ""}, pathData: newLayers };
                     });
                 },
             },
@@ -48,7 +48,7 @@ const PathsAsLayers = (
         setSvgData((prevSvgData: SvgDataType) => {
             const newLayers = [...prevSvgData.pathData];
             newLayers[index] = { ...path, [prop]: value, guid: Crypto.randomUUID() };
-            return { ...prevSvgData, pathData: newLayers };
+            return { metaData: {...prevSvgData.metaData, updated_at: ""}, pathData: newLayers };
         });
     }
 
@@ -174,7 +174,13 @@ const PathsAsLayers = (
                     data={[...svgData.pathData].reverse()}
                     renderItem={renderItem}
                     keyExtractor={(item) => `draggable-item-${item.guid}`}
-                    onDragEnd={(data) => setSvgData((prevSvgData: SvgDataType) => ({ ...prevSvgData, pathData: data.data.reverse() }))} // update the svgData.pathData with new order
+                    onDragEnd={
+                        (data) => setSvgData(
+                            (prevSvgData: SvgDataType) => ({ 
+                                metaData: {...prevSvgData.metaData, updated_at: ""},  
+                                pathData: data.data.reverse() 
+                            })
+                        )} // update the svgData.pathData with new order
                     ItemSeparatorComponent={ItemSeparator}
                 // ListHeaderComponent={HeaderComponent}
                 // stickyHeaderIndices={[0]}

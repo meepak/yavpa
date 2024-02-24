@@ -1,3 +1,3 @@
-import AnimatedColor from "./animated-color";
+import AnimatedColor, { AnimatedColorOptions } from "./animated-color";
 
-export default AnimatedColor;
+export { AnimatedColor as Background, AnimatedColorOptions as BackgroundOptions};

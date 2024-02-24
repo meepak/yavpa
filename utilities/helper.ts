@@ -12,14 +12,14 @@ export const isAndroid = Platform.OS === "android";
 export const isIOS = Platform.OS === "ios";
 
 
-export const createSvgData = (defaultViewBoxWidth?: number, defaultViewBoxHeight?: number): SvgDataType => ({
+export const createSvgData = (): SvgDataType => ({
   pathData: [],
   metaData: {
     guid: "",
     created_at: Date.now().toString(),
     updated_at: Date.now().toString(),
     name: "",
-    viewBox: `0 0 ${defaultViewBoxWidth ?? screenWidth} ${defaultViewBoxHeight ?? screenHeight - 111}`,
+    viewBox: `0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`,
     lastScreenMode: ScreenModes[0].name,
     editable: true,
     animation: {

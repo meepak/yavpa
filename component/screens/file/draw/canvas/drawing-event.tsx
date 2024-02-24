@@ -1,14 +1,13 @@
-import { Point } from "@turf/turf";
 import { applyErasure } from "@u/erasure";
 import { getPathFromPoints, getPointsFromPath, isValidPath, precise } from "@u/helper";
 import { getD3CurveBasis, isValidShape, shapeData } from "@u/shapes";
-import { PathDataType, PointType, ShapeType } from "@u/types";
+import { PathDataType, PointType, ShapeType, SvgDataType } from "@u/types";
 import { polygonLength } from "d3-polygon";
 import * as d3 from "d3-shape";
 import * as Crypto from "expo-crypto";
 import { SetStateAction } from "react";
 import { GestureUpdateEvent, PanGestureHandlerEventPayload } from "react-native-gesture-handler";
-import { Shape } from "react-native-svg";
+import { Svg } from "react-native-svg";
 import simplify from "simplify-js";
 
 /*
@@ -17,6 +16,8 @@ ERASURE MODE IS NOT USED IN THIS VERSION, WILL REFINE IT LATER
 export const drawingEvent = (
   event: GestureUpdateEvent<PanGestureHandlerEventPayload>,
   state: string,
+  svgData: SvgDataType,
+  setSvgData: { (value: SetStateAction<SvgDataType>): void; },
   editMode: boolean,
   // erasureMode: boolean,
   currentPath: PathDataType,
@@ -26,15 +27,17 @@ export const drawingEvent = (
   newPathData: { (): PathDataType; (): any; },
   currentShape: ShapeType,
   setCurrentShape: { (value: SetStateAction<ShapeType>): void; },
-  completedPaths: PathDataType[],
-  setCompletedPaths: { (value: SetStateAction<PathDataType[]>): void; },
+  // completedPaths: PathDataType[],
+  // setCompletedPaths: { (value: SetStateAction<PathDataType[]>): void; },
   simplifyTolerance: number,
   d3CurveBasis: string
 ) => {
 
   const erasureMode = false; //disabling for safety in this version
 
-  if (event.numberOfPointers !== 1) return;
+  // This attempt to ensure one finger touch caused way too much trouble 
+  // if (event.numberOfPointers !== 1) return;
+  
   if (!editMode) return;
 
   // if (selectMode && selectedPaths.length > 0) {
@@ -119,14 +122,17 @@ export const drawingEvent = (
 
       if (erasureMode) {
         // use currentPath as erasure
-        const newCompletedPaths = applyErasure(currentPath, completedPaths);
-        setCompletedPaths(() => newCompletedPaths);
+        const newCompletedPaths = applyErasure(currentPath, svgData.pathData);
+        // setCompletedPaths(() => newCompletedPaths);
+        setSvgData((prev: SvgDataType) => ({ metaData: { ...prev.metaData, updated_at: "" }, pathData: newCompletedPaths }));
         setCurrentPath(newPathData());
         setStartTime(0);
         return;
       }
 
       let points = getPointsFromPath(currentPath.path);
+      currentPath.path = "";
+
       if (simplifyTolerance > 0) {
         if (points.length >= 2) {
           points = simplify(points, simplifyTolerance);
@@ -148,14 +154,21 @@ export const drawingEvent = (
           // Generate the path data
           currentPath.path = line(pointsXY as [number, number][]) || "";
         }
-      } else {
+      }
+
+      if(currentPath.path === "") {
         currentPath.path = getPathFromPoints(points);
       }
 
       if (isValidPath(currentPath.path)) {
         currentPath.visible = true;
         currentPath.length = polygonLength(points.map(point => [point.x, point.y]));
-        setCompletedPaths((prev) => [...prev, currentPath]);
+        console.log('setting completed path from drawing event');
+        // setCompletedPaths((prev) => [...prev, currentPath]);
+        setSvgData((prev: SvgDataType) => ({ 
+          metaData: { ...prev.metaData, updated_at: "" }, 
+          pathData: [...prev.pathData, currentPath] 
+        }));
       }
       
       setCurrentPath(newPathData());

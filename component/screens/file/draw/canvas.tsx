@@ -7,7 +7,7 @@ import {
   GestureUpdateEvent,
   PanGestureHandlerEventPayload,
 } from "react-native-gesture-handler";
-import { createPathdata, jsonDeepCompare } from "@u/helper";
+import { createPathdata } from "@u/helper";
 import { DEFAULT_VIEWBOX, PathDataType, ShapeType } from "@u/types";
 import MyPath from "@c/my-path";
 import { useCommandEffect } from "./canvas/command-effect";
@@ -20,7 +20,7 @@ type SvgCanvasProps = {
   editable?: boolean;
   command?: string;
   forceUpdate?: number;
-  initialPathData: PathDataType[];
+  // initialPathData: PathDataType[];
   strokeWidth?: number;
   stroke?: string;
   strokeOpacity?: number;
@@ -33,7 +33,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     editable = true,
     command = "",
     forceUpdate = 0,
-    initialPathData = [],
+    // initialPathData = [],
     strokeWidth = 2,
     strokeOpacity = 1,
     stroke = "#000000",
@@ -41,11 +41,11 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     d3CurveBasis = null,
   } = props;
 
-  const { setSvgData } = useContext(SvgDataContext);
+  const { svgData, setSvgData } = useContext(SvgDataContext);
   const newPathData = () => createPathdata(stroke, strokeWidth, strokeOpacity);
 
   const [undonePaths, setUndonePaths] = useState([] as PathDataType[]);
-  const [completedPaths, setCompletedPaths] = useState(initialPathData);
+  // const [completedPaths, setCompletedPaths] = useState(initialPathData);
   const [currentPath, setCurrentPath] = useState(newPathData());
   const [startTime, setStartTime] = useState(0);
   const [currentShape, setCurrentShape] = useState<ShapeType>(defaultShape);
@@ -62,28 +62,22 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   // const [erasureMode, setErasureMode] = useState(false);
 
 
-
   useEffect(() => {
+    setIsLoading(false);
   }, []);
 
-  // const difference = jsonDeepCompare(svgData.pathData, completedPaths);
-  // if (!difference) {
-  //   console.log(`[SVG CANVAS, completedPaths] new path data same as in completed paths`);
-  //   return;
-  // }
-  // console.log(`[SVG CANVAS, completedPaths] new path data different from completed paths`, difference);
-  useEffect(() => {
-    setSvgData((prev) => {
-      const current = jsonDeepCompare(prev.pathData, completedPaths, true)
-        ? prev
-        : {
-          ...prev,
-          pathData: completedPaths
-        }
-      setIsLoading(false);
-      return current;
-    });
-  }, [completedPaths]);
+
+  // useEffect(() => {
+  //   if (svgData.pathData === completedPaths) {
+  //     console.log('completedPaths isnt new');
+  //     return;
+  //   }
+
+  //   setSvgData((prev) => ({
+  //     metaData: { ...prev.metaData, updated_at: "" },
+  //     pathData: completedPaths
+  //   }));
+  // }, [completedPaths]);
 
 
 
@@ -98,10 +92,10 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   useCommandEffect(
     command,
     editMode,
-    initialPathData,
+    // initialPathData,
     newPathData,
-    completedPaths,
-    setCompletedPaths,
+    svgData,
+    setSvgData,
     undonePaths,
     setUndonePaths,
     setCurrentPath,
@@ -114,6 +108,8 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     drawingEvent(
       event,
       state,
+      svgData,
+      setSvgData,
       editMode,
       currentPath,
       setCurrentPath,
@@ -122,8 +118,6 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
       newPathData,
       currentShape,
       setCurrentShape,
-      completedPaths,
-      setCompletedPaths,
       simplifyTolerance,
       d3CurveBasis
     );
@@ -156,7 +150,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
                 we can save and play on whatever dimension we want, thus using fixed default viewbox*/}
                 <Svg style={styles.svg} viewBox={DEFAULT_VIEWBOX} onLayout={() => setIsLoading(false)}>
 
-                  {completedPaths.map((item, _index) => (
+                  {svgData.pathData.map((item, _index) => (
                     item.visible
                       ? <MyPath prop={item} keyProp={"completed"} key={item.guid} />
                       : null

@@ -130,7 +130,7 @@ const DrawScreen = ({ initControls }) => {
         command={command}
         forceUpdate={commandEnforcer}
         // onPathDataChange={handleSvgPathDataChange}
-        initialPathData={svgData.pathData}
+        // initialPathData={svgData.pathData}
         stroke={stroke}
         strokeWidth={strokeWidth}
         strokeOpacity={strokeOpacity}
