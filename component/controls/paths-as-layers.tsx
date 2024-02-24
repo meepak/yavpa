@@ -75,15 +75,16 @@ const PathsAsLayers = (
             metaData: {
                 ...createSvgData().metaData,
                 guid: Crypto.randomUUID(),
-                viewBox: getViewBoxTrimmed([path]),
+                viewBox: getViewBoxTrimmed([path]), // this is going to make
+                // disproportionally larger to smaller paths, try another strategy
             }
         };
     }
 
     const renderItem = ({ item, drag, isActive }) => {
-        const svgData = pathToSvgData(item);
-        const width = precise(svgData.metaData.viewBox.split(' ')[2]);
-        const height = precise(svgData.metaData.viewBox.split(' ')[3]);
+        const pathAsSvgData = pathToSvgData(item);
+        const width = precise(pathAsSvgData.metaData.viewBox.split(' ')[2]);
+        const height = precise(pathAsSvgData.metaData.viewBox.split(' ')[3]);
         const maxPreviewSize = 50;
         const previewSize = (width > height)
             ? { width: maxPreviewSize, height: height * maxPreviewSize / width }
@@ -154,7 +155,7 @@ const PathsAsLayers = (
                                 onLongPress={drag}>
                                 <View style={{ ...styles.row, width: previewSize.width, height: previewSize.height, alignItems: 'flex-end' }}>
                                     <MyIcon name="drag" size={24} color={'rgba(0,0,0,0.5)'} fill={'rgba(0,0,0,0.4)'} />
-                                    <MyPreview animate={false} data={svgData} />
+                                    <MyPreview animate={false} data={pathAsSvgData} />
                                 </View>
                             </TouchableOpacity>
                         </View>

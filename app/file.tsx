@@ -67,13 +67,16 @@ const FileScreen = () => {
         if (svgDataFromFile && 'pathData' in svgDataFromFile) {
             // console.log('File found with GUID: ', guid, 'name: ', svgDataFromFile.metaData.name)
 
+            // UPDATE -- WE WILL ONLY SET VIEWBOX DURING SAVING TO KEEP THE INFO
+            // FOR NOW APPLICATION WILL NOT USE THE VALUES FROM STORED DATA
+            // BUT WHATEVER IT NEEDS AT THE TIME BY CALCULATING IT
             // set the current viewbox
             // const fittedViewBox = getViewBoxTrimmed(svgDataFromFile.pathData);
-            if (!svgDataFromFile.metaData.viewBox) {
+            // if (!svgDataFromFile.metaData.viewBox) {
                 // scale the path data to fit the new viewbox
                 // console.log('setting new viewbox from ', svgDataFromFile.metaData.viewBox, 'to', DEFAULT_VIEWBOX)
-                svgDataFromFile.metaData.viewBox = DEFAULT_VIEWBOX;
-            }
+                // svgDataFromFile.metaData.viewBox = DEFAULT_VIEWBOX;
+            // }
 
             // console.log('Save in state file with GUID: ', guid, ' , paths ', svgDataFromFile.pathData.length)
             // TODO make sure this doesn't trigger resaving.. it is doing at the moment

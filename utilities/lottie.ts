@@ -1,12 +1,16 @@
 import * as Crypto from "expo-crypto";
-import { getPointsFromPath } from "./helper";
+import { getPointsFromPath, precise } from "./helper";
 import { 
+  BrushType,
   CANVAS_HEIGHT, 
   CANVAS_WIDTH, 
   PathDataType, 
   PointType, 
   SvgDataType } from "./types";
+import { Linecap, Linejoin, Path } from "react-native-svg";
 
+
+const FPS = 24;
 type lottiePointType = { point: [number, number], curveFrom: [number, number], curveTo: [number, number] };
 
 
@@ -146,11 +150,11 @@ function createTransform() {
   };
 }
 
-function createGroup(path: PathDataType, startTime: number) {
+function createGroup(path: PathDataType, pathStartFrame: number, pathEndFrame: number) {
 
-  const strokeColor = hexToRgb(path.stroke);
-  const strokeOpacity = path.strokeOpacity * 100;
-  const strokeWidth = path.strokeWidth;
+  const strokeColor = hexToRgb(path.stroke ?? "#000000");
+  const strokeOpacity = (path.strokeOpacity ?? 1) * 100;
+  const strokeWidth = path.strokeWidth ?? 2;
   const fillColor = [0, 0, 0];
   const fillOpacity = 0;
 
@@ -159,10 +163,10 @@ function createGroup(path: PathDataType, startTime: number) {
   const shapes = lottiePath.map(createShape);
   const shapeFill = createFill(fillColor, fillOpacity);
   const shapeStroke = createStroke(strokeColor, strokeOpacity, strokeWidth);
+
+  const trimPaths = createTrimPaths(path, pathStartFrame, pathEndFrame);
+
   const shapeTransform = createTransform();
-
-  const trimPaths = createTrimPaths(path, startTime);
-
   return {
     ty: "gr",
     mn: "{" + path.guid + "}",
@@ -171,20 +175,21 @@ function createGroup(path: PathDataType, startTime: number) {
       ...shapes,
       shapeFill,
       shapeStroke,
-      shapeTransform,
-      trimPaths
+      trimPaths,
+      shapeTransform // must be last
     ]
   };
 }
 
-function createLayer(path: PathDataType, startTime: number) {
-  const group = [createGroup(path, startTime)];
+function createLayer(path: PathDataType, pathStartFrame: number,  pathEndFrame: number, totalFrames: number) {
+
+  const group = [createGroup(path, pathStartFrame, pathEndFrame)];
   return {
     ddd: 0,
     ty: 4,
     st: 0,
-    ip: startTime, // 0,
-    op: 24 * path.time , // 120,
+    ip: pathStartFrame,
+    op: totalFrames,
     nm: "Layer",
     mn: "{" + Crypto.randomUUID() + "}",
     ao: 0,
@@ -214,13 +219,13 @@ function createLayer(path: PathDataType, startTime: number) {
   };
 }
 
-function createComposition(options: { width: number; height: number; totalTime: number}) {
-  const { width, height, totalTime } = options;
+function createComposition(options: { width: number; height: number; totalFrames: number}) {
+  const { width, height, totalFrames } = options;
 
   return {
     v: "5.7.1",
     ip: 0,
-    op: 24 * totalTime,
+    op: totalFrames,
     nm: "Composition",
     mn: "{" + Crypto.randomUUID() + "}",
     fr: 24,
@@ -233,45 +238,37 @@ function createComposition(options: { width: number; height: number; totalTime: 
 
 // ----------- animation function start ------------
 
-function createTrimPaths(path: PathDataType, startTime: number) {
+function createTrimPaths(path: PathDataType, pathStartFrame: number, pathEndFrame: number) {
   const start = 0;
   const end = 100;
-  const offset = 0;
+  // const offset = 0;
   return {
     ty: "tm",
+    nm: "Trim Paths 1",
+    mn: "{" + Crypto.randomUUID() + "}",
     s: {
       a: 1,
       k: [
         {
-          t: startTime,
-          s: [end],
-          e: [start]
+          t: pathStartFrame,
+          s: [start],
+          h: 0
+        },
+        {
+          t: pathEndFrame,
+          s: [end]
         }
       ]
     },
     e: {
-      a: 1,
-      k: [
-        {
-          t: startTime * 24,
-          s: [start],
-          e: [end]
-        }
-      ]
+      a: 0,
+      k: 0
     },
     o: {
-      a: 1,
-      k: [
-        {
-          t: startTime,
-          s: [offset],
-          e: [offset]
-        }
-      ]
+      a: 0,
+      k: 0
     },
     m: 1,
-    nm: "Trim Paths 1",
-    mn: "{" + Crypto.randomUUID() + "}"
   };
 }
 
@@ -288,26 +285,28 @@ function createLottie(svgData: SvgDataType) {
   const layers: any[] = [];
 
   // make deep copy of svgData.pathData and reverse it
-  const reversedPathData = JSON.parse(JSON.stringify(svgData.pathData)).reverse();
+  const clonedPathData = JSON.parse(JSON.stringify(svgData.pathData));
   
   const speed = svgData.metaData.animation?.speed || 1;
-  // let totalTime = reversedPathData.reduce((acc, path) => acc + path.time * speed / 1000, 0);
-  
-  let startTime = 0;
+  const totalTime = clonedPathData.reduce((acc: number, path: PathDataType) => acc + path.time, 0);
+  const totalFrames = FPS * precise(totalTime / (1000 * speed), 0);
 
-  reversedPathData.forEach((path) => {
-    const layer = createLayer(path, parseInt(startTime.toString()));
+  let pathStartFrame = 0;
+  let index = 0;
+  clonedPathData.forEach((path: PathDataType) => {
+    const pathTotalFrames = FPS * precise(path.time / (1000 * speed), 0)
+    const layer = createLayer(path, pathStartFrame, pathTotalFrames + pathStartFrame, totalFrames);
     layers.push(layer);
-    path.time = path.time * speed/ 1000; // correct time, as js does pass by reference as default, this should persist
-    startTime += path.time;
+    pathStartFrame += pathTotalFrames; 
+    index++;
   });
 
-  const totalTime = parseInt(startTime.toString());
-  const lottie = createComposition({ width, height,  totalTime});
-  lottie.layers = layers as any;
+  // const totalFrames = pathStartFrame;
+  const lottie = createComposition({ width, height,  totalFrames});
+  lottie.layers = layers.reverse() as any; //reverse so the stacking layer matches of svg
   
   const lottieJson = JSON.stringify(lottie);
-  console.log(lottieJson);
+  // console.log(lottieJson);
   return lottieJson;
 }
 

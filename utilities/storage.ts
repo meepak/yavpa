@@ -1,6 +1,6 @@
 import * as FileSystem from "expo-file-system";
 import * as Crypto from "expo-crypto";
-import { isIOS, isValidPath } from "./helper";
+import { getViewBoxTrimmed, isIOS, isValidPath } from "./helper";
 import { svg } from "d3";
 import { DEFAULT_VIEWBOX, PathDataType } from "./types";
 import { SvgDataType } from "./types";
@@ -55,7 +55,7 @@ function parseSvgData(svgData: any, update_updated_at = false): SvgDataType {
             pathData.guid = Crypto.randomUUID();
         }
 
-        // we don't want to save dashArray & dashArrayOffset
+        // we don't want to save dashArray & dashArrayOffset, WHY NOT??
         pathData.strokeDasharray = undefined;
         pathData.strokeDashoffset = undefined;
         return pathData;
@@ -76,7 +76,12 @@ function parseSvgData(svgData: any, update_updated_at = false): SvgDataType {
     if (!isValid(svgDataCopy.metaData.name) || svgDataCopy.metaData.name === svgDataCopy.metaData.guid) {
         svgDataCopy.metaData.name = svgDataCopy.metaData.updated_at.split('.')[0].split('T').join(' ');
     }
-
+    if (!isValid(svgDataCopy.metaData.viewBox)) {
+        svgDataCopy.metaData.viewBox = DEFAULT_VIEWBOX;
+    }
+    if (!isValid(svgDataCopy.metaData.viewBoxTrimmed)) {
+        svgDataCopy.metaData.viewBoxTrimmed = getViewBoxTrimmed(svgDataCopy.pathData);
+    }
     return svgDataCopy;
 }
 

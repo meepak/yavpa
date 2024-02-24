@@ -17,7 +17,7 @@ import { defaultShape } from "@u/shapes";
 
 
 type SvgCanvasProps = {
-  editable?: boolean; completedPaths
+  editable?: boolean;
   command?: string;
   forceUpdate?: number;
   initialPathData: PathDataType[];

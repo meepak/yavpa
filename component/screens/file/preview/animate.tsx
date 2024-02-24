@@ -1,11 +1,12 @@
 import MyPath from "@c/my-path";
-import { SvgDataType } from "@u/types";
+import { DEFAULT_VIEWBOX, SvgDataType } from "@u/types";
 import React, { useEffect, useRef } from "react";
 import { Animated, Easing, StyleSheet } from "react-native";
 import { Svg } from "react-native-svg";
 
 type Props = {
   svgData: SvgDataType;
+  viewBox?: string;
 };
 
 const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnimate>) => {
@@ -19,7 +20,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
   // get the one from meta data, if using trimmed view box is what needed
   // update at commented place
   // const viewBox = getViewBox(pathData);
-  const viewBox = props.svgData.metaData.viewBox;
+  const viewBox = props.viewBox || DEFAULT_VIEWBOX; // props.svgData.metaData.viewBox;
 
   // TODO: combine to one state
   const [animationParams, setAnimationParams] = React.useState({

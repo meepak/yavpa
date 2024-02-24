@@ -13,7 +13,7 @@ interface MyPathLogoProps {
 const MyPathLogo: React.FC<MyPathLogoProps> = ({ width, height, animate }) => {
     return (
         <View style={{ width: width, height: height }}>
-            <MyPreview data={logoData as SvgDataType} animate={animate} />
+            <MyPreview data={logoData as SvgDataType} animate={animate} viewBox={logoData.metaData.viewBox} />
         </View>
     );
 }

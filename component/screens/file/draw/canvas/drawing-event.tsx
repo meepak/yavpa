@@ -115,6 +115,7 @@ export const drawingEvent = (
       break;
     case "ended":
       currentPath.time = Date.now() - startTime;
+      console.log("time", currentPath.time)
 
       if (erasureMode) {
         // use currentPath as erasure

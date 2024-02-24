@@ -2,14 +2,16 @@ import Svg from "react-native-svg";
 import ErrorBoundary from "./error-boundary";
 import React from "react";
 import MyPath from "./my-path";
-import { PathDataType, SvgDataType } from "@u/types";
+import { DEFAULT_VIEWBOX, PathDataType, SvgDataType } from "@u/types";
 import SvgAnimate from "./screens/file/preview/animate";
 
-const MyPreview = ({ data, animate }: { data: SvgDataType, animate: boolean|undefined }) => (
+const MyPreview = 
+({ data, animate, viewBox = DEFAULT_VIEWBOX }: 
+  { data: SvgDataType, animate: boolean|undefined, viewBox?: string }) => (
   <ErrorBoundary>
     {animate
-    ? <SvgAnimate svgData={data} />
-    : <Svg width="100%" height="100%" viewBox={data.metaData.viewBox}>
+    ? <SvgAnimate svgData={data} viewBox={viewBox}/>
+    : <Svg width="100%" height="100%" viewBox={viewBox}>
       {data.pathData.map((path: PathDataType, index: number) => {
         if (!path.visible) {
           return null;
