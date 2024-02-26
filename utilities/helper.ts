@@ -1,7 +1,8 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { StyleSheet, Dimensions, Platform } from "react-native";
 import { Linecap, Linejoin } from "react-native-svg";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, PRECISION, PointType, ScreenModes } from "./types";
+import * as Crypto from "expo-crypto";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, DEFAULT_VIEWBOX, PRECISION, PointType, ScreenModes } from "./types";
 import { PathDataType, SvgDataType } from "./types";
 
 // TODO move this to constants
@@ -186,4 +187,70 @@ export const jsonDeepCompare = (json1: any, json2: any, log = false) => {
   if (bJson === aJson || json2 === json1) return "";
   return stringDifference(aJson.trim(), bJson.trim());
 }
+
+
+export function parseSvgData(svgData: any, update_updated_at = false): SvgDataType {
+  const isValid = (val: any) => (val !== null && val !== undefined && (val || val === false));
+
+  ///check if svgData has pathData and if not set default values
+  if (!isValid(svgData.pathData) && !Array.isArray(svgData.pathData)) {
+      svgData.pathData = [];
+  }
+
+  // filter out invalid path string
+  svgData.pathData = svgData.pathData.filter((pathData: any) => {
+      return isValidPath(pathData.path);
+  });
+
+  //check if pathData is of type PathDataType else set default values
+  svgData.pathData = svgData.pathData.map((pathData: any) => {
+      if (!isValid(pathData.stroke)) {
+          pathData.stroke = "#000000";
+      }
+      if (!isValid(pathData.strokeWidth)) {
+          pathData.strokeWidth = 2;
+      }
+      if (!isValid(pathData.length)) {
+          pathData.length = 0;
+      }
+      if (!isValid(pathData.time)) {
+          pathData.time = 0;
+      }
+      if (!isValid(pathData.visible)) {
+          pathData.visible = true;
+      }
+      if (!isValid(pathData.guid) || pathData.guid === "") {
+          pathData.guid = Crypto.randomUUID();
+      }
+
+      // we don't want to save dashArray & dashArrayOffset, WHY NOT??
+      pathData.strokeDasharray = undefined;
+      pathData.strokeDashoffset = undefined;
+      return pathData;
+  });
+
+
+  // check if svgData has metaData and if not set default values
+  svgData.metaData = svgData.metaData || {};
+  if (!isValid(svgData.metaData.guid)) {
+      svgData.metaData.guid = Crypto.randomUUID();
+  }
+  if (!isValid(svgData.metaData.created_at)) {
+      svgData.metaData.created_at = new Date().toISOString();
+  }
+  if (!isValid(svgData.metaData.updated_at) || update_updated_at) {
+      svgData.metaData.updated_at = new Date().toISOString();
+  }
+  if (!isValid(svgData.metaData.name) || svgData.metaData.name === svgData.metaData.guid) {
+      svgData.metaData.name = svgData.metaData.updated_at.split('.')[0].split('T').join(' ');
+  }
+  if (!isValid(svgData.metaData.viewBox)) {
+      svgData.metaData.viewBox = DEFAULT_VIEWBOX;
+  }
+  if (!isValid(svgData.metaData.viewBoxTrimmed)) {
+      svgData.metaData.viewBoxTrimmed = getViewBoxTrimmed(svgData.pathData);
+  }
+  return svgData;
+}
+
 

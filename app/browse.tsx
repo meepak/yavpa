@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from "react";
+import React, { useCallback, useLayoutEffect, useMemo, useState } from "react";
 import { 
   StyleSheet, 
   Dimensions, 
@@ -69,11 +69,13 @@ const BrowseScreen = () => {
     gap = (actualWindowsWidth - numberOfColumns * FILE_PREVIEW_WIDTH) / (numberOfColumns + 1)
   }
 
-  const fetchFiles = async () => {
+  const fetchFiles = useCallback(async () => {
     try {
       setIsLoading(true);
-      const svgData = await getFiles();
-      setFiles(() => svgData);
+      let svgData = await getFiles();
+      // Sort the data here before setting it to the state
+      svgData = svgData.sort((a, b) =>  Date.parse(b.metaData.updated_at) - Date.parse(a.metaData.updated_at));
+      setFiles(svgData);
       if (svgData.length === 0) {
         setNoSketch(true);
       }
@@ -81,12 +83,11 @@ const BrowseScreen = () => {
     } catch (error) {
       console.log('error fetching files', error)
     }
-  };
-
+  }, []);
 
   useLayoutEffect(() => {
     fetchFiles();
-  }, []);
+  }, [fetchFiles]);
 
   const deleteSketchAlert = (guid: string) => {
     // console.log('confirm delete ' + guid);
@@ -107,7 +108,7 @@ const BrowseScreen = () => {
     ]);
   }
 
-  const renderItem: ListRenderItem<SvgDataType> = ({ item }: { item: SvgDataType }) => {
+  const renderItem: ListRenderItem<SvgDataType> = useCallback(({ item }: { item: SvgDataType }) => {
     return (
       <TouchableOpacity
         onPress={() => router.navigate(`/file?guid=${item.metaData.guid}`)}
@@ -147,16 +148,22 @@ const BrowseScreen = () => {
         </View>
       </TouchableOpacity>
     )
-  };
+  }, []);
 
   // TODO put some animation here
-  const NoSketchFound = ({ noSketch }) => (
+  const NoSketchFound = useMemo(() => (
     noSketch && files.length === 0
       ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Text>No sketches found</Text>
       </View>
       : null
-  )
+  ), [noSketch, files]);
+
+  const renderHeader = useCallback(() => (
+      <View pointerEvents="box-none" style={{ height: scrollHeight }}>
+        <Foreground scrollValue={scrollValue} />
+      </View>
+  ), [scrollValue]);
 
   return (
     <View style={StyleSheet.absoluteFill}>
@@ -174,40 +181,36 @@ const BrowseScreen = () => {
           onScroll={onScroll}
           onMomentumScrollEnd={onMomentumScrollEnd}
           onScrollEndDrag={onScrollEndDrag}
-          renderHeader={() => {
-            return (
-              <View pointerEvents="box-none" style={{ height: scrollHeight }}>
-                <Foreground scrollValue={scrollValue} />
-              </View>
-            );
-          }}
+          renderHeader={renderHeader}
 
           // initialNumToRender={6}
           // maxToRenderPerBatch={20}
-          keyExtractor={(item, index) => item.metaData.guid}
+          keyExtractor={item => item.metaData.guid}
           numColumns={numberOfColumns}
           data={files}
+          initialNumToRender={3}
+          maxToRenderPerBatch={10}
+          windowSize={10}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
           // onContentSizeChange={() => setIsLoading(false)}
         />
-         {isLoading && (
+         {/* {isLoading && (
           <View style={{
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: 'transparent'
           }}>
             <ActivityIndicator 
-              style={{ top: -HEADER_BAR_HEIGHT, backgroundColor: 'transparent' }}
+              style={{ top: -HEADER_BAR_HEIGHT }}
               animating  
               size={150} 
               color="#0000ff"
             />
           </View>
-        )}
+        )} */}
         </View>
-      <NoSketchFound noSketch={noSketch} />
+      {NoSketchFound}
       <Link href="/file" asChild>
         <TouchableOpacity style={styles.floatingButton}>
           <MyIcon name="new" color='#FFFFFF' />
