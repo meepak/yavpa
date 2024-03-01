@@ -7,7 +7,6 @@ import * as d3 from "d3-shape";
 import * as Crypto from "expo-crypto";
 import { SetStateAction } from "react";
 import { GestureUpdateEvent, PanGestureHandlerEventPayload } from "react-native-gesture-handler";
-import { Svg } from "react-native-svg";
 import simplify from "simplify-js";
 
 /*
@@ -162,6 +161,7 @@ export const drawingEvent = (
 
       if (isValidPath(currentPath.path)) {
         currentPath.visible = true;
+        currentPath.selected = false;
         currentPath.length = polygonLength(points.map(point => [point.x, point.y]));
         console.log('setting completed path from drawing event');
         // setCompletedPaths((prev) => [...prev, currentPath]);

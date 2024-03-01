@@ -1,5 +1,4 @@
-import { SvgDataContext } from "@x/svg-data";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import SvgAnimate from "./animate";
 import createPreviewControls from "./control";
@@ -12,6 +11,8 @@ const PreviewScreen = ({ svgData, setSvgData, initControls }) => {
     speed: svgData.metaData.animations?.speed || 1,
     loop: svgData.metaData.animations?.loop || true,
     delay: svgData.metaData.animations?.delay || 0,
+    transition: svgData.metaData.animations?.transition || 0,
+    transitionType: svgData.metaData.animations?.transitionType || 1,
     correction: svgData.metaData.animations?.correction || 0.05,
   });
 

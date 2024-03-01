@@ -12,7 +12,7 @@ import { isAndroid, isIOS } from "@u/helper";
 const BUTTON_HEIGHT = 42;
 const ICON_SIZE = 28;
 
-const ControlPanel = ({ buttons, paddingLeft=40, paddingRight=40 }) => {
+const ControlPanel = ({ buttons, paddingLeft = 40, paddingRight = 40 }) => {
 
   const [forceRerenderAt, setForceRerenderAt] = useState(Date.now());
 
@@ -30,7 +30,7 @@ const ControlPanel = ({ buttons, paddingLeft=40, paddingRight=40 }) => {
     if (!item) return;
     if (item.onPress) {
       item.onPress();
-      if(item.toggleIcons && item.toggleIcons.length === 2 && item.toggleIcons.includes(item.icon)) {
+      if (item.toggleIcons && item.toggleIcons.length === 2 && item.toggleIcons.includes(item.icon)) {
         const iconIndex = item.toggleIcons.indexOf(item.icon) === 0 ? 1 : 0;
         item.icon = item.toggleIcons[iconIndex];
         setForceRerenderAt(Date.now()); // force rerender
@@ -39,28 +39,32 @@ const ControlPanel = ({ buttons, paddingLeft=40, paddingRight=40 }) => {
     }
   };
 
-  const AcceptButton = () => (
-    <TouchableOpacity
-      style={{
-        position: 'absolute',
-        bottom: 0,
-        right: 10,
-        width: 28,
-        height: 28,
-        justifyContent: "center",
-        alignItems: "center",
-        borderWidth: 2,
-        borderColor: "#000000",
-        borderRadius: 14,
-      }}
-      onPress={hideMenu}
-    >
-      <MyIcon color={'#111111'} name={'ok'} />
-    </TouchableOpacity>
-  )
+  // const AcceptButton = () => (
+  //   <TouchableOpacity
+  //     style={{
+  //       position: 'absolute',
+  //       bottom: 0,
+  //       right: 10,
+  //       width: 28,
+  //       height: 28,
+  //       justifyContent: "center",
+  //       alignItems: "center",
+  //       borderWidth: 2,
+  //       borderColor: "#000000",
+  //       borderRadius: 14,
+  //     }}
+  //     onPress={hideMenu}
+  //   >
+  //     <MyIcon color={'#111111'} name={'ok'} />
+  //   </TouchableOpacity>
+  // )
 
   return (
-    <View style={{ backgroundColor: 'transparent', paddingLeft: paddingLeft, paddingRight: paddingRight}}>
+    <View style={{
+      backgroundColor: 'transparent',
+      paddingLeft: paddingLeft,
+      paddingRight: paddingRight
+    }}>
       <FlatList
         horizontal={true}
         showsHorizontalScrollIndicator={false}
@@ -70,7 +74,7 @@ const ControlPanel = ({ buttons, paddingLeft=40, paddingRight=40 }) => {
         snapToAlignment="start"
         data={buttons}
         keyExtractor={(item, index) => index.toString()}
-        contentContainerStyle={{marginLeft: 10, marginTop: isIOS ? 15 : 0}}
+        contentContainerStyle={{ marginLeft: 10, marginTop: isIOS ? 15 : 0 }}
         renderItem={({ item }) => (
           item.extraControl ?
             <ContextMenu
@@ -107,7 +111,7 @@ const ControlPanel = ({ buttons, paddingLeft=40, paddingRight=40 }) => {
               {item.icon ? (
                 <MyIcon name={item.icon} />
               ) : (
-                <Text style={{color: '#FFFFFF'}}>{item.name || "Icon"}</Text>
+                <Text style={{ color: '#FFFFFF' }}>{item.name || "Icon"}</Text>
               )}
             </TouchableOpacity>
         )}

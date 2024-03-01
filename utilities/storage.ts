@@ -80,6 +80,8 @@ export const  getFile = async (guid: string): Promise<SvgDataType | null> => {
     try {
         const file = fileCache.find(file => file.metaData.guid === guid);
         if (file) {
+            // reset selected path to false, find betteer way
+            file.pathData.forEach(path => path.selected = false);
             return file;
         }
         console.log('file not found in cache');

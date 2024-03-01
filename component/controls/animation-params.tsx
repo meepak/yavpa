@@ -1,13 +1,15 @@
-import { View , Text} from "react-native";
+import { View} from "react-native";
 import MySlider from "@c/my-slider";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import MyCheckBox from "@c/my-check-box";
-import { AnimationParamsType } from "@u/types";
+import { TransitionType } from "@u/types";
 
 const AnimationParams = ({ animationParams, onAnimationParamsChanged }) => {
   const [speedValue, setSpeedValue] = useState(animationParams.speed ?? 1)
   const [loopStatusValue, setLoopStatusValue] = useState(animationParams.loop ?? true)
   const [loopDelayValue, setLoopDelayValue] = useState(animationParams.delay ?? 0)
+  const [loopTransitionValue, setLoopTransitionValue] = useState(animationParams.transition ?? 0)
+  const [loopTransitionTypeValue, setLoopTransitionTypeValue] = useState(animationParams.transitionType ?? TransitionType.Fade)
 
   return (
     <>
@@ -49,6 +51,19 @@ const AnimationParams = ({ animationParams, onAnimationParamsChanged }) => {
         onAnimationParamsChanged({ ...animationParams, delay: value });
       }}
     />
+    <MySlider
+      style={{ width: 250, height: 40, top: -5 }}
+      name={"Time to transition to next loop"}
+      minimumValue={0}
+      maximumValue={15}
+      suffix={' secs'}
+      value={loopTransitionValue}
+      onValueChange={(value) => {
+        setLoopTransitionValue(() => value);
+        onAnimationParamsChanged({ ...animationParams, transition: value });
+      }}
+    />
+    {/* To select transition type, need drop or check boxes arrangement, later */}
     </>
   )
 }

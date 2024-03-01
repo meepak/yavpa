@@ -1,23 +1,26 @@
 import React, { useCallback, useLayoutEffect, useMemo, useState } from "react";
-import { 
-  StyleSheet, 
-  Dimensions, 
-  Text, 
-  TouchableOpacity, 
-  View, 
-  ListRenderItem, 
-  Alert, 
-  FlatList, 
-  ActivityIndicator } from "react-native";
+import {
+  StyleSheet,
+  Dimensions,
+  Text,
+  TouchableOpacity,
+  View,
+  ListRenderItem,
+  Alert,
+  FlatList,
+  ActivityIndicator
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MyIcon from "@c/my-icon";
-import { SvgDataType } from "@u/types";
+import { CANVAS_WIDTH, SvgDataType } from "@u/types";
 import { deleteFile, getFiles } from "@u/storage";
 import { Link, useRouter } from "expo-router";
 import { StickyHeaderFlatList, useStickyHeaderScrollProps } from 'react-native-sticky-parallax-header';
 import { StatusBar } from "expo-status-bar";
 import { HeaderBar, Foreground } from "@c/screens/browse";
 import MyPreview from "@c/my-preview";
+import CreativeVoid from "@c/creative-void/creative-void";
+import elevations from "@u/elevation";
 
 const PARALLAX_HEIGHT = 238;
 const HEADER_BAR_HEIGHT = 92;
@@ -31,7 +34,7 @@ const MINIMUM_GAP_BETWEN_PREVIEW = 11;
 const FILE_PREVIEW_BOTTOM_MARGIN = 15;
 
 const BrowseScreen = () => {
-  const router = useRouter(); HEADER_BAR_HEIGHT
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const [files, setFiles] = useState<SvgDataType[]>([]);
   // const [showPathPlay, setShowPathPlay] = useState(true);
@@ -74,7 +77,7 @@ const BrowseScreen = () => {
       setIsLoading(true);
       let svgData = await getFiles();
       // Sort the data here before setting it to the state
-      svgData = svgData.sort((a, b) =>  Date.parse(b.metaData.updated_at) - Date.parse(a.metaData.updated_at));
+      svgData = svgData.sort((a, b) => Date.parse(b.metaData.updated_at) - Date.parse(a.metaData.updated_at));
       setFiles(svgData);
       if (svgData.length === 0) {
         setNoSketch(true);
@@ -96,7 +99,7 @@ const BrowseScreen = () => {
       {
         text: "Delete",
         onPress: async () => {
-          
+
           // console.log('delete', guid)
           const result = await deleteFile(guid)
           if (result) {
@@ -136,8 +139,8 @@ const BrowseScreen = () => {
               overflow: 'hidden',
             }}
           >
-          
-          <MyPreview animate={false} data={item} />
+
+            <MyPreview animate={false} data={item} />
 
           </View>
           <View style={{ alignItems: 'center' }}>
@@ -153,16 +156,20 @@ const BrowseScreen = () => {
   // TODO put some animation here
   const NoSketchFound = useMemo(() => (
     noSketch && files.length === 0
-      ? <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>No sketches found</Text>
-      </View>
+      ? <>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text>It seems you haven't drawn any paths yet.</Text>
+          <Text>Let's fill this creative void!</Text>
+          <CreativeVoid width={CANVAS_WIDTH} height={CANVAS_WIDTH} animate={true} />
+        </View>
+      </>
       : null
   ), [noSketch, files]);
 
   const renderHeader = useCallback(() => (
-      <View pointerEvents="box-none" style={{ height: scrollHeight }}>
-        <Foreground scrollValue={scrollValue} />
-      </View>
+    <View pointerEvents="box-none" style={{ height: scrollHeight }}>
+      <Foreground scrollValue={scrollValue} />
+    </View>
   ), [scrollValue]);
 
   return (
@@ -193,23 +200,23 @@ const BrowseScreen = () => {
           windowSize={10}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
-          // onContentSizeChange={() => setIsLoading(false)}
+        // onContentSizeChange={() => setIsLoading(false)}
         />
-         {/* {isLoading && (
+        {isLoading && (
           <View style={{
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
           }}>
-            <ActivityIndicator 
+            <ActivityIndicator
               style={{ top: -HEADER_BAR_HEIGHT }}
-              animating  
-              size={150} 
+              animating
+              size={150}
               color="#0000ff"
             />
           </View>
-        )} */}
-        </View>
+        )}
+      </View>
       {NoSketchFound}
       <Link href="/file" asChild>
         <TouchableOpacity style={styles.floatingButton}>
@@ -252,7 +259,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignContent: 'center',
-    elevation: 5,
+    ...elevations[5],
   },
 });
 

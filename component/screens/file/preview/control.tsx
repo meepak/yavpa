@@ -31,7 +31,8 @@ const createPreviewControls = ({
               ...prev, 
               speed: value.speed,
               loop: value.loop,
-              delay: value.delay
+              delay: value.delay,
+              transition: value.transition,
             }));
           }}
         />

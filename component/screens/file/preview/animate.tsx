@@ -1,5 +1,5 @@
 import MyPath from "@c/my-path";
-import { DEFAULT_VIEWBOX, SvgDataType } from "@u/types";
+import { DEFAULT_VIEWBOX, SvgDataType, TransitionType } from "@u/types";
 import React, { useEffect, useRef } from "react";
 import { Animated, Easing, StyleSheet } from "react-native";
 import { Svg } from "react-native-svg";
@@ -27,6 +27,8 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
     speed: 1,
     loop: true,
     delay: 0,
+    transition: 0,
+    transitionType: 1,
     correction: 0.05,
   });
   // const [speed, setSpeed] = React.useState(1); // this is causing rerendering during value change
@@ -35,17 +37,17 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
   // const [correction, setCorrection] = React.useState(0.05);
 
   const opacity = useRef(new Animated.Value(1)).current;
+  const scale = useRef(new Animated.Value(1)).current;
 
   // const animationSpeed = (value: number) => setSpeed(value);
   // const animationLoop = (value: boolean) => setLoop(value);
   // const animationDelay = (value: number) => setLoopDelay(value);
   // const animationCleanup = (value: number) => setCorrection(value);
 
-  
-  useEffect(() => 
-  {
+
+  useEffect(() => {
     const animationData = props.svgData.metaData.animation;
-    if(animationData) {
+    if (animationData) {
       setAnimationParams(animationData);
     }
   }, [props.svgData])
@@ -66,7 +68,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
       return Animated.sequence([
         Animated.delay(delay),
         Animated.timing(animatedValue, {
-          toValue: 1,
+          toValue: 1.0,
           duration: duration,
           useNativeDriver: false,
           easing: Easing.linear,
@@ -76,12 +78,22 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
     // Conditionally add the last two sequences if loop is true
     ...(animationParams.loop ? [
       // Fade out the entire SVG in configured period
-      // Animated.delay(loopDelay),
-      Animated.timing(opacity, {
-        toValue: 0.1,
-        duration: animationParams.delay * 1000, // duration of the fade out
-        useNativeDriver: true,
-      }),
+      Animated.delay(animationParams.delay * 1000),
+      ...(
+        animationParams.transitionType === TransitionType.Shrink
+          ? [
+            Animated.timing(scale, {
+              toValue: 0.1,
+              duration: (animationParams.transition ?? 0) * 1000,
+              useNativeDriver: true,
+            })
+          ]
+          : [Animated.timing(opacity, {
+            toValue: 0.1,
+            duration: (animationParams.transition ?? 0) * 1000,
+            useNativeDriver: true,
+          })]
+      ),
 
 
       // Reset animatedValues here to truly reset loop animation
@@ -129,10 +141,6 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
     playAnimation,
     stopAnimation,
     setAnimationParams,
-    // animationSpeed,
-    // animationLoop,
-    // animationDelay,
-    // animationCleanup,
   }));
 
   useEffect(() => {
@@ -141,10 +149,20 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
   }, [animationParams]);
 
   return (
-    <Animated.View style={{ ...StyleSheet.absoluteFillObject, opacity }}>
+    <Animated.View style={{
+      ...StyleSheet.absoluteFillObject,
+      ...(animationParams.transitionType === TransitionType.Shrink
+        ? {
+          transform: [{ scale: scale }]
+        }
+        :
+        { opacity: opacity }
+      )
+    }}>
       <Svg
-        style={{ flex: 1 }}
-        viewBox={viewBox} 
+        width={'100%'}
+        height={'100%'}
+        viewBox={viewBox}
       >
         {pathData.map((path, index) => {
           const strokeDasharray = path.length * (1 + (props.svgData.metaData.animation?.correction || animationParams.correction));
@@ -157,11 +175,11 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
 
           return (
             <React.Fragment key={index}>
-            <AnimatedPath
-              key={index}
-              keyProp={"animated"}
-              prop={{...path }}
-            />
+              <AnimatedPath
+                key={index}
+                keyProp={"animated"}
+                prop={{ ...path }}
+              />
             </React.Fragment>
           );
         })}

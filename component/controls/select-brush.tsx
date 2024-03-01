@@ -17,14 +17,14 @@ const SelectBrush = ({ value, onValueChanged }) => {
 
     // lets create brushes & if it's selected save it to the svgData.metadata
     const brushPreview = (brush: BrushType) => 
-    <Svg height="50" width="260">
+    <Svg height="50" width="80">
         <Defs>
             {AvailableBrushes.getBrush(brush)}
         </Defs>
         <Line
             x1="5"
             y1="27"
-            x2="260"
+            x2="85"
             y2="27"
             stroke={"url(#" + brush.params.guid + ")"}
             strokeWidth={25}
@@ -35,7 +35,7 @@ const SelectBrush = ({ value, onValueChanged }) => {
     const brushes = Brushes.map((brush, index) => brushPreview(brush));
 
     return (
-        <View style ={{width: 280}}>
+        <View style ={{width: 110}}>
         <MyRadioButtons
             labels={brushes}
             values={guids}

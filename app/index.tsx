@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { StyleSheet } from "react-native";
 
 import { Redirect, SplashScreen } from "expo-router";

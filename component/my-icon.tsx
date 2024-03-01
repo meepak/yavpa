@@ -14,6 +14,8 @@ export interface MyIconStyle {
 export interface MyIconProps {
   name: string;
   onPress?: () => void;
+  onPressIn?: () => void;
+  onPressOut?: () => void;
   size?: number;
   color?: string;
   fill?: string;
@@ -24,31 +26,33 @@ export interface MyIconProps {
 const MyIcon: React.FC<MyIconProps> = ({
   name,
   onPress = () => { },
+  onPressIn = () => { },
+  onPressOut = () => { },
   size = 26,
   color = "#FFFFFF",
   fill = 'none',
   strokeWidth = 1,
-  style={},
+  style = {},
 }) => {
   const { paths, transform } = getPath(name);
   return (
-    <TouchableOpacity onPress={onPress}>
-    <Svg style={{
-      marginBottom: style.marginBottom || 0,
-      marginLeft: style.marginLeft || 0
+    <TouchableOpacity onPress={onPress} onPressIn={onPressIn} onPressOut={onPressOut}>
+      <Svg style={{
+        marginBottom: style.marginBottom || 0,
+        marginLeft: style.marginLeft || 0
       }} width={style.size || size} height={style.size || size} viewBox="0 0 26 26">
-      {paths.map((path, index) => (
-        <Path
-          key={index}
-          d={path}
-          stroke={style.color || color}
-          strokeWidth={style.strokeWidth || strokeWidth}
-          fill={style.fill || fill}
-          transform={transform}
-        />
-      ))}
-    </Svg>
-  </TouchableOpacity>
+        {paths.map((path, index) => (
+          <Path
+            key={index}
+            d={path}
+            stroke={style.color || color}
+            strokeWidth={style.strokeWidth || strokeWidth}
+            fill={style.fill || fill}
+            transform={transform}
+          />
+        ))}
+      </Svg>
+    </TouchableOpacity>
   );
 };
 
@@ -144,7 +148,7 @@ const getPath = (name: string) => {
         1-1.08.916H1.777a1.096 1.096 0 0 1-1.084-.93c-.282-1.848-.098-3.54.633-4.974.643-1.26 1.311-2.256 
         2.073-2.99l-.01.01L9.347 1.61a1.096 1.096 0 0 1 .77-.316z`
       ];
-      transform = "scale(0.8)translate(5,5)";
+      transform = "scale(0.75)translate(5,10)";
       break;
     case "line-simplify":
       paths = [
@@ -316,9 +320,35 @@ const getPath = (name: string) => {
       ]
       fill: "black";
       break;
-      default: [
-        paths = []
-      ];
+    case "plus-circle":
+      paths = [
+        `M12.004.001C7.234-.076 2.64 3.033.89 7.462c-1.74 4.13-.873 9.188 2.135 12.51 2.77 3.176 
+        7.276 4.669 11.397 3.794 4.36-.856 
+        8.048-4.33 9.177-8.625 1.127-4.069-.09-8.669-3.104-11.63-2.223-2.223-5.338-3.544-8.49-3.51zm0 
+        1.239c4.448-.121 8.708 2.903 10.157 7.09 1.377 3.93.403 8.66-2.72 11.495-3.922 
+        3.92-10.952 3.92-14.874 0C.654 16.286.133 9.762 3.314 5.587c2.009-2.737 5.284-4.41 
+        8.69-4.347zm-.58 5.084c-.092.718-.013 
+        1.527-.04 2.279.028.718-.052 1.481.04 2.172.102.022-.068.431-.226.52-.24.194-.424.167-.594.087-1.421.008-2.849-.015-4.266.012.004.395-.062.863.027 
+        1.227 1.468-.013 2.95.026 4.408-.02-.038-.15.395.036.478.154.13.117.31.499.134.511.007 
+        1.466-.015 2.939.011 4.402.394-.006.867.063 
+        1.227-.028-.013-1.467.026-2.949-.02-4.408-.15.039.037-.394.154-.477.117-.13.5-.31.512-.134 
+        1.467-.013 2.951.026 4.407-.02-.02-.394.062-.86-.033-1.219h-4.374c-.001.184-.403-.01-.512-.134-.173-.168-.278-.493-.134-.579-.013-1.444.026-2.906-.02-4.34-.391-.012-.786-.001-1.18-.005z`
+      ]
+      break;
+    case "minus-circle":
+      paths = [
+        `M12.004.001C7.234-.076 2.64 3.033.89 7.462c-1.74 4.13-.873 9.188 2.135 12.51 2.77 
+        3.176 7.276 4.669 11.397 3.794 4.36-.856 8.048-4.33 9.177-8.625 
+        1.127-4.069-.09-8.669-3.104-11.63-2.223-2.223-5.338-3.544-8.49-3.51zm0 
+        1.239c4.448-.121 8.708 2.903 10.157 7.09 1.377 3.93.403 8.66-2.72 11.495-3.922 
+        3.92-10.952 3.92-14.874 0C.654 16.286.133 9.762 3.314 5.587c2.009-2.737 5.284-4.41 
+        8.69-4.347zm-1.4 10.142c-1.421.008-2.849-.015-4.266.012.004.395-.062.863.027 1.227 
+        1.468-.013 2.95.026 4.408-.02l2.496.02c1.467-.013 2.951.026 4.407-.02-.02-.394.062-.86-.033-1.219h-4.374z`
+      ]
+      break;
+    default: [
+      paths = []
+    ];
       break;
   }
   return { paths, transform };

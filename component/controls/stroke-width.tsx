@@ -1,38 +1,29 @@
 import { View, Text } from "react-native";
 import MySlider from "@c/my-slider";
-import Svg, { Line } from "react-native-svg";
 import { useState } from "react";
+import StrokePreview from "./stroke-preview";
 
-const StrokeWidth = ({ color, opacity = 1, value, onValueChanged, w = 250, h = 100 }) => {
+const StrokeWidth = ({ stroke, strokeOpacity, value, onValueChanged }) => {
   const [currentValue, setCurrentValue] = useState(value)
+  const handleValueChange = (value: number) => {
+    setCurrentValue(() => value);
+    onValueChanged(value);
+  }
   return (
-    <>
-      <View style={{ position: 'absolute', top: 7, zIndex: -2, margin: 5 }}>
-        <Svg width={w} height={h}>
-          <Line
-            x1="5"
-            y1="25"
-            x2="25"
-            y2="25"
-            stroke={color ?? '#000000'}
-            strokeWidth={currentValue}
-            opacity={opacity}
-          />
-        </Svg>
+    <View>
+      <View style={{ position: 'absolute', top: 0, left: 0 , width: 60, height: 100}}>
+        <StrokePreview stroke={stroke} strokeWidth={currentValue} strokeOpacity={strokeOpacity} width={60} height={100} />
       </View>
-      <MySlider
-        style={{ width: w - 20, height: 40, top: -10 }}
-        name={"Stroke Width"}
-        minimumValue={1}
-        maximumValue={100}
-        step={1}
-        value={value}
-        onValueChange={(value) => {
-          setCurrentValue(() => value);
-          onValueChanged(value);
-        }}
-      />
-    </>
+      <View style={{ width: 40, height: 350 }}>
+        <MySlider
+          name={"Stroke Width"}
+          minimumValue={1}
+          maximumValue={100}
+          step={1}
+          value={value}
+          onValueChange={handleValueChange} />
+      </View>
+    </View>
   )
 }
 

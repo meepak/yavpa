@@ -17,6 +17,7 @@ class MyPath extends React.PureComponent<{prop: PathDataType, keyProp: string}> 
         const brushGuid = this.props.prop.stroke.slice(5, -1);
         brush = Brushes.find(brush => brush.params.guid === brushGuid);
       }
+      
       return (
         <React.Fragment key={`${this.props.keyProp}-${this.props.prop.guid}`}>
           {brush && getBrush(brush)}

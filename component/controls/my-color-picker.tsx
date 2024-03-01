@@ -8,7 +8,7 @@ const MyColorPicker = ({ initialColor = '#000000', onColorSelected }) => {
   const isValidHex = (text) => /^#([A-Fa-f0-9]{6})?$/.test(text);
 
   return (
-    <View style={{ width: 280, top: -15 }}>
+    <View style={{ width: 90, height: 400 }}>
       <ColorPicker
         color={isValidHex(inputColor) ? inputColor : initialColor}
         swatchesOnly={false}
@@ -20,34 +20,35 @@ const MyColorPicker = ({ initialColor = '#000000', onColorSelected }) => {
           }
         }}
         thumbSize={30}
-        sliderSize={30}
-        gapSize={10}
+        gapSize={0}
         noSnap={true}
-        row={false}
-        swatchesLast={true}
+        row={true}
         swatches={true}
-        discrete={false}
+        discrete={true}
         shadeWheelThumb={true}
         shadeSliderThumb={true}
-        useNativeDriver={false}
-        useNativeLayout={false}
+        useNativeDriver={true}
+        useNativeLayout={true}
+        wheelHidden={false}
+        autoResetSlider={true}
       />
-     <View style={styles.container}>
-      <Text style={styles.hash}>#</Text>
-      <TextInput 
-        style={styles.input}
-        onChangeText={(text) => {
-          setInputColor('#' + text);
-        }}
-        onBlur={() => {
-          if (!isValidHex(inputColor)) {
-            setInputColor(initialColor);
-          }
-        }}
-        selectTextOnFocus={true} 
-        value={inputColor.substring(1)}  
-      />
-    </View>
+ 
+      <View style={styles.container}>
+        <Text style={styles.hash}>#</Text>
+        <TextInput 
+          style={styles.input}
+          onChangeText={(text) => {
+            setInputColor('#' + text);
+          }}
+          onBlur={() => {
+            if (!isValidHex(inputColor)) {
+              setInputColor(initialColor);
+            }
+          }}
+          selectTextOnFocus={true} 
+          value={inputColor.substring(1)}  
+        />
+      </View>
     </View >
   );
 }
@@ -56,19 +57,20 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: 70,
+    width: 100,
     height: 30,
-    borderColor: 'gray',
-    borderBottomWidth: 1,
+    borderWidth: 0,
     backgroundColor: 'transparent',
-    marginTop: 10,
+    position: 'absolute',
+    marginTop: 65,
+    marginLeft: -5,
   },
   hash: {
-    paddingLeft: 5,
-    paddingRight: -3,
+    marginLeft: 20,
   },
   input: {
     flex: 1,
+    // borderBottomWidth: 0,
   },
 });
 

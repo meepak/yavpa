@@ -2,9 +2,10 @@ import React, { } from "react";
 import {
   SimplifySmooth, 
   PathsAsLayers, 
-  SelectShape
+  SelectShape,
+  StrokeWidth,
+  StrokeOpacity
 } from "component/controls"
-import StrokeWidthOpacity from "@c/controls/stroke-width-opacity";
 import SelectBrushColor from "@c/controls/select-brush-color";
 
 const createDrawControls = ({
@@ -50,7 +51,7 @@ const createDrawControls = ({
         onValueChanged={(color: string) => setStroke(() => color)}
         />
       ),
-      extraPanel: { width: 340, height: 360 }
+      extraPanel: { width: 140, height: 500 }
     },
     // {
     //   key: "brush",
@@ -65,25 +66,36 @@ const createDrawControls = ({
     //   extraPanel: { width: 280, height: 320 }
     // },
     {
-      key: "stroke-width-opacity",
+      key: "stroke-width",
       icon: "stroke-width",
-      title: "Set Stroke Width & Opacity",
+      title: "Set Stroke Width",
       extraControl: (
-        <StrokeWidthOpacity
-          color={stroke}
-          opacity={strokeOpacity}
-          width={strokeWidth}
-          onOpacityChanged={(value: number) => {
-            setStrokeOpacity(() => value);
-          }}
-          onWidthChanged={(value: number) => {
+        <StrokeWidth
+          stroke={stroke}
+          strokeOpacity={strokeOpacity}
+          value={strokeWidth}
+          onValueChanged={(value: number) => {
             setStrokeWidth(() => value);
           }}
-          w={320}
-          h={200}
         />
       ),
-      extraPanel: { width: 310, height: 200 }
+      extraPanel: { width: 100, height: 400 }
+    },
+    {
+      key: "stroke-opacity",
+      icon: "opacity",
+      title: "Set Stroke Opacity",
+      extraControl: (
+        <StrokeOpacity
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+          value={strokeOpacity}
+          onValueChanged={(value: number) => {
+            setStrokeOpacity(() => value);
+          }}
+        />
+      ),
+      extraPanel: { width: 100, height: 400 }
     },
     {
       key: "line-simplify",
@@ -91,7 +103,6 @@ const createDrawControls = ({
       title: "Simplify & Smooth",
       extraControl: (
         <SimplifySmooth
-          color={stroke}
           simplifyValue={simplifyTolerance}
           onSimplifyValueChanged={(value: number) => {
             setSimplifyTolerance(() => value);
@@ -111,7 +122,7 @@ const createDrawControls = ({
       extraControl: (
         <SelectShape onValueChanged={(value: string) => { drawShape(value); }} value={shape} />
       ),
-      extraPanel: { width: 285, height: 240 }
+      extraPanel: { width: 150, height: 400 }
     }, 
     // {
     //   key: "erasure",
@@ -132,7 +143,7 @@ const createDrawControls = ({
       extraControl: (
         <PathsAsLayers svgData={svgData} setSvgData={setSvgData}/>
       ),
-      extraPanel: { width: 330, height: 'auto'}
+      extraPanel: { width: 150, height: 'auto'}
     },
   ])};
 

@@ -65,7 +65,6 @@ const viewBox = "36 120 182 205";
 
 
 const SimplifySmooth = ({
-    color = "black",
     simplifyValue,
     onSimplifyValueChanged,
     d3Value,
@@ -74,7 +73,6 @@ const SimplifySmooth = ({
     const [currentSimplify, setCurrentSimplify] = useState(simplifyValue)
     const [currentD3, setCurrentD3Value] = useState(d3Value)
     const [smoothPoints, setSmoothPoints] = useState("")
-    const [step, setStep] = useState(0.0001)
 
     useEffect(() => {
         const simplifiedPoints = simplify(testPoints, currentSimplify);
@@ -100,9 +98,6 @@ const SimplifySmooth = ({
         }
     }, [currentSimplify, currentD3])
 
-    useEffect(() => {
-        setStep((currentSimplify < 5) ? 0.0001 : 0.1)
-    }, [currentSimplify])
 
     return (
         <View style={{ flex: 1 }}>
@@ -120,14 +115,15 @@ const SimplifySmooth = ({
                     iconStyle={{ size: 20, color: '#000000', strokeWidth: 2, marginBottom: 10 }}
                 />
             </View>
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', top: 15 }}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
                 <MySlider
                     name="Simplify & Smooth path"
-                    style={{ width: 250, height: 40 }}
+                    // style={{ width: 250, height: 40 }}
                     minimumValue={0}
-                    maximumValue={15}
-                    step={step}
+                    maximumValue={7}
+                    step={0.01}
                     value={simplifyValue}
+                    horizontal={true}
                     onValueChange={(value) => {
                         setCurrentSimplify(value);
                         onSimplifyValueChanged(value);

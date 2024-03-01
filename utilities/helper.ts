@@ -2,7 +2,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { StyleSheet, Dimensions, Platform } from "react-native";
 import { Linecap, Linejoin } from "react-native-svg";
 import * as Crypto from "expo-crypto";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, DEFAULT_VIEWBOX, PRECISION, PointType, ScreenModes } from "./types";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, DEFAULT_VIEWBOX, PRECISION, PointType, ScreenModes, TransitionType } from "./types";
 import { PathDataType, SvgDataType } from "./types";
 
 // TODO move this to constants
@@ -27,6 +27,8 @@ export const createSvgData = (): SvgDataType => ({
       speed: 1,
       loop: true,
       delay: 0,
+      transition: 0,
+      transitionType: TransitionType.Fade,
       correction: 0.05,
     }
   },
@@ -56,6 +58,7 @@ export const createPathdata = (
   time: 0,
   visible: false,
   guid: "",
+  selected: false,
 });
 
 
@@ -126,12 +129,12 @@ export const getLastPoint = (path: string) => {
   return { commandType, x: precise(x), y: precise(y) };
 };
 
-export const getViewBoxTrimmed = (pathData: PathDataType[]) => {
+export const getViewBoxTrimmed = (pathData: PathDataType[], offset=20) => {
   let minX = CANVAS_WIDTH ?? screenWidth;
   let minY = CANVAS_HEIGHT ?? screenHeight;
   let maxX = 0;
   let maxY = 0;
-  let offset = 20;
+  // let offset = 20;
 
   // console.log("pathData", pathData)
   pathData.forEach((path) => {
@@ -217,7 +220,7 @@ export function parseSvgData(svgData: any, update_updated_at = false): SvgDataTy
           pathData.time = 0;
       }
       if (!isValid(pathData.visible)) {
-          pathData.visible = true;
+          pathData.visible = false;
       }
       if (!isValid(pathData.guid) || pathData.guid === "") {
           pathData.guid = Crypto.randomUUID();
@@ -226,6 +229,10 @@ export function parseSvgData(svgData: any, update_updated_at = false): SvgDataTy
       // we don't want to save dashArray & dashArrayOffset, WHY NOT??
       pathData.strokeDasharray = undefined;
       pathData.strokeDashoffset = undefined;
+      // we want all path to be unselected when saved and when loaded
+      // SELECTED IS GOING TO BE EXCEPTION SHOULD BE TRACKED SEPARATELY, IF SO...
+      // lets forget about this here and only remember to reset during file loading
+      // pathData.selected = false; // This will unselect each time path is saved though, which we dont want..
       return pathData;
   });
 

@@ -8,12 +8,17 @@ const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 const MAX_HEADER_HEIGHT = 110;
 const CANVAS_PADDING = 20;
+
 // Thus,
 export const CANVAS_WIDTH = SCREEN_WIDTH - CANVAS_PADDING * 2;
 export const CANVAS_HEIGHT = SCREEN_HEIGHT - MAX_HEADER_HEIGHT - CANVAS_PADDING * 2;
 export const DEFAULT_VIEWBOX = `0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`;
 // -------------------------------------------------
 
+export const FILM_STRIP_HOLE_HEIGHT = 16;
+export const NUM_FILM_STRIP_HOLES = parseInt(((SCREEN_HEIGHT - MAX_HEADER_HEIGHT) / FILM_STRIP_HOLE_HEIGHT).toString()) + 10;
+
+// -----------------------------------------------
 export const ScreenModes: ScreenModeType[] = [
     { name: "Draw", icon: "edit" },
     { name: "Preview", icon: "preview" },
@@ -38,7 +43,7 @@ export type PathDataType = {
     fill?: string; // fill color
     guid: string; // unique identifier for each path
     visible: boolean; // is path visible (allows to hide path without deleting them permanently)
-    brush?: BrushType; // brushes used in the svg
+    selected?: boolean; // is path selected
 };
 
 export type MetaDataType = {
@@ -64,10 +69,19 @@ export interface SvgDataContextType {
     setSvgData: React.Dispatch<React.SetStateAction<SvgDataType>>;
 }
 
+export enum TransitionType {
+    None,
+    Fade,
+    Shrink,
+    Grow,
+}
+
 export type AnimationParamsType = {
     speed: number;
     loop: boolean;
     delay: number;
+    transition: number;
+    transitionType: TransitionType;
     correction: number;
 }
 

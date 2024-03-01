@@ -63,6 +63,12 @@ const ExportScreen = ({ initControls }) => {
 
   const exportOptions = [
     {
+      name: "My Path internal format JSON",
+      description: "Very simple json representation of the path data so that it can be loaded/unloaded etc?",
+      downloadAction: () => download(JSON.stringify(svgData), svgData.metaData.name + ".json"),
+      copyAction: () => copyToClipboard(JSON.stringify(svgData)),
+    },
+    {
       name: "Static SVG",
       description: "Ideal for simple, scalable graphics. Lightweight and versatile.",
       downloadAction: () => download(svgData.metaData.name + ".svg", staticSvg),
@@ -120,9 +126,10 @@ const ExportScreen = ({ initControls }) => {
           </View>
         ))}
 
-        <Text style={{ marginTop: 20, fontStyle: 'italic', marginBottom: 100 }}>Happy exporting!</Text>
-        
-        <View style={{ width: 320, height: 402, right: -10, bottom: 40, borderWidth: 1, borderColor: 'rgba(0,0,0, 0.2)' }}>
+        <Text style={{ marginTop: 20, fontStyle: 'italic', marginBottom: 10 }}>Have fun!</Text>
+
+        <View style={{ width: 350 * CANVAS_WIDTH / CANVAS_HEIGHT, height: 350, right: -150, top: -50, borderWidth: 1, borderColor: 'rgba(0,0,0, 0.2)' }}>
+          <Text style={{ alignSelf: 'center' }}> Lottie Preview</Text>
           <LottieView style={{ flex: 1 }} resizeMode="contain" source={lottieJson} autoPlay={true} loop={true} />
         </View>
 
