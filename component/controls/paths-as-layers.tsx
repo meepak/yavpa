@@ -72,7 +72,7 @@ const PathsAsLayers = (
             pathData: [{ ...path, visible: true }],
             metaData: {
                 ...createSvgData().metaData,
-                guid: Crypto.randomUUID(),
+                // guid: Crypto.randomUUID(),
                 viewBox: getViewBoxTrimmed([path]), // this is going to make
                 // disproportionally larger to smaller paths, try another strategy
             }

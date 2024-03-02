@@ -127,8 +127,8 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
                 <TouchableWithoutFeedback>
                   <View style={{
                     width: this.props.width,
-                    height: this.props.height,
-                    maxHeight: this.state.windowHeight - 300,
+                    minHeight: this.props.height,
+                    maxHeight: this.state.windowHeight - 40,
                     position: 'absolute',
                     left: this.state.xPosition,
                     top: this.state.yPosition,

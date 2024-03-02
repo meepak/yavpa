@@ -1,92 +1,63 @@
 import { PathDataType, SvgDataType } from "@u/types";
 import { SetStateAction } from "react";
 import { GestureUpdateEvent, TapGestureHandlerEventPayload } from "react-native-gesture-handler";
-import * as Crypto from "expo-crypto";
 import { getPointsFromPath } from "@u/helper";
 import * as polygon from 'd3-polygon';
 
 export const doubleTapEvent = (
   event: GestureUpdateEvent<TapGestureHandlerEventPayload>,
-  state: string,
+  activeBoundaryBoxPath: PathDataType | null,
   setSvgData: { (value: SetStateAction<SvgDataType>): void; },
-  selectBoundaryBoxPath: PathDataType | null,
 ) => {
-
-  console.log(state);
-  
   const tapPoint = {
     x: event.x,
     y: event.y,
   }
 
-  // CHeck if any which path has this point within them starting from latest top
-  // Check if we tapped outside bounding box, deselect everything
-  if (selectBoundaryBoxPath !== null) {
-    const points = getPointsFromPath(selectBoundaryBoxPath.path);
-    const d3Points = points.map((point) => [point.x, point.y] as [number, number]);
-    if (!polygon.polygonContains(d3Points, [tapPoint.x, tapPoint.y])) {
-      setSvgData((prev) => {
-        const newPathData = prev.pathData.map((item) => {
-          if (item.selected) {
-            return {
-              ...item,
-              selected: false,
-              guid: Crypto.randomUUID(),
-            };
-          } else {
-            return item;
-          }
-        });
-      
-        console.log('outside exisitng bb, should trigger its deletion');
-      
-        return {
-          ...prev,
-          pathData: newPathData,
-          metaData: {
-            ...prev.metaData,
-            updated_at: "",
-          },
-        };
-      });
-    }
-  }
-  // if there was no active bounding box, select the path and trigger its creation
-
   setSvgData((prev) => {
-    const newPathData = prev.pathData.map((item) => {
-      let itemPath = item.path[item.path.length - 1] !== "Z" ? item.path + "Z" : item.path;
-      const points = getPointsFromPath(itemPath);
+    let newPathData = [...prev.pathData];
+    newPathData = newPathData.reverse(); // reverse the path data to start from the latest
+    const activePathIndex = newPathData.findIndex(path => path.selected); // even if there are multiple active, we take first one as active
+    newPathData.forEach((path) => { path.selected = false; }); // unselect  current active paths
+
+    
+    const pathContainsPoint = (path) => {
+      const points = getPointsFromPath(path);
       const d3Points = points.map((point) => [point.x, point.y] as [number, number]);
-  
-      if (polygon.polygonContains(d3Points, [tapPoint.x, tapPoint.y])) {
-        console.log('something selected, should trigger bbb creation');
-        return {
-          ...item,
-          selected: true,
-          guid: Crypto.randomUUID(),
-        };
-      } else if (item.selected) {
-        console.log('impossible to come here, how??')
-        return {
-          ...item,
-          selected: false,
-          guid: Crypto.randomUUID(),
-        };
-      } else {
-        return item;
+      return polygon.polygonContains(d3Points, [tapPoint.x, tapPoint.y]);
+    }
+    
+    const selectPathIfContainsPoint = (i: number) => {
+      if (pathContainsPoint(newPathData[i].path)) {
+        newPathData = newPathData.map((path, index) => ({
+          ...path,
+          selected: index === i,
+        }));
+        return true;
       }
-    });
-  
-    console.log('Number of selected paths', newPathData.filter((item) => item.selected).length);
-  
-    return {
-      ...prev,
-      pathData: newPathData,
-      metaData: {
-        ...prev.metaData,
-        updated_at: "",
-      },
-    };
+      return false;
+    }
+
+    // If there is active bounding box and if tap is insded it, try to select next path
+    if (activePathIndex !== -1 && activeBoundaryBoxPath && pathContainsPoint(activeBoundaryBoxPath.path)) {
+      for (let i = activePathIndex + 1; i < newPathData.length; i++) {
+        if (selectPathIfContainsPoint(i)) {
+          return { ...prev, pathData: newPathData.reverse() };
+        }
+      }
+      for (let i = 0; i < activePathIndex; i++) {
+        if (selectPathIfContainsPoint(i)) {
+          return { ...prev, pathData: newPathData.reverse() };
+        }
+      }
+    } else {// if outside current boundary box or no boundary box
+      for (let i = 0; i < newPathData.length; i++) {
+        if (selectPathIfContainsPoint(i) && i !== activePathIndex) {
+          return { ...prev, pathData: newPathData.reverse() };
+        }
+      }
+    }
+
+    return { ...prev, pathData: newPathData.reverse() };
   });
 }

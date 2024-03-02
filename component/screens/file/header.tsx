@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { TextInput, TouchableOpacity, View, StyleSheet } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { Text, TextInput, TouchableOpacity, View, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { ControlPanel } from "component/controls";
 import { isIOS } from "@u/helper";
@@ -8,6 +8,8 @@ import MyIcon from "@c/my-icon";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MyPathLogo from "@c/logo/my-path-logo";
 import { LinearGradient } from "expo-linear-gradient";
+import { SvgDataContext } from "@x/svg-data";
+import Animated from "react-native-reanimated";
 
 const HeaderGradientBackground = ({ children }) => (<>
     <LinearGradient
@@ -29,6 +31,9 @@ const Header = ({
     const insets = useSafeAreaInsets();
     const [name, setName] = useState(title);
     const [screenMode, setScreenMode] = useState(initialScreenMode || ScreenModes[0]);
+    const { svgData } = useContext(SvgDataContext);
+    const [sorry, setSorry] = useState(false);
+
 
     const router = useRouter();
 
@@ -45,6 +50,13 @@ const Header = ({
     const handleScreenModeButtonPress = () => {
         // console.log('screen mode button pressed')
         const currentScreenModeIndex = ScreenModes.findIndex((mode) => mode.name === screenMode.name);
+        if (ScreenModes[currentScreenModeIndex].name === "Draw") {
+            if (svgData.pathData.length === 0) {
+                setSorry(true);
+                setTimeout(() => setSorry(false), 7000);
+                return;
+            }
+        }
         const newScreenModeIndex = (currentScreenModeIndex + 1) % ScreenModes.length;
         const newScreenMode = ScreenModes[newScreenModeIndex];
         setScreenMode(newScreenMode);
@@ -131,7 +143,16 @@ const Header = ({
                         name={screenMode.icon}
                         color="#FFFFFF" />
                 </View>
-            </TouchableOpacity>
+                {
+                    sorry ?
+                        <Animated.View style={{ width: 300, position: 'absolute', zIndex: -10, top: 150, left: 30, opacity: 0.5 }}>
+                            <Text style={{ color: 'black', fontSize: 21, fontWeight: 'bold' }}>
+                                Sorry empty screen can't be animated, draw something first!
+                            </Text>
+                        </Animated.View>
+                        : null
+                }
+            </TouchableOpacity >
 
         </>
     );

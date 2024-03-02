@@ -86,7 +86,7 @@ export const applyErasure = (erasurePathData: PathDataType, completedPathsData: 
                     return {
                         ...pathData,
                         path: getPathFromPoints(newPath),
-                        guid: Crypto.randomUUID(),
+                        // guid: Crypto.randomUUID(),
                         length: precise(length, 5),
                         time: precise(time, 5),
                     };

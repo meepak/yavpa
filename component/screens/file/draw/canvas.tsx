@@ -56,7 +56,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   const [isLoading, setIsLoading] = useState(true);
 
 
-  const [selectBoundaryBoxPath, setSelectBoundaryBoxPath] = useState<PathDataType | null>(null)
+  const [activeBoundaryBoxPath, setActiveBoundaryBoxPath] = useState<PathDataType | null>(null)
   // const [boundaryBoxDashoffset, setBoundaryBoxDashoffset] = useState(5);
 
 
@@ -82,8 +82,12 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   // get bounding box of selected paths
   useSelectEffect({
     svgData,
+    setSvgData,
     setEditMode,
-    setSelectBoundaryBoxPath,
+    setSelectBoundaryBoxPath: setActiveBoundaryBoxPath,
+    stroke,
+    strokeWidth,
+    strokeOpacity
   });
 
 
@@ -105,9 +109,8 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   const handleDoubleTapEvent = (event: GestureUpdateEvent<TapGestureHandlerEventPayload>, state: string) => {
     doubleTapEvent(
       event, 
-      state,
+      activeBoundaryBoxPath,
       setSvgData,
-      selectBoundaryBoxPath,
       );
   }
 
@@ -136,14 +139,16 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
       state,
       editMode,
       setSvgData,
-      selectBoundaryBoxPath,
-      setSelectBoundaryBoxPath,
+      activeBoundaryBoxPath,
+      setActiveBoundaryBoxPath,
     );
   };
 
 
-  const panForDrawing = Gesture.Pan()
-  panForDrawing.shouldCancelWhenOutside(false); //true sucks
+  const panForDrawing = Gesture.Pan();
+  panForDrawing.shouldCancelWhenOutside(false);
+  panForDrawing.minPointers(1);
+  panForDrawing.maxPointers(1);
   panForDrawing.onBegin((event) => handlePanDrawingEvent(event, "began"))
     .onUpdate((event) => handlePanDrawingEvent(event, "active"))
     .onEnd((event) => handlePanDrawingEvent(event, "ended"));
@@ -194,9 +199,9 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 
 
                       {
-                        selectBoundaryBoxPath && (
+                        activeBoundaryBoxPath && (
                           <GestureDetector gesture={panForSelect}>
-                            <MyPath prop={selectBoundaryBoxPath} keyProp={"selectBoundaryBox"} key={"selectBoundaryBox"} />
+                            <MyPath prop={activeBoundaryBoxPath} keyProp={"selectBoundaryBox"} key={"selectBoundaryBox"} />
                           </GestureDetector>
                         )
                       }
