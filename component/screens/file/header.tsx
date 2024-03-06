@@ -2,14 +2,12 @@ import React, { useContext, useEffect, useState } from "react";
 import { Text, TextInput, TouchableOpacity, View, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { ControlPanel } from "component/controls";
-import { isIOS } from "@u/helper";
-import { ScreenModes } from "@u/types";
+import { MAX_HEADER_HEIGHT, ScreenModes } from "@u/types";
 import MyIcon from "@c/my-icon";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MyPathLogo from "@c/logo/my-path-logo";
 import { LinearGradient } from "expo-linear-gradient";
 import { SvgDataContext } from "@x/svg-data";
-import Animated from "react-native-reanimated";
 
 const HeaderGradientBackground = ({ children }) => (<>
     <LinearGradient
@@ -78,8 +76,7 @@ const Header = ({
             <HeaderGradientBackground>
                 <View
                     style={{
-                        top: insets.top,
-                        marginVertical: 7,
+                        top: insets.top + 5,
                         marginRight: 10,
                         marginLeft: 5,
                         flexDirection: "row",
@@ -113,20 +110,20 @@ const Header = ({
                         enterKeyHint="done"
                         placeholderTextColor="rgba(255, 255, 255, 0.7)" />
                     <View style={{ bottom: -5, }}>
-                        <MyPathLogo animate={false} width={42} height={42} />
+                        <MyPathLogo animate={false} width={48} height={48} />
                     </View>
 
                 </View>
-                <View style={{ marginTop: 30 }}>
+                <View style={{ marginTop: 30, bottom: -5, justifyContent: 'flex-end' }}>
                     <ControlPanel
                         buttons={controlPanelButtons}
                         paddingLeft={50}
-                        paddingRight={20} />
+                        paddingRight={10} />
 
                 </View>
             </HeaderGradientBackground>
             <TouchableOpacity
-                style={{ position: 'absolute', left: 10, bottom: isIOS ? 15 : -2 }}
+                style={{ position: 'absolute', left: 10, bottom: -10 }}
                 onPress={handleScreenModeButtonPress}
             >
                 <View
@@ -143,17 +140,28 @@ const Header = ({
                         name={screenMode.icon}
                         color="#FFFFFF" />
                 </View>
-                {
-                    sorry ?
-                        <Animated.View style={{ width: 300, position: 'absolute', zIndex: -10, top: 150, left: 30, opacity: 0.5 }}>
-                            <Text style={{ color: 'black', fontSize: 21, fontWeight: 'bold' }}>
-                                Sorry empty screen can't be animated, draw something first!
-                            </Text>
-                        </Animated.View>
-                        : null
-                }
             </TouchableOpacity >
 
+                {
+                    sorry ?
+                        <View 
+                        style={{ 
+                            justifyContent: 'center', 
+                            alignSelf: 'center', 
+                            zIndex: -10, 
+                            opacity: 0.5,
+                            top: MAX_HEADER_HEIGHT,
+                        }}>
+                            {/* TODO PUT animated text */}
+                            <Text style={{ alignSelf: 'center', color: 'black', fontSize: 21, fontWeight: 'bold' }}>
+                                Sorry!
+                            </Text> 
+                            <Text style={{ alignSelf: 'center', color: 'black', fontSize: 21, fontWeight: 'bold' }}>
+                                Empty screen can't be animated.
+                            </Text>
+                        </View>
+                        : null
+                }
         </>
     );
 }

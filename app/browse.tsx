@@ -58,8 +58,8 @@ const BrowseScreen = () => {
 
 
   // calculate dimension for file preview box
-  const windowWidth = Dimensions.get("window").width;
-  const windowHeight = Dimensions.get("window").height;
+  const windowWidth = Dimensions.get("screen").width;
+  const windowHeight = Dimensions.get("screen").height;
 
   const actualWindowsWidth = windowWidth - insets.left - insets.right;
   const actualWindowsHeight = windowHeight - insets.top - insets.bottom;
@@ -158,8 +158,6 @@ const BrowseScreen = () => {
     noSketch && files.length === 0
       ? <>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text>It seems you haven't drawn any paths yet.</Text>
-          <Text>Let's fill this creative void!</Text>
           <CreativeVoid width={CANVAS_WIDTH} height={CANVAS_WIDTH} animate={true} />
         </View>
       </>
@@ -185,6 +183,7 @@ const BrowseScreen = () => {
             alignSelf: 'stretch',
             flex: 1,
           }}
+          style={{paddingTop: 25 }}
           onScroll={onScroll}
           onMomentumScrollEnd={onMomentumScrollEnd}
           onScrollEndDrag={onScrollEndDrag}

@@ -1,4 +1,5 @@
 import elevations from '@u/elevation';
+import { CANVAS_HEIGHT } from '@u/types';
 import React from 'react';
 import {
   View,
@@ -128,7 +129,7 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
                   <View style={{
                     width: this.props.width,
                     minHeight: this.props.height,
-                    maxHeight: this.state.windowHeight - 40,
+                    maxHeight: CANVAS_HEIGHT - 40,
                     position: 'absolute',
                     left: this.state.xPosition,
                     top: this.state.yPosition,

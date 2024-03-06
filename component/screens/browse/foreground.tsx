@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Dimensions, Image, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import {Image} from 'expo-image'
 import Animated, { Extrapolation, SharedValue, interpolate, useAnimatedStyle } from 'react-native-reanimated';
 import banner from '@a/banner.png';
 import alphaVersion from '@a/alpha-version.png';
@@ -15,11 +16,12 @@ interface ForegroundProps {
 export const Foreground: React.FC<ForegroundProps> = ({ scrollValue }) => {
   const [animateLogo, setAnimateLogo] = React.useState(false);
   const foregroundWrapperAnimatedStyle = useAnimatedStyle(() => {
-    return { opacity: interpolate(scrollValue.value, [0, 150, 222], [1, 1, 0], Extrapolation.CLAMP) };
+    return { opacity: interpolate(scrollValue.value, [0, 120, 180], [1, 1, 0], Extrapolation.CLAMP) };
   }, [scrollValue]);
 
   React.useEffect(() => {
     setTimeout(() => {
+      setAnimateLogo(false);
     setAnimateLogo(true);
     }, 4000)
   }, []);
@@ -33,12 +35,7 @@ export const Foreground: React.FC<ForegroundProps> = ({ scrollValue }) => {
           style={styles.foregroundImage}
         />
         <View style={styles.foregroundContainer}>
-          {/* <Animated.Image
-            source={logo}
-            style={styles.foregroundLogo}
-            resizeMode="contain" 
-          /> */}
-          <MyPathLogo animate={animateLogo} width={77} height={77} />
+          <MyPathLogo animate={animateLogo} width={97} height={97} />
           <View style={styles.foregroundDetails}>
             <Text
               style={styles.foregroundDetailsHeader}>
@@ -46,7 +43,7 @@ export const Foreground: React.FC<ForegroundProps> = ({ scrollValue }) => {
             </Text>
             <Text style={styles.foregroundDetailsDesc}>Animate every stroke.</Text>
             <View style={styles.foregroundActionsContainer}>
-              <Image source={alphaVersion} style={styles.foregroundActionsVersion} resizeMode="contain" />
+              <Image source={alphaVersion} style={styles.foregroundActionsVersion} />
             </View>
           </View>
         </View>
@@ -63,18 +60,17 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   foregroundImage: {
-    width: '110%',
-    height: 220,
+    height: 210,
     marginLeft: -25,
   },
   foregroundContainer: {
     flexDirection: 'row',
-    marginVertical: 9,
+    marginVertical: 17,
     marginHorizontal: 17,
   },
   foregroundLogo: {
-    width: 77,
-    height: 77,
+    width: 97,
+    height: 97,
     bottom: -5
   },
   foregroundDetails: {
@@ -91,7 +87,7 @@ const styles = StyleSheet.create({
   },
   foregroundActionsContainer: {
     flexDirection: 'row',
-    marginTop: 10,
+    marginTop:20,
     alignItems: 'flex-end',
     justifyContent: 'flex-end',
     width: screenWidth - 88,

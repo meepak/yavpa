@@ -1,4 +1,4 @@
-import { applyErasure } from "@u/erasure";
+// import { applyErasure } from "@u/erasure";
 import { getPathFromPoints, getPointsFromPath, isValidPath, precise } from "@u/helper";
 import { getD3CurveBasis, isValidShape, shapeData } from "@u/shapes";
 import { PathDataType, PointType, ShapeType, SvgDataType } from "@u/types";
@@ -6,14 +6,14 @@ import { polygonLength } from "d3-polygon";
 import * as d3 from "d3-shape";
 import * as Crypto from "expo-crypto";
 import { SetStateAction } from "react";
-import { GestureUpdateEvent, PanGestureHandlerEventPayload } from "react-native-gesture-handler";
+import { GestureStateChangeEvent, GestureUpdateEvent, PanGestureHandlerEventPayload } from "react-native-gesture-handler";
 import simplify from "simplify-js";
 
 /*
 ERASURE MODE IS NOT USED IN THIS VERSION, WILL REFINE IT LATER
 */
-export const drawingEvent = (
-  event: GestureUpdateEvent<PanGestureHandlerEventPayload>,
+export const handleDrawingEvent = (
+  event: GestureStateChangeEvent<PanGestureHandlerEventPayload>|GestureUpdateEvent<PanGestureHandlerEventPayload>,
   state: string,
   svgData: SvgDataType,
   setSvgData: { (value: SetStateAction<SvgDataType>): void; },
@@ -117,11 +117,11 @@ export const drawingEvent = (
       break;
     case "ended":
       currentPath.time = Date.now() - startTime;
-      console.log("time", currentPath.time)
+      // console.log("time", currentPath.time)
 
       if (erasureMode) {
         // use currentPath as erasure
-        const newCompletedPaths = applyErasure(currentPath, svgData.pathData);
+        // const newCompletedPaths = applyErasure(currentPath, svgData.pathData);
         // setCompletedPaths(() => newCompletedPaths);
         setSvgData((prev: SvgDataType) => ({ metaData: { ...prev.metaData, updated_at: "" }, pathData: newCompletedPaths }));
         setCurrentPath(newPathData());
@@ -161,7 +161,6 @@ export const drawingEvent = (
 
       if (isValidPath(currentPath.path)) {
         currentPath.visible = true;
-        currentPath.selected = false;
         currentPath.length = polygonLength(points.map(point => [point.x, point.y]));
         console.log('setting completed path from drawing event');
         // setCompletedPaths((prev) => [...prev, currentPath]);

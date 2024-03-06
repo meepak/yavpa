@@ -10,8 +10,8 @@ import SelectBrushColor from "@c/controls/select-brush-color";
 
 const createDrawControls = ({
   // onLock,
-  svgData,
-  setSvgData,
+  selectedPaths,
+  setSelectedPaths,
   onUndo,
   onRedo,
   strokeWidth,
@@ -141,9 +141,9 @@ const createDrawControls = ({
       icon: "layers",
       title: "Layers",
       extraControl: (
-        <PathsAsLayers svgData={svgData} setSvgData={setSvgData}/>
+        <PathsAsLayers selectedPaths={selectedPaths} setSelectedPaths={setSelectedPaths}/>
       ),
-      extraPanel: { width: 150, height: 'auto'}
+      extraPanel: { width: 150, height: 400 }
     },
   ])};
 

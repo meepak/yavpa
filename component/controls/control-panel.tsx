@@ -7,9 +7,8 @@ import {
 } from "react-native";
 import MyIcon from "@c/my-icon";
 import ContextMenu from "component/controls/context-menu";
-import { isAndroid, isIOS } from "@u/helper";
+import { isIOS } from "@u/helper";
 
-const BUTTON_HEIGHT = 42;
 const ICON_SIZE = 28;
 
 const ControlPanel = ({ buttons, paddingLeft = 40, paddingRight = 40 }) => {

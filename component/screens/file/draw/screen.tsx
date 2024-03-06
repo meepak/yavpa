@@ -2,11 +2,11 @@ import React, { useContext, useEffect, useState } from "react";
 import { View } from "react-native";
 import SvgCanvas from "./canvas";
 import createDrawControls from "./control";
-import { AvailableShapes } from "@u/types";
+import { AvailableShapes, PathDataType } from "@u/types";
 import { SvgDataContext } from "@x/svg-data";
 
 
-const DrawScreen = ({ initControls }) => {
+const DrawScreen = ({ zoom, initControls, externalGesture }) => {
   const [stroke, setStroke] = useState("#000000");
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [strokeOpacity, setStrokeOpacity] = useState(1);
@@ -17,6 +17,7 @@ const DrawScreen = ({ initControls }) => {
   const [shape, setShape] = useState(AvailableShapes[0]);
   const [editMode, setEditMode] = useState(true);
   // const [erasureMode, setErasureMode] = useState(false);
+  const [selectedPaths, setSelectedPaths] = useState<PathDataType[]>([]);
 
 
   const { svgData, setSvgData } = useContext(SvgDataContext);
@@ -66,8 +67,8 @@ const DrawScreen = ({ initControls }) => {
 
   const buttons = createDrawControls({
     // onLock,
-    svgData,
-    setSvgData,
+    selectedPaths,
+    setSelectedPaths,
     onUndo,
     onRedo,
     strokeWidth,
@@ -89,6 +90,9 @@ const DrawScreen = ({ initControls }) => {
   return (
     <View style={{ flex: 1 }} onLayout={() => initControls(buttons)}>
         <SvgCanvas
+          selectedPaths={selectedPaths}
+          setSelectedPaths={setSelectedPaths}
+          zoom={zoom}
           editable={editMode} // to do get rid of this, as preview will act as read only mode
           // erasing={erasureMode}
           command={command}
@@ -97,7 +101,9 @@ const DrawScreen = ({ initControls }) => {
           strokeWidth={strokeWidth}
           strokeOpacity={strokeOpacity}
           simplifyTolerance={simplifyTolerance}
-          d3CurveBasis={d3CurveBasis} />
+          d3CurveBasis={d3CurveBasis} 
+          externalGesture={externalGesture}
+          />
       </View>
   );
 };

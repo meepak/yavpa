@@ -12,7 +12,7 @@
  *		return <View style={[{ width: 50, height: 50 }, elevations[2]]} />
  */
 
- const { Platform } = require('react-native')
+ import { Platform } from 'react-native'
 
  const webDepth = {
      umbra: [
@@ -229,4 +229,4 @@
      return style
  }
  
- module.exports = elevations
+ export default elevations

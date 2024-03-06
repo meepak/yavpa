@@ -11,8 +11,11 @@ const FilmStripView = ({ children }) => (
           key={i}
           style={[
             styles.hole,
-            { backgroundColor: i % 2 === 0 ? black : 'transparent' },
-            {borderRightWidth: 7, borderRightColor: black}  
+            {
+              backgroundColor: i % 2 === 0 ? black : 'transparent',
+              borderRightWidth: 4, borderRightColor: black,
+              borderLeftWidth: 3, borderLeftColor: black
+            }
           ]}
         />
       ))}
@@ -26,9 +29,10 @@ const FilmStripView = ({ children }) => (
           key={i}
           style={[
             styles.hole,
-            { 
-                backgroundColor: i % 2 === 0 ? black : 'transparent',
-                borderLeftWidth: 7, borderLeftColor: black, 
+            {
+              backgroundColor: i % 2 === 0 ? black : 'transparent',
+              borderRightWidth: 3, borderRightColor: black,
+              borderLeftWidth: 4, borderLeftColor: black,
             },
           ]}
         />
@@ -50,7 +54,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   hole: {
-    width: 14,
+    width: FILM_STRIP_HOLE_HEIGHT,
     height: FILM_STRIP_HOLE_HEIGHT,
   },
 });

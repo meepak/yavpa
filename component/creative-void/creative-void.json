@@ -10,9 +10,9 @@
         "animation": {
             "speed": 1,
             "loop": true,
-            "delay": 10,
-            "transition": 2,
-            "transitionType": 2,
+            "delay": 0,
+            "transition": 4,
+            "transitionType": 4,
             "correction": 0
         },
         "viewBoxTrimmed": "-2 146 359 358"
@@ -120,6 +120,14 @@
             "length": 1001.8868013805516,
             "time": 0,
             "visible": true,
+            "text": {
+                "value": "OH! SUCH EMPTINESS,     LET US FILL THIS CREATIVE VOID!!",
+                "above": -30,
+                "color": "#000000",
+                "fontSize": 35,
+                "fontWeight": "bold",
+                "startOffset": "0%"
+            },
             "guid": "a89dc0a2-e97f-426a-affe-36c7e99d8279"
         }
     ]

@@ -4,7 +4,7 @@ import SvgAnimate from "./animate";
 import createPreviewControls from "./control";
 import { AnimationParamsType, SvgAnimateHandle } from "@u/types";
 
-const PreviewScreen = ({ svgData, setSvgData, initControls }) => {
+const PreviewScreen = ({ zoom, svgData, setSvgData, initControls }) => {
 
   // const { svgData, setSvgData } = useContext(SvgDataContext);
   const [animationParams, setAnimationParams] = useState<AnimationParamsType>({
@@ -60,7 +60,7 @@ const PreviewScreen = ({ svgData, setSvgData, initControls }) => {
 
   return (
     <View style={{ flex: 1 }} onLayout={() => initControls(buttons)}>
-      <SvgAnimate ref={previewRef} svgData={svgData} />
+      <SvgAnimate ref={previewRef} svgData={svgData} zoom={zoom} />
     </View>
   );
 };

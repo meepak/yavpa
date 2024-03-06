@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet } from "react-native";
 
 import { Redirect, SplashScreen } from "expo-router";
-// import { StatusBar } from "expo-status-bar";
+import { StatusBar } from "expo-status-bar";
 import AnimatedSplashAppLoader from "@s/animated-splash";
 // import * as Updates from 'expo-updates';
 
@@ -22,14 +22,18 @@ const App = () => {
   //   ? 'This app is running from built-in code'
   //   : 'This app is running an update';
 
+
   return (
-    <AnimatedSplashAppLoader
-      image={splashImage}
-      bgColor={bgColor}
-      onAnimationComplete={(value) => setAnimationComplete(value)}
-    >
-      {isAnimationComplete && <Redirect href={"/browse"} />}
-    </AnimatedSplashAppLoader>
+    <>
+      <StatusBar  translucent={true} style="light"/>
+      <AnimatedSplashAppLoader
+        image={splashImage}
+        bgColor={bgColor}
+        onAnimationComplete={(value) => setAnimationComplete(value)}
+      >
+        {isAnimationComplete && <Redirect href={"/browse"} />}
+      </AnimatedSplashAppLoader>
+    </>
   )
 };
 

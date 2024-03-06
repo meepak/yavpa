@@ -13,16 +13,18 @@ import MyIcon from "@c/my-icon";
 import StrokeWidth from "./stroke-width";
 import MyPreview from "@c/my-preview";
 import StrokeOpacity from "./stroke-opacity";
+import { SvgDataContext } from "@x/svg-data";
 
 
 
 const PathsAsLayers = (
-    { svgData, setSvgData }:
+    { selectedPaths, setSelectedPaths }:
         {
-            svgData: SvgDataType,
-            setSvgData: (value: React.SetStateAction<SvgDataType>) => {}
+            selectedPaths: PathDataType[],
+            setSelectedPaths: (value: React.SetStateAction<PathDataType[]>) => {}
         }) => {
 
+    const { svgData, setSvgData } = React.useContext(SvgDataContext);
     // remove the path permanently
     function deletePath(item: PathDataType) {
         Alert.alert("Delete Path", "Are you sure you want to delete this path permanently?", [
@@ -42,14 +44,28 @@ const PathsAsLayers = (
 
     const handlePathUpdate = (path: PathDataType, prop: any, value: any) => {
         if (path[prop] === value) return;
-        const index = svgData.pathData.indexOf(path);
+        // uses guid to get path location in svg
+
+        const index = svgData.pathData.findIndex((p) => p.guid === path.guid);
+        console.log('update at zIndex', index, 'path', path.guid)
 
         setSvgData((prevSvgData: SvgDataType) => {
             const newLayers = [...prevSvgData.pathData];
             newLayers[index] = { ...path, [prop]: value };
-            const metaData = prop === 'selected' ? prevSvgData.metaData : { ...prevSvgData.metaData, updated_at: "" };
+            const metaData = { ...prevSvgData.metaData, updated_at: "" };
             return { metaData: metaData, pathData: newLayers };
         });
+    }
+
+    // if this doesn't work, use guid
+    const isPathSelected = (path: PathDataType) => selectedPaths.findIndex((p) => p.guid === path.guid) !== -1;
+    const togglePathSelection = (path: PathDataType) => {
+        if (isPathSelected(path)) {
+            setSelectedPaths(selectedPaths.filter((p) => p.guid !== path.guid));
+        } else {
+            const index = svgData.pathData.findIndex((p) => p.guid === path.guid);
+            setSelectedPaths([...selectedPaths, {...path, zIndex: index}]);
+        }
     }
 
     const cleanBrushName = (brushName: string) => brushName.startsWith('url') ? brushName.slice(4, -1) : brushName;
@@ -72,7 +88,6 @@ const PathsAsLayers = (
             pathData: [{ ...path, visible: true }],
             metaData: {
                 ...createSvgData().metaData,
-                // guid: Crypto.randomUUID(),
                 viewBox: getViewBoxTrimmed([path]), // this is going to make
                 // disproportionally larger to smaller paths, try another strategy
             }
@@ -98,8 +113,8 @@ const PathsAsLayers = (
                     <View style={styles.row}>
 
 
-                        <TouchableOpacity onPress={() => handlePathUpdate(item, "selected", !item.selected)}>
-                            <MyIcon name={item.selected ? "checkbox-checked" : "checkbox-empty"} color='#000000' size={16} />
+                        <TouchableOpacity onPress={() => togglePathSelection(item)}>
+                            <MyIcon name={isPathSelected(item) ? "checkbox-checked" : "checkbox-empty"} color='#000000' size={16} />
                         </TouchableOpacity>
 
                         <TouchableOpacity style={{ ...styles.cell }}>

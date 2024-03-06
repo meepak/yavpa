@@ -2,31 +2,52 @@ import * as FileSystem from "expo-file-system";
 import { isIOS, parseSvgData } from "./helper";
 import { SvgDataType } from "./types";
 import path from 'path';
+import diff from 'deep-diff';
 
-const AppName = isIOS ? "mypath.mahat.au" : "draw-replay-svg-path"; 
+const AppName = isIOS ? "mypath.mahat.au" : "draw-replay-svg-path";
 // const AppName = 'jpt'; //isIOS ? "mypath.mahat.au" : "draw-replay-svg-path"; 
 const AppSaveDirectory = FileSystem.documentDirectory + AppName + "/";
 
 let fileCache: SvgDataType[] = [];
 let saveTimeout: NodeJS.Timeout;
 
-export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
-    svgData = parseSvgData(svgData, true);
-    const index = fileCache.findIndex(file => file.metaData.guid === svgData.metaData.guid);
-    if (index !== -1) {
-        // Move the updated file to the top of the cache
-        fileCache[index] = svgData;
-    } else {
-        if(svgData.pathData.length === 0) return;
-        fileCache.push(svgData); // Add new or updated file to the top of the cache
-    }
-
+export const saveSvgToFile = async (prevSvgData: SvgDataType | undefined, svgData: SvgDataType) => {
     // Clear the previous timeout
     clearTimeout(saveTimeout);
 
     // Set a new timeout
     saveTimeout = setTimeout(async () => {
         try {
+            const differences = diff(prevSvgData, svgData);
+            if (!differences) {
+                console.log('False alarm, no need to save');
+                return;
+            }
+            console.log('Difference:', differences);
+
+
+            // svgData = parseSvgData(svgData, true);
+            const svgData2 = parseSvgData(svgData);
+            const differences2 = diff(svgData, svgData2);
+            if (differences2) {
+                console.log('Difference after parseSvg:', differences);
+            }
+
+
+            console.log('saving svg data', differences2);
+            return;
+
+            const index = fileCache.findIndex(file => file.metaData.guid === svgData.metaData.guid);
+            // console.log('updating cache at index', index);
+            if (index !== -1) {
+                // Move the updated file to the top of the cache
+                fileCache[index] = svgData;
+            } else {
+                if (svgData.pathData.length === 0) return;
+                fileCache.push(svgData); // Add new or updated file to the top of the cache
+            }
+
+
             const json = JSON.stringify(svgData);
             const filename = path.join(AppSaveDirectory, `${svgData.metaData.guid}.json`);
 
@@ -46,7 +67,7 @@ export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
 export const getFiles = async (): Promise<SvgDataType[]> => {
     try {
         if (fileCache.length > 0) {
-            console.log('file cache get files')
+            // console.log('file cache get files')
             return fileCache;
         }
         console.log('I should never be reached after first time.');
@@ -76,12 +97,10 @@ export const getFiles = async (): Promise<SvgDataType[]> => {
 }
 
 
-export const  getFile = async (guid: string): Promise<SvgDataType | null> => {
+export const getFile = async (guid: string): Promise<SvgDataType | null> => {
     try {
         const file = fileCache.find(file => file.metaData.guid === guid);
         if (file) {
-            // reset selected path to false, find betteer way
-            file.pathData.forEach(path => path.selected = false);
             return file;
         }
         console.log('file not found in cache');

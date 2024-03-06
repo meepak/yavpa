@@ -1,5 +1,5 @@
 import MyPath from "@c/my-path";
-import { DEFAULT_VIEWBOX, SvgDataType, TransitionType } from "@u/types";
+import { CANVAS_VIEWBOX, SvgDataType, TransitionType } from "@u/types";
 import React, { useEffect, useRef } from "react";
 import { Animated, Easing, StyleSheet } from "react-native";
 import { Svg } from "react-native-svg";
@@ -7,6 +7,7 @@ import { Svg } from "react-native-svg";
 type Props = {
   svgData: SvgDataType;
   viewBox?: string;
+  zoom?: number;
 };
 
 const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnimate>) => {
@@ -20,7 +21,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
   // get the one from meta data, if using trimmed view box is what needed
   // update at commented place
   // const viewBox = getViewBox(pathData);
-  const viewBox = props.viewBox || DEFAULT_VIEWBOX; // props.svgData.metaData.viewBox;
+  const viewBox = props.viewBox || CANVAS_VIEWBOX; // props.svgData.metaData.viewBox;
 
   // TODO: combine to one state
   const [animationParams, setAnimationParams] = React.useState({
@@ -57,7 +58,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
 
 
   // Create an array of animations
-  const animations = Animated.sequence([
+  const getAnimations = () => Animated.sequence([
     ...animatedValues.map((animatedValue, index) => {
       const delay = index === 0 ? 0 : 0; // Adjust the delay as needed
       const duration =
@@ -66,8 +67,8 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
           : 0;
 
       return Animated.sequence([
-        Animated.delay(delay),
-        Animated.timing(animatedValue, {
+        Animated.delay(delay), //wait for delay
+        Animated.timing(animatedValue, { //animate the path
           toValue: 1.0,
           duration: duration,
           useNativeDriver: false,
@@ -79,22 +80,56 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
     ...(animationParams.loop ? [
       // Fade out the entire SVG in configured period
       Animated.delay(animationParams.delay * 1000),
-      ...(
-        animationParams.transitionType === TransitionType.Shrink
-          ? [
-            Animated.timing(scale, {
-              toValue: 0.1,
-              duration: (animationParams.transition ?? 0) * 1000,
-              useNativeDriver: true,
-            })
-          ]
-          : [Animated.timing(opacity, {
+      ...(animationParams.transitionType === TransitionType.Shrink
+        ? [
+          Animated.timing(scale, {
             toValue: 0.1,
             duration: (animationParams.transition ?? 0) * 1000,
             useNativeDriver: true,
-          })]
+          }),
+        ] 
+        : animationParams.transitionType === TransitionType.Vibrate
+          ? [
+            Animated.timing(scale, {
+              toValue: 1.05,
+              duration: 250,
+              useNativeDriver: true,
+            }),
+            Animated.timing(scale, {
+              toValue: 0.95,
+              duration: 250,
+              useNativeDriver: true,
+            }),
+            Animated.timing(scale, {
+              toValue: 1,
+              duration: 250,
+              useNativeDriver: true,
+            }),
+            // // Animated.loop(
+            // //   Animated.sequence([
+            // //     Animated.timing(scale, {
+            // //       toValue: 0.7, // increase scale
+            // //       duration: 1000, // half of the original duration for rhythmic effect
+            // //       useNativeDriver: true,
+            // //     }),
+            // //     Animated.timing(scale, {
+            // //       toValue: 1.0, // decrease scale
+            // //       duration: 1000, // half of the original duration for rhythmic effect
+            // //       useNativeDriver: true,
+            // //     }),
+            // //   ]),
+            // ),
+          ]
+          : animationParams.transitionType === TransitionType.Fade
+            ? [
+              Animated.timing(opacity, {
+                toValue: 0.1,
+                duration: (animationParams.transition ?? 0) * 1000,
+                useNativeDriver: true,
+              }),
+            ]
+            : []
       ),
-
 
       // Reset animatedValues here to truly reset loop animation
       ...animatedValues.map((animatedValue) => {
@@ -106,6 +141,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
       }),
     ] : []),
   ]);
+  let animations = getAnimations();
 
 
   // Create the animation sequence once
@@ -116,7 +152,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
     // console.log('playing animation')
     if (animations == undefined || !animations) {
       // Create an array of animations
-      // console.log('no animations')
+      animations = getAnimations();
     }
 
     if (animationParams.loop) {
@@ -146,17 +182,19 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
   useEffect(() => {
     // console.log('correction', correction);
     playAnimation();
-  }, [animationParams]);
+  }, [animationParams, props.zoom]);
 
   return (
     <Animated.View style={{
       ...StyleSheet.absoluteFillObject,
-      ...(animationParams.transitionType === TransitionType.Shrink
+      ...(animationParams.transitionType === TransitionType.Shrink || 
+        animationParams.transitionType === TransitionType.Vibrate 
         ? {
           transform: [{ scale: scale }]
         }
-        :
-        { opacity: opacity }
+        : animationParams.transitionType === TransitionType.Fade 
+        ? { opacity: opacity }
+        : {}
       )
     }}>
       <Svg
