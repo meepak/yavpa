@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Text, TextInput, TouchableOpacity, View, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { ControlPanel } from "component/controls";
-import { MAX_HEADER_HEIGHT, ScreenModes } from "@u/types";
+import { MAX_HEADER_HEIGHT, SCREEN_HEIGHT, ScreenModes } from "@u/types";
 import MyIcon from "@c/my-icon";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MyPathLogo from "@c/logo/my-path-logo";
@@ -76,13 +76,16 @@ const Header = ({
             <HeaderGradientBackground>
                 <View
                     style={{
-                        top: insets.top + 5,
-                        marginRight: 10,
-                        marginLeft: 5,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        alignContent: "center",
-                        justifyContent: "space-between",
+                        top: insets.top,
+                        right: insets.right,
+                        // marginRight: 10,
+                        // marginLeft: 5,
+                        // flexDirection: "column",
+                        // alignItems: "center",
+                        // alignContent: "center",
+                        // justifyContent: "space-between",
+                        width: 120,
+                        height: SCREEN_HEIGHT,
                     }}
                 >
                     <TouchableOpacity onPress={handleBackButtonPress}>

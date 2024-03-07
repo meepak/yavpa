@@ -3,6 +3,7 @@ import { StyleSheet } from "react-native";
 
 import { Redirect, SplashScreen } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import * as ScreenOrientation from 'expo-screen-orientation';
 import AnimatedSplashAppLoader from "@s/animated-splash";
 // import * as Updates from 'expo-updates';
 
@@ -11,6 +12,8 @@ import AnimatedSplashAppLoader from "@s/animated-splash";
 SplashScreen.preventAutoHideAsync().catch(() => {
   /* reloading the app might trigger some race conditions, ignore them */
 });
+
+
 
 import splashImage from "../assets/splash.png";
 const bgColor = 'transparent';
@@ -25,13 +28,13 @@ const App = () => {
 
   return (
     <>
-      <StatusBar  translucent={true} style="light"/>
+      <StatusBar hidden />
       <AnimatedSplashAppLoader
         image={splashImage}
         bgColor={bgColor}
         onAnimationComplete={(value) => setAnimationComplete(value)}
       >
-        {isAnimationComplete && <Redirect href={"/browse"} />}
+        {isAnimationComplete && <Redirect href={"/file"} />}
       </AnimatedSplashAppLoader>
     </>
   )

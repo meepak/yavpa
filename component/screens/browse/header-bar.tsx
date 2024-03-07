@@ -3,54 +3,47 @@ import { StyleSheet, Text, View } from 'react-native';
 import Animated, { Extrapolation, SharedValue, interpolate, useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MyPathLogo from '@c/logo/my-path-logo';
+import { SCREEN_HEIGHT, SCREEN_WIDTH } from '@u/types';
+import { HeaderGradientBackground } from '../file/header';
 // import MySheetModal from '@c/my-sheet-modal';
 
 
-interface HeaderBarProps {
-  scrollValue: SharedValue<number>;
-}
-
-const DEFAULT_TOP_INSET = 30;
 
 
-export const HeaderBar: React.FC<HeaderBarProps> = ({ scrollValue }) => {
+export const HeaderBar: React.FC = () => {
   const insets = useSafeAreaInsets();
   // const [showModal, setShowModal] = React.useState(false);
 
-  const headerDetailsContainerAnimatedStyle = useAnimatedStyle(() => {
-    return { opacity: interpolate(scrollValue.value, [0, 120, 180], [0, 0, 1], Extrapolation.CLAMP) };
-  }, [scrollValue]);
-
-
   return (
-    <View
-      style={[
-        styles.headerWrapper,
-        {
-          top: insets.top || DEFAULT_TOP_INSET,
-          left: insets.left + 15,
-          right: insets.right + 15,
-          bottom: 0,
-        },
-      ]}>
-      <Animated.View style={headerDetailsContainerAnimatedStyle}>
-        <View style={{ top: 0 }}>
-          <MyPathLogo animate={false} width={52} height={52} />
+    // <HeaderGradientBackground>
+      <View
+        style={{
+          top: 0,
+          right: 0,
+          width: 100,
+          height: SCREEN_HEIGHT,
+          // borderWidth: 1,
+          // borderColor: 'red',
+          backgroundColor: 'transparent',
+          alignContent: 'flex-start',
+          justifyContent: 'flex-start',
+
+        }}>
+          <View style={{left: 24, top: 20}}>
+        {/* <MyPathLogo animate={false} width={52} height={52} /> */}
         </View>
-      </Animated.View>
-      <Animated.View style={[styles.headerDetailsContainer, headerDetailsContainerAnimatedStyle]}>
-        <Text style={styles.headerDetailsButtonTitle}>
+        {/* <Text style={styles.headerDetailsButtonTitle}>
           MY PATH
-        </Text>
-      </Animated.View>
-    </View>
+        </Text> */}
+      </View>
+    // </HeaderGradientBackground>
   );
 };
 
 const styles = StyleSheet.create({
   headerWrapper: {
     position: 'absolute',
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'center',
   },

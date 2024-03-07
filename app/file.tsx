@@ -5,7 +5,6 @@ import { getFile, saveSvgToFile } from "@u/storage";
 import { SvgDataContext } from "@x/svg-data";
 import { DrawScreen, ExportScreen, Header, PreviewScreen } from "@c/screens/file";
 import { useLocalSearchParams } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -179,16 +178,6 @@ const FileScreen = () => {
 
     return (
         <View style={{ flex: 1 }}>
-            <StatusBar style={"light"} translucent={true} />
-            <View style={{ top: 0, left: 0, height: 100 + insets.top }}>
-                <Header
-                    controlPanelButtons={controlButtons}
-                    title={svgData?.metaData?.name || ""}
-                    onTitleChange={handleNameChange}
-                    onScreenModeChanged={setCurrentScreenMode}
-                    initialScreenMode={currentScreenMode}
-                />
-            </View>
             {
                 currentScreenMode.name === ScreenModes[0].name ||
                     currentScreenMode.name === ScreenModes[1].name

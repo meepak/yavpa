@@ -8,19 +8,19 @@ import {
   ListRenderItem,
   Alert,
   FlatList,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MyIcon from "@c/my-icon";
-import { CANVAS_WIDTH, SvgDataType } from "@u/types";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, SCREEN_WIDTH, SvgDataType } from "@u/types";
 import { deleteFile, getFiles } from "@u/storage";
 import { Link, useRouter } from "expo-router";
 import { StickyHeaderFlatList, useStickyHeaderScrollProps } from 'react-native-sticky-parallax-header';
-import { StatusBar } from "expo-status-bar";
 import { HeaderBar, Foreground } from "@c/screens/browse";
 import MyPreview from "@c/my-preview";
 import CreativeVoid from "@c/creative-void/creative-void";
 import elevations from "@u/elevation";
+import Animated, { interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 
 const PARALLAX_HEIGHT = 238;
 const HEADER_BAR_HEIGHT = 92;
@@ -32,6 +32,46 @@ const FILE_PREVIEW_WIDTH = 108;
 const OFFSET = 125;
 const MINIMUM_GAP_BETWEN_PREVIEW = 11;
 const FILE_PREVIEW_BOTTOM_MARGIN = 15;
+
+const ITEM_WIDTH=100;
+const ITEM_HEIGHT=150;
+
+const ListItem = ({ item, index, scrollY }) => {
+  const inputRange = [
+    -1,
+    0,
+    ITEM_WIDTH * index,
+    ITEM_HEIGHT * (index + 2)
+  ];
+
+  const animatedStyles = useAnimatedStyle(() => {
+    const scale = interpolate(scrollY.value, inputRange, [1, 1, 1, 0]);
+    const translateY = interpolate(scrollY.value, inputRange, [1, 1, 1, 0]);
+
+    return {
+      transform: [{ scale }, { translateY }],
+    };
+  });
+
+  return (
+    <Animated.View style={{
+      width: 150,
+      height: 200,
+      borderWidth: 2,
+      borderRadius: 7,
+      borderColor: 'yelow',
+      alignContent: 'center',
+      alignItems: 'center',
+      padding: 2,
+      overflow: 'hidden',
+      ...animatedStyles // Remove the unused left side of the comma operator
+    }}>
+      <MyPreview animate={false} data={item} />
+    </Animated.View>
+  );
+};
+
+
 
 const BrowseScreen = () => {
   const router = useRouter();
@@ -58,11 +98,11 @@ const BrowseScreen = () => {
 
 
   // calculate dimension for file preview box
-  const windowWidth = Dimensions.get("screen").width;
-  const windowHeight = Dimensions.get("screen").height;
+  const windowWidth = Dimensions.get("screen").height;
+  const windowHeight = Dimensions.get("screen").width;
 
-  const actualWindowsWidth = windowWidth - insets.left - insets.right;
-  const actualWindowsHeight = windowHeight - insets.top - insets.bottom;
+  const actualWindowsWidth = windowWidth - insets.top - insets.bottom;
+  const actualWindowsHeight = windowHeight - insets.right - insets.left;
 
   const filePreviewHeight = ((actualWindowsHeight - OFFSET) * FILE_PREVIEW_WIDTH / actualWindowsWidth);
   let numberOfColumns = Math.floor(actualWindowsWidth / FILE_PREVIEW_WIDTH);
@@ -71,6 +111,14 @@ const BrowseScreen = () => {
     numberOfColumns -= 1;
     gap = (actualWindowsWidth - numberOfColumns * FILE_PREVIEW_WIDTH) / (numberOfColumns + 1)
   }
+
+  const scrollY = useSharedValue(0);
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y;
+    },
+  });
 
   const fetchFiles = useCallback(async () => {
     try {
@@ -111,7 +159,10 @@ const BrowseScreen = () => {
     ]);
   }
 
-  const renderItem: ListRenderItem<SvgDataType> = useCallback(({ item }: { item: SvgDataType }) => {
+  const renderItem: ListRenderItem<SvgDataType> = useCallback(({ item, index }: { item: SvgDataType, index: number }) => {
+    // return (
+    //   <ListItem item={item} index={index} scrollY={scrollY} />
+    // );
     return (
       <TouchableOpacity
         onPress={() => router.navigate(`/file?guid=${item.metaData.guid}`)}
@@ -129,8 +180,8 @@ const BrowseScreen = () => {
         >
           <View
             style={{
-              width: FILE_PREVIEW_WIDTH,
-              height: filePreviewHeight,
+              width: ITEM_WIDTH,
+              height: ITEM_HEIGHT,
               borderWidth: 2,
               borderRadius: 7,
               alignContent: 'center',
@@ -158,48 +209,27 @@ const BrowseScreen = () => {
     noSketch && files.length === 0
       ? <>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <CreativeVoid width={CANVAS_WIDTH} height={CANVAS_WIDTH} animate={true} />
+          <CreativeVoid width={CANVAS_HEIGHT} height={CANVAS_HEIGHT} animate={true} />
         </View>
       </>
       : null
   ), [noSketch, files]);
 
-  const renderHeader = useCallback(() => (
-    <View pointerEvents="box-none" style={{ height: scrollHeight }}>
-      <Foreground scrollValue={scrollValue} />
-    </View>
-  ), [scrollValue]);
 
   return (
     <View style={StyleSheet.absoluteFill}>
-      <View style={[styles.headerBarContainer, { width: windowWidth }]}>
-        <HeaderBar scrollValue={scrollValue} />
-      </View>
       <View style={{ alignSelf: 'stretch', flex: 1 }}>
-        <StickyHeaderFlatList
+        <FlatList
           ref={scrollViewRef}
-          containerStyle={{
-            paddingTop: HEADER_BAR_HEIGHT,
-            alignSelf: 'stretch',
-            flex: 1,
-          }}
-          style={{paddingTop: 25 }}
-          onScroll={onScroll}
-          onMomentumScrollEnd={onMomentumScrollEnd}
-          onScrollEndDrag={onScrollEndDrag}
-          renderHeader={renderHeader}
-
-          // initialNumToRender={6}
-          // maxToRenderPerBatch={20}
+          style={{ paddingTop: 25 }}
           keyExtractor={item => item.metaData.guid}
-          numColumns={numberOfColumns}
           data={files}
           initialNumToRender={3}
           maxToRenderPerBatch={10}
           windowSize={10}
           renderItem={renderItem}
+          horizontal={false}
           showsVerticalScrollIndicator={false}
-        // onContentSizeChange={() => setIsLoading(false)}
         />
         {isLoading && (
           <View style={{
@@ -222,7 +252,6 @@ const BrowseScreen = () => {
           <MyIcon name="new" color='#FFFFFF' />
         </TouchableOpacity>
       </Link>
-      <StatusBar translucent style="light" />
     </View>
   );
 };
@@ -235,7 +264,6 @@ const styles = StyleSheet.create({
   headerBarContainer: {
     position: 'absolute',
     top: 0,
-    left: 0,
     right: 0,
     alignItems: 'center',
     backgroundColor: 'transparent',
@@ -259,6 +287,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignContent: 'center',
     ...elevations[5],
+  },
+  headerDetailsButtonTitle: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 20,
   },
 });
 

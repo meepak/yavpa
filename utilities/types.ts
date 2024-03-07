@@ -1,11 +1,13 @@
 import { Linecap, Linejoin } from "react-native-svg";
-import { Dimensions } from "react-native";
+import { Dimensions, Platform } from "react-native";
 
 
 export const PRECISION = 3;
 // ---- fix for the canvas size ---------------------
-export const SCREEN_WIDTH = Dimensions.get("window").width;
-export const SCREEN_HEIGHT = Dimensions.get("window").height;
+const dimension = Dimensions.get("window");
+const isIOS = Platform.OS === "ios";
+export const SCREEN_WIDTH = isIOS ? dimension.height : dimension.width;
+export const SCREEN_HEIGHT = isIOS ? dimension.width : dimension.height;
 export const MAX_HEADER_HEIGHT = 110;
 const CANVAS_PADDING_HORIZONTAL = 30;
 const CANVAS_PADDING_VERTICAL = 30;
@@ -15,7 +17,7 @@ export const CANVAS_WIDTH = SCREEN_WIDTH - CANVAS_PADDING_HORIZONTAL * 2;
 export const CANVAS_HEIGHT = SCREEN_HEIGHT - MAX_HEADER_HEIGHT - CANVAS_PADDING_VERTICAL * 2;
 export const CANVAS_VIEWBOX = `0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`;
 export const CANVAS_PATH = `M0,0 L${CANVAS_WIDTH},0 L${CANVAS_WIDTH},${CANVAS_HEIGHT} L0,${CANVAS_HEIGHT} Z`;
-  
+
 // console.log('SCREEN_WIDTH', SCREEN_WIDTH);
 // console.log('SCREEN_HEIGHT', SCREEN_HEIGHT);
 // console.log('MAX_HEADER_HEIGHT', MAX_HEADER_HEIGHT);

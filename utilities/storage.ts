@@ -35,7 +35,7 @@ export const saveSvgToFile = async (prevSvgData: SvgDataType | undefined, svgDat
 
 
             console.log('saving svg data', differences2);
-            return;
+            // return;
 
             const index = fileCache.findIndex(file => file.metaData.guid === svgData.metaData.guid);
             // console.log('updating cache at index', index);

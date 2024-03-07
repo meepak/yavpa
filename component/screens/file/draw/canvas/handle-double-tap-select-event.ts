@@ -42,7 +42,7 @@ export const handleDoubleTapSelectEvent = (
   // We don't want a new path out of current path in svgPath data, we want the one of the existing path to be dragged, not new one created
   // so lets just modify one of the svgPath data and not worry about not mutating objects
   svgData.pathData.forEach((path, i) => {
-    if (isPathTapped(path) {
+    if (isPathTapped(path)) {
       console.log('From zIndex', i, 'selected path: ', path.guid);
       setSelectedPaths([path]);
       return;
