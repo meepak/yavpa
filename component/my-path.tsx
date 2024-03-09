@@ -6,17 +6,15 @@ import {
   Path,
   Text,
   TextPath,
-  Shape,
   G,
+  GProps,
 } from "react-native-svg";
-import { NativeMethods } from "react-native";
 import { GestureResponderEvent } from "react-native-modal";
 import { shapeData } from "@u/shapes";
 
 
 interface MyPathProps {
   prop: PathDataType;
-  // rootRef: Shape<any> & NativeMethods;
   keyProp: string;
   startResponder?: boolean;
   onPress?: (event: GestureResponderEvent, myPath: MyPath, bBoxData: PathDataType) => void; // Add an optional onPress prop
@@ -28,7 +26,7 @@ interface MyPathState {
 }
 
 class MyPath extends React.PureComponent<MyPathProps, MyPathState> {
-  pathRef = React.createRef<G>();
+  pathRef = React.createRef<G<GProps>>();
 
   getTranslate = (x: number, y: number) => `translate(${x}, ${y})`;
 
@@ -65,17 +63,17 @@ class MyPath extends React.PureComponent<MyPathProps, MyPathState> {
       const bBox = this.getBBox();
       // console.log('bBox', bBox || 'undefined');
 
-      if(!bBox) {
-        console.log('bBox is undefined, using fall back method to get bBox..'); 
+      if (!bBox) {
+        console.log('bBox is undefined, using fall back method to get bBox..');
       }
 
       // convert bBox to PathDataType
-      const rectPath = bBox 
-      ? shapeData({
-        name: "rectangle",
-        start: { x: bBox?.x || 0, y: bBox?.y || 0 },
-        end: { x: ((bBox?.x || 0) + (bBox?.width || 0)), y: ((bBox?.y || 0) + (bBox?.height || 0)) },
-      })
+      const rectPath = bBox
+        ? shapeData({
+          name: "rectangle",
+          start: { x: bBox?.x || 0, y: bBox?.y || 0 },
+          end: { x: ((bBox?.x || 0) + (bBox?.width || 0)), y: ((bBox?.y || 0) + (bBox?.height || 0)) },
+        })
         : getViewBoxTrimmed([this.props.prop]);
 
       const bBoxData = createPathdata("#000000", 3, 1);
@@ -143,12 +141,12 @@ class MyPath extends React.PureComponent<MyPathProps, MyPathState> {
           fill={this.props.prop.fill ?? "none"}
           strokeDasharray={this.props.prop.strokeDasharray ?? undefined}
           strokeDashoffset={this.props.prop.strokeDashoffset ?? undefined}
-          
+
           onPress={this.handleMyPathPress}
           onStartShouldSetResponder={this.handleOnStartShouldSetResponder}
-          // onMoveShouldSetResponder={this.handleOnMoveShouldSetResponder}
-          // onResponderGrant={this.handleOnResponderGrant}
-          // onResponderMove={this.handleOnResponderMove}
+        // onMoveShouldSetResponder={this.handleOnMoveShouldSetResponder}
+        // onResponderGrant={this.handleOnResponderGrant}
+        // onResponderMove={this.handleOnResponderMove}
         />
         {
           this.props.prop.text && (

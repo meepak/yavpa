@@ -123,9 +123,9 @@ export const handleDrawingEvent = (
         // use currentPath as erasure
         // const newCompletedPaths = applyErasure(currentPath, svgData.pathData);
         // setCompletedPaths(() => newCompletedPaths);
-        setSvgData((prev: SvgDataType) => ({ metaData: { ...prev.metaData, updated_at: "" }, pathData: newCompletedPaths }));
-        setCurrentPath(newPathData());
-        setStartTime(0);
+        // setSvgData((prev: SvgDataType) => ({ metaData: { ...prev.metaData, updated_at: "" }, pathData: newCompletedPaths }));
+        // setCurrentPath(newPathData());
+        // setStartTime(0);
         return;
       }
 

@@ -169,13 +169,11 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
                   height={'100%'}
                   viewBox={CANVAS_VIEWBOX}
                   onLayout={() => setIsLoading(false)}
-                  // ref={svgRef}
                 >
                   {unselectedPaths.map((item, _index) => (
                     item.visible
                       ? <MyPath
                         onPress={handlePathPress}
-                        // rootRef={svgRef.current?.getNativeScrollRef()}
                         prop={item}
                         keyProp={"completed-" + item.guid}
                         key={item.guid}
@@ -187,7 +185,6 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
                     item.visible
                       ? <MyPath
                         onPress={handlePathPress}
-                        // rootRef={svgRef.current?.getNativeScrollRef()}
                         prop={item}
                         keyProp={"selected-" + item.guid}
                         key={item.guid}
@@ -198,7 +195,6 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
                   {currentPath.guid !== "" && (
                     <MyPath
                       onPress={handlePathPress}
-                      // rootRef={svgRef.current?.getNativeScrollRef()}
                       prop={currentPath}
                       keyProp={"current"}
                       key={currentPath.guid} />
@@ -208,7 +204,6 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
                     activeBoundaryBoxPath && (
                       <MyPath
                         prop={activeBoundaryBoxPath}
-                        // rootRef={svgRef.current?.getNativeScrollRef()}
                         keyProp={"selectBoundaryBox"}
                         key={"selectBoundaryBox"}
                         startResponder={true} />
