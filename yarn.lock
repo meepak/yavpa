@@ -5375,6 +5375,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-screen-orientation@npm:~6.4.1":
+  version: 6.4.1
+  resolution: "expo-screen-orientation@npm:6.4.1"
+  peerDependencies:
+    expo: "*"
+  checksum: 10c0/d9e56944278b76a98098f808aa17a3db62fafe949091d450f7d1903752f2a60e70c41c87ec9c0ee3c827f70ff2a5c27b246013805c2d1753d86e53915daa5cb7
+  languageName: node
+  linkType: hard
+
+"expo-sensors@npm:^12.9.1":
+  version: 12.9.1
+  resolution: "expo-sensors@npm:12.9.1"
+  dependencies:
+    invariant: "npm:^2.2.4"
+  peerDependencies:
+    expo: "*"
+  checksum: 10c0/2c9f44a0cff8640ed328325a792905fe55f64adbda405bfb9467d005049499a404ad9467244a6bf7bba71a81cf61f9e3c326549e41d7c2676bdb4882b3e5c94d
+  languageName: node
+  linkType: hard
+
 "expo-sharing@npm:^11.10.0":
   version: 11.10.0
   resolution: "expo-sharing@npm:11.10.0"
@@ -7711,6 +7731,8 @@ __metadata:
     expo-linear-gradient: "npm:^12.7.2"
     expo-linking: "npm:^6.2.2"
     expo-router: "npm:^3.4.8"
+    expo-screen-orientation: "npm:~6.4.1"
+    expo-sensors: "npm:^12.9.1"
     expo-sharing: "npm:^11.10.0"
     expo-status-bar: "npm:^1.11.1"
     expo-updates: "npm:^0.24.11"

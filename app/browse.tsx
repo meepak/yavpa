@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MyIcon from "@c/my-icon";
-import { CANVAS_WIDTH, SvgDataType } from "@u/types";
+import { CANVAS_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SvgDataType } from "@u/types";
 import { deleteFile, getFiles } from "@u/storage";
 import { Link, useRouter } from "expo-router";
 import { StickyHeaderFlatList, useStickyHeaderScrollProps } from 'react-native-sticky-parallax-header';
@@ -58,11 +58,9 @@ const BrowseScreen = () => {
 
 
   // calculate dimension for file preview box
-  const windowWidth = Dimensions.get("screen").width;
-  const windowHeight = Dimensions.get("screen").height;
 
-  const actualWindowsWidth = windowWidth - insets.left - insets.right;
-  const actualWindowsHeight = windowHeight - insets.top - insets.bottom;
+  const actualWindowsWidth = SCREEN_WIDTH - insets.left - insets.right;
+  const actualWindowsHeight = SCREEN_HEIGHT - insets.top - insets.bottom;
 
   const filePreviewHeight = ((actualWindowsHeight - OFFSET) * FILE_PREVIEW_WIDTH / actualWindowsWidth);
   let numberOfColumns = Math.floor(actualWindowsWidth / FILE_PREVIEW_WIDTH);
@@ -77,7 +75,7 @@ const BrowseScreen = () => {
       setIsLoading(true);
       let svgData = await getFiles();
       // Sort the data here before setting it to the state
-      svgData = svgData.sort((a, b) => Date.parse(b.metaData.updated_at) - Date.parse(a.metaData.updated_at));
+      // svgData = svgData.sort((a, b) => Date.parse(b.metaData.updated_at) - Date.parse(a.metaData.updated_at));
       setFiles(svgData);
       if (svgData.length === 0) {
         setNoSketch(true);
@@ -172,7 +170,7 @@ const BrowseScreen = () => {
 
   return (
     <View style={StyleSheet.absoluteFill}>
-      <View style={[styles.headerBarContainer, { width: windowWidth }]}>
+      <View style={[styles.headerBarContainer, { width: SCREEN_WIDTH}]}>
         <HeaderBar scrollValue={scrollValue} />
       </View>
       <View style={{ alignSelf: 'stretch', flex: 1 }}>
@@ -198,6 +196,7 @@ const BrowseScreen = () => {
           maxToRenderPerBatch={10}
           windowSize={10}
           renderItem={renderItem}
+          horizontal={false}
           showsVerticalScrollIndicator={false}
         // onContentSizeChange={() => setIsLoading(false)}
         />

@@ -15,7 +15,7 @@ const ControlPanel = ({ buttons, paddingLeft = 40, paddingRight = 40 }) => {
 
   const [forceRerenderAt, setForceRerenderAt] = useState(Date.now());
 
-  const hideMenu = () => setForceRerenderAt(Date.now());
+  // const hideMenu = () => setForceRerenderAt(Date.now());
 
   const onToolsButtonPress = (item: {
     onPress: () => void;

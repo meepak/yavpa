@@ -8,11 +8,11 @@ import {
     TapGestureHandlerEventPayload 
 } from "react-native-gesture-handler";
 import { useSharedValue } from "react-native-reanimated";
-import { handleDoubleTapSelectEvent } from "./handle-double-tap-select-event";
+// import { handleDoubleTapSelectEvent } from "./____handle-double-tap-select-event";
 import { handleDrawingEvent } from "./handle-drawing-event";
-import { handleSelectedPathRotate } from "./handle-selected-path-rotate-event";
-import { handleSelectedPathScale } from "./handle-selected-path-scale-event";
-import { handleTranslateEvent } from "./handle-translate-event";
+// import { handleSelectedPathRotate } from "./handle-selected-path-rotate-event";
+// import { handleSelectedPathScale } from "./handle-selected-path-scale-event";
+// import { handleTranslateEvent } from "./handle-translate-event";
 import { PathDataType, MetaDataType, SvgDataType, ShapeType } from "@u/types";
 import { SetStateAction } from "react";
 
@@ -58,24 +58,24 @@ const handlePanDrawingEvent = (event: GestureStateChangeEvent<PanGestureHandlerE
   };
 
   const handleTapSelectEvent = (event: GestureStateChangeEvent<TapGestureHandlerEventPayload>, state: string) => {
-    handleDoubleTapSelectEvent(
-      event,
-      svgData,
-      selectedPaths,
-      setSelectedPaths,
-    );
+    // handleDoubleTapSelectEvent(
+    //   event,
+    //   svgData,
+    //   selectedPaths,
+    //   setSelectedPaths,
+    // );
   }
 
   const handlePanTranslateEvent = (event: GestureStateChangeEvent<PanGestureHandlerEventPayload> | GestureUpdateEvent<PanGestureHandlerEventPayload>, state: string) => {
     if (!activeBoundaryBoxPath || editMode) return;
-    handleTranslateEvent(
-      event,
-      state,
-      selectedPaths,
-      setSelectedPaths,
-      activeBoundaryBoxPath,
-      setActiveBoundaryBoxPath,
-    );
+    // handleTranslateEvent(
+    //   event,
+    //   state,
+    //   selectedPaths,
+    //   setSelectedPaths,
+    //   activeBoundaryBoxPath,
+    //   setActiveBoundaryBoxPath,
+    // );
   };
 
 
@@ -83,20 +83,20 @@ const handlePanDrawingEvent = (event: GestureStateChangeEvent<PanGestureHandlerE
   const savedScale = useSharedValue(1);
   const handlePinchScaleEvent = (event: GestureStateChangeEvent<PinchGestureHandlerEventPayload> | GestureUpdateEvent<PinchGestureHandlerEventPayload>, state: string) => {
     if (!activeBoundaryBoxPath || editMode) return;
-    handleSelectedPathScale(
-      event,
-      state,
-      scale,
-      savedScale,
-      setSvgData,
-      activeBoundaryBoxPath,
-      setActiveBoundaryBoxPath,
-    )
+    // handleSelectedPathScale(
+    //   event,
+    //   state,
+    //   scale,
+    //   savedScale,
+    //   setSvgData,
+    //   activeBoundaryBoxPath,
+    //   setActiveBoundaryBoxPath,
+    // )
   }
 
   const handleRotateEvent = (event: GestureStateChangeEvent<RotationGestureHandlerEventPayload> | GestureUpdateEvent<RotationGestureHandlerEventPayload>, state: string) => {
     if (!activeBoundaryBoxPath || editMode) return;
-    handleSelectedPathRotate(event, state)
+    // handleSelectedPathRotate(event, state)
   }
 
   const panForDrawing = Gesture.Pan();
@@ -107,29 +107,29 @@ const handlePanDrawingEvent = (event: GestureStateChangeEvent<PanGestureHandlerE
     .onUpdate((event) => handlePanDrawingEvent(event, "active"))
     .onEnd((event) => handlePanDrawingEvent(event, "ended"));
 
-  const doubleTapForSelect = Gesture.Tap()
-  doubleTapForSelect.numberOfTaps(2).onEnd((event) => handleTapSelectEvent(event, "double-tapped"));
+  // const doubleTapForSelect = Gesture.Tap()
+  // doubleTapForSelect.numberOfTaps(2).onEnd((event) => handleTapSelectEvent(event, "double-tapped"));
 
-  const panForSelectedTranslate = Gesture.Pan()
-  panForSelectedTranslate.minPointers(1);
-  panForSelectedTranslate.maxPointers(1);
-  panForSelectedTranslate.shouldCancelWhenOutside(false);
-  panForSelectedTranslate.onBegin((event) => handlePanTranslateEvent(event, "began"))
-    .onUpdate((event) => handlePanTranslateEvent(event, "active"))
-    .onEnd((event) => handlePanTranslateEvent(event, "ended"));
+  // const panForSelectedTranslate = Gesture.Pan()
+  // panForSelectedTranslate.minPointers(1);
+  // panForSelectedTranslate.maxPointers(1);
+  // panForSelectedTranslate.shouldCancelWhenOutside(false);
+  // panForSelectedTranslate.onBegin((event) => handlePanTranslateEvent(event, "began"))
+  //   .onUpdate((event) => handlePanTranslateEvent(event, "active"))
+  //   .onEnd((event) => handlePanTranslateEvent(event, "ended"));
 
 
-  const pinchForSelectedScale = Gesture.Pinch();
-  pinchForSelectedScale.onBegin((event) => handlePinchScaleEvent(event, "began"))
-    .onUpdate((event) => handlePinchScaleEvent(event, "active"))
-    .onEnd((event) => handlePinchScaleEvent(event, "ended"));
+  // const pinchForSelectedScale = Gesture.Pinch();
+  // pinchForSelectedScale.onBegin((event) => handlePinchScaleEvent(event, "began"))
+  //   .onUpdate((event) => handlePinchScaleEvent(event, "active"))
+  //   .onEnd((event) => handlePinchScaleEvent(event, "ended"));
 
-  const rotateForSelectedRotation = Gesture.Rotation();
-  rotateForSelectedRotation.onBegin((event) => handleRotateEvent(event, "began"))
-    .onUpdate((event) => handleRotateEvent(event, "active"))
-    .onEnd((event) => handleRotateEvent(event, "ended"));
+  // const rotateForSelectedRotation = Gesture.Rotation();
+  // rotateForSelectedRotation.onBegin((event) => handleRotateEvent(event, "began"))
+  //   .onUpdate((event) => handleRotateEvent(event, "active"))
+  //   .onEnd((event) => handleRotateEvent(event, "ended"));
 
-  const longPressForMenu = Gesture.LongPress();
+  // const longPressForMenu = Gesture.LongPress();
 
 
   if(externalGesture.pinch) { //probably not simultaneuos
@@ -138,18 +138,19 @@ const handlePanDrawingEvent = (event: GestureStateChangeEvent<PanGestureHandlerE
     // pinchForSelectedScale.blocksExternalGesture(externalGesture.pinch);
   }
   if(externalGesture.pan) { //probably not simultanueous
-    panForSelectedTranslate.blocksExternalGesture(externalGesture.pan);
+    // panForSelectedTranslate.blocksExternalGesture(externalGesture.pan);
   }
 
   const composedGesture = Gesture.Simultaneous(
     panForDrawing,
-    doubleTapForSelect,
-    panForSelectedTranslate,
-    pinchForSelectedScale,
-    rotateForSelectedRotation,
-    longPressForMenu
+    // doubleTapForSelect,
+    // panForSelectedTranslate,
+    // pinchForSelectedScale,
+    // rotateForSelectedRotation,
+    // longPressForMenu
     );
 
 
-    return composedGesture;
+  // return composedGesture;
+  return panForDrawing;
   }

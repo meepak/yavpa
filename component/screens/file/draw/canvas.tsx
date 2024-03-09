@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { View, StyleSheet, ActivityIndicator } from "react-native";
-import Svg from "react-native-svg";
+import { View, StyleSheet, ActivityIndicator, NativeMethods } from "react-native";
+import Svg, { Shape } from "react-native-svg";
 import {
   GestureDetector,
 } from "react-native-gesture-handler";
@@ -9,9 +9,10 @@ import { CANVAS_VIEWBOX, PathDataType, ShapeType } from "@u/types";
 import MyPath from "@c/my-path";
 import { useCommandEffect } from "./canvas/use-command-effect";
 import { SvgDataContext } from "@x/svg-data";
-import { defaultShape } from "@u/shapes";
+import { defaultShape, shapeData } from "@u/shapes";
 import { useSelectEffect } from "./canvas/use-select-effect";
 import { assignGestureHandlers } from "./canvas/assign-gesture-handlers";
+import { GestureResponderEvent } from "react-native-modal";
 
 
 type SvgCanvasProps = {
@@ -41,7 +42,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     strokeOpacity = 1,
     stroke = "#000000",
     simplifyTolerance = 0.0111,
-    d3CurveBasis = 'auto',
+    d3CurveBasis = null,
     externalGesture: externalGesture = null,
   } = props;
 
@@ -59,7 +60,8 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 
   const [activeBoundaryBoxPath, setActiveBoundaryBoxPath] = useState<PathDataType | null>(null)
   // const [boundaryBoxDashoffset, setBoundaryBoxDashoffset] = useState(5);
-
+  // const svgRef = useRef<Shape<any> & NativeMethods>(null);
+  // const  myPathRef = useRef<MyPath>();
 
   // To ensure paths can't be altered in unselected paths, it can only be used to store stuff from svg data
   const setUnselectedPaths = (newPaths: PathDataType[]) => {
@@ -130,8 +132,19 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     setActiveBoundaryBoxPath,
   );
 
+  // TODO just mark the path as being selected and move the logic to create bounding box and rest inside path itself
+  const handlePathPress = (event: GestureResponderEvent, myPath: MyPath, bBoxData: PathDataType) => {
+    console.log('path pressed', myPath.props.prop.guid);
+
+
+    setActiveBoundaryBoxPath(bBoxData);
+    myPath.props.prop.text = { value: 'from outside, heelooo boundary box', above: -4 };
+    myPath.forceUpdate();
+    setEditMode(false);
+  }
+
   return (
-    <View style={styles.container} pointerEvents="box-none">
+    <View style={styles.container}>
       {
         isLoading
           ? (
@@ -146,34 +159,63 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
           : (
             <GestureDetector gesture={composedGesture}>
               <View style={styles.flex1}>
-                {/* All drawings were drawn in this canvas with this viewbox
+                {/* EXCEPT DEFAULT ONES I CHOSE TWO PUT AS AN EXAMPLE BY DEFAULT ALSO NEEDS CUSTOM  
+                All drawings were drawn in this canvas with this viewbox
                 They need to be edited in this dimension, 
                 we can save and play on whatever dimension we want, thus using fixed default viewbox*/}
                 {/* <ErrorBoundary identifier="Drawing Canvas"> */}
-                  <Svg width='100%' height={'100%'} viewBox={CANVAS_VIEWBOX} onLayout={() => setIsLoading(false)}>
-                    {unselectedPaths.map((item, _index) => (
-                      item.visible
-                        ? <MyPath prop={item} keyProp={"completed-" + item.guid} key={item.guid} />
-                        : null
-                    ))}
+                <Svg
+                  width='100%'
+                  height={'100%'}
+                  viewBox={CANVAS_VIEWBOX}
+                  onLayout={() => setIsLoading(false)}
+                  // ref={svgRef}
+                >
+                  {unselectedPaths.map((item, _index) => (
+                    item.visible
+                      ? <MyPath
+                        onPress={handlePathPress}
+                        // rootRef={svgRef.current?.getNativeScrollRef()}
+                        prop={item}
+                        keyProp={"completed-" + item.guid}
+                        key={item.guid}
+                        startResponder={true} />
+                      : null
+                  ))}
 
-                    {selectedPaths.map((item, _index) => (
-                      item.visible
-                        ? <MyPath prop={item} keyProp={"selected-" + item.guid} key={item.guid} />
-                        : null
-                    ))}
+                  {selectedPaths.map((item, _index) => (
+                    item.visible
+                      ? <MyPath
+                        onPress={handlePathPress}
+                        // rootRef={svgRef.current?.getNativeScrollRef()}
+                        prop={item}
+                        keyProp={"selected-" + item.guid}
+                        key={item.guid}
+                        startResponder={true} />
+                      : null
+                  ))}
 
-                    {currentPath.guid !== "" && (
-                      <MyPath prop={currentPath} keyProp={"current"} key={currentPath.guid} />
-                    )}
+                  {currentPath.guid !== "" && (
+                    <MyPath
+                      onPress={handlePathPress}
+                      // rootRef={svgRef.current?.getNativeScrollRef()}
+                      prop={currentPath}
+                      keyProp={"current"}
+                      key={currentPath.guid} />
+                  )}
 
-                    {
-                      activeBoundaryBoxPath && (
-                        <MyPath prop={activeBoundaryBoxPath} keyProp={"selectBoundaryBox"} key={"selectBoundaryBox"} />
-                      )
-                    }
+                  {
+                    activeBoundaryBoxPath && (
+                      <MyPath
+                        prop={activeBoundaryBoxPath}
+                        // rootRef={svgRef.current?.getNativeScrollRef()}
+                        keyProp={"selectBoundaryBox"}
+                        key={"selectBoundaryBox"}
+                        startResponder={true} />
+                    )
+                  }
 
-                  </Svg>
+                </Svg>
                 {/* </ErrorBoundary> */}
               </View>
             </GestureDetector>

@@ -2,12 +2,13 @@ import React, { useContext, useEffect, useState } from "react";
 import { Text, TextInput, TouchableOpacity, View, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { ControlPanel } from "component/controls";
-import { MAX_HEADER_HEIGHT, ScreenModes } from "@u/types";
+import { MAX_HEADER_HEIGHT, SCREEN_HEIGHT, ScreenModeInstruction, ScreenModes } from "@u/types";
 import MyIcon from "@c/my-icon";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MyPathLogo from "@c/logo/my-path-logo";
 import { LinearGradient } from "expo-linear-gradient";
 import { SvgDataContext } from "@x/svg-data";
+import MyList from "@c/my-list";
 
 const HeaderGradientBackground = ({ children }) => (<>
     <LinearGradient
@@ -31,8 +32,7 @@ const Header = ({
     const [screenMode, setScreenMode] = useState(initialScreenMode || ScreenModes[0]);
     const { svgData } = useContext(SvgDataContext);
     const [sorry, setSorry] = useState(false);
-
-
+    const [buttonInstruction, setButtonInstruction] = useState("");
     const router = useRouter();
 
     useEffect(() => {
@@ -41,6 +41,8 @@ const Header = ({
 
     useEffect(() => {
         setScreenMode(initialScreenMode);
+        const name = initialScreenMode.name;
+        setButtonInstruction(ScreenModeInstruction[name]);
     }, [initialScreenMode])
 
 
@@ -58,6 +60,7 @@ const Header = ({
         const newScreenModeIndex = (currentScreenModeIndex + 1) % ScreenModes.length;
         const newScreenMode = ScreenModes[newScreenModeIndex];
         setScreenMode(newScreenMode);
+        setButtonInstruction(ScreenModeInstruction[newScreenMode.name]);
         onScreenModeChanged && onScreenModeChanged(newScreenMode);
     };
 
@@ -110,7 +113,15 @@ const Header = ({
                         enterKeyHint="done"
                         placeholderTextColor="rgba(255, 255, 255, 0.7)" />
                     <View style={{ bottom: -5, }}>
-                        <MyPathLogo animate={false} width={48} height={48} />
+
+                        <MyList
+                            anchor={<MyPathLogo animate={false} width={48} height={48} />}
+                            width={150}
+                            height={SCREEN_HEIGHT - MAX_HEADER_HEIGHT}
+                        />
+
+
+
                     </View>
 
                 </View>
@@ -122,46 +133,46 @@ const Header = ({
 
                 </View>
             </HeaderGradientBackground>
-            <TouchableOpacity
-                style={{ position: 'absolute', left: 10, bottom: -10 }}
-                onPress={handleScreenModeButtonPress}
-            >
-                <View
-                    pointerEvents="auto"
-                    style={{
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        backgroundColor: "#0000FF",
-                        width: 55,
-                        height: 55,
-                        borderRadius: 30,
-                    }}>
-                    <MyIcon
-                        name={screenMode.icon}
-                        color="#FFFFFF" />
-                </View>
-            </TouchableOpacity >
+            <View style={{ position: 'absolute', left: 10, bottom: -10 }} >
+                <TouchableOpacity onPress={handleScreenModeButtonPress} >
+                    <View
+                        pointerEvents="auto"
+                        style={{
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: "#0000FF",
+                            width: 55,
+                            height: 55,
+                            borderRadius: 30,
+                        }}>
+                        <MyIcon
+                            name={screenMode.icon}
+                            color="#FFFFFF" />
+                    </View>
+                </TouchableOpacity >
+                <Text style={{zIndex: 9999}}>{buttonInstruction}</Text>
+            </View >
 
-                {
-                    sorry ?
-                        <View 
-                        style={{ 
-                            justifyContent: 'center', 
-                            alignSelf: 'center', 
-                            zIndex: -10, 
+            {
+                sorry ?
+                    <View
+                        style={{
+                            justifyContent: 'center',
+                            alignSelf: 'center',
+                            zIndex: -10,
                             opacity: 0.5,
                             top: MAX_HEADER_HEIGHT,
                         }}>
-                            {/* TODO PUT animated text */}
-                            <Text style={{ alignSelf: 'center', color: 'black', fontSize: 21, fontWeight: 'bold' }}>
-                                Sorry!
-                            </Text> 
-                            <Text style={{ alignSelf: 'center', color: 'black', fontSize: 21, fontWeight: 'bold' }}>
-                                Empty screen can't be animated.
-                            </Text>
-                        </View>
-                        : null
-                }
+                        {/* TODO PUT animated text */}
+                        <Text style={{ alignSelf: 'center', color: 'black', fontSize: 21, fontWeight: 'bold' }}>
+                            Sorry!
+                        </Text>
+                        <Text style={{ alignSelf: 'center', color: 'black', fontSize: 21, fontWeight: 'bold' }}>
+                            Empty screen can't be animated.
+                        </Text>
+                    </View>
+                    : null
+            }
         </>
     );
 }

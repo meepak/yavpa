@@ -2,7 +2,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { StyleSheet, Dimensions, Platform } from "react-native";
 import { Linecap, Linejoin } from "react-native-svg";
 import * as Crypto from "expo-crypto";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, CANVAS_VIEWBOX, PRECISION, PointType, ScreenModes, TransitionType } from "./types";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, CANVAS_VIEWBOX, PRECISION, PointType, ScreenModes, TransitionType, ModalAnimations } from "./types";
 import { PathDataType, SvgDataType } from "./types";
 import { polygonContains } from "d3";
 
@@ -276,4 +276,16 @@ export function parseSvgData(svgData: any, update_updated_at = false): SvgDataTy
   return svgData;
 }
 
+
+export function pickTwoAnimations(): [string, string] {
+  const index1 = Math.floor(Math.random() * ModalAnimations.length);
+  let index2 = Math.floor(Math.random() * ModalAnimations.length);
+
+  // Ensure we get two different animations
+  while (index1 === index2) {
+    index2 = Math.floor(Math.random() * ModalAnimations.length);
+  }
+
+  return [ModalAnimations[index1], ModalAnimations[index2]];
+}
 
