@@ -174,7 +174,7 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
                           backgroundColor: `rgba(150,150,250, 0.75)`,
                           borderWidth: 0.7,
                           borderColor: "rgba(0,0,0,0.5)",
-                          ...elevations[2],
+                          // ...elevations[2],
                         }
                         : { width: (this.props.width || 150) * 3 }
                     )

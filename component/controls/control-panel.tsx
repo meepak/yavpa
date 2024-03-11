@@ -62,18 +62,19 @@ const ControlPanel = ({ buttons, paddingLeft = 40, paddingRight = 40 }) => {
     <View style={{
       backgroundColor: 'transparent',
       paddingLeft: paddingLeft,
-      paddingRight: paddingRight
+      paddingRight: paddingRight,
+      height: 40,
     }}>
       <FlatList
         horizontal={true}
         showsHorizontalScrollIndicator={false}
         bounces={false}
-        decelerationRate="fast"
-        snapToInterval={ICON_SIZE}
-        snapToAlignment="start"
+        decelerationRate="normal"
+        snapToAlignment="end"
         data={buttons}
         keyExtractor={(item, index) => index.toString()}
-        contentContainerStyle={{ marginLeft: 10, marginTop: isIOS ? 15 : 0 }}
+        contentContainerStyle={{ marginLeft: 10, alignItems: 'baseline' }}
+        fadingEdgeLength={20}
         renderItem={({ item }) => (
           item.extraControl ?
             <ContextMenu
@@ -83,7 +84,6 @@ const ControlPanel = ({ buttons, paddingLeft = 40, paddingRight = 40 }) => {
                     width: ICON_SIZE,
                     height: ICON_SIZE,
                     marginHorizontal: 7,
-                    marginVertical: 7,
                   }}
                 >
                   <MyIcon name={item.icon} />
@@ -100,10 +100,8 @@ const ControlPanel = ({ buttons, paddingLeft = 40, paddingRight = 40 }) => {
             // tool bar icon button press
             : <TouchableOpacity
               style={{
-                // width: ICON_SIZE,
                 height: ICON_SIZE,
                 marginHorizontal: 10,
-                marginVertical: 7,
               }}
               onPress={() => onToolsButtonPress(item)}
             >

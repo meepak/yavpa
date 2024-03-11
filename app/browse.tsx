@@ -21,6 +21,7 @@ import { HeaderBar, Foreground } from "@c/screens/browse";
 import MyPreview from "@c/my-preview";
 import CreativeVoid from "@c/creative-void/creative-void";
 import elevations from "@u/elevation";
+import MyBlueButton from "@c/my-blue-button";
 
 const PARALLAX_HEIGHT = 238;
 const HEADER_BAR_HEIGHT = 92;
@@ -80,7 +81,6 @@ const BrowseScreen = () => {
       if (svgData.length === 0) {
         setNoSketch(true);
       }
-      setIsLoading(false);
     } catch (error) {
       console.log('error fetching files', error)
     }
@@ -168,6 +168,7 @@ const BrowseScreen = () => {
     </View>
   ), [scrollValue]);
 
+  
   return (
     <View style={StyleSheet.absoluteFill}>
       <View style={[styles.headerBarContainer, { width: SCREEN_WIDTH}]}>
@@ -175,6 +176,7 @@ const BrowseScreen = () => {
       </View>
       <View style={{ alignSelf: 'stretch', flex: 1 }}>
         <StickyHeaderFlatList
+          key={numberOfColumns}
           ref={scrollViewRef}
           containerStyle={{
             paddingTop: HEADER_BAR_HEIGHT,
@@ -189,7 +191,7 @@ const BrowseScreen = () => {
 
           // initialNumToRender={6}
           // maxToRenderPerBatch={20}
-          keyExtractor={item => item.metaData.guid}
+          keyExtractor={item => numberOfColumns  + item.metaData.guid}
           numColumns={numberOfColumns}
           data={files}
           initialNumToRender={3}
@@ -198,6 +200,7 @@ const BrowseScreen = () => {
           renderItem={renderItem}
           horizontal={false}
           showsVerticalScrollIndicator={false}
+          onLayout={() => setIsLoading(false)}
         // onContentSizeChange={() => setIsLoading(false)}
         />
         {isLoading && (
@@ -216,11 +219,13 @@ const BrowseScreen = () => {
         )}
       </View>
       {NoSketchFound}
-      <Link href="/file" asChild>
-        <TouchableOpacity style={styles.floatingButton}>
-          <MyIcon name="new" color='#FFFFFF' />
-        </TouchableOpacity>
-      </Link>
+        <MyBlueButton
+          icon={{ desc: '', name: 'new', size: 60, left: 0, top: 0 }}
+          onPress={() => router.push('/file')}
+          bottom={insets.bottom + 16}
+          aligned="right"
+          // {...elevations[10]}
+          />
       <StatusBar translucent style="light" />
     </View>
   );
@@ -245,19 +250,6 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     paddingTop: HEADER_BAR_HEIGHT,
-  },
-  floatingButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: 'blue',
-    position: 'absolute',
-    bottom: 16,
-    right: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignContent: 'center',
-    ...elevations[5],
   },
 });
 

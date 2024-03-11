@@ -116,7 +116,7 @@ const MyList = ({ anchor, width, height }) => {
                 padding: 2,
                 marginBottom: 10,
                 overflow: 'hidden',
-                ...elevations[10]
+                // ...elevations[10]
             }, currentStyles]}>
 
 

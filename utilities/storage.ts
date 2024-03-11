@@ -67,7 +67,7 @@ export const saveSvgToFile = async (prevSvgData: SvgDataType | undefined, svgDat
 export const getFiles = async (includeDefaults = true): Promise<SvgDataType[]> => {
     try {
         if (fileCache.length > 0) {
-            // console.log('file cache get files')
+            console.log('file cache get files')
             return fileCache;
         }
         console.log('I should never be reached after first time.');
