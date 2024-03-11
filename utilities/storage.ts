@@ -10,18 +10,31 @@ const AppSaveDirectory = FileSystem.documentDirectory + AppName + "/";
 let fileCache: SvgDataType[] = [];
 let saveTimeout: NodeJS.Timeout;
 
-export const saveSvgToFile = async (prevSvgData: SvgDataType | undefined, svgData: SvgDataType) => {
-    // Clear the previous timeout
+export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
+    svgData = parseSvgData(svgData, true);
+    const index = fileCache.findIndex(file => file.metaData.guid === svgData.metaData.guid);
+    if (index !== -1) {
+        // Move the updated file to the top of the cache
+        fileCache[index] = svgData;
+    } else {
+        if (svgData.pathData.length === 0) return;
+        fileCache.push(svgData); // Add new or updated file to the top of the cache
+    }
+
+
+
+// export const saveSvgToFile = async (prevSvgData: SvgDataType | undefined, svgData: SvgDataType) => {
+//     // Clear the previous timeout
     clearTimeout(saveTimeout);
 
     // Set a new timeout
     saveTimeout = setTimeout(async () => {
         try {
-            const differences = diff(prevSvgData, svgData);
-            if (!differences) {
-                console.log('False alarm, no need to save');
-                return;
-            }
+            // const differences = diff(prevSvgData, svgData);
+            // if (!differences) {
+            //     console.log('False alarm, no need to save');
+            //     return;
+            // }
             // console.log('Difference:', differences);
 
 
@@ -87,7 +100,7 @@ export const getFiles = async (includeDefaults = true): Promise<SvgDataType[]> =
             svgDataFiles.push(svgData);
         }
         console.log('set the filecache again..')
-        // svgDataFiles.sort((a, b) => Date.parse(b.metaData.updated_at) - Date.parse(a.metaData.updated_at));
+        svgDataFiles.sort((a, b) => Date.parse(b.metaData.updated_at) - Date.parse(a.metaData.updated_at));
 
         if (includeDefaults) {
 

@@ -14,7 +14,6 @@ import { GestureResponderEvent } from "react-native-modal";
 import { shapeData } from "@u/shapes";
 import { Animated, TouchableWithoutFeedback, View } from "react-native";
 
-const AnimatedG = Animated.createAnimatedComponent(G);
 
 
 interface MyPathProps {
@@ -32,107 +31,103 @@ interface MyPathState {
 const ZERO_DELTA = { x: 0, y: 0 };
 
 class MyPath extends React.PureComponent<MyPathProps, MyPathState> {
-  pathRef = React.createRef<G<GProps>>();
+  // pathRef = React.createRef<G<GProps>>();
 
-  getTranslate = (x: number, y: number) => `translate(${x}, ${y})`;
+  // getTranslate = (x: number, y: number) => `translate(${x}, ${y})`;
 
-  private translateXval: number;
-  private transalteYval: number;
-  private transform: string;
-  private selected: boolean;
+  // private translateXval: number;
+  // private transalteYval: number;
+  // private transform: string;
+  // private selected: boolean;
 
 
-  private xy = new Animated.ValueXY();
-  private offset: { x: number, y: number };
+  // private xy = new Animated.ValueXY();
+  // private offset: { x: number, y: number };
 
   constructor(props: MyPathProps) {
     super(props);
 
-    this.handleMyPathPress = this.handleMyPathPress.bind(this);
+    // this.handleMyPathPress = this.handleMyPathPress.bind(this);
     // this.state = {
     //   selected: false,
     //   transform: this.getTranslate(0, 0),
     // };
 
-    this.translateXval = Infinity;
-    this.transalteYval = Infinity;
-    this.transform = this.getTranslate(0, 0);
-    this.selected = false;
+    // this.translateXval = Infinity;
+    // this.transalteYval = Infinity;
+    // this.transform = this.getTranslate(0, 0);
+    // this.selected = false;
 
-    this.offset = ZERO_DELTA;
-    this.xy.addListener(flatOffset => {
-      this.offset = flatOffset;
-    });
+    // this.offset = ZERO_DELTA;
+    // this.xy.addListener(flatOffset => {
+    //   this.offset = flatOffset;
+    // });
 
   }
 
-  getBBox = (): SVGRect | undefined => {
-    const bbox = this.pathRef.current?.getBBox();
-    if (bbox) {
-      return new DOMRect(bbox.x, bbox.y, bbox.width, bbox.height);
-    }
-    return undefined;
+  getBBox = (): string => {
+    return getViewBoxTrimmed([this.props.prop])
   };
 
 
-  handleMyPathPress = (event: GestureResponderEvent) => {
-    console.log("MyPath was pressed");
-    // If an onPress prop was provided, call it with the event
-    if (this.props.onPress) {
+  // handleMyPathPress = (event: GestureResponderEvent) => {
+  //   console.log("MyPath was pressed");
+  //   // If an onPress prop was provided, call it with the event
+  //   if (this.props.onPress) {
 
-      const bBox = this.getBBox();
-      // console.log('bBox', bBox || 'undefined');
+  //     const bBox = this.getBBox();
+  //     // console.log('bBox', bBox || 'undefined');
 
-      if (!bBox) {
-        console.log('bBox is undefined, using fall back method to get bBox..');
-      }
+  //     if (!bBox) {
+  //       console.log('bBox is undefined, using fall back method to get bBox..');
+  //     }
 
-      // convert bBox to PathDataType
-      const rectPath = bBox
-        ? shapeData({
-          name: "rectangle",
-          start: { x: bBox?.x || 0, y: bBox?.y || 0 },
-          end: { x: ((bBox?.x || 0) + (bBox?.width || 0)), y: ((bBox?.y || 0) + (bBox?.height || 0)) },
-        })
-        : getViewBoxTrimmed([this.props.prop]);
+  //     // convert bBox to PathDataType
+  //     const rectPath = bBox
+  //       ? shapeData({
+  //         name: "rectangle",
+  //         start: { x: bBox?.x || 0, y: bBox?.y || 0 },
+  //         end: { x: ((bBox?.x || 0) + (bBox?.width || 0)), y: ((bBox?.y || 0) + (bBox?.height || 0)) },
+  //       })
+  //       : getViewBoxTrimmed([this.props.prop]);
 
-      const bBoxData = createPathdata("#000000", 3, 1);
-      bBoxData.path = rectPath;
-      bBoxData.strokeDasharray = "7,7";
-      bBoxData.strokeDashoffset = 0;
+  //     const bBoxData = createPathdata("#000000", 3, 1);
+  //     bBoxData.path = rectPath;
+  //     bBoxData.strokeDasharray = "7,7";
+  //     bBoxData.strokeDashoffset = 0;
 
-      this.props.onPress(event, this, bBoxData);
-      // console.log('and was given permission to be selected..')
-      // this.setState({ selected: true });
-      this.selected = true;
-    }
-  };
+  //     this.props.onPress(event, this, bBoxData);
+  //     // console.log('and was given permission to be selected..')
+  //     // this.setState({ selected: true });
+  //     this.selected = true;
+  //   }
+  // };
 
-  handleOnStartShouldSetResponder = () => this.props.startResponder || false;
-  handleOnMoveShouldSetResponder = () => {
-    console.log('move should set responder  is seleted', this.selected);
-    return this.selected; 
-  }
+  // handleOnStartShouldSetResponder = () => this.props.startResponder || false;
+  // handleOnMoveShouldSetResponder = () => {
+  //   console.log('move should set responder  is seleted', this.selected);
+  //   return this.selected; 
+  // }
 
-  handleOnResponderGrant = (event: GestureResponderEvent) => {
-    console.log('grantd responder');
-    this.xy.setOffset(this.offset);
-    this.xy.setValue(ZERO_DELTA);
-  };
+  // handleOnResponderGrant = (event: GestureResponderEvent) => {
+  //   console.log('grantd responder');
+  //   this.xy.setOffset(this.offset);
+  //   this.xy.setValue(ZERO_DELTA);
+  // };
 
-  handleOnResponderMove = (event: GestureResponderEvent) => {
-    console.log('moving responder');
+  // handleOnResponderMove = (event: GestureResponderEvent) => {
+  //   console.log('moving responder');
 
-    const { x: dx, y: dy } = this.xy;
-    Animated.event([null, { dx, dy }], {
-      useNativeDriver: false,
-    });
-  };
+  //   const { x: dx, y: dy } = this.xy;
+  //   Animated.event([null, { dx, dy }], {
+  //     useNativeDriver: false,
+  //   });
+  // };
 
-  handleOnResponderRelease = () => {
-    console.log('end of responder');
-    this.xy.flattenOffset();
-  };
+  // handleOnResponderRelease = () => {
+  //   console.log('end of responder');
+  //   this.xy.flattenOffset();
+  // };
 
   // Add more methods as needed
   render() {
@@ -148,11 +143,7 @@ class MyPath extends React.PureComponent<MyPathProps, MyPathState> {
 
     return (
       <TouchableWithoutFeedback>
-        <AnimatedG
-          key={`${this.props.keyProp}-${this.props.prop.guid}`}
-          ref={this.pathRef}
-          transform = {this.xy.getTranslateTransform() }
-        >
+        <>
           {brush && getBrush(brush)}
           <Path
             id={this.props.prop.guid}
@@ -165,6 +156,12 @@ class MyPath extends React.PureComponent<MyPathProps, MyPathState> {
             fill={this.props.prop.fill ?? "none"}
             strokeDasharray={this.props.prop.strokeDasharray ?? undefined}
             strokeDashoffset={this.props.prop.strokeDashoffset ?? undefined}
+
+
+            key={`${this.props.keyProp}-${this.props.prop.guid}`}
+            // ref={this.pathRef}
+            // transform={this.xy.getTranslateTransform()}
+
 
             // onPress={this.handleMyPathPress}
             // onStartShouldSetResponder={this.handleOnStartShouldSetResponder}
@@ -190,7 +187,7 @@ class MyPath extends React.PureComponent<MyPathProps, MyPathState> {
               </Text>
             )
           }
-        </AnimatedG>
+        </>
       </TouchableWithoutFeedback>
     )
   }

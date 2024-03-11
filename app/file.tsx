@@ -28,14 +28,23 @@ const FileScreen = () => {
     ]);
     const { guid, mode } = useLocalSearchParams<{ guid: string; mode: string }>(); // Capture the GUID from the URL
     const [currentScreenMode, setCurrentScreenMode] = useState(ScreenModes[0]); // default DRAW, but save & read from metadata
-    const prevSvgDataRef = useRef<SvgDataType>();
+    // const prevSvgDataRef = useRef<SvgDataType>();
 
     const saveSvgDataToFile = async () => {
-        await saveSvgToFile(prevSvgDataRef.current, svgData);
+        await saveSvgToFile(svgData);
     };
 
     useEffect(() => {
-        prevSvgDataRef.current = svgData;
+        const saveData = async () => {
+            await saveSvgToFile(svgData);
+            // setSvgData({ ...svgData, metaData: { ...svgData.metaData, updated_at: Date.now().toString() } });
+        };
+
+        if (svgData && svgData.metaData && svgData.metaData.guid != "" && svgData.metaData.updated_at === "") {
+            saveData();
+        }
+
+        // prevSvgDataRef.current = svgData;
         return () => {
             // console.log("reset svg data from context, component unmounted")
             resetSvgData();
