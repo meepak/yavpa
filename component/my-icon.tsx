@@ -34,13 +34,25 @@ const MyIcon: React.FC<MyIconProps> = ({
   strokeWidth = 1,
   style = {},
 }) => {
-  const { paths, transform } = getPath(name);
+  const { paths, transform, viewBox } = getPath(name);
+  let width = parseFloat(viewBox.split(' ')[2]);
+  let height = parseFloat(viewBox.split(' ')[3]);
+  const iconWidth = style.size || size || width;
+  const iconHeight = iconWidth * height / width;
+  // console.log('Icon ', name, ' width: ', iconWidth, ' height: ', iconHeight);
+
   return (
     <TouchableOpacity onPress={onPress} onPressIn={onPressIn} onPressOut={onPressOut}>
-      <Svg style={{
-        marginBottom: style.marginBottom || 0,
-        marginLeft: style.marginLeft || 0
-      }} width={style.size || size} height={style.size || size} viewBox="0 0 26 26">
+      <Svg
+        width={iconWidth}
+        height={iconHeight}
+        viewBox={viewBox}
+        transform={transform}
+        style={{
+          marginBottom: style.marginBottom || 0,
+          marginLeft: style.marginLeft || 0
+        }}
+      >
         {paths.map((path, index) => (
           <Path
             key={index}
@@ -48,7 +60,6 @@ const MyIcon: React.FC<MyIconProps> = ({
             stroke={style.color || color}
             strokeWidth={style.strokeWidth || strokeWidth}
             fill={style.fill || fill}
-            transform={transform}
           />
         ))}
       </Svg>
@@ -61,16 +72,16 @@ const getPath = (name: string) => {
 
   let paths = [""];
   let transform = 'translate(2,2)';
+  let viewBox = '0 0 26 26';
   switch (name) {
     case 'new':
       paths = [
-        `m18.85 10.39 1.06-1.06c.78-.78.78-2.05 0-2.83L18.5 5.09c-.78-.78-2.05-.78-2.83 0l-1.06 
-        1.06 4.24 4.24zm-5.66-2.83L4 16.76V21h4.24l9.19-9.19-4.24-4.25zM19 17.5c0 2.19-2.54 3.5-5 
-        3.5-.55 0-1-.45-1-1s.45-1 1-1c1.54 0 3-.73 3-1.5 0-.47-.48-.87-1.23-1.2l1.48-1.48c1.07.63 
-        1.75 1.47 1.75 2.68zM4.58 13.35C3.61 12.79 3 12.06 3 11c0-1.8 1.89-2.63 3.56-3.36C7.59 7.18 
-        9 6.56 9 6c0-.41-.78-1-2-1-1.26 0-1.8.61-1.83.64-.35.41-.98.46-1.4.12a.992.992 0 0 1-.15-1.38C3.73 
-        4.24 4.76 3 7 3s4 1.32 4 3c0 1.87-1.93 2.72-3.64 3.47C6.42 9.88 5 10.5 5 11c0 .31.43.6 1.07.86l-1.49 1.49z`
+        `m 18.85,10.39 1.06,-1.06 c 0.78,-0.78 0.78,-2.05 0,-2.83 L 18.5,5.09 c -0.78,-0.78 -2.05,-0.78 -2.83,0 l -1.06,1.06 z`,
+        `M 13.19,7.56 4,16.76 V 21 h 4.24 l 9.19,-9.19 z`,
+        `m -27.863794,21.943308 c 3.526596,4.037592 6.567055,-16.8425284 6.134079,-11.280696 -0.202871,10.317207 1.221105,11.230846 2.032161,12.085915 3.626379,0.929302 5.409646,-15.8737113 3.915725,-12.415818 -0.266726,0.2384 -3.226958,12.032632 0.686032,12.408501 1.774211,0.170425 3.016334,-5.861141 2.852481,-5.060964 -0.322875,1.576754 0.605861,3.203163 2.8349916,0.248385 1.0430571,-1.382603 0.3268493,-2.826564 -1.7168936,-1.735331 -0.997349,1.012982 -2.073088,2.904078 -1.853867,4.238193 0.262059,1.59481 1.584009,3.535068 3.8493578,1.518237 1.7461242,-1.159522 6.6773176,-6.527558 4.4211602,-4.664143 -0.7239818,0.969322 -3.3375669,3.76451 -1.9582716,5.187398 1.9978115,0.87903 2.9430633,-0.46009 3.4849007,-2.387838 0.2034229,-0.723738 -0.2994171,-0.363185 -0.5017649,0.709085 -0.2388646,1.265778 0.3214651,1.993712 1.3992541,1.949055 2.57163434,-0.106554 2.61852054,-4.394306 2.71126334,-5.126829 0.18314307,-2.818239 -1.60543664,3.136846 3.02518916,3.679621`
       ]
+      transform = `translate(27.96343,-4.3733791)`
+      viewBox = '0 0 48.590053 18.571398'
       break;
     case 'pencil':
       paths = [
@@ -351,7 +362,7 @@ const getPath = (name: string) => {
     ];
       break;
   }
-  return { paths, transform };
+  return { paths, transform, viewBox };
 }
 
 export default MyIcon;

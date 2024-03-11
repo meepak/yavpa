@@ -28,6 +28,15 @@ export const FILM_STRIP_HOLE_HEIGHT = 16;
 export const NUM_FILM_STRIP_HOLES = parseInt(((SCREEN_HEIGHT - MAX_HEADER_HEIGHT) / FILM_STRIP_HOLE_HEIGHT).toString()) + 10;
 
 // -----------------------------------------------
+
+
+export const ScreenModeInstruction = {
+    Draw: "Press to preview your drawing and edit animation.",
+    Path2Dreview: "Press to export your drawing",
+    Export: "Press to edit your drawing",
+}
+
+
 export const ScreenModes: ScreenModeType[] = [
     { name: "Draw", icon: "edit" },
     { name: "Preview", icon: "preview" },
@@ -143,3 +152,19 @@ export const AvailableShapes = [
     'star-8',
     'star-10',
 ];
+
+export const ModalAnimations: ModalAnimationType[] = [
+    "bounce", "flash", "jello", "pulse", "rotate", "rubberBand", "shake", 
+    "swing", "tada", "wobble", "bounceIn", "bounceInDown", "bounceInUp", 
+    "bounceInLeft", "bounceInRight", "bounceOut", "bounceOutDown", 
+    "bounceOutUp", "bounceOutLeft", "bounceOutRight", "fadeIn", 
+    "fadeInDown", "fadeInDownBig", "fadeInUp", "fadeInUpBig", "fadeInLeft", 
+    "fadeInLeftBig", "fadeInRight", "fadeInRightBig", "fadeOut", 
+    "fadeOutDown", "fadeOutDownBig", "fadeOutUp", "fadeOutUpBig", "fadeOutLeft", 
+    "fadeOutLeftBig", "fadeOutRight", "fadeOutRightBig", "flipInX", "flipInY", 
+    "flipOutX", "flipOutY", "lightSpeedIn", "lightSpeedOut", "slideInDown", 
+    "slideInUp", "slideInLeft", "slideInRight", "slideOutDown", "slideOutUp", 
+    "slideOutLeft", "slideOutRight", "zoomIn", "zoomInDown", "zoomInUp", 
+    "zoomInLeft", "zoomInRight", "zoomOut", "zoomOutDown", "zoomOutUp", 
+    "zoomOutLeft", "zoomOutRight"];
+

@@ -11,8 +11,10 @@ export const AnimatedColorOptions = {
   },
   default: {
     duration: 7777,
-    inputRange: [0, 1, 2, 3, 4, 5 ],
-    outputRange: [ '#f0f8ff', '#f2f3f4', '#fff8e7', '#f8f8ff', '#f5fffa', '#f7f7f7']
+    inputRange: [0, 1, 2],
+    outputRange: ['#ff000022', '#00ff0022', '#0000ff22']
+    // inputRange: [0, 1, 2, 3, 4, 5],
+    // outputRange: ['#f0f8ff', '#f2f3f4', '#fff8e7', '#f8f8ff', '#f5fffa', '#f7f7f7']
   }
 }
 

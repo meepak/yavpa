@@ -1,4 +1,4 @@
-import { CANVAS_HEIGHT, CANVAS_WIDTH, ScreenModes, SvgDataType } from "@u/types";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, MAX_HEADER_HEIGHT, ScreenModes, SvgDataType } from "@u/types";
 import { ScreenModeType } from "@u/types";
 import { createSvgData, precise } from "@u/helper";
 import { getFile, saveSvgToFile } from "@u/storage";
@@ -10,8 +10,9 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Crypto from "expo-crypto";
-import FilmStripView from "@c/film-strip-view";
+import MyFilmStripView from "@c/my-film-strip-view";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import MyBlueButton from "@c/my-blue-button";
 
 
 const FileScreen = () => {
@@ -25,7 +26,7 @@ const FileScreen = () => {
             onPress: () => { },
         },
     ]);
-    const { guid } = useLocalSearchParams<{ guid: string; }>(); // Capture the GUID from the URL
+    const { guid, mode } = useLocalSearchParams<{ guid: string; mode: string }>(); // Capture the GUID from the URL
     const [currentScreenMode, setCurrentScreenMode] = useState(ScreenModes[0]); // default DRAW, but save & read from metadata
     const prevSvgDataRef = useRef<SvgDataType>();
 
@@ -53,12 +54,13 @@ const FileScreen = () => {
             console.log('No guid or updated_at is not blank');
             return;
         }
-            saveSvgDataToFile();
+        saveSvgDataToFile();
     }, [svgData]);
     //**************************************************************************** */
 
 
     useEffect(() => {
+        console.log(guid, mode)
         if (guid) {
             // console.log(`Open file with GUID: ${guid}`);
             openSvgDataFile(guid);
@@ -68,8 +70,11 @@ const FileScreen = () => {
             const newSvgData = createSvgData();
             newSvgData.metaData.guid = Crypto.randomUUID();
             setSvgData(newSvgData);
+            if (mode) {
+                setCurrentScreenMode(ScreenModes.find((m) => m.name === mode) || ScreenModes[0]);
+            }
         }
-    }, [guid]);
+    }, [guid, mode]);
 
 
     async function openSvgDataFile(guid: string) {
@@ -144,25 +149,8 @@ const FileScreen = () => {
 
     const ZoomScaleText = () => (
         canvasScale !== 1 &&
-        <TouchableOpacity
-            onPress={() => setCanvasScale(1)}
-            style={{
-                width: 90,
-                height: 40,
-                position: 'absolute',
-                bottom: 30,
-                right: 0,
-                zIndex: 99,
-            }}>
-            <View style={{
-                backgroundColor: 'rgba(0,0,255,0.65)',
-                paddingVertical: 5,
-                paddingLeft: 5,
-                paddingRight: 15,
-                alignItems: 'flex-end',
-                width: 90,
-            }}>
-                <Text style={{
+        <MyBlueButton
+            text={() => <Text style={{
                     color: '#FFFFFF',
                     fontSize: 18,
                     fontWeight: 'bold',
@@ -172,23 +160,24 @@ const FileScreen = () => {
                 }}>
                     {precise(canvasScale * 100, 0) + '%'}
                 </Text>
-            </View>
-        </TouchableOpacity>
+            }
+            aligned="right"
+            onPress={() => setCanvasScale(1)}
+            bottom={insets.bottom + 16}
+        />
     );
-    const ViewDecoration = (currentScreenMode.name === ScreenModes[1].name) ? FilmStripView : React.Fragment;
+    const ViewDecoration = (currentScreenMode.name === ScreenModes[1].name) ? MyFilmStripView : React.Fragment;
 
     return (
-        <View style={{ flex: 1 }}>
+        <>
             <StatusBar style={"light"} translucent={true} />
-            <View style={{ top: 0, left: 0, height: 100 + insets.top }}>
-                <Header
-                    controlPanelButtons={controlButtons}
-                    title={svgData?.metaData?.name || ""}
-                    onTitleChange={handleNameChange}
-                    onScreenModeChanged={setCurrentScreenMode}
-                    initialScreenMode={currentScreenMode}
-                />
-            </View>
+            <Header
+                controlPanelButtons={controlButtons}
+                title={svgData?.metaData?.name || ""}
+                onTitleChange={handleNameChange}
+                onScreenModeChanged={setCurrentScreenMode}
+                initialScreenMode={currentScreenMode}
+            />
             {
                 currentScreenMode.name === ScreenModes[0].name ||
                     currentScreenMode.name === ScreenModes[1].name
@@ -258,7 +247,7 @@ const FileScreen = () => {
                         {getCurrentScreen()}
                     </View>
             }
-        </View>
+        </>
     );
 };
 

@@ -1,5 +1,7 @@
 import elevations from '@u/elevation';
+import { pickTwoAnimations } from '@u/helper';
 import { CANVAS_HEIGHT } from '@u/types';
+import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import {
   View,
@@ -13,26 +15,40 @@ import Modal from 'react-native-modal';
 interface ContextMenuProps {
   width?: number;
   height?: number;
-  closeMenuAt: number;
+  closeMenuAt?: number;
   anchor: React.ReactNode;
   children: React.ReactNode;
+  showBackground?: boolean;
+  xPosition?: number;
+  yPosition?: number;
+  positionOverride?: boolean;
+  yOffsetFromAnchor?: number;
+  animationIn?: any;
+  animationOut?: any;
 }
 
 interface ContextMenuState {
   menuVisible: boolean;
   xPosition: number;
   yPosition: number;
+  positionOverride: boolean;
   windowWidth: number;
   windowHeight: number;
+  yOffsetFromAnchor: number;
 }
 
 const initialRenderTime = Date.now();
 
 class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState> {
   static defaultProps = {
-    width: 200,
+    width: 150,
     height: 200,
     closeMenuAt: initialRenderTime,
+    showBackground: true,
+    xPosition: 0,
+    yPosition: 0,
+    positionOverride: false,
+    yOffsetFromAnchor: 10,
   };
 
   private anchorRef = React.createRef<View>();
@@ -41,10 +57,12 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
     super(props);
     this.state = {
       menuVisible: false,
-      xPosition: 0,
-      yPosition: 0,
+      xPosition: props.xPosition || 0,
+      yPosition: props.yPosition || 0,
+      positionOverride: props.positionOverride || false,
       windowWidth: Dimensions.get('window').width,
       windowHeight: Dimensions.get('window').height,
+      yOffsetFromAnchor: props.yOffsetFromAnchor || 10,
     };
   }
 
@@ -55,6 +73,7 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
 
     if (prevProps.closeMenuAt !== this.props.closeMenuAt && this.state.menuVisible) {
       // console.log('REASON:: closeMenuAt trigger closure', this.props.closeMenuAt);
+      this.hideMenu();
     }
   }
 
@@ -64,6 +83,11 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
   };
 
   showMenu = () => {
+    if (this.props.positionOverride && this.props.xPosition && this.props.yPosition) {
+      console.log('overriden already??');
+      this.setState({ xPosition: this.props.xPosition, yPosition: this.props.yPosition, menuVisible: true });
+      return;
+    }
     this.anchorRef.current?.measureInWindow((x, y, anchorWidth, anchorHeight) => {
       if (isNaN(x) || isNaN(y) || isNaN(anchorWidth) || isNaN(anchorHeight)) {
         console.error('Invalid measurements:', { x, y, anchorWidth, anchorHeight });
@@ -71,7 +95,7 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
       }
 
       let newXPosition = x - anchorWidth; // Default to left of anchor
-      let newYPosition = y + anchorHeight + 5; // Default to below anchor
+      let newYPosition = y + anchorHeight + (this.props.yOffsetFromAnchor || 10); // Default to below anchor
 
       // If menu goes beyond the right edge of the screen, position it to the left of the anchor
       if (newXPosition + this.props.width! > this.state.windowWidth) {
@@ -97,10 +121,11 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
       this.setState({ xPosition: newXPosition, yPosition: newYPosition, menuVisible: true });
     });
   };
-
+  private animations: string[] = pickTwoAnimations();
   render() {
     return (
       <View>
+        <StatusBar style="light" translucent={true} />
         <View
           ref={this.anchorRef}
           onLayout={() => { }}
@@ -110,15 +135,23 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
           </TouchableOpacity>
         </View>
 
+        {/*TODO DURING APP START UP CHOOSE ONE SET OF STYLE RANDOMLY AND STICK WITH IT TILL APPLICATION RESTARTS*/}
         <Modal
-          isVisible={this.state.menuVisible}
+          isVisible={this.state.menuVisible} 
+          coverScreen={true}
+          hasBackdrop={true}
+          backdropColor='rgba(0,0,0,0.5)'
           onBackdropPress={this.hideMenu}
-          backdropOpacity={0.4}
-          animationIn="slideInUp"
-          animationOut="slideOutDown"
+          statusBarTranslucent={false}
+          animationIn={this.props.animationIn || "slideInUp"}
+          animationOut={this.props.animationOut || "slideOutUp"}
           useNativeDriver
-        >
-          <GestureHandlerRootView style={{width:'100%', height:'100%'}}>
+          useNativeDriverForBackdrop
+          >
+          <GestureHandlerRootView style={{
+            width: '100%', height: '100%',
+            overflow: 'visible',
+          }}>
             <TouchableWithoutFeedback onPress={this.hideMenu}>
               <View style={{
                 flex: 1,
@@ -127,18 +160,24 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
               }}>
                 <TouchableWithoutFeedback>
                   <View style={{
-                    width: this.props.width,
                     minHeight: this.props.height,
                     maxHeight: CANVAS_HEIGHT - 40,
                     position: 'absolute',
                     left: this.state.xPosition,
                     top: this.state.yPosition,
-                    padding: 20,
-                    borderRadius: 10,
-                    backgroundColor: `rgba(150,150,250, 0.75)`, 
-                    borderWidth: 0.7,
-                    borderColor: "rgba(0,0,0,0.5)",
-                    ...elevations[2],
+                    ...(
+                      this.props.showBackground
+                        ? {
+                          width: this.props.width,
+                          padding: 20,
+                          borderRadius: 10,
+                          backgroundColor: `rgba(150,150,250, 0.75)`,
+                          borderWidth: 0.7,
+                          borderColor: "rgba(0,0,0,0.5)",
+                          // ...elevations[2],
+                        }
+                        : { width: (this.props.width || 150) * 3 }
+                    )
                   }}>
                     {this.props.children}
                   </View>

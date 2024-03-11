@@ -3,7 +3,6 @@ import { isIOS, parseSvgData } from "./helper";
 import { SvgDataType } from "./types";
 import path from 'path';
 import diff from 'deep-diff';
-
 const AppName = isIOS ? "mypath.mahat.au" : "draw-replay-svg-path";
 // const AppName = 'jpt'; //isIOS ? "mypath.mahat.au" : "draw-replay-svg-path"; 
 const AppSaveDirectory = FileSystem.documentDirectory + AppName + "/";
@@ -23,19 +22,19 @@ export const saveSvgToFile = async (prevSvgData: SvgDataType | undefined, svgDat
                 console.log('False alarm, no need to save');
                 return;
             }
-            console.log('Difference:', differences);
+            // console.log('Difference:', differences);
 
 
             // svgData = parseSvgData(svgData, true);
-            const svgData2 = parseSvgData(svgData);
-            const differences2 = diff(svgData, svgData2);
-            if (differences2) {
-                console.log('Difference after parseSvg:', differences);
-            }
+            // const svgData2 = parseSvgData(svgData);
+            // const differences2 = diff(svgData, svgData2);
+            // if (differences2) {
+            // console.log('Difference after parseSvg:', differences);
+            // }
 
 
-            console.log('saving svg data', differences2);
-            return;
+            // console.log('saving svg data', differences2);
+            // return;
 
             const index = fileCache.findIndex(file => file.metaData.guid === svgData.metaData.guid);
             // console.log('updating cache at index', index);
@@ -63,11 +62,12 @@ export const saveSvgToFile = async (prevSvgData: SvgDataType | undefined, svgDat
         }
     }, 2000); // Delay of 1 second
 };
-
-export const getFiles = async (): Promise<SvgDataType[]> => {
+// lets include defaults first time and then it becomes part of user files that they are free to do whatever
+// can be brought back from settings if user wants it
+export const getFiles = async (includeDefaults = true): Promise<SvgDataType[]> => {
     try {
         if (fileCache.length > 0) {
-            // console.log('file cache get files')
+            console.log('file cache get files')
             return fileCache;
         }
         console.log('I should never be reached after first time.');
@@ -88,6 +88,26 @@ export const getFiles = async (): Promise<SvgDataType[]> => {
         }
         console.log('set the filecache again..')
         // svgDataFiles.sort((a, b) => Date.parse(b.metaData.updated_at) - Date.parse(a.metaData.updated_at));
+
+        if (includeDefaults) {
+
+            const logoData = require('@c/logo/my-path.json');
+            if (logoData && logoData.pathData.length > 0) {
+                // check a copy already exist or not
+                const index = svgDataFiles.findIndex(file => file.metaData.guid === logoData.metaData.guid);
+                if (index === -1) {
+                    svgDataFiles.push(logoData);
+                }
+            }
+            const creativeVoidData = require('@c/creative-void/creative-void.json');
+            if (creativeVoidData && creativeVoidData.pathData.length > 0) {
+                const index = svgDataFiles.findIndex(file => file.metaData.guid === logoData.metaData.guid);
+                if (index === -1) {
+                    svgDataFiles.push(creativeVoidData);
+                }
+            }
+        }
+
         fileCache = svgDataFiles;
         return svgDataFiles;
     } catch (err) {

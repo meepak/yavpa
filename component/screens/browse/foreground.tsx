@@ -1,13 +1,13 @@
 import * as React from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import {Image} from 'expo-image'
 import Animated, { Extrapolation, SharedValue, interpolate, useAnimatedStyle } from 'react-native-reanimated';
 import banner from '@a/banner.png';
 import alphaVersion from '@a/alpha-version.png';
 import MyPathLogo from '@c/logo/my-path-logo';
 import { HeaderGradientBackground } from '@c/screens/file/header';
+import { SCREEN_WIDTH } from '@u/types';
 
-const screenWidth = Dimensions.get('window').width;
 
 interface ForegroundProps {
     scrollValue: SharedValue<number>;
@@ -19,11 +19,14 @@ export const Foreground: React.FC<ForegroundProps> = ({ scrollValue }) => {
     return { opacity: interpolate(scrollValue.value, [0, 120, 180], [1, 1, 0], Extrapolation.CLAMP) };
   }, [scrollValue]);
 
+
   React.useEffect(() => {
-    setTimeout(() => {
-      setAnimateLogo(false);
-    setAnimateLogo(true);
-    }, 4000)
+    const intervalId = setInterval(() => {
+      setAnimateLogo(prev => !prev);
+    }, 4000);
+
+    // Clear interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   return (
@@ -90,7 +93,7 @@ const styles = StyleSheet.create({
     marginTop:20,
     alignItems: 'flex-end',
     justifyContent: 'flex-end',
-    width: screenWidth - 88,
+    width: SCREEN_WIDTH - 88,
   },
   foregroundActionsVersion: {
     height: 16,

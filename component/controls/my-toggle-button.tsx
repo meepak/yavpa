@@ -26,7 +26,7 @@ const MyToggleButton = (props: { values: string[], initialValue: string, onClick
                     backgroundColor: selected === value ? `#8432ff` : `rgba(150,150,250, 0.8)`,
                     borderWidth: 0.7,
                     borderColor: "rgba(0,0,0,0.5)",
-                    ...elevations[5],
+                    // ...elevations[5],
                     ...(index === 0 ?
                         {
                             borderTopLeftRadius: 25,
