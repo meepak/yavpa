@@ -4,21 +4,39 @@ import { Dimensions } from "react-native";
 
 export const PRECISION = 3;
 // ---- fix for the canvas size ---------------------
-const SCREEN_WIDTH = Dimensions.get("window").width;
-const SCREEN_HEIGHT = Dimensions.get("window").height;
-const MAX_HEADER_HEIGHT = 110;
-const CANVAS_PADDING = 20;
+export const SCREEN_WIDTH = Dimensions.get("window").width;
+export const SCREEN_HEIGHT = Dimensions.get("window").height;
+export const MAX_HEADER_HEIGHT = 110;
+const CANVAS_PADDING_HORIZONTAL = 30;
+const CANVAS_PADDING_VERTICAL = 30;
 
 // Thus,
-export const CANVAS_WIDTH = SCREEN_WIDTH - CANVAS_PADDING * 2;
-export const CANVAS_HEIGHT = SCREEN_HEIGHT - MAX_HEADER_HEIGHT - CANVAS_PADDING * 2;
-export const DEFAULT_VIEWBOX = `0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`;
+export const CANVAS_WIDTH = SCREEN_WIDTH - CANVAS_PADDING_HORIZONTAL * 2;
+export const CANVAS_HEIGHT = SCREEN_HEIGHT - MAX_HEADER_HEIGHT - CANVAS_PADDING_VERTICAL * 2;
+export const CANVAS_VIEWBOX = `0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`;
+export const CANVAS_PATH = `M0,0 L${CANVAS_WIDTH},0 L${CANVAS_WIDTH},${CANVAS_HEIGHT} L0,${CANVAS_HEIGHT} Z`;
+  
+// console.log('SCREEN_WIDTH', SCREEN_WIDTH);
+// console.log('SCREEN_HEIGHT', SCREEN_HEIGHT);
+// console.log('MAX_HEADER_HEIGHT', MAX_HEADER_HEIGHT);
+// console.log('CANVAS_WIDTH', CANVAS_WIDTH);
+// console.log('CANVAS_HEIGHT', CANVAS_HEIGHT);
+
 // -------------------------------------------------
 
 export const FILM_STRIP_HOLE_HEIGHT = 16;
 export const NUM_FILM_STRIP_HOLES = parseInt(((SCREEN_HEIGHT - MAX_HEADER_HEIGHT) / FILM_STRIP_HOLE_HEIGHT).toString()) + 10;
 
 // -----------------------------------------------
+
+
+export const ScreenModeInstruction = {
+    Draw: "Press to preview your drawing and edit animation.",
+    Path2Dreview: "Press to export your drawing",
+    Export: "Press to edit your drawing",
+}
+
+
 export const ScreenModes: ScreenModeType[] = [
     { name: "Draw", icon: "edit" },
     { name: "Preview", icon: "preview" },
@@ -43,7 +61,15 @@ export type PathDataType = {
     fill?: string; // fill color
     guid: string; // unique identifier for each path
     visible: boolean; // is path visible (allows to hide path without deleting them permanently)
-    selected?: boolean; // is path selected
+    zIndex?: number; // z-index, used if order of path has to be specified, normally its inferred from object's index in parent array
+    text?: {  // text to be drawn along the path
+        value: string; // text value
+        above?: number; // distance above the path
+        fontSize?: number; // font size
+        fontWeight?: string; // font weight
+        color?: string; // font color
+        startOffset?: string; // start offset
+    }
 };
 
 export type MetaDataType = {
@@ -70,10 +96,11 @@ export interface SvgDataContextType {
 }
 
 export enum TransitionType {
-    None,
-    Fade,
-    Shrink,
-    Grow,
+    None,     //0
+    Fade,     //1
+    Shrink,   //2
+    Grow,     //3
+    Vibrate,  //4
 }
 
 export type AnimationParamsType = {
@@ -125,3 +152,19 @@ export const AvailableShapes = [
     'star-8',
     'star-10',
 ];
+
+export const ModalAnimations: ModalAnimationType[] = [
+    "bounce", "flash", "jello", "pulse", "rotate", "rubberBand", "shake", 
+    "swing", "tada", "wobble", "bounceIn", "bounceInDown", "bounceInUp", 
+    "bounceInLeft", "bounceInRight", "bounceOut", "bounceOutDown", 
+    "bounceOutUp", "bounceOutLeft", "bounceOutRight", "fadeIn", 
+    "fadeInDown", "fadeInDownBig", "fadeInUp", "fadeInUpBig", "fadeInLeft", 
+    "fadeInLeftBig", "fadeInRight", "fadeInRightBig", "fadeOut", 
+    "fadeOutDown", "fadeOutDownBig", "fadeOutUp", "fadeOutUpBig", "fadeOutLeft", 
+    "fadeOutLeftBig", "fadeOutRight", "fadeOutRightBig", "flipInX", "flipInY", 
+    "flipOutX", "flipOutY", "lightSpeedIn", "lightSpeedOut", "slideInDown", 
+    "slideInUp", "slideInLeft", "slideInRight", "slideOutDown", "slideOutUp", 
+    "slideOutLeft", "slideOutRight", "zoomIn", "zoomInDown", "zoomInUp", 
+    "zoomInLeft", "zoomInRight", "zoomOut", "zoomOutDown", "zoomOutUp", 
+    "zoomOutLeft", "zoomOutRight"];
+

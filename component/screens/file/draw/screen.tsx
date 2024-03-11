@@ -2,16 +2,16 @@ import React, { useContext, useEffect, useState } from "react";
 import { View } from "react-native";
 import SvgCanvas from "./canvas";
 import createDrawControls from "./control";
-import { AvailableShapes } from "@u/types";
+import { AvailableShapes, PathDataType } from "@u/types";
 import { SvgDataContext } from "@x/svg-data";
 
 
-const DrawScreen = ({ initControls }) => {
+const DrawScreen = ({ zoom, initControls, externalGesture }) => {
   const [stroke, setStroke] = useState("#000000");
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [strokeOpacity, setStrokeOpacity] = useState(1);
-  const [simplifyTolerance, setSimplifyTolerance] = useState(0.11);
-  const [d3CurveBasis, setD3CurveBasis] = useState('auto'); //"auto",null "open", "closed", null
+  const [simplifyTolerance, setSimplifyTolerance] = useState(0.0111);
+  const [d3CurveBasis, setD3CurveBasis] = useState(null); //"auto",null "open", "closed", null
   const [command, setCommand] = useState("");
   const [commandEnforcer, setCommandEnforcer] = useState(0); // since we may need to send same command, we use this increasing id to force update
   const [shape, setShape] = useState(AvailableShapes[0]);
@@ -97,7 +97,9 @@ const DrawScreen = ({ initControls }) => {
           strokeWidth={strokeWidth}
           strokeOpacity={strokeOpacity}
           simplifyTolerance={simplifyTolerance}
-          d3CurveBasis={d3CurveBasis} />
+          d3CurveBasis={d3CurveBasis} 
+          externalGesture={externalGesture}
+          />
       </View>
   );
 };

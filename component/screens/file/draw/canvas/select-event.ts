@@ -15,7 +15,7 @@ export const selectEvent = (
     editMode: boolean,
     setSvgData: { (value: SetStateAction<SvgDataType>): void; },
     selectBoundaryBoxPath: PathDataType | null,
-    setSelectBoundaryBoxPath: { (value: SetStateAction<PathDataType | null>): void; },
+    setActiveBoundaryBoxPath: { (value: SetStateAction<PathDataType | null>): void; },
 ) => {
     if (!selectBoundaryBoxPath || editMode) return;
     switch (state) {
@@ -58,7 +58,7 @@ export const selectEvent = (
                         y: point.y + yOffset,
                       };
                     });
-              
+
                     item.path = getPathFromPoints(movedPoints);
                     item.guid = Crypto.randomUUID();
                   }
@@ -68,7 +68,7 @@ export const selectEvent = (
               });
 
 
-            setSelectBoundaryBoxPath({
+            setActiveBoundaryBoxPath({
                 ...selectBoundaryBoxPath,
                 path: movedBoundaryBoxPath,
             });
@@ -82,7 +82,7 @@ export const selectEvent = (
                     { x: CANVAS_WIDTH, y: CANVAS_HEIGHT },
                     { x: CANVAS_WIDTH, y: 0 },
                 ]);
-                setSelectBoundaryBoxPath({
+                setActiveBoundaryBoxPath({
                     ...selectBoundaryBoxPath,
                     path: movedBoundaryBoxPath,
                 });

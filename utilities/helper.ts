@@ -2,8 +2,9 @@ import { LinearGradient } from "expo-linear-gradient";
 import { StyleSheet, Dimensions, Platform } from "react-native";
 import { Linecap, Linejoin } from "react-native-svg";
 import * as Crypto from "expo-crypto";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, DEFAULT_VIEWBOX, PRECISION, PointType, ScreenModes, TransitionType } from "./types";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, CANVAS_VIEWBOX, PRECISION, PointType, ScreenModes, TransitionType, ModalAnimations } from "./types";
 import { PathDataType, SvgDataType } from "./types";
+import { polygonContains } from "d3";
 
 // TODO move this to constants
 const screenWidth = Dimensions.get("window").width;
@@ -57,10 +58,8 @@ export const createPathdata = (
   length: 0,
   time: 0,
   visible: false,
-  guid: "",
-  selected: false,
+  guid: "", //without guid it's not a valid path though
 });
-
 
 export const precise = (num: string | number, precision = PRECISION): number =>
   parseFloat(parseFloat(num as string).toFixed(precision));
@@ -116,6 +115,27 @@ export const getPointsFromPath = (path: string): PointType[] => {
   return points;
 }
 
+
+    
+export const pathContainsPoint = (path: string, checkPoint: PointType) => {
+  const points = getPointsFromPath(path);
+  const d3Points = points.map((point) => [point.x, point.y] as [number, number]);
+  return polygonContains(d3Points, [checkPoint.x, checkPoint.y]);
+}
+
+// if given path is atleast half inside canvas
+export const isShapeInsideCanvas = (path: string) => {
+  const points = getPointsFromPath(path);
+  const d3Points = points.map((point) => [point.x, point.y] as [number, number]);
+  let count = 0;
+  d3Points.forEach((point) => {
+    if (point[0] >= 0 && point[0] <= CANVAS_WIDTH && point[1] >= 0 && point[1] <= CANVAS_HEIGHT) {
+      count++;
+    }
+  });
+  return count >= d3Points.length * 0.25;
+}
+
 export const getLastPoint = (path: string) => {
   // split function to use a regular expression that splits the string 
   // at the position before any SVG command letter.
@@ -167,7 +187,6 @@ export const getViewBoxTrimmed = (pathData: PathDataType[], offset=20) => {
   // console.log("viewBox trimmed", viewBox);
   return viewBox;
 };
-
 
 
 /**
@@ -252,7 +271,7 @@ export function parseSvgData(svgData: any, update_updated_at = false): SvgDataTy
       svgData.metaData.name = svgData.metaData.updated_at.split('.')[0].split('T').join(' ');
   }
   if (!isValid(svgData.metaData.viewBox)) {
-      svgData.metaData.viewBox = DEFAULT_VIEWBOX;
+      svgData.metaData.viewBox = CANVAS_VIEWBOX;
   }
   if (!isValid(svgData.metaData.viewBoxTrimmed)) {
       svgData.metaData.viewBoxTrimmed = getViewBoxTrimmed(svgData.pathData);
@@ -260,4 +279,16 @@ export function parseSvgData(svgData: any, update_updated_at = false): SvgDataTy
   return svgData;
 }
 
+
+export function pickTwoAnimations(): [string, string] {
+  const index1 = Math.floor(Math.random() * ModalAnimations.length);
+  let index2 = Math.floor(Math.random() * ModalAnimations.length);
+
+  // Ensure we get two different animations
+  while (index1 === index2) {
+    index2 = Math.floor(Math.random() * ModalAnimations.length);
+  }
+
+  return [ModalAnimations[index1], ModalAnimations[index2]];
+}
 

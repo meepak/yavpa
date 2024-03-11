@@ -13,6 +13,7 @@ import MyIcon from "@c/my-icon";
 import StrokeWidth from "./stroke-width";
 import MyPreview from "@c/my-preview";
 import StrokeOpacity from "./stroke-opacity";
+import { SvgDataContext } from "@x/svg-data";
 
 
 

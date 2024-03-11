@@ -1,27 +1,29 @@
-import React, { useContext, useEffect, useState } from "react";
-import { View, StyleSheet, ActivityIndicator } from "react-native";
-import Svg from "react-native-svg";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { View, StyleSheet, ActivityIndicator, NativeMethods } from "react-native";
+import Svg, { Shape } from "react-native-svg";
 import {
-  GestureDetector,
   Gesture,
-  GestureUpdateEvent,
-  PanGestureHandlerEventPayload,
-  TapGestureHandlerEventPayload,
+  GestureDetector,
 } from "react-native-gesture-handler";
 import { createPathdata } from "@u/helper";
-import { DEFAULT_VIEWBOX, PathDataType, ShapeType } from "@u/types";
+import { CANVAS_VIEWBOX, PathDataType, ShapeType } from "@u/types";
 import MyPath from "@c/my-path";
 import { useCommandEffect } from "./canvas/use-command-effect";
-import { drawingEvent } from "./canvas/drawing-event";
 import { SvgDataContext } from "@x/svg-data";
-import { defaultShape } from "@u/shapes";
-import ErrorBoundary from "@c/error-boundary";
+import { defaultShape, shapeData } from "@u/shapes";
 import { useSelectEffect } from "./canvas/use-select-effect";
-import { doubleTapEvent } from "./canvas/double-tap-event";
+import { assignGestureHandlers } from "./canvas/assign-gesture-handlers";
+import { GestureResponderEvent } from "react-native-modal";
+import ErrorBoundary from "@c/error-boundary";
 import { selectEvent } from "./canvas/select-event";
+import { handleDrawingEvent } from "./canvas/handle-drawing-event";
+import { handleDoubleTapEvent } from "./canvas/handle-double-tap-event";
 
 
 type SvgCanvasProps = {
+  selectedPaths?: PathDataType[];
+  setSelectedPaths?: React.Dispatch<React.SetStateAction<PathDataType[]>>;
+  zoom?: number;
   editable?: boolean;
   command?: string;
   forceUpdate?: number;
@@ -30,6 +32,7 @@ type SvgCanvasProps = {
   strokeOpacity?: number;
   simplifyTolerance?: number;
   d3CurveBasis?: any;
+  externalGesture?: any;
 };
 
 const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
@@ -41,10 +44,12 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     strokeOpacity = 1,
     stroke = "#000000",
     simplifyTolerance = 0.0111,
-    d3CurveBasis = 'auto',
+    d3CurveBasis = null,
+    externalGesture: externalGesture = null,
   } = props;
 
   const { svgData, setSvgData } = useContext(SvgDataContext);
+  const [unselectedPaths, _setUnselectedPaths] = useState([] as PathDataType[]);
   const newPathData = () => createPathdata(stroke, strokeWidth, strokeOpacity);
 
   const [undonePaths, setUndonePaths] = useState([] as PathDataType[]);
@@ -61,7 +66,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 
 
   // This is be enabled in next version only
-  // erasure mode - erasure shape can be square or circle 
+  // erasure mode - erasure shape can be square or circle
   // const [erasureMode, setErasureMode] = useState(false);
   // useEffect(() => {
   //   setErasureMode(erasing);
@@ -81,10 +86,11 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 
   // get bounding box of selected paths
   useSelectEffect({
+    editable,
     svgData,
     setSvgData,
     setEditMode,
-    setSelectBoundaryBoxPath: setActiveBoundaryBoxPath,
+    setActiveBoundaryBoxPath,
     stroke,
     strokeWidth,
     strokeOpacity
@@ -106,16 +112,16 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   );
 
 
-  const handleDoubleTapEvent = (event: GestureUpdateEvent<TapGestureHandlerEventPayload>, state: string) => {
-    doubleTapEvent(
-      event, 
+  const handleTapTapEvent = (event: GestureUpdateEvent<TapGestureHandlerEventPayload>, state: string) => {
+    handleDoubleTapEvent(
+      event,
       activeBoundaryBoxPath,
       setSvgData,
       );
   }
 
   const handlePanDrawingEvent = (event: GestureUpdateEvent<PanGestureHandlerEventPayload>, state: string) => {
-    drawingEvent(
+    handleDrawingEvent(
       event,
       state,
       svgData,
@@ -162,7 +168,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 
 
   const doubleTapForSelect = Gesture.Tap()
-  doubleTapForSelect.numberOfTaps(2).onEnd((event) => handleDoubleTapEvent(event, "double-tapped"));
+  doubleTapForSelect.numberOfTaps(2).onEnd((event) => handleTapTapEvent(event, "double-tapped"));
 
   return (
     <View style={styles.container} pointerEvents="box-none">
@@ -183,9 +189,9 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
                 <View style={styles.container}>
                   <ErrorBoundary>
                     {/* All drawings were drawn in this canvas with this viewbox
-                They need to be edited in this dimension, 
+                They need to be edited in this dimension,
                 we can save and play on whatever dimension we want, thus using fixed default viewbox*/}
-                    <Svg width='100%' height={'100%'} viewBox={DEFAULT_VIEWBOX} onLayout={() => setIsLoading(false)}>
+                    <Svg width='100%' height={'100%'} viewBox={CANVAS_VIEWBOX} onLayout={() => setIsLoading(false)}>
 
                       {svgData.pathData.map((item, _index) => (
                         item.visible
@@ -222,7 +228,7 @@ const styles = StyleSheet.create({
     flex: 1,
     overflow: 'hidden',
   },
-  svg: {
+  flex1: {
     flex: 1,
   },
 });

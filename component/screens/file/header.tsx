@@ -1,25 +1,32 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Text, TextInput, TouchableOpacity, View, StyleSheet } from "react-native";
+import { Text, TextInput, TouchableOpacity, View, StyleSheet, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useRouter } from "expo-router";
 import { ControlPanel } from "component/controls";
-import { isIOS } from "@u/helper";
-import { ScreenModes } from "@u/types";
+import { MAX_HEADER_HEIGHT, SCREEN_HEIGHT, ScreenModeInstruction, ScreenModes } from "@u/types";
 import MyIcon from "@c/my-icon";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MyPathLogo from "@c/logo/my-path-logo";
 import { LinearGradient } from "expo-linear-gradient";
 import { SvgDataContext } from "@x/svg-data";
-import Animated from "react-native-reanimated";
+import MyList from "@c/my-list";
+import MyBlueButton from "@c/my-blue-button";
+import { ToastContext } from "@x/toast-context";
 
-const HeaderGradientBackground = ({ children }) => (<>
-    <LinearGradient
-        colors={['#015ccd', '#a805ee', '#1d0f98']}
-        style={{
-            ...StyleSheet.absoluteFillObject,
-            zIndex: -1,
-        }} />
-    {children}
-</>)
+/*
+<></> --> takes full parent's space by default
+<View</View> --> takes only required space by default
+<View style={{ flex: 1 }}></View> is same as <></>
+*/
+const HeaderGradientBackground = ({ children }) => (
+    <>
+        <LinearGradient
+            colors={['#015ccd', '#a805ee', '#1d0f98']}
+            style={{
+                ...StyleSheet.absoluteFillObject,
+                zIndex: -1,
+            }} />
+        {children}
+    </>)
 
 const Header = ({
     title,
@@ -32,10 +39,9 @@ const Header = ({
     const [name, setName] = useState(title);
     const [screenMode, setScreenMode] = useState(initialScreenMode || ScreenModes[0]);
     const { svgData } = useContext(SvgDataContext);
-    const [sorry, setSorry] = useState(false);
-
-
+    const [buttonInstruction, setButtonInstruction] = useState("");
     const router = useRouter();
+    const showToast = useContext(ToastContext);
 
     useEffect(() => {
         setName(title);
@@ -43,6 +49,8 @@ const Header = ({
 
     useEffect(() => {
         setScreenMode(initialScreenMode);
+        const name = initialScreenMode.name;
+        setButtonInstruction(ScreenModeInstruction[name]);
     }, [initialScreenMode])
 
 
@@ -52,14 +60,15 @@ const Header = ({
         const currentScreenModeIndex = ScreenModes.findIndex((mode) => mode.name === screenMode.name);
         if (ScreenModes[currentScreenModeIndex].name === "Draw") {
             if (svgData.pathData.length === 0) {
-                setSorry(true);
-                setTimeout(() => setSorry(false), 7000);
+                showToast("Please draw something first!");
                 return;
             }
         }
         const newScreenModeIndex = (currentScreenModeIndex + 1) % ScreenModes.length;
         const newScreenMode = ScreenModes[newScreenModeIndex];
         setScreenMode(newScreenMode);
+        console.log('new screen mode', newScreenMode.name);
+        // setButtonInstruction(ScreenModeInstruction[newScreenMode.name]);
         onScreenModeChanged && onScreenModeChanged(newScreenMode);
     };
 
@@ -73,88 +82,101 @@ const Header = ({
         }
     }
 
+    // to get the same top position iOS  has insets.top included within header size
+    // whereas in android it's not??? 
+    // flatlist has to be bring down by 15 in iOS to align with bottom line
+    const getBlueButtonIconProps = (screenMode) => {
+
+        // replae Draw with Press to Animate
+        // replace Preview with Press to Export
+        // replace Export with Press to Edit
+        let desc = screenMode.name;
+        let name = screenMode.icon;
+        if (screenMode.name === "Draw") {
+            desc = "press to PREVIEW";
+        } else if (screenMode.name === "Preview") {
+            desc = "press to EXPORT";
+        } else if (screenMode.name === "Export") {
+            desc = "press to DRAW";
+        }
+        return { desc, name };
+    }
+    const textInputHeight = 40;
+    const blueButtonTop = MAX_HEADER_HEIGHT - insets.top + 10;
     return (
-        <>
+        <View
+            style={{
+                height: MAX_HEADER_HEIGHT + insets.top, // allow same header area in all devices
+            }}
+        >
             <HeaderGradientBackground>
-                <View
-                    style={{
-                        top: insets.top,
-                        marginVertical: 7,
-                        marginRight: 10,
-                        marginLeft: 5,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        alignContent: "center",
-                        justifyContent: "space-between",
-                    }}
-                >
-                    <TouchableOpacity onPress={handleBackButtonPress}>
-                        <MyIcon name="back" color="#FFFFFF" strokeWidth={2} size={32} />
-                    </TouchableOpacity>
-                    <TextInput
+                <View style={{ flex: 1, justifyContent: 'space-between' }}>
+                    <View
                         style={{
-                            flex: 1,
-                            height: 40,
-                            color: "rgba(255, 255, 255, 0.7)",
-                            fontSize: 22,
-                            fontWeight: "300",
-                            textAlign: "left",
-                            borderWidth: 0,
-                            paddingLeft: 10,
+                            top: insets.top,
+                            marginRight: 10,
+                            marginLeft: 10,
+                            flexDirection: "row",
+                            alignItems: "center",
+                            alignContent: "center",
+                            justifyContent: "space-between",
+                            backgroundColor: 'transparent',
                         }}
-                        onChangeText={setName}
-                        onEndEditing={(e) => {
-                            if (onTitleChange) {
-                                onTitleChange(e.nativeEvent.text);
-                            }
-                        }}
-                        value={name}
-                        placeholder="Title"
-                        enterKeyHint="done"
-                        placeholderTextColor="rgba(255, 255, 255, 0.7)" />
-                    <View style={{ bottom: -5, }}>
-                        <MyPathLogo animate={false} width={42} height={42} />
+                    >
+                        <TouchableOpacity onPress={handleBackButtonPress} activeOpacity={0.75}>
+                            <MyIcon name="back" color="#FFFFFF" strokeWidth={2} size={28} />
+                        </TouchableOpacity>
+                        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                            <View>
+                                <TextInput
+                                    style={{
+                                        flex: 1,
+                                        height: textInputHeight,
+                                        color: "rgba(255, 255, 255, 0.7)",
+                                        fontSize: 22,
+                                        fontWeight: "300",
+                                        textAlign: "center",
+                                        borderWidth: 0,
+                                        paddingLeft: 10,
+                                    }}
+                                    onChangeText={setName}
+                                    onEndEditing={(e) => {
+                                        if (onTitleChange) {
+                                            onTitleChange(e.nativeEvent.text);
+                                        }
+                                    }}
+                                    value={name}
+                                    placeholder="Title"
+                                    enterKeyHint="done"
+                                    placeholderTextColor="rgba(255, 255, 255, 0.8)"
+                                />
+                            </View>
+                        </TouchableWithoutFeedback>
+                        <View style={{ bottom: -5, }}>
+                            <MyList
+                                anchor={<MyPathLogo animate={false} width={48} height={48} />}
+                                width={150}
+                                height={SCREEN_HEIGHT - MAX_HEADER_HEIGHT}
+                            />
+                        </View>
+
                     </View>
-
-                </View>
-                <View style={{ marginTop: 30 }}>
-                    <ControlPanel
-                        buttons={controlPanelButtons}
-                        paddingLeft={50}
-                        paddingRight={20} />
-
+                    <View style={{ alignItems: 'flex-end', justifyContent: 'flex-end' }}>
+                        <ControlPanel
+                            buttons={controlPanelButtons}
+                            paddingLeft={85}
+                            paddingRight={10}
+                        />
+                    </View>
                 </View>
             </HeaderGradientBackground>
-            <TouchableOpacity
-                style={{ position: 'absolute', left: 10, bottom: isIOS ? 15 : -2 }}
+            <MyBlueButton
+                icon={getBlueButtonIconProps(screenMode)}
                 onPress={handleScreenModeButtonPress}
-            >
-                <View
-                    pointerEvents="auto"
-                    style={{
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        backgroundColor: "#0000FF",
-                        width: 55,
-                        height: 55,
-                        borderRadius: 30,
-                    }}>
-                    <MyIcon
-                        name={screenMode.icon}
-                        color="#FFFFFF" />
-                </View>
-                {
-                    sorry ?
-                        <Animated.View style={{ width: 300, position: 'absolute', zIndex: -10, top: 150, left: 30, opacity: 0.5 }}>
-                            <Text style={{ color: 'black', fontSize: 21, fontWeight: 'bold' }}>
-                                Sorry empty screen can't be animated, draw something first!
-                            </Text>
-                        </Animated.View>
-                        : null
-                }
-            </TouchableOpacity >
-
-        </>
+                aligned="left"
+                top={blueButtonTop}
+            />
+        </View>
     );
 }
 

@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MyIcon from "@c/my-icon";
-import { CANVAS_WIDTH, SvgDataType } from "@u/types";
+import { CANVAS_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SvgDataType } from "@u/types";
 import { deleteFile, getFiles } from "@u/storage";
 import { Link, useRouter } from "expo-router";
 import { StickyHeaderFlatList, useStickyHeaderScrollProps } from 'react-native-sticky-parallax-header';
@@ -21,6 +21,7 @@ import { HeaderBar, Foreground } from "@c/screens/browse";
 import MyPreview from "@c/my-preview";
 import CreativeVoid from "@c/creative-void/creative-void";
 import elevations from "@u/elevation";
+import MyBlueButton from "@c/my-blue-button";
 
 const PARALLAX_HEIGHT = 238;
 const HEADER_BAR_HEIGHT = 92;
@@ -58,11 +59,9 @@ const BrowseScreen = () => {
 
 
   // calculate dimension for file preview box
-  const windowWidth = Dimensions.get("window").width;
-  const windowHeight = Dimensions.get("window").height;
 
-  const actualWindowsWidth = windowWidth - insets.left - insets.right;
-  const actualWindowsHeight = windowHeight - insets.top - insets.bottom;
+  const actualWindowsWidth = SCREEN_WIDTH - insets.left - insets.right;
+  const actualWindowsHeight = SCREEN_HEIGHT - insets.top - insets.bottom;
 
   const filePreviewHeight = ((actualWindowsHeight - OFFSET) * FILE_PREVIEW_WIDTH / actualWindowsWidth);
   let numberOfColumns = Math.floor(actualWindowsWidth / FILE_PREVIEW_WIDTH);
@@ -82,7 +81,6 @@ const BrowseScreen = () => {
       if (svgData.length === 0) {
         setNoSketch(true);
       }
-      setIsLoading(false);
     } catch (error) {
       console.log('error fetching files', error)
     }
@@ -158,8 +156,6 @@ const BrowseScreen = () => {
     noSketch && files.length === 0
       ? <>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text>It seems you haven't drawn any paths yet.</Text>
-          <Text>Let's fill this creative void!</Text>
           <CreativeVoid width={CANVAS_WIDTH} height={CANVAS_WIDTH} animate={true} />
         </View>
       </>
@@ -172,19 +168,22 @@ const BrowseScreen = () => {
     </View>
   ), [scrollValue]);
 
+  
   return (
     <View style={StyleSheet.absoluteFill}>
-      <View style={[styles.headerBarContainer, { width: windowWidth }]}>
+      <View style={[styles.headerBarContainer, { width: SCREEN_WIDTH}]}>
         <HeaderBar scrollValue={scrollValue} />
       </View>
       <View style={{ alignSelf: 'stretch', flex: 1 }}>
         <StickyHeaderFlatList
+          key={numberOfColumns}
           ref={scrollViewRef}
           containerStyle={{
             paddingTop: HEADER_BAR_HEIGHT,
             alignSelf: 'stretch',
             flex: 1,
           }}
+          style={{paddingTop: 25 }}
           onScroll={onScroll}
           onMomentumScrollEnd={onMomentumScrollEnd}
           onScrollEndDrag={onScrollEndDrag}
@@ -192,14 +191,16 @@ const BrowseScreen = () => {
 
           // initialNumToRender={6}
           // maxToRenderPerBatch={20}
-          keyExtractor={item => item.metaData.guid}
+          keyExtractor={item => numberOfColumns  + item.metaData.guid}
           numColumns={numberOfColumns}
           data={files}
           initialNumToRender={3}
           maxToRenderPerBatch={10}
           windowSize={10}
           renderItem={renderItem}
+          horizontal={false}
           showsVerticalScrollIndicator={false}
+          onLayout={() => setIsLoading(false)}
         // onContentSizeChange={() => setIsLoading(false)}
         />
         {isLoading && (
@@ -218,11 +219,13 @@ const BrowseScreen = () => {
         )}
       </View>
       {NoSketchFound}
-      <Link href="/file" asChild>
-        <TouchableOpacity style={styles.floatingButton}>
-          <MyIcon name="new" color='#FFFFFF' />
-        </TouchableOpacity>
-      </Link>
+        <MyBlueButton
+          icon={{ desc: '', name: 'new', size: 60, left: 0, top: 0 }}
+          onPress={() => router.push('/file')}
+          bottom={insets.bottom + 16}
+          aligned="right"
+          // {...elevations[10]}
+          />
       <StatusBar translucent style="light" />
     </View>
   );
@@ -247,19 +250,6 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     paddingTop: HEADER_BAR_HEIGHT,
-  },
-  floatingButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: 'blue',
-    position: 'absolute',
-    bottom: 16,
-    right: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignContent: 'center',
-    ...elevations[5],
   },
 });
 

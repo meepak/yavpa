@@ -21,6 +21,7 @@ export const calculateDistance = (point1: PointType, point2: PointType) => {
 
 export const shapeData = (shape: ShapeType): string => {
     const shapeName = shape.name.split(" ").pop()!.toLowerCase() || shape.name;
+    if(shape.start === shape.end) return "";
     switch (shapeName) {
         case 'line':
             return LinePath(shape.start, shape.end);

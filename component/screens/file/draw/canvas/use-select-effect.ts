@@ -1,14 +1,18 @@
 import { createPathdata, getViewBoxTrimmed } from "@u/helper";
 import { shapeData } from "@u/shapes";
-import { PathDataType } from "@u/types";
-import * as Crypto from "expo-crypto";
-import { useEffect } from "react";
+import { getBoundaryBoxPath } from "@u/utility";
+import { useEffect, useRef, useState } from "react";
 
 export const useSelectEffect = ({
+  editable,
   svgData,
   setSvgData,
+  setIsLoading,
+  selectedPaths,
+  setSelectedPaths,
+  setUnselectedPaths,
   setEditMode,
-  setSelectBoundaryBoxPath,
+  setActiveBoundaryBoxPath,
   stroke,
   strokeWidth,
   strokeOpacity,
@@ -30,7 +34,7 @@ export const useSelectEffect = ({
 
     if (selectedPaths.length === 0) {
       setEditMode(true);
-      setSelectBoundaryBoxPath(null);
+      setActiveBoundaryBoxPath(null);
       console.log('nothing selected, continue editing');
       return;
     }
@@ -51,7 +55,7 @@ export const useSelectEffect = ({
     setEditMode(false);
     rectPathData.strokeDashoffset = 0; // boundaryBoxDashoffset;
     // console.log('boumdary box path data', rectPathData);
-    setSelectBoundaryBoxPath(rectPathData);
+    setActiveBoundaryBoxPath(rectPathData);
 
   }, [svgData]);
 
@@ -78,17 +82,18 @@ export const useSelectEffect = ({
       };
     });
   };
-  
+
   useEffect(() => {
     updateSelectedPath('stroke', stroke);
   }, [stroke]);
-  
+
   useEffect(() => {
     updateSelectedPath('strokeWidth', strokeWidth);
   }, [strokeWidth]);
-  
+
   useEffect(() => {
     updateSelectedPath('strokeOpacity', strokeOpacity);
   }, [strokeOpacity]);
+
 
 }

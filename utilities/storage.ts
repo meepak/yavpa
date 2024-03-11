@@ -42,8 +42,9 @@ export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
         }
     }, 2000); // Delay of 1 second
 };
-
-export const getFiles = async (): Promise<SvgDataType[]> => {
+// lets include defaults first time and then it becomes part of user files that they are free to do whatever
+// can be brought back from settings if user wants it
+export const getFiles = async (includeDefaults = true): Promise<SvgDataType[]> => {
     try {
         if (fileCache.length > 0) {
             console.log('file cache get files')
@@ -67,6 +68,26 @@ export const getFiles = async (): Promise<SvgDataType[]> => {
         }
         console.log('set the filecache again..')
         // svgDataFiles.sort((a, b) => Date.parse(b.metaData.updated_at) - Date.parse(a.metaData.updated_at));
+
+        if (includeDefaults) {
+
+            const logoData = require('@c/logo/my-path.json');
+            if (logoData && logoData.pathData.length > 0) {
+                // check a copy already exist or not
+                const index = svgDataFiles.findIndex(file => file.metaData.guid === logoData.metaData.guid);
+                if (index === -1) {
+                    svgDataFiles.push(logoData);
+                }
+            }
+            const creativeVoidData = require('@c/creative-void/creative-void.json');
+            if (creativeVoidData && creativeVoidData.pathData.length > 0) {
+                const index = svgDataFiles.findIndex(file => file.metaData.guid === logoData.metaData.guid);
+                if (index === -1) {
+                    svgDataFiles.push(creativeVoidData);
+                }
+            }
+        }
+
         fileCache = svgDataFiles;
         return svgDataFiles;
     } catch (err) {
@@ -76,7 +97,7 @@ export const getFiles = async (): Promise<SvgDataType[]> => {
 }
 
 
-export const  getFile = async (guid: string): Promise<SvgDataType | null> => {
+export const getFile = async (guid: string): Promise<SvgDataType | null> => {
     try {
         const file = fileCache.find(file => file.metaData.guid === guid);
         if (file) {
