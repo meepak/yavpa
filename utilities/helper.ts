@@ -59,6 +59,7 @@ export const createPathdata = (
   time: 0,
   visible: false,
   guid: "", //without guid it's not a valid path though
+  selected: false,
 });
 
 export const precise = (num: string | number, precision = PRECISION): number =>
@@ -116,7 +117,7 @@ export const getPointsFromPath = (path: string): PointType[] => {
 }
 
 
-    
+
 export const pathContainsPoint = (path: string, checkPoint: PointType) => {
   const points = getPointsFromPath(path);
   const d3Points = points.map((point) => [point.x, point.y] as [number, number]);
@@ -137,7 +138,7 @@ export const isShapeInsideCanvas = (path: string) => {
 }
 
 export const getLastPoint = (path: string) => {
-  // split function to use a regular expression that splits the string 
+  // split function to use a regular expression that splits the string
   // at the position before any SVG command letter.
   const commands = path.trim().split(/(?=[MmLlHhVvCcSsQqTtAaZz])/);
   const lastCommand = commands[commands.length - 1];
@@ -203,7 +204,7 @@ export const jsonDeepCompare = (json1: any, json2: any, log = false) => {
       console.log("Difference", diff);
     }
     return diff === "";
-  } 
+  }
   const aJson = JSON.stringify(json1);
   const bJson = JSON.stringify(json2);
   if (bJson === aJson || json2 === json1) return "";

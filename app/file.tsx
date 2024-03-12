@@ -106,7 +106,7 @@ const FileScreen = () => {
     pan.minPointers(2);
     pan.maxPointers(2);
     pan.onChange((e) => {
-        // console.log('pan change', e.translationX, e.translationY);
+        console.log('pan change', e.translationX, e.translationY);
     });
     pan.initialize();
 

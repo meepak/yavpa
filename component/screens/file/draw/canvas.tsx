@@ -1,23 +1,15 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { View, StyleSheet, ActivityIndicator, NativeMethods } from "react-native";
-import Svg, { Shape } from "react-native-svg";
-import {
-  Gesture,
-  GestureDetector,
-} from "react-native-gesture-handler";
+import React, { useContext, useEffect, useState } from "react";
+import { View, StyleSheet, ActivityIndicator } from "react-native";
+import Svg from "react-native-svg";
 import { createPathdata } from "@u/helper";
 import { CANVAS_VIEWBOX, PathDataType, ShapeType } from "@u/types";
 import MyPath from "@c/my-path";
 import { useCommandEffect } from "./canvas/use-command-effect";
 import { SvgDataContext } from "@x/svg-data";
-import { defaultShape, shapeData } from "@u/shapes";
+import { defaultShape } from "@u/shapes";
 import { useSelectEffect } from "./canvas/use-select-effect";
-import { assignGestureHandlers } from "./canvas/assign-gesture-handlers";
-import { GestureResponderEvent } from "react-native-modal";
+import { MyGestures } from "./canvas/my-gestures";
 import ErrorBoundary from "@c/error-boundary";
-import { selectEvent } from "./canvas/select-event";
-import { handleDrawingEvent } from "./canvas/handle-drawing-event";
-import { handleDoubleTapEvent } from "./canvas/handle-double-tap-event";
 
 
 type SvgCanvasProps = {
@@ -49,7 +41,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   } = props;
 
   const { svgData, setSvgData } = useContext(SvgDataContext);
-  const [unselectedPaths, _setUnselectedPaths] = useState([] as PathDataType[]);
+  // const [unselectedPaths, _setUnselectedPaths] = useState([] as PathDataType[]);
   const newPathData = () => createPathdata(stroke, strokeWidth, strokeOpacity);
 
   const [undonePaths, setUndonePaths] = useState([] as PathDataType[]);
@@ -89,11 +81,12 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     editable,
     svgData,
     setSvgData,
+    setIsLoading,
     setEditMode,
     setActiveBoundaryBoxPath,
     stroke,
     strokeWidth,
-    strokeOpacity
+    strokeOpacity,
   });
 
 
@@ -112,63 +105,22 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   );
 
 
-  const handleTapTapEvent = (event: GestureUpdateEvent<TapGestureHandlerEventPayload>, state: string) => {
-    handleDoubleTapEvent(
-      event,
-      activeBoundaryBoxPath,
-      setSvgData,
-      );
-  }
-
-  const handlePanDrawingEvent = (event: GestureUpdateEvent<PanGestureHandlerEventPayload>, state: string) => {
-    handleDrawingEvent(
-      event,
-      state,
-      svgData,
-      setSvgData,
-      editMode,
-      currentPath,
-      setCurrentPath,
-      startTime,
-      setStartTime,
-      newPathData,
-      currentShape,
-      setCurrentShape,
-      simplifyTolerance,
-      d3CurveBasis
-    );
+  const myGestureProps = {
+    svgData,
+    setSvgData,
+    editMode,
+    currentPath,
+    setCurrentPath,
+    startTime,
+    setStartTime,
+    newPathData,
+    currentShape,
+    setCurrentShape,
+    simplifyTolerance,
+    d3CurveBasis,
+    activeBoundaryBoxPath,
+    setActiveBoundaryBoxPath,
   };
-
-  const handlePanSelectEvent = (event: GestureUpdateEvent<PanGestureHandlerEventPayload>, state: string) => {
-    selectEvent(
-      event,
-      state,
-      editMode,
-      setSvgData,
-      activeBoundaryBoxPath,
-      setActiveBoundaryBoxPath,
-    );
-  };
-
-
-  const panForDrawing = Gesture.Pan();
-  panForDrawing.shouldCancelWhenOutside(false);
-  panForDrawing.minPointers(1);
-  panForDrawing.maxPointers(1);
-  panForDrawing.onBegin((event) => handlePanDrawingEvent(event, "began"))
-    .onUpdate((event) => handlePanDrawingEvent(event, "active"))
-    .onEnd((event) => handlePanDrawingEvent(event, "ended"));
-
-
-  const panForSelect = Gesture.Pan()
-  panForSelect.shouldCancelWhenOutside(false);
-  panForSelect.onBegin((event) => handlePanSelectEvent(event, "began"))
-    .onUpdate((event) => handlePanSelectEvent(event, "active"))
-    .onEnd((event) => handlePanSelectEvent(event, "ended"));
-
-
-  const doubleTapForSelect = Gesture.Tap()
-  doubleTapForSelect.numberOfTaps(2).onEnd((event) => handleTapTapEvent(event, "double-tapped"));
 
   return (
     <View style={styles.container} pointerEvents="box-none">
@@ -184,39 +136,35 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
             </View>
           )
           : (
-            <GestureDetector gesture={doubleTapForSelect}>
-              <GestureDetector gesture={panForDrawing}>
-                <View style={styles.container}>
-                  <ErrorBoundary>
-                    {/* All drawings were drawn in this canvas with this viewbox
+            <MyGestures {...myGestureProps}>
+              <View style={styles.container}>
+                <ErrorBoundary>
+                  {/* All drawings were drawn in this canvas with this viewbox
                 They need to be edited in this dimension,
                 we can save and play on whatever dimension we want, thus using fixed default viewbox*/}
-                    <Svg width='100%' height={'100%'} viewBox={CANVAS_VIEWBOX} onLayout={() => setIsLoading(false)}>
+                  <Svg width='100%' height={'100%'} viewBox={CANVAS_VIEWBOX} onLayout={() => setIsLoading(false)}>
 
-                      {svgData.pathData.map((item, _index) => (
-                        item.visible
-                          ? <MyPath prop={item} keyProp={"completed-" + item.guid} key={item.guid} />
-                          : null
-                      ))}
+                    {svgData.pathData.map((item, _index) => (
+                      item.visible
+                        ? <MyPath prop={item} keyProp={"completed-" + item.guid} key={item.guid} />
+                        : null
+                    ))}
 
-                      {currentPath.guid !== "" && (
-                        <MyPath prop={currentPath} keyProp={"current"} key={currentPath.guid} />
-                      )}
+                    {currentPath.guid !== "" && (
+                      <MyPath prop={currentPath} keyProp={"current"} key={currentPath.guid} />
+                    )}
 
 
-                      {
-                        activeBoundaryBoxPath && (
-                          <GestureDetector gesture={panForSelect}>
-                            <MyPath prop={activeBoundaryBoxPath} keyProp={"selectBoundaryBox"} key={"selectBoundaryBox"} />
-                          </GestureDetector>
-                        )
-                      }
+                    {
+                      activeBoundaryBoxPath && (
+                        <MyPath prop={activeBoundaryBoxPath} keyProp={"selectBoundaryBox"} key={"selectBoundaryBox"} />
+                      )
+                    }
 
-                    </Svg>
-                  </ErrorBoundary>
-                </View>
-              </GestureDetector>
-            </GestureDetector>
+                  </Svg>
+                </ErrorBoundary>
+              </View>
+            </MyGestures>
           )
       }
     </View>

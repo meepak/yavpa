@@ -6,6 +6,7 @@ import { BrushType, PathDataType } from "@u/types";
 import { isValidPath } from "@u/helper";
 
 class MyPath extends React.PureComponent<{prop: PathDataType, keyProp: string}> {
+    
     render() {
       if(!isValidPath(this.props.prop.path)) {
         console.log("MyPath was given invalid path data - ", this.props.prop.path, " -", this.props.prop.guid);
@@ -17,7 +18,7 @@ class MyPath extends React.PureComponent<{prop: PathDataType, keyProp: string}> 
         const brushGuid = this.props.prop.stroke.slice(5, -1);
         brush = Brushes.find(brush => brush.params.guid === brushGuid);
       }
-      
+
       return (
         <React.Fragment key={`${this.props.keyProp}-${this.props.prop.guid}`}>
           {brush && getBrush(brush)}
@@ -28,7 +29,7 @@ class MyPath extends React.PureComponent<{prop: PathDataType, keyProp: string}> 
             strokeLinecap={this.props.prop.strokeCap}
             strokeLinejoin={this.props.prop.strokeJoin}
             opacity={this.props.prop.strokeOpacity}
-            fill= {this.props.prop.fill ?? "none"} 
+            fill= {this.props.prop.fill ?? "none"}
             strokeDasharray={this.props.prop.strokeDasharray ?? undefined}
             strokeDashoffset={this.props.prop.strokeDashoffset ?? undefined}
           />

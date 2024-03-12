@@ -15,7 +15,7 @@ export const CANVAS_WIDTH = SCREEN_WIDTH - CANVAS_PADDING_HORIZONTAL * 2;
 export const CANVAS_HEIGHT = SCREEN_HEIGHT - MAX_HEADER_HEIGHT - CANVAS_PADDING_VERTICAL * 2;
 export const CANVAS_VIEWBOX = `0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`;
 export const CANVAS_PATH = `M0,0 L${CANVAS_WIDTH},0 L${CANVAS_WIDTH},${CANVAS_HEIGHT} L0,${CANVAS_HEIGHT} Z`;
-  
+
 // console.log('SCREEN_WIDTH', SCREEN_WIDTH);
 // console.log('SCREEN_HEIGHT', SCREEN_HEIGHT);
 // console.log('MAX_HEADER_HEIGHT', MAX_HEADER_HEIGHT);
@@ -69,7 +69,8 @@ export type PathDataType = {
         fontWeight?: string; // font weight
         color?: string; // font color
         startOffset?: string; // start offset
-    }
+    };
+    selected?: boolean; // TODO handle this with selected path context or anything else but path prop
 };
 
 export type MetaDataType = {
@@ -154,17 +155,17 @@ export const AvailableShapes = [
 ];
 
 export const ModalAnimations: ModalAnimationType[] = [
-    "bounce", "flash", "jello", "pulse", "rotate", "rubberBand", "shake", 
-    "swing", "tada", "wobble", "bounceIn", "bounceInDown", "bounceInUp", 
-    "bounceInLeft", "bounceInRight", "bounceOut", "bounceOutDown", 
-    "bounceOutUp", "bounceOutLeft", "bounceOutRight", "fadeIn", 
-    "fadeInDown", "fadeInDownBig", "fadeInUp", "fadeInUpBig", "fadeInLeft", 
-    "fadeInLeftBig", "fadeInRight", "fadeInRightBig", "fadeOut", 
-    "fadeOutDown", "fadeOutDownBig", "fadeOutUp", "fadeOutUpBig", "fadeOutLeft", 
-    "fadeOutLeftBig", "fadeOutRight", "fadeOutRightBig", "flipInX", "flipInY", 
-    "flipOutX", "flipOutY", "lightSpeedIn", "lightSpeedOut", "slideInDown", 
-    "slideInUp", "slideInLeft", "slideInRight", "slideOutDown", "slideOutUp", 
-    "slideOutLeft", "slideOutRight", "zoomIn", "zoomInDown", "zoomInUp", 
-    "zoomInLeft", "zoomInRight", "zoomOut", "zoomOutDown", "zoomOutUp", 
+    "bounce", "flash", "jello", "pulse", "rotate", "rubberBand", "shake",
+    "swing", "tada", "wobble", "bounceIn", "bounceInDown", "bounceInUp",
+    "bounceInLeft", "bounceInRight", "bounceOut", "bounceOutDown",
+    "bounceOutUp", "bounceOutLeft", "bounceOutRight", "fadeIn",
+    "fadeInDown", "fadeInDownBig", "fadeInUp", "fadeInUpBig", "fadeInLeft",
+    "fadeInLeftBig", "fadeInRight", "fadeInRightBig", "fadeOut",
+    "fadeOutDown", "fadeOutDownBig", "fadeOutUp", "fadeOutUpBig", "fadeOutLeft",
+    "fadeOutLeftBig", "fadeOutRight", "fadeOutRightBig", "flipInX", "flipInY",
+    "flipOutX", "flipOutY", "lightSpeedIn", "lightSpeedOut", "slideInDown",
+    "slideInUp", "slideInLeft", "slideInRight", "slideOutDown", "slideOutUp",
+    "slideOutLeft", "slideOutRight", "zoomIn", "zoomInDown", "zoomInUp",
+    "zoomInLeft", "zoomInRight", "zoomOut", "zoomOutDown", "zoomOutUp",
     "zoomOutLeft", "zoomOutRight"];
 

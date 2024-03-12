@@ -1,11 +1,11 @@
 import { PathDataType, SvgDataType } from "@u/types";
 import { SetStateAction } from "react";
-import { GestureUpdateEvent, TapGestureHandlerEventPayload } from "react-native-gesture-handler";
+import { GestureStateChangeEvent, GestureUpdateEvent, TapGestureHandlerEventPayload } from "react-native-gesture-handler";
 import { getPointsFromPath } from "@u/helper";
 import * as polygon from 'd3-polygon';
 
-export const handleDoubleTapEvent = (
-  event: GestureUpdateEvent<TapGestureHandlerEventPayload>,
+export const handleSelectEvent = (
+  event: GestureStateChangeEvent<TapGestureHandlerEventPayload>,
   activeBoundaryBoxPath: PathDataType | null,
   setSvgData: { (value: SetStateAction<SvgDataType>): void; },
 ) => {
