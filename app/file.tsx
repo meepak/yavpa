@@ -106,14 +106,14 @@ const FileScreen = () => {
     pan.minPointers(2);
     pan.maxPointers(2);
     pan.onChange((e) => {
-        console.log('pan change', e.translationX, e.translationY);
+        console.log('from outside, pan change', e.translationX, e.translationY);
     });
     pan.initialize();
 
     const zoomPan = Gesture.Race(pinch, pan);
     pinch.hitSlop(20);
     pinch.onBegin((e) => {
-        // console.log('pinch begin', e.scale);
+        console.log('from out side, pinch begin', e.scale);
         pinch.shouldCancelWhenOutside(false);
     });
     pinch.onChange((e) => {

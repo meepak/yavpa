@@ -1,12 +1,13 @@
 
 import { SetStateAction } from "react";
-import { Platform } from "react-native";
 import {
   Gesture,
   GestureDetector,
   GestureStateChangeEvent,
   GestureUpdateEvent,
   PanGestureHandlerEventPayload,
+  PinchGestureHandlerEventPayload,
+  RotationGestureHandlerEventPayload,
   TapGestureHandlerEventPayload,
 } from "react-native-gesture-handler";
 import {
@@ -18,6 +19,8 @@ import {
 import { handleDrawingEvent } from "./handle-drawing-event";
 import { handleSelectEvent } from "./handle-select-event";
 import { handleDragEvent } from "./handle-drag-event";
+import { handleScaleEvent } from "./handle-scale-event";
+import { handleRotateEvent } from "./handle-rotate-event";
 
 
 type MyGesturesProps = {
@@ -56,8 +59,8 @@ export const MyGestures = ({
   children,
 }: MyGesturesProps): React.ReactNode => {
 
-  const handleTapTapEvent = (event: GestureStateChangeEvent<TapGestureHandlerEventPayload>, state: string) => {
-    console.log("handleTapTapEvent event in", Platform.OS);
+  const handleDoubleTapEvent = (event: GestureStateChangeEvent<TapGestureHandlerEventPayload>, state: string) => {
+    // console.log("handleTapTapEvent event in", Platform.OS);
     handleSelectEvent(
       event,
       activeBoundaryBoxPath,
@@ -66,7 +69,7 @@ export const MyGestures = ({
   }
 
   const handlePanDrawingEvent = (event: GestureUpdateEvent<PanGestureHandlerEventPayload>, state: string) => {
-    console.log("handlePanDrawingEvent event in", Platform.OS);
+    // console.log("handlePanDrawingEvent event in", Platform.OS);
     handleDrawingEvent(
       event,
       state,
@@ -86,8 +89,33 @@ export const MyGestures = ({
   };
 
   const handlePanSelectEvent = (event: GestureUpdateEvent<PanGestureHandlerEventPayload>, state: string) => {
-    console.log("handlePanSelectEvent event in", Platform.OS);
+    // console.log("handlePanSelectEvent event in", Platform.OS);
     handleDragEvent(
+      event,
+      state,
+      editMode,
+      setSvgData,
+      activeBoundaryBoxPath,
+      setActiveBoundaryBoxPath,
+    );
+  };
+
+  const handlePinchScaleEvent = (event: GestureUpdateEvent<PinchGestureHandlerEventPayload>, state: string) => {
+    // console.log("handlePanSelectEvent event in", Platform.OS);
+    handleScaleEvent(
+      event,
+      state,
+      editMode,
+      setSvgData,
+      activeBoundaryBoxPath,
+      setActiveBoundaryBoxPath,
+    );
+  };
+
+
+  const handleRotateGestureEvent = (event: GestureUpdateEvent<RotationGestureHandlerEventPayload>, state: string) => {
+    console.log("handleRotateEvent event", event.rotation);
+    handleRotateEvent(
       event,
       state,
       editMode,
@@ -118,28 +146,19 @@ export const MyGestures = ({
 
 
   const doubleTapSelectGesture = Gesture.Tap()
-  doubleTapSelectGesture.numberOfTaps(2).onEnd((event) => handleTapTapEvent(event, "double-tapped"));
+  doubleTapSelectGesture.numberOfTaps(2).onEnd((event) => handleDoubleTapEvent(event, "double-tapped"));
 
 
   const pinchZoomGesture = Gesture.Pinch()
-    .onUpdate((event) => {
-      console.log("pinchZoomGesture onUpdate", event.scale);
-      // handle
-      // scale.value = savedScale.value * event.scale;
-    })
-    .onEnd(() => {
-      // savedScale.value = scale.value;
-    });
+  pinchZoomGesture.onBegin((event) => handlePinchScaleEvent(event, "began"))
+    .onUpdate((event) => handlePinchScaleEvent(event, "active"))
+    .onEnd((event) => handlePinchScaleEvent(event, "ended"));
+
 
   const rotateGesture = Gesture.Rotation()
-    .onUpdate((event) => {
-      console.log("rotateGesture onUpdate", event.rotation);
-      // rotation.value = savedRotation.value + event.rotation;
-    })
-    .onEnd(() => {
-      // savedRotation.value = rotation.value;
-    });
-
+  rotateGesture.onBegin((event) => handleRotateGestureEvent(event, "began"))
+    .onUpdate((event) => handleRotateGestureEvent(event, "active"))
+    .onEnd((event) => handleRotateGestureEvent(event, "ended"));
 
 
   const composedPanTap = Gesture.Simultaneous(doubleTapSelectGesture, panDragGesture, panDrawGesture)

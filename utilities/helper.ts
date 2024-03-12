@@ -189,6 +189,25 @@ export const getViewBoxTrimmed = (pathData: PathDataType[], offset=20) => {
   return viewBox;
 };
 
+export const scalePoints = (points:PointType[], scaleFactor: number) => {
+  return points.map((point) => {
+    return {
+      x: point.x * scaleFactor,
+      y: point.y * scaleFactor,
+    };
+  });
+}
+
+export const rotatePoints = (points: PointType[], angle: number) => {
+  const radian = angle; //(angle * Math.PI) / 180; It is already in radian
+  return points.map((point) => {
+    return {
+      x: point.x * Math.cos(radian) - point.y * Math.sin(radian),
+      y: point.x * Math.sin(radian) + point.y * Math.cos(radian),
+    };
+  });
+}
+
 
 /**
  * Compares two JSON arrays and returns the difference between them as a string.

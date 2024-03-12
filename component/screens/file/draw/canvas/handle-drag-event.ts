@@ -15,19 +15,19 @@ export const handleDragEvent = (
     state: string,
     editMode: boolean,
     setSvgData: { (value: SetStateAction<SvgDataType>): void; },
-    selectBoundaryBoxPath: PathDataType | null,
+    activeBoundaryBoxPath: PathDataType | null,
     setActiveBoundaryBoxPath: { (value: SetStateAction<PathDataType | null>): void; },
 ) => {
-    if (!selectBoundaryBoxPath || editMode) return;
+    if (!activeBoundaryBoxPath || editMode) return;
     switch (state) {
         case "began":
-            console.log("start pan began in", Platform.OS);
+            // console.log("start pan began in", Platform.OS);
             // track starting point
             startPoint.x = event.translationX;
             startPoint.y = event.translationY;
             break;
         case "active":
-            console.log("select pan active in", Platform.OS);
+            // console.log("select pan active in", Platform.OS);
             // track how x offset and y offset
             // apply to selected paths and boudary box
             const xOffset = event.translationX - startPoint.x;
@@ -39,7 +39,7 @@ export const handleDragEvent = (
             startPoint.x = event.translationX;
             startPoint.y = event.translationY;
 
-            const boundaryBoxPoints = getPointsFromPath(selectBoundaryBoxPath.path);
+            const boundaryBoxPoints = getPointsFromPath(activeBoundaryBoxPath.path);
             const movedBoundaryBox = boundaryBoxPoints.map((point) => {
                 return {
                     x: point.x + xOffset,
@@ -71,7 +71,7 @@ export const handleDragEvent = (
 
 
             setActiveBoundaryBoxPath({
-                ...selectBoundaryBoxPath,
+                ...activeBoundaryBoxPath,
                 path: movedBoundaryBoxPath,
             });
 
@@ -85,7 +85,7 @@ export const handleDragEvent = (
                     { x: CANVAS_WIDTH, y: 0 },
                 ]);
                 setActiveBoundaryBoxPath({
-                    ...selectBoundaryBoxPath,
+                    ...activeBoundaryBoxPath,
                     path: movedBoundaryBoxPath,
                 });
                 setSvgData((prev) => {

@@ -41,7 +41,6 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   } = props;
 
   const { svgData, setSvgData } = useContext(SvgDataContext);
-  // const [unselectedPaths, _setUnselectedPaths] = useState([] as PathDataType[]);
   const newPathData = () => createPathdata(stroke, strokeWidth, strokeOpacity);
 
   const [undonePaths, setUndonePaths] = useState([] as PathDataType[]);

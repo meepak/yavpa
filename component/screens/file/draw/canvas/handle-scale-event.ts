@@ -1,90 +1,58 @@
-// import { getPathFromPoints, getPointsFromPath } from "@u/helper";
-// import { PathDataType, PointType, SvgDataType } from "@u/types";
-// import { polygonCentroid, polygonLength } from "d3";
-// import { SetStateAction } from "react";
-// import { GestureStateChangeEvent, GestureUpdateEvent, PinchGestureHandlerEventPayload } from "react-native-gesture-handler";
-// import { SharedValue } from "react-native-reanimated";
-// import { debounce } from "lodash";
+import { PinchGestureHandlerEventPayload, GestureUpdateEvent } from "react-native-gesture-handler";
+import { SetStateAction } from "react";
+import { PathDataType, SvgDataType } from "@u/types";
+import { getPointsFromPath, getPathFromPoints, scalePoints } from "@u/helper";
+import * as Crypto from "expo-crypto";
 
-// export const handleSelectedPathScale = debounce((
-//     event: GestureStateChangeEvent<PinchGestureHandlerEventPayload> | GestureUpdateEvent<PinchGestureHandlerEventPayload>,
-//     state: string,
-//     scale: SharedValue<number>,
-//     savedScale: SharedValue<number>,
-//     setSvgData: { (value: SetStateAction<SvgDataType>): void; },
-//     activeBoundaryBoxPath: PathDataType | null,
-//     setActiveBoundaryBoxPath: { (value: SetStateAction<PathDataType | null>): void; },
-// ) => {
-//     if (!activeBoundaryBoxPath) { return; }
-//     // for scaling
-//     // first translate to focalPoint
-//     // scale around focalPoint
-//     // translate back to original position
-//     // for given points, focalpoint and scale, lets create a generic function to scale
-//     const applyScaling = (points: PointType[], focalPoint: PointType, scale: number) => {
-//         return points.map((point) => {
-//             const x = (point.x - focalPoint.x) * scale + focalPoint.x;
-//             const y = (point.y - focalPoint.y) * scale + focalPoint.y;
-//             return { x, y };
-//         });
-//     }
+let startScale = 1;
 
-//     switch (state) {
-//         case "began":
-//             // console.log('selected path scale began');
-//             break;
-//         case "active":
-//             // console.log('selected path scale active');
-//             scale.value = savedScale.value * event.scale;
+export const handleScaleEvent = (
+    event: GestureUpdateEvent<PinchGestureHandlerEventPayload>,
+    state: string,
+    editMode: boolean,
+    setSvgData: (value: SetStateAction<SvgDataType>) => void,
+    activeBoundaryBoxPath: PathDataType | null,
+    setActiveBoundaryBoxPath: (value: SetStateAction<PathDataType | null>) => void,
+) => {
+    if (!activeBoundaryBoxPath || editMode) return;
 
-//             //limit scale to 0.1 to 10
-//             if (scale.value < 0.1) {
-//                 scale.value = 0.1;
-//             } else if (scale.value > 10) {
-//                 scale.value = 10;
-//             }
+    switch (state) {
+        case "began":
+            // track starting scale
+            startScale = event.scale;
+            break;
+        case "active":
+            // calculate scale factor
+            const scaleFactor = event.scale / startScale;
 
-//             // const focalPoint = { x: event.focalX, y: event.focalY };
+            // scale boundary box
+            const boundaryBoxPoints = getPointsFromPath(activeBoundaryBoxPath.path);
+            const scaledBoundaryBox = scalePoints(boundaryBoxPoints, scaleFactor);
+            const scaledBoundaryBoxPath = getPathFromPoints(scaledBoundaryBox);
 
-//             const boundaryBoxPoints = getPointsFromPath(activeBoundaryBoxPath.path);
+            // scale selected paths
+            setSvgData((prev) => {
+                prev.pathData.forEach((item) => {
+                    if (item.selected === true) {
+                        const points = getPointsFromPath(item.path);
+                        const scaledPoints = scalePoints(points, scaleFactor);
+                        item.path = getPathFromPoints(scaledPoints);
+                        item.guid = Crypto.randomUUID();
+                    }
+                });
+                prev.metaData.updated_at = "";
+                return prev;
+            });
 
-//             // focal point should be center of the boundary box
-//             const polygonCentroids = polygonCentroid(boundaryBoxPoints.map(point => [point.x, point.y]));   
-//             const focalPoint = { x: polygonCentroids[0], y: polygonCentroids[1] };
+            setActiveBoundaryBoxPath({
+                ...activeBoundaryBoxPath,
+                path: scaledBoundaryBoxPath,
+            });
 
-//             const scaledBoundaryBox = applyScaling(boundaryBoxPoints, focalPoint, scale.value);
-
-//             // apply scale to the selected path
-//             // setSvgData((prev) => {
-//             //     const newPathData = prev.pathData.map((path) => {
-//             //         if(path.selected) {
-//             //             const points = getPointsFromPath(path.path);
-//             //             const scaledPoints = applyScaling(points, focalPoint, scale.value);
-//             //             const newPath = getPathFromPoints(scaledPoints);
-//             //             // calculate path length
-//             //             const length = polygonLength(scaledPoints.map(point => [point.x, point.y]));
-//             //             // adjust time proportionally based on scale
-//             //             const time = path.time * (1 / scale.value);
-//             //             return { ...path, path: newPath, length, time };
-//             //         }
-//             //         return path;
-//             //     });
-//             //     return { ...prev, pathData: newPathData };
-//             // });
-
-//             // update boundary box path
-//             const scaledBoundaryBoxPath = getPathFromPoints(scaledBoundaryBox);
-//             // console.log('scaledBoundaryBoxPath', scaledBoundaryBoxPath);
-//             setActiveBoundaryBoxPath({
-//                 ...activeBoundaryBoxPath,
-//                 path: scaledBoundaryBoxPath,
-//             });
-
-
-//             break;
-//         case "ended":
-//             savedScale.value = scale.value;
-//             // console.log('selected path scale end');
-//             break;
-//     }
-// },100);
+            // update starting scale for the next frame
+            startScale = event.scale;
+            break;
+        case "ended":
+            break;
+    }
+}
