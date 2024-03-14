@@ -198,13 +198,23 @@ export const scalePoints = (points:PointType[], scaleFactor: number) => {
   });
 }
 
-export const rotatePoints = (points: PointType[], angle: number) => {
-  const radian = angle; //(angle * Math.PI) / 180; It is already in radian
+export const rotatePoints = (points: PointType[], radianAngle: number, pivot:PointType = {x:0, y: 0}) => {
   return points.map((point) => {
-    return {
-      x: point.x * Math.cos(radian) - point.y * Math.sin(radian),
-      y: point.x * Math.sin(radian) + point.y * Math.cos(radian),
+    // Translate point back to origin
+    point.x -= pivot.x;
+    point.y -= pivot.y;
+
+    // Rotate point
+    const xnew = point.x * Math.cos(radianAngle) - point.y * Math.sin(radianAngle);
+    const ynew = point.x * Math.sin(radianAngle) + point.y * Math.cos(radianAngle);
+
+    // Translate point back
+    const rotatedPoint = {
+      x: xnew + pivot.x,
+      y: ynew + pivot.y,
     };
+
+    return rotatedPoint;
   });
 }
 

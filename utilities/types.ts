@@ -70,7 +70,7 @@ export type PathDataType = {
         color?: string; // font color
         startOffset?: string; // start offset
     };
-    selected?: boolean; // TODO handle this with selected path context or anything else but path prop
+    selected?: boolean; //TODO handle this with selected path context or anything else but path prop
 };
 
 export type MetaDataType = {
@@ -89,6 +89,7 @@ export type MetaDataType = {
 export type SvgDataType = {
     pathData: PathDataType[];
     metaData: MetaDataType;
+    updatedAt?:string; // TODO THIS IS BETTER THAN UPDATED AT WITHIN METADATA TO SEND BLANK, CHANGE OF THIS VALUE WILL 100% TRIGGER RERENDER
 };
 
 export interface SvgDataContextType {
@@ -124,12 +125,15 @@ export interface SvgAnimateHandle {
 export type BrushType = {
     name: 'LinearGradientBrush' |
     'RadialGradientBrush' |
-    'PatternBrush';
+    'PatternBrush'|'BlurBrush';
     params: GradientBrushPropType |
-    PatternBrushPropType;
+    PatternBrushPropType|
+    {guid: string};
 }
 
-export type GradientBrushPropType = { guid: string, colors: string[] };
+export type BlurBrushProp = {guid: string };
+
+export type GradientBrushPropType = { guid: string, colors: string[], gradientTransform?: string };
 
 export type PatternBrushPropType = { guid: string, pattern: number };
 

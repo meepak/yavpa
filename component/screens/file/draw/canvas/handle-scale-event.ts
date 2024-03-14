@@ -37,7 +37,7 @@ export const handleScaleEvent = (
                         const points = getPointsFromPath(item.path);
                         const scaledPoints = scalePoints(points, scaleFactor);
                         item.path = getPathFromPoints(scaledPoints);
-                        item.guid = Crypto.randomUUID();
+                        // item.guid = Crypto.randomUUID();
                     }
                 });
                 prev.metaData.updated_at = "";

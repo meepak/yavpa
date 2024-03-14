@@ -1,4 +1,4 @@
-import { CANVAS_HEIGHT, CANVAS_WIDTH, MAX_HEADER_HEIGHT, ScreenModes, SvgDataType } from "@u/types";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, ScreenModes } from "@u/types";
 import { ScreenModeType } from "@u/types";
 import { createSvgData, precise } from "@u/helper";
 import { getFile, saveSvgToFile } from "@u/storage";
@@ -6,13 +6,14 @@ import { SvgDataContext } from "@x/svg-data";
 import { DrawScreen, ExportScreen, Header, PreviewScreen } from "@c/screens/file";
 import { useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Crypto from "expo-crypto";
 import MyFilmStripView from "@c/my-film-strip-view";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import MyBlueButton from "@c/my-blue-button";
+import { handleSvgDragEvent } from "@c/screens/file/handle-svg-drag-event";
 
 
 const FileScreen = () => {
@@ -105,12 +106,19 @@ const FileScreen = () => {
     const pan = Gesture.Pan();
     pan.minPointers(2);
     pan.maxPointers(2);
-    pan.onChange((e) => {
-        console.log('from outside, pan change', e.translationX, e.translationY);
+    pan.onBegin((e) => {
+        console.log('from out side, pan begin', e);
+        handleSvgDragEvent(e, "began", setSvgData);
+    });
+    pan.onUpdate((e) => {
+        handleSvgDragEvent(e, "active", setSvgData);
+    });
+    pan.onEnd((e) => {
+        console.log('from out side, pan end', e);
+        handleSvgDragEvent(e, "end", setSvgData);
     });
     pan.initialize();
 
-    const zoomPan = Gesture.Race(pinch, pan);
     pinch.hitSlop(20);
     pinch.onBegin((e) => {
         console.log('from out side, pinch begin', e.scale);
@@ -129,6 +137,7 @@ const FileScreen = () => {
         //     setCanvasScale(e.scale);
         // }
     })
+    const zoomPan = Gesture.Race(pinch, pan);
 
 
     // console.log(controlButtons)
@@ -151,15 +160,15 @@ const FileScreen = () => {
         canvasScale !== 1 &&
         <MyBlueButton
             text={() => <Text style={{
-                    color: '#FFFFFF',
-                    fontSize: 18,
-                    fontWeight: 'bold',
-                    textTransform: 'uppercase',
-                    letterSpacing: 1,
-                    opacity: 1,
-                }}>
-                    {precise(canvasScale * 100, 0) + '%'}
-                </Text>
+                color: '#FFFFFF',
+                fontSize: 18,
+                fontWeight: 'bold',
+                textTransform: 'uppercase',
+                letterSpacing: 1,
+                opacity: 1,
+            }}>
+                {precise(canvasScale * 100, 0) + '%'}
+            </Text>
             }
             aligned="right"
             onPress={() => setCanvasScale(1)}

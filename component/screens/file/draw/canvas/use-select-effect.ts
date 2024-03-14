@@ -9,6 +9,7 @@ export const useSelectEffect = ({
   setSvgData,
   setIsLoading,
   setEditMode,
+  activeBoundaryBoxPath,
   setActiveBoundaryBoxPath,
   stroke,
   strokeWidth,
@@ -36,6 +37,8 @@ export const useSelectEffect = ({
       return;
     }
 
+
+
     // console.log('something selected fell through')
     let offset = maxStrokeWidth / 2;
     const vbbox = getViewBoxTrimmed(selectedPaths, offset);
@@ -51,7 +54,7 @@ export const useSelectEffect = ({
     rectPathData.strokeDasharray = "7,7";
     setEditMode(false);
     rectPathData.strokeDashoffset = 0; // boundaryBoxDashoffset;
-    // console.log('boumdary box path data', rectPathData);
+    console.log('boumdary box path data set from use select effect'); //, rectPathData);
     setActiveBoundaryBoxPath(rectPathData);
 
   }, [svgData]);

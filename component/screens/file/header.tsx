@@ -39,7 +39,7 @@ const Header = ({
     const [name, setName] = useState(title);
     const [screenMode, setScreenMode] = useState(initialScreenMode || ScreenModes[0]);
     const { svgData } = useContext(SvgDataContext);
-    const [buttonInstruction, setButtonInstruction] = useState("");
+    // const [buttonInstruction, setButtonInstruction] = useState("");
     const router = useRouter();
     const showToast = useContext(ToastContext);
 
@@ -47,19 +47,21 @@ const Header = ({
         setName(title);
     }, [title]);
 
-    useEffect(() => {
-        setScreenMode(initialScreenMode);
-        const name = initialScreenMode.name;
-        setButtonInstruction(ScreenModeInstruction[name]);
-    }, [initialScreenMode])
+    // useEffect(() => {
+    //     setScreenMode(initialScreenMode);
+    //     const name = initialScreenMode.name;
+    //     // setButtonInstruction(ScreenModeInstruction[name]);
+    // }, [initialScreenMode])
 
 
 
     const handleScreenModeButtonPress = () => {
         // console.log('screen mode button pressed')
         const currentScreenModeIndex = ScreenModes.findIndex((mode) => mode.name === screenMode.name);
-        if (ScreenModes[currentScreenModeIndex].name === "Draw") {
-            if (svgData.pathData.length === 0) {
+        if (currentScreenModeIndex >= 0 && ScreenModes[currentScreenModeIndex].name === "Draw") {
+            // get count of visible paths
+            const pathsOnScreen = svgData.pathData.reduce((acc, path) => path.visible ? acc + 1 : acc, 0);
+            if (pathsOnScreen === 0) {
                 showToast("Please draw something first!");
                 return;
             }
@@ -83,7 +85,7 @@ const Header = ({
     }
 
     // to get the same top position iOS  has insets.top included within header size
-    // whereas in android it's not??? 
+    // whereas in android it's not???
     // flatlist has to be bring down by 15 in iOS to align with bottom line
     const getBlueButtonIconProps = (screenMode) => {
 
@@ -98,6 +100,8 @@ const Header = ({
             desc = "press to EXPORT";
         } else if (screenMode.name === "Export") {
             desc = "press to DRAW";
+        } else if (screenMode.name === "locked") {
+            desc = "Press to UNLOCK";
         }
         return { desc, name };
     }

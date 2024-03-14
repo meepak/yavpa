@@ -2,7 +2,7 @@ import { PathDataType, SvgDataType } from "@u/types";
 import { SetStateAction } from "react";
 import { GestureStateChangeEvent, GestureUpdateEvent, TapGestureHandlerEventPayload } from "react-native-gesture-handler";
 import { getPointsFromPath } from "@u/helper";
-import * as polygon from 'd3-polygon';
+import { polygonContains } from 'd3-polygon';
 
 export const handleSelectEvent = (
   event: GestureStateChangeEvent<TapGestureHandlerEventPayload>,
@@ -14,17 +14,20 @@ export const handleSelectEvent = (
     y: event.y,
   }
 
+
   setSvgData((prev) => {
     let newPathData = [...prev.pathData];
     newPathData = newPathData.reverse(); // reverse the path data to start from the latest
+    // get current selected path index
     const activePathIndex = newPathData.findIndex(path => path.selected); // even if there are multiple active, we take first one as active
+    // unselect all path
     newPathData.forEach((path) => { path.selected = false; }); // unselect  current active paths
 
 
     const pathContainsPoint = (path) => {
       const points = getPointsFromPath(path);
       const d3Points = points.map((point) => [point.x, point.y] as [number, number]);
-      return polygon.polygonContains(d3Points, [tapPoint.x, tapPoint.y]);
+      return polygonContains(d3Points, [tapPoint.x, tapPoint.y]);
     }
 
     const selectPathIfContainsPoint = (i: number) => {
@@ -33,8 +36,10 @@ export const handleSelectEvent = (
           ...path,
           selected: index === i,
         }));
+        console.log('path selected');
         return true;
       }
+      console.log('nothing selected');
       return false;
     }
 

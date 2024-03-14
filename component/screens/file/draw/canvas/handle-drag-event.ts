@@ -47,7 +47,6 @@ export const handleDragEvent = (
                 };
             });
             const movedBoundaryBoxPath = getPathFromPoints(movedBoundaryBox);
-
             // move selected paths
 
             setSvgData((prev) => {
@@ -100,7 +99,7 @@ export const handleDragEvent = (
                             });
 
                             item.path = getPathFromPoints(movedPoints);
-                            item.guid = Crypto.randomUUID();
+                            // item.guid = Crypto.randomUUID();
                         }
                     });
                     prev.metaData.updated_at = "";

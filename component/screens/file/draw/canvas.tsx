@@ -37,7 +37,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     stroke = "#000000",
     simplifyTolerance = 0.0111,
     d3CurveBasis = null,
-    externalGesture: externalGesture = null,
+    externalGesture = null,
   } = props;
 
   const { svgData, setSvgData } = useContext(SvgDataContext);
@@ -82,6 +82,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     setSvgData,
     setIsLoading,
     setEditMode,
+    activeBoundaryBoxPath,
     setActiveBoundaryBoxPath,
     stroke,
     strokeWidth,
@@ -119,6 +120,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     d3CurveBasis,
     activeBoundaryBoxPath,
     setActiveBoundaryBoxPath,
+    externalGesture
   };
 
   return (
@@ -141,7 +143,12 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
                   {/* All drawings were drawn in this canvas with this viewbox
                 They need to be edited in this dimension,
                 we can save and play on whatever dimension we want, thus using fixed default viewbox*/}
-                  <Svg width='100%' height={'100%'} viewBox={CANVAS_VIEWBOX} onLayout={() => setIsLoading(false)}>
+                  <Svg
+                  width='100%'
+                  height={'100%'}
+                  viewBox={CANVAS_VIEWBOX}
+                  onLayout={() => setIsLoading(false)}
+                  >
 
                     {svgData.pathData.map((item, _index) => (
                       item.visible

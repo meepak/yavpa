@@ -3,7 +3,8 @@ import { Defs, LinearGradient, Pattern, RadialGradient, Stop, Image } from 'reac
 import { BrushType, GradientBrushPropType, PatternBrushPropType } from '../utilities/types';
 
 export const LinearGradientBrush =
-  ({ guid, colors }: GradientBrushPropType) => (
+  ({ guid, colors, gradientTransform = "rotate(0, 0, 0)" }: GradientBrushPropType) => {
+    return (
     <Defs key={guid}>
       <LinearGradient gradientUnits="objectBoundingBox" id={guid} x1="0%" y1="0%" x2="100%" y2="0%">
         {colors.map((color, index) => (
@@ -16,7 +17,7 @@ export const LinearGradientBrush =
         ))}
       </LinearGradient>
     </Defs>
-  );
+  )};
 
 export const RadialGradientBrush =
   ({ guid, colors }: { guid: string, colors: string[] }) => (
@@ -41,6 +42,23 @@ export const PatternBrush = ({ guid, pattern }: PatternBrushPropType) => (
     </Pattern>
   </Defs>
 );
+
+export const BlurBrush = ({guid}) => {
+  return (
+    <Defs key={guid}>
+      <LinearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="nnneon-grad">
+        <Stop stop-color="hsl(157, 100%, 54%)" stop-opacity="1" offset="0%"></Stop>
+        <Stop stop-color="hsl(331, 87%, 61%)" stop-opacity="1" offset="100%"></Stop>
+      </LinearGradient>
+      <filter id="nnneon-filter" x="-100%" y="-100%" width="400%" height="400%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feGaussianBlur stdDeviation="17 8" x="0%" y="0%" width="100%" height="100%" in="SourceGraphic" edgeMode="none" result="blur"></feGaussianBlur>
+      </filter>
+      <filter id="nnneon-filter2" x="-100%" y="-100%" width="400%" height="400%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feGaussianBlur stdDeviation="10 17" x="0%" y="0%" width="100%" height="100%" in="SourceGraphic" edgeMode="none" result="blur"></feGaussianBlur>
+      </filter>
+    </Defs>
+  );
+}
 
 export const getBrush = (brush: BrushType) => {
   switch (brush.name) {
@@ -114,6 +132,14 @@ export const Brushes: BrushType[] = [
     name: "RadialGradientBrush",
     params: { guid: "MYB9", colors: ["rgb(255,0,0)", "rgb(0,255,0)"] }
   },
+  {
+
+    name: "LinearGradientBrush",
+    params: { guid: "MYD1", colors: ["hsl(265, 55%, 30%)", "hsl(265, 55%, 60%)"], gradientTransform: "rotate(55, 0.5, 0.5)"  }
+  },
+  {
+    name: "BlurBrush", params: { guid: "NEOG1" }
+  }
   // {
   //   name: "RadialGradientBrush",
   //   params: {guid: "MYB2", colors: ["rgb(255,0,0)", "rgb(0,0,255)"] }

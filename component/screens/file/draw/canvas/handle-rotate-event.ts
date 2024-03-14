@@ -25,9 +25,18 @@ export const handleRotateEvent = (
             // calculate rotation angle
             const rotationAngle = event.rotation - startAngle;
 
+            const pivot = {x: event.anchorX, y: event.anchorY};
+
             // rotate boundary box
             const boundaryBoxPoints = getPointsFromPath(activeBoundaryBoxPath.path);
-            const rotatedBoundaryBox = rotatePoints(boundaryBoxPoints, rotationAngle);
+            // calculate center of the boundary box
+            // const pivot = boundaryBoxPoints.reduce((acc, point) => {
+            //     return {
+            //         x: acc.x + point.x,
+            //         y: acc.y + point.y,
+            //     };
+            // }, { x: 0, y: 0 });
+            const rotatedBoundaryBox = rotatePoints(boundaryBoxPoints, rotationAngle, pivot);
             const rotatedBoundaryBoxPath = getPathFromPoints(rotatedBoundaryBox);
 
             // rotate selected paths
@@ -35,9 +44,10 @@ export const handleRotateEvent = (
                 prev.pathData.forEach((item) => {
                     if (item.selected === true) {
                         const points = getPointsFromPath(item.path);
-                        const rotatedPoints = rotatePoints(points, rotationAngle);
+
+                        const rotatedPoints = rotatePoints(points, rotationAngle, pivot);
                         item.path = getPathFromPoints(rotatedPoints);
-                        item.guid = Crypto.randomUUID();
+                        // item.guid = Crypto.randomUUID();
                     }
                 });
                 prev.metaData.updated_at = "";
