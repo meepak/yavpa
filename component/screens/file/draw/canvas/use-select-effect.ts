@@ -1,5 +1,6 @@
 import { createPathdata, getViewBoxTrimmed } from "@u/helper";
 import { shapeData } from "@u/shapes";
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from "@u/types";
 import { getBoundaryBoxPath } from "@u/utility";
 import { useEffect, useRef, useState } from "react";
 
@@ -41,20 +42,29 @@ export const useSelectEffect = ({
 
     // console.log('something selected fell through')
     let offset = maxStrokeWidth / 2;
+    let rectPath;
+    if (selectedPaths.length < svgData.pathData.length) {
     const vbbox = getViewBoxTrimmed(selectedPaths, offset);
     const vbbPoints = vbbox.split(" ");
-    const rectPath = shapeData({
+    rectPath = shapeData({
       name: "rectangle",
       start: { x: parseFloat(vbbPoints[0]), y: parseFloat(vbbPoints[1]) },
       end: { x: parseFloat(vbbPoints[0]) + parseFloat(vbbPoints[2]), y: parseFloat(vbbPoints[1]) + parseFloat(vbbPoints[3]) }
-    });
+    });} else {
+      // take full canvas as boundary box
+      rectPath = shapeData({
+        name: "rectangle",
+        start: { x: 0, y: 0 },
+        end: { x: CANVAS_WIDTH, y: CANVAS_HEIGHT }
+      });
+    }
 
-    const rectPathData = createPathdata("#000000", 3, 1);
+    const rectPathData = createPathdata("#00CACB", 3, 1);
     rectPathData.path = rectPath;
     rectPathData.strokeDasharray = "7,7";
     setEditMode(false);
     rectPathData.strokeDashoffset = 0; // boundaryBoxDashoffset;
-    console.log('boumdary box path data set from use select effect'); //, rectPathData);
+    // console.log('boumdary box path data set from use select effect'); //, rectPathData);
     setActiveBoundaryBoxPath(rectPathData);
 
   }, [svgData]);

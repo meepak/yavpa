@@ -98,6 +98,18 @@ const CanvasContextMenu = ({
         console.log("deleteSelected")
     }
 
+    const adjustViewBox = () => {
+        setSvgData((prev) => {
+            prev.pathData.forEach((item) => {
+                    item.selected = true;
+            });
+            return {...prev, metaData: {...prev.metaData, updated_at: ""}};
+        });
+        setActiveBoundaryBoxPath(null);
+        close();
+        console.log("viewBoxSelected")
+    }
+
     const MenuItem = ({ height, text, onPress }) => (
         <><Pressable
             style={{
@@ -166,6 +178,8 @@ const CanvasContextMenu = ({
                     activeBoundaryBoxPath &&
                     <MenuItem height={25} text={'Delete'} onPress={deleteSelected} />
                 }
+
+                <MenuItem height={25} text={'Viewbox'} onPress={adjustViewBox} />
             </View>
         </Modal >
     )
