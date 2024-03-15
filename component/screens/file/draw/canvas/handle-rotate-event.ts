@@ -47,7 +47,7 @@ export const handleRotateEvent = (
 
                         const rotatedPoints = rotatePoints(points, rotationAngle, pivot);
                         item.path = getPathFromPoints(rotatedPoints);
-                        // item.guid = Crypto.randomUUID();
+                        item.updatedAt = new Date().toISOString();
                     }
                 });
                 prev.metaData.updated_at = "";

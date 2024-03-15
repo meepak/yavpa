@@ -6,7 +6,6 @@ import { BrushType, PathDataType } from "@u/types";
 import { isValidPath } from "@u/helper";
 
 class MyPath extends React.PureComponent<{prop: PathDataType, keyProp: string}> {
-
     render() {
       if(!isValidPath(this.props.prop.path)) {
         console.log("MyPath was given invalid path data - ", this.props.prop.path, " -", this.props.prop.guid);
@@ -20,7 +19,7 @@ class MyPath extends React.PureComponent<{prop: PathDataType, keyProp: string}> 
       }
 
       return (
-        <React.Fragment key={`${this.props.keyProp}-${this.props.prop.guid}`}>
+        <React.Fragment key={`${this.props.keyProp}-${this.props.prop.updatedAt}`}>
           {brush && getBrush(brush)}
           <Path
             d={this.props.prop.path}

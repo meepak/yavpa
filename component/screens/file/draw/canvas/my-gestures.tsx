@@ -1,26 +1,24 @@
 
-import { SetStateAction, useEffect } from "react";
+import { SetStateAction } from "react";
 import {
   Gesture,
   GestureDetector,
-  GestureStateChangeEvent,
   GestureUpdateEvent,
   PanGestureHandlerEventPayload,
-  PinchGestureHandlerEventPayload,
-  RotationGestureHandlerEventPayload,
-  TapGestureHandlerEventPayload,
 } from "react-native-gesture-handler";
 import {
   PathDataType,
   MetaDataType,
   SvgDataType,
-  ShapeType
+  ShapeType,
+  PointType
 } from "@u/types";
 import { handleDrawingEvent } from "./handle-drawing-event";
 import { handleSelectEvent } from "./handle-select-event";
 import { handleDragEvent } from "./handle-drag-event";
 import { handleScaleEvent } from "./handle-scale-event";
 import { handleRotateEvent } from "./handle-rotate-event";
+import { handleSvgDragEvent } from "./handle-svg-drag-event";
 
 
 type MyGesturesProps = {
@@ -38,7 +36,7 @@ type MyGesturesProps = {
   d3CurveBasis: string,
   activeBoundaryBoxPath: PathDataType | null,
   setActiveBoundaryBoxPath: (value: SetStateAction<PathDataType | null>) => void,
-  externalGesture: any,
+  setMenuPosition: (value: SetStateAction<PointType>) => void,
   children: React.ReactNode,
 };
 
@@ -57,21 +55,11 @@ export const MyGestures = ({
   d3CurveBasis,
   activeBoundaryBoxPath,
   setActiveBoundaryBoxPath,
-  externalGesture,
+  setMenuPosition,
   children,
 }: MyGesturesProps): React.ReactNode => {
 
-  const handleDoubleTapEvent = (event: GestureStateChangeEvent<TapGestureHandlerEventPayload>, state: string) => {
-    // console.log("handleTapTapEvent event in", Platform.OS);
-    handleSelectEvent(
-      event,
-      activeBoundaryBoxPath,
-      setSvgData,
-    );
-  }
-
   const handlePanDrawingEvent = (event: GestureUpdateEvent<PanGestureHandlerEventPayload>, state: string) => {
-    // console.log("handlePanDrawingEvent event in", Platform.OS);
     handleDrawingEvent(
       event,
       state,
@@ -90,45 +78,10 @@ export const MyGestures = ({
     );
   };
 
-  const handlePanSelectEvent = (event: GestureUpdateEvent<PanGestureHandlerEventPayload>, state: string) => {
-    // console.log("handlePanSelectEvent event in", Platform.OS);
-    handleDragEvent(
-      event,
-      state,
-      editMode,
-      setSvgData,
-      activeBoundaryBoxPath,
-      setActiveBoundaryBoxPath,
-    );
-  };
-
-  const handlePinchScaleEvent = (event: GestureUpdateEvent<PinchGestureHandlerEventPayload>, state: string) => {
-    // console.log("handlePanSelectEvent event in", Platform.OS);
-    handleScaleEvent(
-      event,
-      state,
-      editMode,
-      setSvgData,
-      activeBoundaryBoxPath,
-      setActiveBoundaryBoxPath,
-    );
-  };
-
-
-  const handleRotateGestureEvent = (event: GestureUpdateEvent<RotationGestureHandlerEventPayload>, state: string) => {
-    // console.log("handleRotateEvent event", event.rotation);
-    handleRotateEvent(
-      event,
-      state,
-      editMode,
-      setSvgData,
-      activeBoundaryBoxPath,
-      setActiveBoundaryBoxPath,
-    );
-  };
 
   const doubleTapSelectGesture = Gesture.Tap()
-  doubleTapSelectGesture.numberOfTaps(2).onEnd((event) => handleDoubleTapEvent(event, "double-tapped"));
+  doubleTapSelectGesture.numberOfTaps(2).onEnd((event) => handleSelectEvent(event, activeBoundaryBoxPath, setSvgData));
+
 
   const panDrawGesture = Gesture.Pan();
   panDrawGesture.shouldCancelWhenOutside(false);
@@ -143,51 +96,36 @@ export const MyGestures = ({
   panDragGesture.shouldCancelWhenOutside(false);
   panDragGesture.minPointers(1);
   panDragGesture.maxPointers(1);
-  panDragGesture.onBegin((event) => handlePanSelectEvent(event, "began"))
-    .onUpdate((event) => handlePanSelectEvent(event, "active"))
-    .onEnd((event) => handlePanSelectEvent(event, "ended"));
+  panDragGesture.onBegin((event) => handleDragEvent(event, "began", editMode, setSvgData, activeBoundaryBoxPath, setActiveBoundaryBoxPath ))
+    .onUpdate((event) => handleDragEvent(event, "active", editMode, setSvgData, activeBoundaryBoxPath, setActiveBoundaryBoxPath))
+    .onEnd((event) => handleDragEvent(event, "ended", editMode, setSvgData, activeBoundaryBoxPath, setActiveBoundaryBoxPath));
 
 
   const pinchZoomGesture = Gesture.Pinch()
-  pinchZoomGesture.onBegin((event) => handlePinchScaleEvent(event, "began"))
-    .onUpdate((event) => handlePinchScaleEvent(event, "active"))
-    .onEnd((event) => handlePinchScaleEvent(event, "ended"));
+  pinchZoomGesture.onBegin((event) => handleScaleEvent(event, "began", editMode, setSvgData, activeBoundaryBoxPath, setActiveBoundaryBoxPath))
+    .onUpdate((event) => handleScaleEvent(event, "active", editMode, setSvgData, activeBoundaryBoxPath, setActiveBoundaryBoxPath))
+    .onEnd((event) => handleScaleEvent(event, "ended", editMode, setSvgData, activeBoundaryBoxPath, setActiveBoundaryBoxPath));
 
 
   const rotateGesture = Gesture.Rotation()
-  rotateGesture.onBegin((event) => handleRotateGestureEvent(event, "began"))
-    .onUpdate((event) => handleRotateGestureEvent(event, "active"))
-    .onEnd((event) => handleRotateGestureEvent(event, "ended"));
+  rotateGesture.onBegin((event) => handleRotateEvent(event, "active", editMode, setSvgData, activeBoundaryBoxPath, setActiveBoundaryBoxPath))
+    .onUpdate((event) => handleRotateEvent(event, "began", editMode, setSvgData, activeBoundaryBoxPath, setActiveBoundaryBoxPath))
+    .onEnd((event) => handleRotateEvent(event, "ended", editMode, setSvgData, activeBoundaryBoxPath, setActiveBoundaryBoxPath));
 
-  const longPressGesture = Gesture.LongPress()
-  longPressGesture.onEnd((event) => console.log("long press ended", event))
+    const longPressGesture = Gesture.LongPress()
+    longPressGesture.onStart((event) => {
+      setMenuPosition({ x: event.x, y: event.y });
+    });
 
+  const composedPanTap = Gesture.Race(doubleTapSelectGesture, longPressGesture, panDragGesture)
+  const composedPinch = Gesture.Race(pinchZoomGesture, rotateGesture)
 
+  const composedGesture = Gesture.Simultaneous( panDrawGesture, composedPanTap, composedPinch)
 
-  useEffect(() => {
-    if(activeBoundaryBoxPath) {
-      panDragGesture.enabled(true);
-      pinchZoomGesture.enabled(true);
-      rotateGesture.enabled(true);
-      panDrawGesture.enabled(false);
-  externalGesture && externalGesture.pan.enabled(false);
-    } else {
-      panDragGesture.enabled(false);
-      pinchZoomGesture.enabled(false);
-      rotateGesture.enabled(false);
-      panDrawGesture.enabled(true);
-      // externalGesture && externalGesture.toGestureArray().forEach((g) => g.enabled(true));
-    }
-  }, [activeBoundaryBoxPath])
-
-  const composedPinch = Gesture.Simultaneous(pinchZoomGesture, rotateGesture)
-
-
-  const composed = Gesture.Race(doubleTapSelectGesture, panDrawGesture, panDragGesture, composedPinch);
-  composed.initialize();
+  composedGesture.initialize();
 
   return (
-    <GestureDetector gesture={composed}>
+    <GestureDetector gesture={composedGesture}>
         {children}
       </GestureDetector>
   );

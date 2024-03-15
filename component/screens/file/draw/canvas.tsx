@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, StyleSheet, ActivityIndicator } from "react-native";
+import { Text, View, StyleSheet, ActivityIndicator } from "react-native";
 import Svg from "react-native-svg";
 import { createPathdata } from "@u/helper";
-import { CANVAS_VIEWBOX, PathDataType, ShapeType } from "@u/types";
+import { CANVAS_VIEWBOX, PathDataType, PointType, ShapeType } from "@u/types";
 import MyPath from "@c/my-path";
 import { useCommandEffect } from "./canvas/use-command-effect";
 import { SvgDataContext } from "@x/svg-data";
@@ -10,6 +10,9 @@ import { defaultShape } from "@u/shapes";
 import { useSelectEffect } from "./canvas/use-select-effect";
 import { MyGestures } from "./canvas/my-gestures";
 import ErrorBoundary from "@c/error-boundary";
+import { ContextMenu } from "@c/controls";
+import Modal from "react-native-modal";
+import CanvasContextMenu from "./canvas/canvas-context-menu";
 
 
 type SvgCanvasProps = {
@@ -24,7 +27,6 @@ type SvgCanvasProps = {
   strokeOpacity?: number;
   simplifyTolerance?: number;
   d3CurveBasis?: any;
-  externalGesture?: any;
 };
 
 const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
@@ -37,7 +39,6 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     stroke = "#000000",
     simplifyTolerance = 0.0111,
     d3CurveBasis = null,
-    externalGesture = null,
   } = props;
 
   const { svgData, setSvgData } = useContext(SvgDataContext);
@@ -55,6 +56,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   const [activeBoundaryBoxPath, setActiveBoundaryBoxPath] = useState<PathDataType | null>(null)
   // const [boundaryBoxDashoffset, setBoundaryBoxDashoffset] = useState(5);
 
+  const [menuPosition, setMenuPosition] = useState<PointType>({ x: -999, y: -999 });
 
   // This is be enabled in next version only
   // erasure mode - erasure shape can be square or circle
@@ -120,8 +122,9 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     d3CurveBasis,
     activeBoundaryBoxPath,
     setActiveBoundaryBoxPath,
-    externalGesture
+    setMenuPosition
   };
+
 
   return (
     <View style={styles.container} pointerEvents="box-none">
@@ -144,15 +147,15 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
                 They need to be edited in this dimension,
                 we can save and play on whatever dimension we want, thus using fixed default viewbox*/}
                   <Svg
-                  width='100%'
-                  height={'100%'}
-                  viewBox={CANVAS_VIEWBOX}
-                  onLayout={() => setIsLoading(false)}
+                    width='100%'
+                    height={'100%'}
+                    viewBox={CANVAS_VIEWBOX}
+                    onLayout={() => setIsLoading(false)}
                   >
 
                     {svgData.pathData.map((item, _index) => (
                       item.visible
-                        ? <MyPath prop={item} keyProp={"completed-" + item.guid} key={item.guid} />
+                        ? <MyPath prop={item} keyProp={"completed-" + item.updatedAt} key={item.guid} />
                         : null
                     ))}
 
@@ -173,7 +176,15 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
             </MyGestures>
           )
       }
-    </View>
+     <CanvasContextMenu
+        activeBoundaryBoxPath={activeBoundaryBoxPath}
+        setActiveBoundaryBoxPath={setActiveBoundaryBoxPath}
+        menuPosition={menuPosition}
+        setMenuPosition={setMenuPosition}
+        svgData={svgData}
+        setSvgData={setSvgData}
+     />
+    </View >
   );
 };
 

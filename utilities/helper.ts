@@ -137,6 +137,21 @@ export const isShapeInsideCanvas = (path: string) => {
   return count >= d3Points.length * 0.25;
 }
 
+export const isPath1InsidePath2 = (path1: string, path2: string) => {
+  const points = getPointsFromPath(path1);
+  const d3Points = points.map((point) => [point.x, point.y] as [number, number]);
+  const path2Points = getPointsFromPath(path2);
+  const d3Path2Points = path2Points.map((point) => [point.x, point.y] as [number, number]);
+  let count = 0;
+  d3Points.forEach((point) => {
+    if (polygonContains(d3Path2Points, point)) {
+      count++;
+    }
+  });
+  return count >= d3Points.length * 0.25;
+
+}
+
 export const getLastPoint = (path: string) => {
   // split function to use a regular expression that splits the string
   // at the position before any SVG command letter.
@@ -189,34 +204,47 @@ export const getViewBoxTrimmed = (pathData: PathDataType[], offset=20) => {
   return viewBox;
 };
 
-export const scalePoints = (points:PointType[], scaleFactor: number) => {
+export const scalePoints = (points:PointType[], scaleFactor: number, focalPoint: PointType) => {
   return points.map((point) => {
+    // Translate so the focal point is at the origin
+    const translatedX = point.x - focalPoint.x;
+    const translatedY = point.y - focalPoint.y;
+
+    // Scale
+    const scaledX = translatedX * scaleFactor;
+    const scaledY = translatedY * scaleFactor;
+
+    // Translate back
+    const finalX = scaledX + focalPoint.x;
+    const finalY = scaledY + focalPoint.y;
+
     return {
-      x: point.x * scaleFactor,
-      y: point.y * scaleFactor,
+      x: precise(finalX),
+      y: precise(finalY),
     };
   });
 }
 
-export const rotatePoints = (points: PointType[], radianAngle: number, pivot:PointType = {x:0, y: 0}) => {
+export const rotatePoints = (points: PointType[], radianAngle: number, pivot: PointType = { x: 0, y: 0 }) => {
   return points.map((point) => {
-    // Translate point back to origin
-    point.x -= pivot.x;
-    point.y -= pivot.y;
+    // Translate point back to origin using a new object to avoid mutating the original
+    const translatedPoint = {
+      x: point.x - pivot.x,
+      y: point.y - pivot.y,
+    };
 
     // Rotate point
-    const xnew = point.x * Math.cos(radianAngle) - point.y * Math.sin(radianAngle);
-    const ynew = point.x * Math.sin(radianAngle) + point.y * Math.cos(radianAngle);
+    const xnew = translatedPoint.x * Math.cos(radianAngle) - translatedPoint.y * Math.sin(radianAngle);
+    const ynew = translatedPoint.x * Math.sin(radianAngle) + translatedPoint.y * Math.cos(radianAngle);
 
-    // Translate point back
-    const rotatedPoint = {
+    // Translate point back and return a new object
+    return {
       x: xnew + pivot.x,
       y: ynew + pivot.y,
     };
-
-    return rotatedPoint;
   });
-}
+};
+
 
 
 /**

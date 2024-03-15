@@ -25,9 +25,10 @@ export const handleScaleEvent = (
             // calculate scale factor
             const scaleFactor = event.scale / startScale;
 
+            const focalPoint = {x: event.focalX, y: event.focalY};
             // scale boundary box
             const boundaryBoxPoints = getPointsFromPath(activeBoundaryBoxPath.path);
-            const scaledBoundaryBox = scalePoints(boundaryBoxPoints, scaleFactor);
+            const scaledBoundaryBox = scalePoints(boundaryBoxPoints, scaleFactor, focalPoint);
             const scaledBoundaryBoxPath = getPathFromPoints(scaledBoundaryBox);
 
             // scale selected paths
@@ -35,12 +36,11 @@ export const handleScaleEvent = (
                 prev.pathData.forEach((item) => {
                     if (item.selected === true) {
                         const points = getPointsFromPath(item.path);
-                        const scaledPoints = scalePoints(points, scaleFactor);
+                        const scaledPoints = scalePoints(points, scaleFactor, focalPoint);
                         item.path = getPathFromPoints(scaledPoints);
-                        // item.guid = Crypto.randomUUID();
+                        item.updatedAt = new Date().toISOString();
                     }
                 });
-                prev.metaData.updated_at = "";
                 return prev;
             });
 
@@ -52,7 +52,10 @@ export const handleScaleEvent = (
             // update starting scale for the next frame
             startScale = event.scale;
             break;
-        case "ended":
+        case "ended": setSvgData((prev) => {
+            prev.metaData.updated_at = "";
+            return prev;
+        });
             break;
     }
 }

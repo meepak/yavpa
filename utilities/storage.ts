@@ -22,10 +22,10 @@ export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
     }
 
     // Clear the previous timeout
-    console.log('clearing timeout.');
+    // console.log('clearing timeout.');
     clearTimeout(saveTimeout);
 
-    console.log('saving file in 2 seconds.');
+    // console.log('saving file in 2 seconds.');
     // Set a new timeout
     saveTimeout = setTimeout(async () => {
         try {

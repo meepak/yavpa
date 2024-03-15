@@ -13,7 +13,6 @@ import * as Crypto from "expo-crypto";
 import MyFilmStripView from "@c/my-film-strip-view";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import MyBlueButton from "@c/my-blue-button";
-import { handleSvgDragEvent } from "@c/screens/file/handle-svg-drag-event";
 
 
 const FileScreen = () => {
@@ -102,42 +101,6 @@ const FileScreen = () => {
     }
 
 
-    const pinch = Gesture.Pinch();
-    const pan = Gesture.Pan();
-    pan.minPointers(2);
-    pan.maxPointers(2);
-    pan.onBegin((e) => {
-        console.log('from out side, pan begin', e);
-        handleSvgDragEvent(e, "began", setSvgData);
-    });
-    pan.onUpdate((e) => {
-        handleSvgDragEvent(e, "active", setSvgData);
-    });
-    pan.onEnd((e) => {
-        console.log('from out side, pan end', e);
-        handleSvgDragEvent(e, "end", setSvgData);
-    });
-    pan.initialize();
-
-    pinch.hitSlop(20);
-    pinch.onBegin((e) => {
-        console.log('from out side, pinch begin', e.scale);
-        pinch.shouldCancelWhenOutside(false);
-    });
-    pinch.onChange((e) => {
-        // console.log('pinch change', e.scale);
-        if (e.scale > 0.4 && e.scale < 4) {
-            setCanvasScale(e.scale);
-        }
-
-    });
-    pinch.onUpdate((e) => {
-        // enable edit mode
-        // if (e.scale > 0.4 && e.scale < 4) {
-        //     setCanvasScale(e.scale);
-        // }
-    })
-    const zoomPan = Gesture.Race(pinch, pan);
 
 
     // console.log(controlButtons)
@@ -149,7 +112,7 @@ const FileScreen = () => {
                 return <ExportScreen initControls={setControlButtons} />
             case ScreenModes[0].name: // Draw
             default:
-                return <DrawScreen zoom={canvasScale} initControls={setControlButtons} externalGesture={{ pinch: pinch, pan: pan }} />
+                return <DrawScreen zoom={canvasScale} initControls={setControlButtons} />
                 break;
         }
     }, [currentScreenMode]);
@@ -217,12 +180,10 @@ const FileScreen = () => {
                             </Text>
                             <ZoomScaleText />
 
-                            <GestureDetector gesture={zoomPan}>
                                 <View
                                     style={{
                                         width: CANVAS_WIDTH,
                                         height: CANVAS_HEIGHT,
-                                        transform: [{ scale: canvasScale }],
                                         borderWidth: 1,
                                         borderColor: 'rgba(0,0,0,0.5)',
                                         // ...elevations[7],
@@ -239,8 +200,6 @@ const FileScreen = () => {
                                     }}>
                                     {getCurrentScreen()}
                                 </View>
-                            </GestureDetector>
-
                         </View>
                     </ViewDecoration>
                     :

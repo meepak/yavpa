@@ -61,7 +61,7 @@ export const handleDragEvent = (
                     });
 
                     item.path = getPathFromPoints(movedPoints);
-                    item.guid = Crypto.randomUUID();
+                    item.updatedAt = new Date().toISOString();
                   }
                 });
                 prev.metaData.updated_at = "";
@@ -73,39 +73,6 @@ export const handleDragEvent = (
                 ...activeBoundaryBoxPath,
                 path: movedBoundaryBoxPath,
             });
-
-            // if boundary Box has moved more than halfway outside canvas, bring them back in
-            if (movedBoundaryBox[0].x < 0 || movedBoundaryBox[0].y < 0) {
-                // console.log("out of canvas");
-                const movedBoundaryBoxPath = getPathFromPoints([
-                    { x: 0, y: 0 },
-                    { x: 0, y: CANVAS_HEIGHT },
-                    { x: CANVAS_WIDTH, y: CANVAS_HEIGHT },
-                    { x: CANVAS_WIDTH, y: 0 },
-                ]);
-                setActiveBoundaryBoxPath({
-                    ...activeBoundaryBoxPath,
-                    path: movedBoundaryBoxPath,
-                });
-                setSvgData((prev) => {
-                    prev.pathData.forEach((item) => {
-                        if (item.selected === true) {
-                            const points = getPointsFromPath(item.path);
-                            const movedPoints = points.map((point) => {
-                                return {
-                                    x: point.x + xOffset,
-                                    y: point.y + yOffset,
-                                };
-                            });
-
-                            item.path = getPathFromPoints(movedPoints);
-                            // item.guid = Crypto.randomUUID();
-                        }
-                    });
-                    prev.metaData.updated_at = "";
-                    return prev;
-                });
-            }
 
             break;
         case "ended":

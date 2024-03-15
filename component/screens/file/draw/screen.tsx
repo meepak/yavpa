@@ -6,7 +6,7 @@ import { AvailableShapes, PathDataType } from "@u/types";
 import { SvgDataContext } from "@x/svg-data";
 
 
-const DrawScreen = ({ zoom, initControls, externalGesture }) => {
+const DrawScreen = ({ zoom, initControls }) => {
   const [stroke, setStroke] = useState("#000000");
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [strokeOpacity, setStrokeOpacity] = useState(1);
@@ -97,8 +97,7 @@ const DrawScreen = ({ zoom, initControls, externalGesture }) => {
           strokeWidth={strokeWidth}
           strokeOpacity={strokeOpacity}
           simplifyTolerance={simplifyTolerance}
-          d3CurveBasis={d3CurveBasis} 
-          externalGesture={externalGesture}
+          d3CurveBasis={d3CurveBasis}
           />
       </View>
   );

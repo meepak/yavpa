@@ -137,7 +137,7 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
 
         {/*TODO DURING APP START UP CHOOSE ONE SET OF STYLE RANDOMLY AND STICK WITH IT TILL APPLICATION RESTARTS*/}
         <Modal
-          isVisible={this.state.menuVisible} 
+          isVisible={this.state.menuVisible}
           coverScreen={true}
           hasBackdrop={true}
           backdropColor='rgba(0,0,0,0.5)'
@@ -149,7 +149,8 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
           useNativeDriverForBackdrop
           >
           <GestureHandlerRootView style={{
-            width: '100%', height: '100%',
+            width: '100%',
+            height: '100%',
             overflow: 'visible',
           }}>
             <TouchableWithoutFeedback onPress={this.hideMenu}>

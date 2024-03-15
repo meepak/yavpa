@@ -48,6 +48,7 @@ export type ScreenModeType = { name: string, icon: string };
 
 
 export type PathDataType = {
+    updatedAt?: string; // primarily used for rendering purpose a
     path: string; // svg path, e.g. "M0,0 L100,100" only contains M & L commands
     length: number; // length of the path calculated by summing distance between two consecutive points
     time: number; // total time in ms taken to draw the path

@@ -8,12 +8,22 @@ export const handleSelectEvent = (
   event: GestureStateChangeEvent<TapGestureHandlerEventPayload>,
   activeBoundaryBoxPath: PathDataType | null,
   setSvgData: { (value: SetStateAction<SvgDataType>): void; },
+  pointers
 ) => {
   const tapPoint = {
     x: event.x,
     y: event.y,
   }
 
+  if(pointers > 1) {
+    // set all paths selected and return
+    setSvgData((prev) => {
+      let newPathData = [...prev.pathData];
+      newPathData.forEach((path) => { path.selected = true; });
+      return { ...prev, pathData: newPathData };
+    });
+    return;
+  }
 
   setSvgData((prev) => {
     let newPathData = [...prev.pathData];

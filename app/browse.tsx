@@ -22,6 +22,7 @@ import MyPreview from "@c/my-preview";
 import CreativeVoid from "@c/creative-void/creative-void";
 import elevations from "@u/elevation";
 import MyBlueButton from "@c/my-blue-button";
+import MyPathMorph from "@c/my-path-morph";
 
 const PARALLAX_HEIGHT = 238;
 const HEADER_BAR_HEIGHT = 92;
@@ -168,7 +169,6 @@ const BrowseScreen = () => {
     </View>
   ), [scrollValue]);
 
-  
   return (
     <View style={StyleSheet.absoluteFill}>
       <View style={[styles.headerBarContainer, { width: SCREEN_WIDTH}]}>

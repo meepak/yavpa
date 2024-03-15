@@ -76,7 +76,7 @@ const CirclePath = (start: PointType, end: PointType):string => {
     const circlePoints: PointType[] = [];
     const step = 360 / points;
     for (let angle = 0; angle <= 360; angle += step) {
-        const radian = (angle * Math.PI) / 180; 
+        const radian = (angle * Math.PI) / 180;
         const x = start.x + radius * Math.cos(radian);
         const y = start.y + radius * Math.sin(radian);
         circlePoints.push({ x, y });
@@ -88,7 +88,7 @@ const StarPath = (start: PointType, end: PointType, N = 6):string => {
     const outerRadius = calculateDistance(start, end);
     const innerRadius = outerRadius / (N / 2);
     const points: PointType[] = [];
-    const angleStep = Math.PI / N; 
+    const angleStep = Math.PI / N;
     // Calculate the angle between the start and end points
     const startAngle = Math.atan2(end.y - start.y, end.x - start.x);
 
@@ -114,9 +114,9 @@ const HeartPath = (start: PointType, end: PointType):string => {
     const startAngle = Math.PI / 2 - Math.atan2(dy, dx);
 
     for (let i = 0; i <= steps; i++) {
-        const t = (i / steps) * 2 * Math.PI; 
+        const t = (i / steps) * 2 * Math.PI;
         const x = 16 * Math.pow(Math.sin(t), 3);
-        const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t); 
+        const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
         // Rotate the points
         const rotatedX = x * Math.cos(startAngle) - y * Math.sin(startAngle);
         const rotatedY = x * Math.sin(startAngle) + y * Math.cos(startAngle);
