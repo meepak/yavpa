@@ -31,14 +31,14 @@ const FileScreen = () => {
 
     //****************************IMPORTANT********************************** */
     // If you are updating svgData through context and if it requires saving to file
-    // set the updated_at date to blank, so that it will be saved to file
+    // set the updatedAt date to blank, so that it will be saved to file
     useEffect(() => {
         const saveData = async () => {
             await saveSvgToFile(svgData);
-            // setSvgData({ ...svgData, metaData: { ...svgData.metaData, updated_at: Date.now().toString() } });
+            // setSvgData({ ...svgData, metaData: { ...svgData.metaData, updatedAt: Date.now().toString() } });
         };
 
-        if (svgData && svgData.metaData && svgData.metaData.guid != "" && svgData.metaData.updated_at === "") {
+        if (svgData && svgData.metaData && svgData.metaData.guid != "" && svgData.metaData.updatedAt === "") {
             saveData();
         }
     }, [svgData]);
@@ -97,7 +97,7 @@ const FileScreen = () => {
             return;
         }
         console.log('name changed to ', name);
-        setSvgData((prev) => ({ ...prev, metaData: { ...prev.metaData, name, updated_at: "" } }));
+        setSvgData((prev) => ({ ...prev, metaData: { ...prev.metaData, name, updatedAt: "" } }));
     }
 
 
@@ -187,7 +187,7 @@ const FileScreen = () => {
                                         borderWidth: 1,
                                         borderColor: 'rgba(0,0,0,0.5)',
                                         // ...elevations[7],
-                                        // shadowColor: "#000000",
+                                        // shadowColor: "#120e31",
                                         // backgroundColor: 'rgba(255,255,255,0.5)',
                                         // shadowOffset: {
                                         //   width: 0,

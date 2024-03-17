@@ -1,6 +1,18 @@
 import { Linecap, Linejoin } from "react-native-svg";
-import { Dimensions } from "react-native";
+import { Dimensions, Platform } from "react-native";
 
+
+
+
+export const I_AM_ANDROID = Platform.OS === "android";
+export const I_AM_IOS = Platform.OS === "ios";
+
+export enum Orientation {
+    PORTRAIT_UP = "PORTRAIT_UP",
+    PORTRAIT_DOWN = "PORTRAIT_DOWN",
+    LANDSCAPE_UP = "LANDSCAPE_UP",
+    LANDSCAPE_DOWN = "LANDSCAPE_DOWN",
+}
 
 export const PRECISION = 3;
 // ---- fix for the canvas size ---------------------
@@ -77,7 +89,7 @@ export type PathDataType = {
 export type MetaDataType = {
     guid: string; // unique identifier for each svg
     created_at: string; // timestamp when svg was created
-    updated_at: string; // timestamp when svg was last updated
+    updatedAt: string; // timestamp when svg was last updated
     name: string; // name of the svg
     viewBox: string; // default viewBox of the svg
     viewBoxTrimmed?: string; // viewBox of the svg after trimming
@@ -159,18 +171,19 @@ export const AvailableShapes = [
     'star-10',
 ];
 
-export const ModalAnimations: ModalAnimationType[] = [
-    "bounce", "flash", "jello", "pulse", "rotate", "rubberBand", "shake",
-    "swing", "tada", "wobble", "bounceIn", "bounceInDown", "bounceInUp",
-    "bounceInLeft", "bounceInRight", "bounceOut", "bounceOutDown",
-    "bounceOutUp", "bounceOutLeft", "bounceOutRight", "fadeIn",
-    "fadeInDown", "fadeInDownBig", "fadeInUp", "fadeInUpBig", "fadeInLeft",
-    "fadeInLeftBig", "fadeInRight", "fadeInRightBig", "fadeOut",
-    "fadeOutDown", "fadeOutDownBig", "fadeOutUp", "fadeOutUpBig", "fadeOutLeft",
-    "fadeOutLeftBig", "fadeOutRight", "fadeOutRightBig", "flipInX", "flipInY",
-    "flipOutX", "flipOutY", "lightSpeedIn", "lightSpeedOut", "slideInDown",
-    "slideInUp", "slideInLeft", "slideInRight", "slideOutDown", "slideOutUp",
-    "slideOutLeft", "slideOutRight", "zoomIn", "zoomInDown", "zoomInUp",
-    "zoomInLeft", "zoomInRight", "zoomOut", "zoomOutDown", "zoomOutUp",
-    "zoomOutLeft", "zoomOutRight"];
+export const ModalAnimations: any = {
+    bounce: "bounce", flash: "flash", jello: "jello", pulse: "pulse", rotate: "rotate", rubberBand: "rubberBand", shake: "shake",
+    swing: "swing", tada: "tada", wobble: "wobble", bounceIn: "bounceIn", bounceInDown: "bounceInDown", bounceInUp: "bounceInUp",
+    bounceInLeft: "bounceInLeft", bounceInRight: "bounceInRight", bounceOut: "bounceOut", bounceOutDown: "bounceOutDown",
+    bounceOutUp: "bounceOutUp", bounceOutLeft: "bounceOutLeft", bounceOutRight: "bounceOutRight", fadeIn: "fadeIn",
+    fadeInDown: "fadeInDown", fadeInDownBig: "fadeInDownBig", fadeInUp: "fadeInUp", fadeInUpBig: "fadeInUpBig", fadeInLeft: "fadeInLeft",
+    fadeInLeftBig: "fadeInLeftBig", fadeInRight: "fadeInRight", fadeInRightBig: "fadeInRightBig", fadeOut: "fadeOut",
+    fadeOutDown: "fadeOutDown", fadeOutDownBig: "fadeOutDownBig", fadeOutUp: "fadeOutUp", fadeOutUpBig: "fadeOutUpBig", fadeOutLeft: "fadeOutLeft",
+    fadeOutLeftBig: "fadeOutLeftBig", fadeOutRight: "fadeOutRight", fadeOutRightBig: "fadeOutRightBig", flipInX: "flipInX", flipInY: "flipInY",
+    flipOutX: "flipOutX", flipOutY: "flipOutY", lightSpeedIn: "lightSpeedIn", lightSpeedOut: "lightSpeedOut", slideInDown: "slideInDown",
+    slideInUp: "slideInUp", slideInLeft: "slideInLeft", slideInRight: "slideInRight", slideOutDown: "slideOutDown", slideOutUp: "slideOutUp",
+    slideOutLeft: "slideOutLeft", slideOutRight: "slideOutRight", zoomIn: "zoomIn", zoomInDown: "zoomInDown", zoomInUp: "zoomInUp",
+    zoomInLeft: "zoomInLeft", zoomInRight: "zoomInRight", zoomOut: "zoomOut", zoomOutDown: "zoomOutDown", zoomOutUp: "zoomOutUp",
+    zoomOutLeft: "zoomOutLeft", zoomOutRight: "zoomOutRight"
+};
 

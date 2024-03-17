@@ -1,17 +1,11 @@
-import { LinearGradient } from "expo-linear-gradient";
-import { StyleSheet, Dimensions, Platform } from "react-native";
 import { Linecap, Linejoin } from "react-native-svg";
 import * as Crypto from "expo-crypto";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, CANVAS_VIEWBOX, PRECISION, PointType, ScreenModes, TransitionType, ModalAnimations } from "./types";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, CANVAS_VIEWBOX, PRECISION, PointType, ScreenModes, TransitionType, SCREEN_WIDTH, SCREEN_HEIGHT, Orientation } from "./types";
 import { PathDataType, SvgDataType } from "./types";
-import { polygonContains } from "d3";
-
-// TODO move this to constants
-const screenWidth = Dimensions.get("window").width;
-const screenHeight = Dimensions.get("window").height;
-
-export const isAndroid = Platform.OS === "android";
-export const isIOS = Platform.OS === "ios";
+import { polygonContains, polygonLength } from "d3-polygon";
+import path from "path";
+import { Accelerometer } from "expo-sensors";
+import simplify from "simplify-js";
 
 
 export const createSvgData = (): SvgDataType => ({
@@ -19,7 +13,7 @@ export const createSvgData = (): SvgDataType => ({
   metaData: {
     guid: "",
     created_at: Date.now().toString(),
-    updated_at: Date.now().toString(),
+    updatedAt: Date.now().toString(),
     name: "",
     viewBox: `0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`,
     lastScreenMode: ScreenModes[0].name,
@@ -47,7 +41,7 @@ export const createPathdata = (
   strokeDashoffset?: number | undefined,
 ): PathDataType => ({
   path: "",
-  stroke: stroke ?? "#000000",
+  stroke: stroke ?? "#120e31",
   strokeWidth: strokeWidth ?? 2,
   strokeOpacity: strokeOpacity ?? 1,
   strokeCap: strokeCap ?? "round", // other support in next version only
@@ -71,52 +65,80 @@ export const isValidPath = (path: string): boolean => {
   let p = path.toUpperCase();
   if (p === "M" || p === "MZ") return false;
   // add any other issue that may happen with path
+  if (path.includes('NaN')) return false;
   return true;
 }
-
 export const getPathFromPoints = (points: PointType[]) => {
-  // check if its a closed path
   const isClosed = points[0].x === points[points.length - 1].x && points[0].y === points[points.length - 1].y;
-  // remove the last point if its a closed path
-  if (isClosed) {
-    points = points.slice(0, -1);
-  }
-  let path = points.map(({ x, y }) => `L${precise(x as unknown as string)},${precise(y as unknown as string)}`).join("");
-  // attach M at front
+  let path = points.map(({ x, y }, index) => {
+    if (isClosed && index === points.length - 1) return '';
+    return `L${precise(x as unknown as string)},${precise(y as unknown as string)}`;
+  }).join("");
   path = `M${path.slice(1)}`;
-  // attach Z at end if its a closed path
   if (isClosed) {
     path = `${path}Z`;
   }
   return path;
-};
-
-export const getPointsFromPath = (path: string): PointType[] => {
-  path = path.trim().toUpperCase();
-  // is command closed
-  const isClosed = path[path.length - 1] === "Z";
-  // remove Z command
-  path = isClosed ? path.slice(0, -1) : path;
-  const commands = path.split(/(?=[MLC])/); // Split on M, L, or C
-  const points = commands.map((command) => {
-    const type = command[0];
-    const coords = command.slice(1).split(",").map(Number);
-    if (type === "C") {
-      // For C commands, return the last pair of coordinates
-      return { x: coords[4], y: coords[5] };
-    } else {
-      // For M and L commands, return the coordinates
-      return { x: coords[0], y: coords[1] };
-    }
-  });
-  // Add the first point to the end of the array if the path is closed
-  if (isClosed) {
-    points.push(points[0]);
-  }
-  return points;
 }
 
+// TODO DEFINE RESOLUTION & TOLERANCE AS USER CONFIG
+export const getPointsFromPath = (path: string, resolution: number = 100, simplifyTolerance: number = 0.011): PointType[] => {
+  if (typeof path !== "string") { return []; }
+  if (path === "") { return []; }
+  path = path.trim();
+  const commands = path.split(/(?=[MLCZ])/i);
+  let firstPoint: PointType | null = null;
+  let previousPoint: PointType | null = null;
+  const points: PointType[] = [];
+  commands.forEach((command) => {
+    const type = command[0].toUpperCase();
+    const coords = command.slice(1).split(",").map(Number);
+    let point: PointType | null = null;
+    switch (type) {
+      case "C":
+        const cPoints:PointType[] = [];
+        for (let t = 0; t <= resolution; t++) {
+          const s = t / resolution;
+          const x = Math.pow(1 - s, 3) * (previousPoint?.x || 0) + 3 * Math.pow(1 - s, 2) * s * coords[0] + 3 * (1 - s) * Math.pow(s, 2) * coords[2] + Math.pow(s, 3) * coords[4];
+          const y = Math.pow(1 - s, 3) * (previousPoint?.y || 0) + 3 * Math.pow(1 - s, 2) * s * coords[1] + 3 * (1 - s) * Math.pow(s, 2) * coords[3] + Math.pow(s, 3) * coords[5];
+          points.push({ x, y });
+        }
+        point = { x: coords[4], y: coords[5] };
+        break;
+      case "M":
+      case "L":
+        point = { x: coords[0], y: coords[1] };
+        points.push(point);
+        if (firstPoint === null) {
+          firstPoint = point;
+        }
+        break;
+      case "Z":
+        if (firstPoint !== null) {
+          points.push(firstPoint);
+        }
+        break;
+      default:
+        point = null;
+    }
+    previousPoint = point;
+  });
 
+
+  // console.log(points.length, "Points");
+
+  //simplify cPoints to reduce number of points
+  const simplifiedPoints = simplify(points, simplifyTolerance);
+
+  // console.log(simplifiedPoints.length, "simplifiedPoints");
+
+  return simplifiedPoints;
+};
+
+
+export const getPathLength = (points: PointType[]): number => {
+  return polygonLength(points.map(point => [point.x, point.y]))
+}
 
 export const pathContainsPoint = (path: string, checkPoint: PointType) => {
   const points = getPointsFromPath(path);
@@ -165,9 +187,9 @@ export const getLastPoint = (path: string) => {
   return { commandType, x: precise(x), y: precise(y) };
 };
 
-export const getViewBoxTrimmed = (pathData: PathDataType[], offset=20) => {
-  let minX = CANVAS_WIDTH ?? screenWidth;
-  let minY = CANVAS_HEIGHT ?? screenHeight;
+export const getViewBoxTrimmed = (pathData: PathDataType[], offset = 20) => {
+  let minX = CANVAS_WIDTH ?? SCREEN_WIDTH;
+  let minY = CANVAS_HEIGHT ?? SCREEN_HEIGHT;
   let maxX = 0;
   let maxY = 0;
   // let offset = 20;
@@ -196,23 +218,23 @@ export const getViewBoxTrimmed = (pathData: PathDataType[], offset=20) => {
   const r = (value) => Math.round(value);
   minX = r(minX) ?? 0;
   minY = r(minY) ?? 0;
-  maxX = r(maxX) ?? CANVAS_WIDTH ?? screenWidth;
-  maxY = r(maxY) ?? CANVAS_HEIGHT ?? screenHeight;
+  maxX = r(maxX) ?? CANVAS_WIDTH ?? SCREEN_WIDTH;
+  maxY = r(maxY) ?? CANVAS_HEIGHT ?? SCREEN_HEIGHT;
 
   const viewBox = `${minX - offset} ${minY - offset} ${maxX - minX + 2 * offset} ${maxY - minY + 2 * offset}`;
   // console.log("viewBox trimmed", viewBox);
   return viewBox;
 };
 
-export const scalePoints = (points:PointType[], scaleFactor: number, focalPoint: PointType) => {
+export const scalePoints = (points: PointType[], scaleFactorX: number, scaleFactorY: number, focalPoint: PointType) => {
   return points.map((point) => {
     // Translate so the focal point is at the origin
     const translatedX = point.x - focalPoint.x;
     const translatedY = point.y - focalPoint.y;
 
     // Scale
-    const scaledX = translatedX * scaleFactor;
-    const scaledY = translatedY * scaleFactor;
+    const scaledX = translatedX * scaleFactorX;
+    const scaledY = translatedY * scaleFactorY;
 
     // Translate back
     const finalX = scaledX + focalPoint.x;
@@ -257,7 +279,7 @@ export const jsonDeepCompare = (json1: any, json2: any, log = false) => {
   const stringDifference = (a: string, b: string) => {
     const set = new Set([...a, ...b]);
     const diff = [...set].filter((char) => !a.includes(char) || !b.includes(char)).join("");
-    if(log) {
+    if (log) {
       console.log("Difference", diff);
     }
     return diff === "";
@@ -269,84 +291,86 @@ export const jsonDeepCompare = (json1: any, json2: any, log = false) => {
 }
 
 
-export function parseSvgData(svgData: any, update_updated_at = false): SvgDataType {
+export function parseSvgData(svgData: any, update_updatedAt = false): SvgDataType {
   const isValid = (val: any) => (val !== null && val !== undefined && (val || val === false));
 
   ///check if svgData has pathData and if not set default values
   if (!isValid(svgData.pathData) && !Array.isArray(svgData.pathData)) {
-      svgData.pathData = [];
+    svgData.pathData = [];
   }
 
   // filter out invalid path string
   svgData.pathData = svgData.pathData.filter((pathData: any) => {
-      return isValidPath(pathData.path);
+    return isValidPath(pathData.path);
   });
 
   //check if pathData is of type PathDataType else set default values
   svgData.pathData = svgData.pathData.map((pathData: any) => {
-      if (!isValid(pathData.stroke)) {
-          pathData.stroke = "#000000";
-      }
-      if (!isValid(pathData.strokeWidth)) {
-          pathData.strokeWidth = 2;
-      }
-      if (!isValid(pathData.length)) {
-          pathData.length = 0;
-      }
-      if (!isValid(pathData.time)) {
-          pathData.time = 0;
-      }
-      if (!isValid(pathData.visible)) {
-          pathData.visible = false;
-      }
-      if (!isValid(pathData.guid) || pathData.guid === "") {
-          pathData.guid = Crypto.randomUUID();
-      }
+    if (!isValid(pathData.stroke)) {
+      pathData.stroke = "#120e31";
+    }
+    if (!isValid(pathData.strokeWidth)) {
+      pathData.strokeWidth = 2;
+    }
+    if (!isValid(pathData.length)) {
+      pathData.length = 0;
+    }
+    if (!isValid(pathData.time)) {
+      pathData.time = 0;
+    }
+    if (!isValid(pathData.visible)) {
+      pathData.visible = false;
+    }
+    if (!isValid(pathData.guid) || pathData.guid === "") {
+      pathData.guid = Crypto.randomUUID();
+    }
 
-      // we don't want to save dashArray & dashArrayOffset, WHY NOT??
-      pathData.strokeDasharray = undefined;
-      pathData.strokeDashoffset = undefined;
-      // we want all path to be unselected when saved and when loaded
-      // SELECTED IS GOING TO BE EXCEPTION SHOULD BE TRACKED SEPARATELY, IF SO...
-      // lets forget about this here and only remember to reset during file loading
-      // pathData.selected = false; // This will unselect each time path is saved though, which we dont want..
-      return pathData;
+    // we don't want to save dashArray & dashArrayOffset, WHY NOT??
+    pathData.strokeDasharray = undefined;
+    pathData.strokeDashoffset = undefined;
+    // we want all path to be unselected when saved and when loaded
+    // SELECTED IS GOING TO BE EXCEPTION SHOULD BE TRACKED SEPARATELY, IF SO...
+    // lets forget about this here and only remember to reset during file loading
+    // pathData.selected = false; // This will unselect each time path is saved though, which we dont want..
+    return pathData;
   });
 
 
   // check if svgData has metaData and if not set default values
   svgData.metaData = svgData.metaData || {};
   if (!isValid(svgData.metaData.guid)) {
-      svgData.metaData.guid = Crypto.randomUUID();
+    svgData.metaData.guid = Crypto.randomUUID();
   }
   if (!isValid(svgData.metaData.created_at)) {
-      svgData.metaData.created_at = new Date().toISOString();
+    svgData.metaData.created_at = new Date().toISOString();
   }
-  if (!isValid(svgData.metaData.updated_at) || update_updated_at) {
-      svgData.metaData.updated_at = new Date().toISOString();
+  if (!isValid(svgData.metaData.updatedAt) || update_updatedAt) {
+    svgData.metaData.updatedAt = new Date().toISOString();
   }
   if (!isValid(svgData.metaData.name) || svgData.metaData.name === svgData.metaData.guid) {
-      svgData.metaData.name = svgData.metaData.updated_at.split('.')[0].split('T').join(' ');
+    svgData.metaData.name = svgData.metaData.updatedAt.split('.')[0].split('T').join(' ');
   }
   if (!isValid(svgData.metaData.viewBox)) {
-      svgData.metaData.viewBox = CANVAS_VIEWBOX;
+    svgData.metaData.viewBox = CANVAS_VIEWBOX;
   }
   if (!isValid(svgData.metaData.viewBoxTrimmed)) {
-      svgData.metaData.viewBoxTrimmed = getViewBoxTrimmed(svgData.pathData);
+    svgData.metaData.viewBoxTrimmed = getViewBoxTrimmed(svgData.pathData);
   }
   return svgData;
 }
 
 
-export function pickTwoAnimations(): [string, string] {
-  const index1 = Math.floor(Math.random() * ModalAnimations.length);
-  let index2 = Math.floor(Math.random() * ModalAnimations.length);
-
-  // Ensure we get two different animations
-  while (index1 === index2) {
-    index2 = Math.floor(Math.random() * ModalAnimations.length);
-  }
-
-  return [ModalAnimations[index1], ModalAnimations[index2]];
-}
-
+export const getDeviceOrientation = () => {
+  return new Promise((resolve) => {
+    const subscription = Accelerometer.addListener(({ x, y }) => {
+      subscription.remove();
+      if (Math.abs(x) > Math.abs(y)) {
+        // Landscape mode
+        resolve(x > 0 ? Orientation.LANDSCAPE_UP : Orientation.LANDSCAPE_DOWN);
+      } else {
+        // Portrait mode
+        resolve(y > 0 ? Orientation.PORTRAIT_UP : Orientation.PORTRAIT_DOWN);
+      }
+    });
+  });
+};

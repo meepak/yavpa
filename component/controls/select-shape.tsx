@@ -14,7 +14,7 @@ const SelectShape = ({ color = 'black', value, onValueChanged }) => {
             onChange={handleShapeSelection}
             numOfColumns={1}
             textStyle={{ marginLeft: 10, marginBottom: 15 }}
-            iconStyle={{ size: 20, marginBottom: 15, color: '#000000' }}
+            iconStyle={{ size: 20, marginBottom: 15, color: '#120e31' }}
         />
     )
 }

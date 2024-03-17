@@ -16,7 +16,7 @@ const SelectBrush = ({ value, onValueChanged }) => {
     };
 
     // lets create brushes & if it's selected save it to the svgData.metadata
-    const brushPreview = (brush: BrushType) => 
+    const brushPreview = (brush: BrushType) =>
     <Svg height="50" width="80">
         <Defs>
             {AvailableBrushes.getBrush(brush)}
@@ -43,7 +43,7 @@ const SelectBrush = ({ value, onValueChanged }) => {
             onChange={handleBrushSelection}
             numOfColumns={1}
             textStyle={{ marginLeft: 5, marginBottom: 5 }}
-            iconStyle={{ size: 20, color: '#000000' }}
+            iconStyle={{ size: 20, color: '#120e31' }}
         />
         </View>
     )

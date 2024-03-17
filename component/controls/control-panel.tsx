@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import MyIcon from "@c/my-icon";
 import ContextMenu from "component/controls/context-menu";
-import { isIOS } from "@u/helper";
+import { I_AM_IOS } from "@u/types";
 
 const ICON_SIZE = 28;
 
@@ -49,7 +49,7 @@ const ControlPanel = ({ buttons, paddingLeft = 40, paddingRight = 40 }) => {
   //       justifyContent: "center",
   //       alignItems: "center",
   //       borderWidth: 2,
-  //       borderColor: "#000000",
+  //       borderColor: "#120e31",
   //       borderRadius: 14,
   //     }}
   //     onPress={hideMenu}

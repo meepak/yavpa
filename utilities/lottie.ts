@@ -1,11 +1,11 @@
 import * as Crypto from "expo-crypto";
 import { getPointsFromPath, precise } from "./helper";
-import { 
+import {
   BrushType,
-  CANVAS_HEIGHT, 
-  CANVAS_WIDTH, 
-  PathDataType, 
-  PointType, 
+  CANVAS_HEIGHT,
+  CANVAS_WIDTH,
+  PathDataType,
+  PointType,
   SvgDataType } from "./types";
 import { Linecap, Linejoin, Path } from "react-native-svg";
 
@@ -152,7 +152,7 @@ function createTransform() {
 
 function createGroup(path: PathDataType, pathStartFrame: number, pathEndFrame: number) {
 
-  const strokeColor = hexToRgb(path.stroke ?? "#000000");
+  const strokeColor = hexToRgb(path.stroke ?? "#120e31");
   const strokeOpacity = (path.strokeOpacity ?? 1) * 100;
   const strokeWidth = path.strokeWidth ?? 2;
   const fillColor = [0, 0, 0];
@@ -286,7 +286,7 @@ function createLottie(svgData: SvgDataType) {
 
   // make deep copy of svgData.pathData and reverse it
   const clonedPathData = JSON.parse(JSON.stringify(svgData.pathData));
-  
+
   const speed = svgData.metaData.animation?.speed || 1;
   const totalTime = clonedPathData.reduce((acc: number, path: PathDataType) => acc + path.time, 0);
   const totalFrames = FPS * precise(totalTime / (1000 * speed), 0);
@@ -297,14 +297,14 @@ function createLottie(svgData: SvgDataType) {
     const pathTotalFrames = FPS * precise(path.time / (1000 * speed), 0)
     const layer = createLayer(path, pathStartFrame, pathTotalFrames + pathStartFrame, totalFrames);
     layers.push(layer);
-    pathStartFrame += pathTotalFrames; 
+    pathStartFrame += pathTotalFrames;
     index++;
   });
 
   // const totalFrames = pathStartFrame;
   const lottie = createComposition({ width, height,  totalFrames});
   lottie.layers = layers.reverse() as any; //reverse so the stacking layer matches of svg
-  
+
   const lottieJson = JSON.stringify(lottie);
   // console.log(lottieJson);
   return lottieJson;

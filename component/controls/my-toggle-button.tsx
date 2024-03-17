@@ -42,7 +42,7 @@ const MyToggleButton = (props: { values: string[], initialValue: string, onClick
             >
                 <Text style={{
                         alignSelf: 'center',
-                        color: selected === value ? `#ffffff` : `#000000`,
+                        color: selected === value ? `#ffffff` : `#120e31`,
                     }}>
                     {value}
                 </Text>

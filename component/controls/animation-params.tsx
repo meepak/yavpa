@@ -27,13 +27,13 @@ const AnimationParams = ({ animationParams, onAnimationParamsChanged }) => {
           setSpeedValue(() => value); // TODO this should be removable as it is updated back from below event
           onAnimationParamsChanged({ ...animationParams, speed: value });
         }}
-      /> 
+      />
       <View style={{ top: -10, alignItems: 'center' }}>
-      <MyCheckBox 
-      checked={loopStatusValue} 
-      label="Loop the animation:" 
-      iconStyle={{ color: '#000000', size: 22 }}
-      textStyle={{ color: '#000000', fontSize: 16 , fontWeight: 'bold'}}  
+      <MyCheckBox
+      checked={loopStatusValue}
+      label="Loop the animation:"
+      iconStyle={{ color: '#120e31', size: 22 }}
+      textStyle={{ color: '#120e31', fontSize: 16 , fontWeight: 'bold'}}
       onChange={(value) => {
         setLoopStatusValue(() => value);
         onAnimationParamsChanged({ ...animationParams, loop: value });

@@ -1,12 +1,26 @@
-import { ContextMenu, Divider, MyColorPicker } from "@c/controls";
+import { ContextMenu, Divider } from "@c/controls";
 import { View, Text, Pressable } from "react-native"
-import { TouchableHighlight } from "react-native-gesture-handler";
 import Modal from "react-native-modal"
 import * as Crypto from "expo-crypto"
 import { useState } from "react";
 import SelectBrushColor from "@c/controls/select-brush-color";
+import { ModalAnimations } from "@u/types";
 
+export const getCanvasContextMenuSize = (activeBoundaryBoxPath: any, styleClipBoard: any) => {
+    let count = 1; // For 'Viewbox' MenuItem which is always present
 
+    if (activeBoundaryBoxPath) {
+        // For 'Fill', 'Duplicate', 'Copy Style', 'Delete' MenuItems
+        count += 4;
+
+        if (styleClipBoard) {
+            // For 'Apply Style' MenuItem
+            count += 1;
+        }
+    }
+
+    return {width: 100, height: count * (25 + 4)};
+};
 
 const CanvasContextMenu = ({
     activeBoundaryBoxPath,
@@ -15,6 +29,7 @@ const CanvasContextMenu = ({
     setMenuPosition,
     svgData,
     setSvgData,
+    setViewBoxAdjustMode,
 }) => {
     type PathStyleType = {
         strokeWidth: number,
@@ -33,7 +48,7 @@ const CanvasContextMenu = ({
                     item.fill = fill;
                 }
             });
-            return {...prev, metaData: {...prev.metaData, updated_at: ""}};
+            return {...prev, metaData: {...prev.metaData, updatedAt: ""}};
         });
         setActiveBoundaryBoxPath(null);
         close();
@@ -65,7 +80,7 @@ const CanvasContextMenu = ({
                     item.fill = styleClipBoard.fill;
                 }
             });
-            return {...prev, metaData: {...prev.metaData, updated_at: ""}};
+            return {...prev, metaData: {...prev.metaData, updatedAt: ""}};
         });
         setActiveBoundaryBoxPath(null);
         close();
@@ -81,7 +96,7 @@ const CanvasContextMenu = ({
                     prev.pathData.push(duplicate);
                 }
             });
-            return {...prev, metaData: {...prev.metaData, updated_at: ""}};
+            return {...prev, metaData: {...prev.metaData, updatedAt: ""}};
         });
         setActiveBoundaryBoxPath(null);
         close();
@@ -91,7 +106,7 @@ const CanvasContextMenu = ({
     const deleteSelected = () => {
         setSvgData((prev) => {
             prev.pathData = prev.pathData.filter((item) => item.selected !== true);
-            return {...prev, metaData: {...prev.metaData, updated_at: ""}};
+            return {...prev, metaData: {...prev.metaData, updatedAt: ""}};
         });
         setActiveBoundaryBoxPath(null);
         close();
@@ -99,15 +114,17 @@ const CanvasContextMenu = ({
     }
 
     const adjustViewBox = () => {
-        setSvgData((prev) => {
-            prev.pathData.forEach((item) => {
-                    item.selected = true;
-            });
-            return {...prev, metaData: {...prev.metaData, updated_at: ""}};
-        });
-        setActiveBoundaryBoxPath(null);
+        // setSvgData((prev) => {
+        //     prev.pathData.forEach((item) => {
+        //             item.selected = true;
+        //     });
+        //     return {...prev, metaData: {...prev.metaData, updatedAt: ""}};
+        // });
+        // setActiveBoundaryBoxPath(null);
+        // close();
+        // console.log("viewBoxSelected")
+        setViewBoxAdjustMode(true);
         close();
-        console.log("viewBoxSelected")
     }
 
     const MenuItem = ({ height, text, onPress }) => (
@@ -134,8 +151,8 @@ const CanvasContextMenu = ({
             backdropOpacity={0.01}
             onBackdropPress={close}
             statusBarTranslucent={false}
-            animationIn={"zoomIn"}
-            animationOut={"fadeOut"}
+            animationIn={ModalAnimations.zoomIn}
+            animationOut={ModalAnimations.fadeOut}
             style={{margin: 10}}
             useNativeDriver
             useNativeDriverForBackdrop
@@ -145,7 +162,7 @@ const CanvasContextMenu = ({
                 left: menuPosition.x,
                 top: menuPosition.y,
                 width: 150,
-                height: 200,
+                height: 'auto',
                 padding: 20,
                 borderRadius: 10,
                 backgroundColor: 'rgba(150,150,250, 0.75)',

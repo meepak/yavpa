@@ -1,7 +1,7 @@
 import { FILM_STRIP_HOLE_HEIGHT, NUM_FILM_STRIP_HOLES } from "@u/types";
 import { View, StyleSheet } from "react-native";
 
-const black = '#1d0f98';
+const black = '#120e31';
 
 const MyFilmStripView = ({ children }) => (
   <View style={styles.container}>

@@ -19,14 +19,24 @@ import { ToastContext } from "@x/toast-context";
 */
 const HeaderGradientBackground = ({ children }) => (
     <>
-        <LinearGradient
-            colors={['#015ccd', '#a805ee', '#1d0f98']}
-            style={{
-                ...StyleSheet.absoluteFillObject,
-                zIndex: -1,
-            }} />
+        <View style={{ ...StyleSheet.absoluteFillObject, opacity: 1 }}>
+            <LinearGradient
+                colors={['#4f236d', '#040827', '#040827']}
+                start={[1, 0.25]} // left, top
+                end={[0, 1]}  // right, bottom
+                style={StyleSheet.absoluteFillObject}
+            />
+            {/* <LinearGradient
+                colors={['#da857900', '#0573b401', '#042f6bAA', '#fdf9b411']}
+                start={{ x: 0, y: 1 }}
+                end={{ x: 0, y: 1 }}
+                locations={[1, 0.8, 0.6, 0]}
+                style={StyleSheet.absoluteFillObject}
+            /> */}
+        </View>
         {children}
-    </>)
+    </>
+)
 
 const Header = ({
     title,
@@ -46,13 +56,6 @@ const Header = ({
     useEffect(() => {
         setName(title);
     }, [title]);
-
-    // useEffect(() => {
-    //     setScreenMode(initialScreenMode);
-    //     const name = initialScreenMode.name;
-    //     // setButtonInstruction(ScreenModeInstruction[name]);
-    // }, [initialScreenMode])
-
 
 
     const handleScreenModeButtonPress = () => {
@@ -106,7 +109,7 @@ const Header = ({
         return { desc, name };
     }
     const textInputHeight = 40;
-    const blueButtonTop = MAX_HEADER_HEIGHT - insets.top + 10;
+    const blueButtonTop = MAX_HEADER_HEIGHT - insets.top;
     return (
         <View
             style={{
@@ -160,7 +163,7 @@ const Header = ({
                             <MyList
                                 anchor={<MyPathLogo animate={false} width={48} height={48} />}
                                 width={150}
-                                height={SCREEN_HEIGHT - MAX_HEADER_HEIGHT}
+                                height={SCREEN_HEIGHT - MAX_HEADER_HEIGHT - insets.top}
                             />
                         </View>
 
@@ -178,7 +181,7 @@ const Header = ({
                 icon={getBlueButtonIconProps(screenMode)}
                 onPress={handleScreenModeButtonPress}
                 aligned="left"
-                top={blueButtonTop}
+                top={MAX_HEADER_HEIGHT}
             />
         </View>
     );

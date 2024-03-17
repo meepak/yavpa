@@ -1,7 +1,6 @@
 import React, { useCallback, useLayoutEffect, useMemo, useState } from "react";
 import {
   StyleSheet,
-  Dimensions,
   Text,
   TouchableOpacity,
   View,
@@ -11,18 +10,15 @@ import {
   ActivityIndicator
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import MyIcon from "@c/my-icon";
 import { CANVAS_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SvgDataType } from "@u/types";
 import { deleteFile, getFiles } from "@u/storage";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { StickyHeaderFlatList, useStickyHeaderScrollProps } from 'react-native-sticky-parallax-header';
 import { StatusBar } from "expo-status-bar";
-import { HeaderBar, Foreground } from "@c/screens/browse";
+import Header from "@c/screens/browse/header";
 import MyPreview from "@c/my-preview";
 import CreativeVoid from "@c/creative-void/creative-void";
-import elevations from "@u/elevation";
 import MyBlueButton from "@c/my-blue-button";
-import MyPathMorph from "@c/my-path-morph";
 
 const PARALLAX_HEIGHT = 238;
 const HEADER_BAR_HEIGHT = 92;
@@ -77,7 +73,7 @@ const BrowseScreen = () => {
       setIsLoading(true);
       let svgData = await getFiles();
       // Sort the data here before setting it to the state
-      svgData = svgData.sort((a, b) => Date.parse(b.metaData.updated_at) - Date.parse(a.metaData.updated_at));
+      svgData = svgData.sort((a, b) => Date.parse(b.metaData.updatedAt) - Date.parse(a.metaData.updatedAt));
       setFiles(svgData);
       if (svgData.length === 0) {
         setNoSketch(true);
@@ -165,15 +161,12 @@ const BrowseScreen = () => {
 
   const renderHeader = useCallback(() => (
     <View pointerEvents="box-none" style={{ height: scrollHeight }}>
-      <Foreground scrollValue={scrollValue} />
+      <Header scrollValue={scrollValue} />
     </View>
   ), [scrollValue]);
 
   return (
     <View style={StyleSheet.absoluteFill}>
-      <View style={[styles.headerBarContainer, { width: SCREEN_WIDTH}]}>
-        <HeaderBar scrollValue={scrollValue} />
-      </View>
       <View style={{ alignSelf: 'stretch', flex: 1 }}>
         <StickyHeaderFlatList
           key={numberOfColumns}
@@ -182,6 +175,9 @@ const BrowseScreen = () => {
             paddingTop: HEADER_BAR_HEIGHT,
             alignSelf: 'stretch',
             flex: 1,
+          }}
+          contentContainerStyle={{
+            paddingBottom: 30,
           }}
           style={{paddingTop: 25 }}
           onScroll={onScroll}
@@ -213,7 +209,7 @@ const BrowseScreen = () => {
               style={{ top: -HEADER_BAR_HEIGHT }}
               animating
               size={150}
-              color="#0000ff"
+              color="#120e31"
             />
           </View>
         )}

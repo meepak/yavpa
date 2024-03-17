@@ -36,7 +36,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     forceUpdate = 0,
     strokeWidth = 2,
     strokeOpacity = 1,
-    stroke = "#000000",
+    stroke = "#120e31",
     simplifyTolerance = 0.0111,
     d3CurveBasis = null,
   } = props;
@@ -52,6 +52,8 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 
   const [isLoading, setIsLoading] = useState(true);
 
+
+  const [viewBoxAdjustMode, setViewBoxAdjustMode] = useState(false);
 
   const [activeBoundaryBoxPath, setActiveBoundaryBoxPath] = useState<PathDataType | null>(null)
   // const [boundaryBoxDashoffset, setBoundaryBoxDashoffset] = useState(5);
@@ -79,16 +81,14 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 
   // get bounding box of selected paths
   useSelectEffect({
-    editable,
     svgData,
     setSvgData,
-    setIsLoading,
     setEditMode,
-    activeBoundaryBoxPath,
     setActiveBoundaryBoxPath,
     stroke,
     strokeWidth,
     strokeOpacity,
+    viewBoxAdjustMode,
   });
 
 
@@ -122,7 +122,9 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     d3CurveBasis,
     activeBoundaryBoxPath,
     setActiveBoundaryBoxPath,
-    setMenuPosition
+    setMenuPosition,
+    viewBoxAdjustMode,
+    setViewBoxAdjustMode,
   };
 
 
@@ -135,7 +137,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
               <ActivityIndicator
                 animating
                 size={200}
-                color="#0000ff"
+                color="#120e31"
               />
             </View>
           )
@@ -165,7 +167,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 
 
                     {
-                      activeBoundaryBoxPath && (
+                      activeBoundaryBoxPath && activeBoundaryBoxPath.visible && (
                         <MyPath prop={activeBoundaryBoxPath} keyProp={"selectBoundaryBox"} key={"selectBoundaryBox"} />
                       )
                     }
@@ -183,6 +185,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
         setMenuPosition={setMenuPosition}
         svgData={svgData}
         setSvgData={setSvgData}
+        setViewBoxAdjustMode={setViewBoxAdjustMode}
      />
     </View >
   );

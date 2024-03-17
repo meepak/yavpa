@@ -39,11 +39,11 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
           {this.props.identifier && <Text>It happened in {this.props.identifier}.</Text>}
           <Divider width={'100%'} height={3} color={'rgba(0,0,0,1)'} />
           <Text>Please try again.</Text>
-          <TouchableOpacity onPress={(e) =>{ 
+          <TouchableOpacity onPress={(e) =>{
             Updates.reloadAsync();
             this.setState({hasError: false});
             }}>
-            <Text style={{ color: '#0000FF' }} >Restart</Text>
+            <Text style={{ color: '#120e31' }} >Restart</Text>
           </TouchableOpacity>
         </View >
       );

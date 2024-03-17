@@ -4,10 +4,10 @@
  * The gist was buggy, Naeem fixed.
  *
  * Usage:
- * 1. Import "elevations" from this file 
+ * 1. Import "elevations" from this file
  *		import { elevations } from "config/elevations"
- * 2. Use it. Assuming you need an elevation of 2 (based on the Android 
- *		elevation standard), doing the following will cast the same shadow 
+ * 2. Use it. Assuming you need an elevation of 2 (based on the Android
+ *		elevation standard), doing the following will cast the same shadow
  *		on both platforms:
  *		return <View style={[{ width: 50, height: 50 }, elevations[2]]} />
  */
@@ -97,17 +97,17 @@
          "0px 9px 46px 8px"
      ]
  }
- 
+
  const webColor = {
      umbra: "rgba(0,0,0,0.2)",
      penumbra: "rgba(0,0,0,0.14)",
      ambient: "rgba(0,0,0,0.12)"
  }
- 
+
  const derive = (i, a, b, a2, b2) => {
      return ((i - a) * (b2 - a2)) / (b - a) + a2
  }
- 
+
  const parseShadow = (raw) => {
      const values = raw.split(" ").map(val => +val.replace("px", ""))
      return {
@@ -117,16 +117,16 @@
          spread: values[3]
      }
  }
- 
+
  const maxElevation = 24
- 
+
  const generateElevationStyle = (depth=0) => {
      let style = {}
-     if (Platform.OS === "android") {
+     if (isAndroid) {
          style = {
              elevation: depth
          }
-     } else if (Platform.OS === "ios") {
+     } else if (isIOS) {
          const s = parseShadow(webDepth.penumbra[depth])
          const y = s.y === 1 ? 1 : Math.floor(s.y * 0.5)
          style = {
@@ -151,11 +151,11 @@
      }
      return style
  }
- 
+
  const elevations = new Array(maxElevation+1)
      .fill(undefined)
      .map((x, index) => generateElevationStyle(index))
- 
+
  elevations.interpolate = (anim, {inputRange,outputRange,...opts}) => {
      let style = {}
      // let style = {
@@ -165,11 +165,11 @@
      // }
      // return {elevation:anim.interpolate({inputRange,outputRange,...opts})}
      // return {elevation:24}
-     if (Platform.OS === "android") {
+     if (isAndroid) {
          style = {
              elevation: anim.interpolate({inputRange,outputRange,...opts})
          }
-     } else if (Platform.OS === "ios") {
+     } else if (isIOS) {
          const output = { height:[], shadowOpacity:[], shadowRadius:[] }
          outputRange.forEach(depth => {
              const s = parseShadow(webDepth.penumbra[depth])
@@ -228,5 +228,5 @@
      }
      return style
  }
- 
+
  export default elevations

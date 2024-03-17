@@ -75,7 +75,7 @@ const MySlider = (props: MySliderProps) => {
         value={value}
         thumbImage={require("@a/slider-cap.png")}
         maximumTrackTintColor="#00FFFF"
-        minimumTrackTintColor="#0000FF"
+        minimumTrackTintColor="#120e31"
         onValueChange={debouncedChange} />
       <Text style={{ fontWeight: 'bold', alignSelf: 'center' }}>{value}{props.suffix || ""}</Text>
     </View>
@@ -92,10 +92,10 @@ const MySlider = (props: MySliderProps) => {
           name="minus-circle"
           size={22}
           strokeWidth={2}
-          // onPress={() => debouncedChange((value ?? 0) - 1)} 
+          // onPress={() => debouncedChange((value ?? 0) - 1)}
           onPressIn={() => startInterval(-1 * (props.step || 1))}
           onPressOut={stopInterval}
-          color={'#0000FF'}
+          color={'#120e31'}
         />
       </View><View style={{
         position: 'absolute',
@@ -108,10 +108,10 @@ const MySlider = (props: MySliderProps) => {
           name="plus-circle"
           size={22}
           strokeWidth={2}
-          // onPress={() => debouncedChange((value  ?? 0) + 1)}  
+          // onPress={() => debouncedChange((value  ?? 0) + 1)}
           onPressIn={() => startInterval(1 * (props.step || 1))}
           onPressOut={stopInterval}
-          color={'#0000FF'}
+          color={'#120e31'}
 
         />
       </View></>

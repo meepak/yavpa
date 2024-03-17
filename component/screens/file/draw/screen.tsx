@@ -7,7 +7,7 @@ import { SvgDataContext } from "@x/svg-data";
 
 
 const DrawScreen = ({ zoom, initControls }) => {
-  const [stroke, setStroke] = useState("#000000");
+  const [stroke, setStroke] = useState("#120e31");
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [strokeOpacity, setStrokeOpacity] = useState(1);
   const [simplifyTolerance, setSimplifyTolerance] = useState(0.0111);

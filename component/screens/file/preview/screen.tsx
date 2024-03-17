@@ -30,7 +30,7 @@ const PreviewScreen = ({ zoom, svgData, setSvgData, initControls }) => {
     }
     if (svgData.metaData.animation && svgData.metaData.animation !== animationParams) {
       console.log('animation params updated, should trigger saving to file');
-      setSvgData((prev) => ({ ...prev, metaData: { ...prev.metaData, animation: animationParams, updated_at: "" } }));
+      setSvgData((prev) => ({ ...prev, metaData: { ...prev.metaData, animation: animationParams, updatedAt: "" } }));
     }
 
     initControls(buttons)

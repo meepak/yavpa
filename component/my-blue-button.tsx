@@ -1,6 +1,5 @@
 import { Text, View, StyleSheet, Pressable } from "react-native";
 import MyIcon from "./my-icon";
-import elevations from "@u/elevation";
 import { useState } from "react";
 
 type MyBlueButtonProps = {
@@ -13,7 +12,7 @@ type MyBlueButtonProps = {
     bottom?: number;
     aligned?: 'left' | 'right';
 };
-const SIZE = 60;
+const SIZE = 50;
 const MyBlueButton = (props: MyBlueButtonProps) => {
     const styles = StyleSheet.create({
         position: {
@@ -25,7 +24,7 @@ const MyBlueButton = (props: MyBlueButtonProps) => {
             justifyContent: 'center',
             alignItems: 'center',
             alignContent: 'center',
-            zIndex: 9999,
+            zIndex: 999,
             ...(
                 props.aligned === 'left'
                     ? { left: 0 }
@@ -35,25 +34,32 @@ const MyBlueButton = (props: MyBlueButtonProps) => {
         container: {
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: "#0000FF",
+            backgroundColor: "#120e31",
             opacity: 1,
-            width: SIZE * 1.5,
+            width: SIZE * 2,
             height: SIZE,
-            borderWidth: 0,
-            borderColor: '#0000FF',
+            borderWidth: 1,
+            borderColor: '#4f236d',
             ...(
                 props.aligned === 'left'
                     ? {
                         borderTopRightRadius: SIZE / 2,
                         borderBottomRightRadius: SIZE / 2,
+                        borderTopWidth: 1,
+                        borderRightWidth: 2,
+                        borderLeftWidth: 0,
+                        borderBottomWidth: 0,
 
                     }
                     : {
                         borderTopLeftRadius: SIZE / 2,
                         borderBottomLeftRadius: SIZE / 2,
+                        borderTopWidth: 1,
+                        borderLeftWidth: 2,
+                        borderRightWidth: 0,
+                        borderBottomWidth: 0,
                     }
             ),
-            // ...elevations[5],
         }
     });
 
@@ -63,22 +69,36 @@ const MyBlueButton = (props: MyBlueButtonProps) => {
     const setPressedDesign = (pressed: boolean) => {
         setContainerStyle({
             ...containerStyle,
-            // backgroundColor: pressed ? "#0000FF" : "#512DAB",
-            // opacity: pressed ? 0.5 : 1,
-            borderWidth: pressed ? 10 : 0,
-            borderColor: pressed ? "#0000FF" : "#0000FF",
+            opacity: pressed ? 1 : 1,
+            borderColor: pressed ? "#4f236d" : "#4f236d",
+            ...(
+                props.aligned === 'left'
+                    ? {
+                        borderTopRightRadius: SIZE / 2,
+                        borderBottomRightRadius: SIZE / 2,
+                        borderTopWidth: pressed ? 3 : 1,
+                        borderRightWidth: pressed ? 4 : 2,
+                        borderLeftWidth: 0,
+                        borderBottomWidth: 0,
+
+                    }
+                    : {
+                        borderTopLeftRadius: SIZE / 2,
+                        borderBottomLeftRadius: SIZE / 2,
+                        borderTopWidth: pressed ? 3 : 1,
+                        borderLeftWidth: pressed ? 4 : 2,
+                        borderRightWidth: 0,
+                        borderBottomWidth: 0,
+                    }
+            ),
         });
     }
 
     return (
         <View style={styles.position} >
             <View style={{
-                // backgroundColor: '#512DAB',
-                // borderWidth: 3,
-                // borderColor: '#0000FF',
                 ...containerStyle
             }}>
-                {/* just so that it provides base to cover up imperfections below it  */}
             </View>
             <Pressable
                 style={{ ...containerStyle, position: 'absolute' }}
@@ -106,7 +126,7 @@ const MyBlueButton = (props: MyBlueButtonProps) => {
                                     paddingRight: 5,
                                 }}
                                 numberOfLines={2}
-                            // ellipsizeMode='tail'
+                                // ellipsizeMode='middle'
                             >
                                 {props.icon?.desc ||''}
                             </Text>
@@ -120,7 +140,7 @@ const MyBlueButton = (props: MyBlueButtonProps) => {
                         }}>{
                                 props.icon
                                     ? <MyIcon
-                                        // onPress={props.onPress}
+                                        // onPress={props.onPress} // do not pass onPress to MyIcon
                                         name={props.icon.name}
                                         color="#FFFFFF"
                                         style={{ size: props.icon.size || undefined }}

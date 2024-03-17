@@ -7,8 +7,8 @@ import * as Clipboard from "expo-clipboard";
 import LottieView, { AnimationObject } from "lottie-react-native";
 import { SvgDataContext } from "@x/svg-data";
 import MyPreview from "@c/my-preview";
-import { getViewBoxTrimmed, isIOS } from "@u/helper";
-import { CANVAS_HEIGHT, CANVAS_WIDTH } from "@u/types";
+import { getViewBoxTrimmed } from "@u/helper";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, I_AM_IOS } from "@u/types";
 import * as format from "@u/formatters";
 import createLottie from "@u/lottie";
 import ErrorBoundary from "@c/error-boundary";
@@ -25,7 +25,7 @@ const ExportScreen = ({ initControls }) => {
 
   const [viewBoxTrimmed, setViewBoxTrimmed] = useState("");
 
-  // This hook should only execute once this page component loads, 
+  // This hook should only execute once this page component loads,
   // no need to update when svg Data is updating
   useEffect(() => {
     if (svgData === undefined) return;
@@ -51,12 +51,12 @@ const ExportScreen = ({ initControls }) => {
   };
 
 
-  // should open the prompt for user to select the location to save the  file with 
+  // should open the prompt for user to select the location to save the  file with
   // default filename (user can change it if they like, but extension remains fixed)
   // and data in it in both ios and android
   // ask for permission if needed
   const download = async (filename = "", data = "") => {
-    console.log(data)
+    // console.log(data)
     if (!filename || !data) return;
     const uri = FileSystem.cacheDirectory + filename;
     await FileSystem.writeAsStringAsync(uri, data, { encoding: FileSystem.EncodingType.UTF8 });
@@ -65,7 +65,7 @@ const ExportScreen = ({ initControls }) => {
       alert(`Uh oh, sharing isn't available on your platform`);
       return;
     }
-    await Sharing.shareAsync(isIOS ? cUri : uri);
+    await Sharing.shareAsync(I_AM_IOS ? cUri : uri);
   };
 
   useEffect(() => {

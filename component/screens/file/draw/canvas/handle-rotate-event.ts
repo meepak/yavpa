@@ -28,7 +28,7 @@ export const handleRotateEvent = (
             const pivot = {x: event.anchorX, y: event.anchorY};
 
             // rotate boundary box
-            const boundaryBoxPoints = getPointsFromPath(activeBoundaryBoxPath.path);
+            // const boundaryBoxPoints = getPointsFromPath(activeBoundaryBoxPath.path);
             // calculate center of the boundary box
             // const pivot = boundaryBoxPoints.reduce((acc, point) => {
             //     return {
@@ -36,8 +36,8 @@ export const handleRotateEvent = (
             //         y: acc.y + point.y,
             //     };
             // }, { x: 0, y: 0 });
-            const rotatedBoundaryBox = rotatePoints(boundaryBoxPoints, rotationAngle, pivot);
-            const rotatedBoundaryBoxPath = getPathFromPoints(rotatedBoundaryBox);
+            // const rotatedBoundaryBox = rotatePoints(boundaryBoxPoints, rotationAngle, pivot);
+            // const rotatedBoundaryBoxPath = getPathFromPoints(rotatedBoundaryBox);
 
             // rotate selected paths
             setSvgData((prev) => {
@@ -50,19 +50,30 @@ export const handleRotateEvent = (
                         item.updatedAt = new Date().toISOString();
                     }
                 });
-                prev.metaData.updated_at = "";
+
+                //return {...prev } may be right way to go
+                //but it cause so much re-rendering things slow down
+                prev.updatedAt = new Date().toISOString();
                 return prev;
             });
 
+            // It seems change in svgData is not causing re-rendering
+            // may be its bit more complex object, but change in boundary box causes re-rendering
+            // so we are updating boundary box updated field only without updating actual path data
             setActiveBoundaryBoxPath({
                 ...activeBoundaryBoxPath,
-                path: rotatedBoundaryBoxPath,
+                visible: false,
+                updatedAt: new Date().toISOString(),
             });
 
             // update starting angle for the next frame
             startAngle = event.rotation;
             break;
         case "ended":
+            setSvgData((prev) => {
+                prev.metaData.updatedAt = "";
+                return prev;
+            });
             break;
     }
 }

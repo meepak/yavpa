@@ -1,8 +1,7 @@
 // import { applyErasure } from "@u/erasure";
-import { getPathFromPoints, getPointsFromPath, isValidPath, precise } from "@u/helper";
+import { getPathFromPoints, getPathLength, getPointsFromPath, isValidPath, precise } from "@u/helper";
 import { getD3CurveBasis, isValidShape, shapeData } from "@u/shapes";
 import { PathDataType, PointType, ShapeType, SvgDataType } from "@u/types";
-import { polygonLength } from "d3-polygon";
 import * as d3 from "d3-shape";
 import * as Crypto from "expo-crypto";
 import { SetStateAction } from "react";
@@ -13,8 +12,9 @@ import simplify from "simplify-js";
 ERASURE MODE IS NOT USED IN THIS VERSION, WILL REFINE IT LATER
 */
 export const handleDrawingEvent = (
-  event: GestureStateChangeEvent<PanGestureHandlerEventPayload>|GestureUpdateEvent<PanGestureHandlerEventPayload>,
+  event: GestureStateChangeEvent<PanGestureHandlerEventPayload> | GestureUpdateEvent<PanGestureHandlerEventPayload>,
   state: string,
+  penOffset: PointType,
   svgData: SvgDataType,
   setSvgData: { (value: SetStateAction<SvgDataType>): void; },
   editMode: boolean,
@@ -34,9 +34,9 @@ export const handleDrawingEvent = (
 
   const erasureMode = false; //disabling for safety in this version
 
-  // This attempt to ensure one finger touch caused way too much trouble 
+  // This attempt to ensure one finger touch caused way too much trouble
   // if (event.numberOfPointers !== 1) return;
-  
+
   if (!editMode) return;
 
   // if (selectMode && selectedPaths.length > 0) {
@@ -44,10 +44,13 @@ export const handleDrawingEvent = (
   //   return;
   // }
 
+
   const pt = {
-    x: precise(event.x),
-    y: precise(event.y),
+    x: precise(event.x + penOffset.x),
+    y: precise(event.y + penOffset.y),
   };
+
+
 
   switch (state) {
     case "began":
@@ -60,7 +63,7 @@ export const handleDrawingEvent = (
         path: `M${pt.x},${pt.y}`,
         ...(erasureMode
           ? {
-            stroke: "#0000FF",
+            stroke: "#120e31",
             strokeWidth: 2,
             strokeOpacity: 0.5,
             strokeLinecap: "round",
@@ -123,7 +126,7 @@ export const handleDrawingEvent = (
         // use currentPath as erasure
         // const newCompletedPaths = applyErasure(currentPath, svgData.pathData);
         // setCompletedPaths(() => newCompletedPaths);
-        // setSvgData((prev: SvgDataType) => ({ metaData: { ...prev.metaData, updated_at: "" }, pathData: newCompletedPaths }));
+        // setSvgData((prev: SvgDataType) => ({ metaData: { ...prev.metaData, updatedAt: "" }, pathData: newCompletedPaths }));
         // setCurrentPath(newPathData());
         // setStartTime(0);
         return;
@@ -152,24 +155,25 @@ export const handleDrawingEvent = (
           const line = d3.line().curve(curveBasis);
           // Generate the path data
           currentPath.path = line(pointsXY as [number, number][]) || "";
+          // console.log(currentPath);
         }
       }
 
-      if(currentPath.path === "") {
+      if (currentPath.path === "") {
         currentPath.path = getPathFromPoints(points);
       }
 
       if (isValidPath(currentPath.path)) {
         currentPath.visible = true;
-        currentPath.length = polygonLength(points.map(point => [point.x, point.y]));
+        currentPath.length = getPathLength(points);
         console.log('setting completed path from drawing event');
         // setCompletedPaths((prev) => [...prev, currentPath]);
-        setSvgData((prev: SvgDataType) => ({ 
-          metaData: { ...prev.metaData, updated_at: "" }, 
-          pathData: [...prev.pathData, currentPath] 
+        setSvgData((prev: SvgDataType) => ({
+          metaData: { ...prev.metaData, updatedAt: "" },
+          pathData: [...prev.pathData, currentPath]
         }));
       }
-      
+
       setCurrentPath(newPathData());
       setStartTime(0);
       break;

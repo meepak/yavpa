@@ -1,10 +1,10 @@
 import * as FileSystem from "expo-file-system";
-import { isIOS, parseSvgData } from "./helper";
-import { SvgDataType } from "./types";
+import { parseSvgData } from "./helper";
+import { SvgDataType, I_AM_IOS } from "./types";
 import path from 'path';
 
-const AppName = isIOS ? "mypath.mahat.au" : "draw-replay-svg-path";
-// const AppName = 'jpt'; //isIOS ? "mypath.mahat.au" : "draw-replay-svg-path";
+// const AppName = I_AM_IOS ? "mypath.mahat.au" : "draw-replay-svg-path";
+const AppName = 'jpt'; //isIOS ? "mypath.mahat.au" : "draw-replay-svg-path";
 const AppSaveDirectory = FileSystem.documentDirectory + AppName + "/";
 
 let fileCache: SvgDataType[] = [];
@@ -69,7 +69,7 @@ export const getFiles = async (includeDefaults = true): Promise<SvgDataType[]> =
             svgDataFiles.push(svgData);
         }
         console.log('set the filecache again..')
-        // svgDataFiles.sort((a, b) => Date.parse(b.metaData.updated_at) - Date.parse(a.metaData.updated_at));
+        // svgDataFiles.sort((a, b) => Date.parse(b.metaData.updatedAt) - Date.parse(a.metaData.updatedAt));
 
         if (includeDefaults) {
 

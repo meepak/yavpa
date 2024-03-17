@@ -34,7 +34,7 @@ const PathsAsLayers = (
                     // delete indexth element from svgData.pathData
                     setSvgData((prevSvgData: SvgDataType) => {
                         const newLayers = prevSvgData.pathData.filter((path) => path !== item);
-                        return { metaData: { ...prevSvgData.metaData, updated_at: "" }, pathData: newLayers };
+                        return { metaData: { ...prevSvgData.metaData, updatedAt: "" }, pathData: newLayers };
                     });
                 },
             },
@@ -48,7 +48,7 @@ const PathsAsLayers = (
         setSvgData((prevSvgData: SvgDataType) => {
             const newLayers = [...prevSvgData.pathData];
             newLayers[index] = { ...path, [prop]: value };
-            const metaData = prop === 'selected' ? prevSvgData.metaData : { ...prevSvgData.metaData, updated_at: "" };
+            const metaData = prop === 'selected' ? prevSvgData.metaData : { ...prevSvgData.metaData, updatedAt: "" };
             return { metaData: metaData, pathData: newLayers };
         });
     }
@@ -100,7 +100,7 @@ const PathsAsLayers = (
 
 
                         <TouchableOpacity onPress={() => handlePathUpdate(item, "selected", !item.selected)}>
-                            <MyIcon name={item.selected ? "checkbox-checked" : "checkbox-empty"} color='#000000' size={16} />
+                            <MyIcon name={item.selected ? "checkbox-checked" : "checkbox-empty"} color='#120e31' size={16} />
                         </TouchableOpacity>
 
                         <TouchableOpacity style={{ ...styles.cell }}>
@@ -205,7 +205,7 @@ const PathsAsLayers = (
                     onDragEnd={
                         (data) => setSvgData(
                             (prevSvgData: SvgDataType) => ({
-                                metaData: { ...prevSvgData.metaData, updated_at: "" },
+                                metaData: { ...prevSvgData.metaData, updatedAt: "" },
                                 pathData: data.data.reverse()
                             })
                         )} // update the svgData.pathData with new order

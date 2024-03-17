@@ -1,5 +1,4 @@
 import elevations from '@u/elevation';
-import { pickTwoAnimations } from '@u/helper';
 import { CANVAS_HEIGHT } from '@u/types';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
@@ -121,7 +120,8 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
       this.setState({ xPosition: newXPosition, yPosition: newYPosition, menuVisible: true });
     });
   };
-  private animations: string[] = pickTwoAnimations();
+
+  
   render() {
     return (
       <View>

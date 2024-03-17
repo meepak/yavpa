@@ -39,7 +39,7 @@ export const useCommandEffect = (
             svgData.pathData[svgData.pathData.length - 1],
           ]);
           setSvgData((prev) => ({
-            metaData: { ...prev.metaData, updated_at: "" },
+            metaData: { ...prev.metaData, updatedAt: "" },
             pathData: prev.pathData.slice(0, -1)
           }));
           console.log(undonePaths.length)
@@ -50,7 +50,7 @@ export const useCommandEffect = (
         if (undonePaths.length > 0) {
           console.log("redooo inside")
           setSvgData((prev) => ({
-            metaData: { ...prev.metaData, updated_at: "" },
+            metaData: { ...prev.metaData, updatedAt: "" },
             pathData: [...prev.pathData, undonePaths[undonePaths.length - 1]],
           }));
           setUndonePaths((prevUndonePaths) => prevUndonePaths.slice(0, -1));

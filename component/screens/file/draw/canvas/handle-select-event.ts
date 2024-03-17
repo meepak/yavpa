@@ -1,29 +1,29 @@
 import { PathDataType, SvgDataType } from "@u/types";
 import { SetStateAction } from "react";
 import { GestureStateChangeEvent, GestureUpdateEvent, TapGestureHandlerEventPayload } from "react-native-gesture-handler";
-import { getPointsFromPath } from "@u/helper";
+import { getPointsFromPath, getViewBoxTrimmed } from "@u/helper";
 import { polygonContains } from 'd3-polygon';
+import { getBoundaryBox } from "@u/boundary-box";
 
 export const handleSelectEvent = (
   event: GestureStateChangeEvent<TapGestureHandlerEventPayload>,
   activeBoundaryBoxPath: PathDataType | null,
   setSvgData: { (value: SetStateAction<SvgDataType>): void; },
-  pointers
 ) => {
   const tapPoint = {
     x: event.x,
     y: event.y,
   }
 
-  if(pointers > 1) {
-    // set all paths selected and return
-    setSvgData((prev) => {
-      let newPathData = [...prev.pathData];
-      newPathData.forEach((path) => { path.selected = true; });
-      return { ...prev, pathData: newPathData };
-    });
-    return;
-  }
+    const tappedInsidePathData = (pathData: PathDataType, isPathBbox = false) => {
+
+      const pathBoundaryBox = isPathBbox
+                              ? pathData.path
+                              : getBoundaryBox([pathData]).path;
+      const points = getPointsFromPath(pathBoundaryBox);
+      const d3Points = points.map((point) => [point.x, point.y] as [number, number]);
+      return polygonContains(d3Points, [tapPoint.x, tapPoint.y]);
+    }
 
   setSvgData((prev) => {
     let newPathData = [...prev.pathData];
@@ -34,40 +34,24 @@ export const handleSelectEvent = (
     newPathData.forEach((path) => { path.selected = false; }); // unselect  current active paths
 
 
-    const pathContainsPoint = (path) => {
-      const points = getPointsFromPath(path);
-      const d3Points = points.map((point) => [point.x, point.y] as [number, number]);
-      return polygonContains(d3Points, [tapPoint.x, tapPoint.y]);
-    }
-
-    const selectPathIfContainsPoint = (i: number) => {
-      if (pathContainsPoint(newPathData[i].path)) {
-        newPathData = newPathData.map((path, index) => ({
-          ...path,
-          selected: index === i,
-        }));
-        console.log('path selected');
-        return true;
-      }
-      console.log('nothing selected');
-      return false;
-    }
-
     // If there is active bounding box and if tap is insded it, try to select next path
-    if (activePathIndex !== -1 && activeBoundaryBoxPath && pathContainsPoint(activeBoundaryBoxPath.path)) {
+    if (activePathIndex !== -1 && activeBoundaryBoxPath && tappedInsidePathData(activeBoundaryBoxPath, true)) {
       for (let i = activePathIndex + 1; i < newPathData.length; i++) {
-        if (selectPathIfContainsPoint(i)) {
+        if (tappedInsidePathData(newPathData[i])) {
+          newPathData[i].selected = true;
           return { ...prev, pathData: newPathData.reverse() };
         }
       }
       for (let i = 0; i < activePathIndex; i++) {
-        if (selectPathIfContainsPoint(i)) {
+        if (tappedInsidePathData(newPathData[i])) {
+          newPathData[i].selected = true;
           return { ...prev, pathData: newPathData.reverse() };
         }
       }
     } else {// if outside current boundary box or no boundary box
       for (let i = 0; i < newPathData.length; i++) {
-        if (selectPathIfContainsPoint(i) && i !== activePathIndex) {
+        if (tappedInsidePathData(newPathData[i]) && i !== activePathIndex) {
+          newPathData[i].selected = true;
           return { ...prev, pathData: newPathData.reverse() };
         }
       }

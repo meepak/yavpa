@@ -112,7 +112,7 @@ const SimplifySmooth = ({
                         onD3ValueChanged(value);
                     }}
                     textStyle={{ marginLeft: 5, marginBottom: 12}}
-                    iconStyle={{ size: 20, color: '#000000', strokeWidth: 2, marginBottom: 10 }}
+                    iconStyle={{ size: 20, color: '#120e31', strokeWidth: 2, marginBottom: 10 }}
                 />
             </View>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>

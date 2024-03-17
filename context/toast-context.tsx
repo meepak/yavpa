@@ -19,7 +19,7 @@ function ToastProvider({ children }) {
             hideOnPress: true,
             delay: 0,
             textColor: '#fff',
-            backgroundColor: '#0000ff',
+            backgroundColor: '#120e31',
             shadowColor: '#a805ee',
             opacity: 1,
             textStyle: { fontSize: 20 },

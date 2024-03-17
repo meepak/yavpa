@@ -10,7 +10,7 @@ import { ContextMenu } from './controls';
 import elevations from '@u/elevation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const FILE_PREVIEW_WIDTH = 125;
+const FILE_PREVIEW_WIDTH = 100;
 
 
 const MyList = ({ anchor, width, height }) => {
@@ -31,7 +31,7 @@ const MyList = ({ anchor, width, height }) => {
         try {
             let svgData = await getFiles(); // comes from cache so all good
             // Sort the data here before setting it to the state
-            // svgData = svgData.sort((a, b) => Date.parse(a.metaData.updated_at) - Date.parse(b.metaData.updated_at));
+            // svgData = svgData.sort((a, b) => Date.parse(a.metaData.updatedAt) - Date.parse(b.metaData.updatedAt));
             setFiles(svgData);
         } catch (error) {
             console.log('error fetching files', error)
@@ -50,7 +50,7 @@ const MyList = ({ anchor, width, height }) => {
 
     const ListItem = ({ item, index, scrollY }) => {
 
-        //#region 
+        //#region
         // WHAT A FUCKING WASTE OF TIME TRYING TO GET THE SILLY ANIMATION RIGHT THAT NO ONE WILL EVER CARE ABOUT
         // const scale = interpolate(
         //     (scrollY.value % (ItemHeight * files.length)),
@@ -159,7 +159,7 @@ const MyList = ({ anchor, width, height }) => {
             height={height}
             showBackground={false}
             xPosition={SCREEN_WIDTH - width}
-            yPosition={MAX_HEADER_HEIGHT - insets.top}
+            yPosition={MAX_HEADER_HEIGHT}
             positionOverride={true}
             // yOffsetFromAnchor={10}
             closeMenuAt={forceRerenderAt}

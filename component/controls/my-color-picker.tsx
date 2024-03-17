@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { TextInput, View, Text, StyleSheet } from 'react-native';
 import ColorPicker from 'react-native-wheel-color-picker';
 
-const MyColorPicker = ({ initialColor = '#000000', onColorSelected }) => {
+const MyColorPicker = ({ initialColor = '#120e31', onColorSelected }) => {
   const [inputColor, setInputColor] = useState(initialColor);
 
   const isValidHex = (text) => /^#([A-Fa-f0-9]{6})?$/.test(text);
@@ -12,13 +12,20 @@ const MyColorPicker = ({ initialColor = '#000000', onColorSelected }) => {
       <ColorPicker
         color={isValidHex(inputColor) ? inputColor : initialColor}
         swatchesOnly={false}
-        onColorChange={() => { }}
-        onColorChangeComplete={(color) => {
+        onColorChange={(color) => {
+          // console.log('color changed', color);
           setInputColor(color);
           if (isValidHex(color)) {
             onColorSelected(color);
           }
         }}
+        // onColorChangeComplete={(color) => {
+        //   console.log('color changed complete', color);
+        //   setInputColor(color);
+        //   if (isValidHex(color)) {
+        //     onColorSelected(color);
+        //   }
+        // }}
         thumbSize={30}
         gapSize={0}
         noSnap={true}
@@ -26,16 +33,16 @@ const MyColorPicker = ({ initialColor = '#000000', onColorSelected }) => {
         swatches={true}
         discrete={true}
         shadeWheelThumb={true}
-        shadeSliderThumb={true}
+        shadeSliderThumb={false}
         useNativeDriver={true}
         useNativeLayout={true}
         wheelHidden={false}
-        autoResetSlider={true}
+        autoResetSlider={false}
       />
- 
+
       <View style={styles.container}>
         <Text style={styles.hash}>#</Text>
-        <TextInput 
+        <TextInput
           style={styles.input}
           onChangeText={(text) => {
             setInputColor('#' + text);
@@ -45,8 +52,8 @@ const MyColorPicker = ({ initialColor = '#000000', onColorSelected }) => {
               setInputColor(initialColor);
             }
           }}
-          selectTextOnFocus={true} 
-          value={inputColor.substring(1)}  
+          selectTextOnFocus={true}
+          value={inputColor.substring(1)}
         />
       </View>
     </View >
