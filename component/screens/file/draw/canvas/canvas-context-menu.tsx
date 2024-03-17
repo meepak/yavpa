@@ -29,7 +29,6 @@ const CanvasContextMenu = ({
     setMenuPosition,
     svgData,
     setSvgData,
-    setViewBoxAdjustMode,
 }) => {
     type PathStyleType = {
         strokeWidth: number,
@@ -113,19 +112,6 @@ const CanvasContextMenu = ({
         console.log("deleteSelected")
     }
 
-    const adjustViewBox = () => {
-        // setSvgData((prev) => {
-        //     prev.pathData.forEach((item) => {
-        //             item.selected = true;
-        //     });
-        //     return {...prev, metaData: {...prev.metaData, updatedAt: ""}};
-        // });
-        // setActiveBoundaryBoxPath(null);
-        // close();
-        // console.log("viewBoxSelected")
-        setViewBoxAdjustMode(true);
-        close();
-    }
 
     const MenuItem = ({ height, text, onPress }) => (
         <><Pressable
@@ -169,7 +155,7 @@ const CanvasContextMenu = ({
                 borderWidth: 0.7,
                 borderColor: "rgba(0,0,0,0.5)",
             }}>
-                {
+                {/* {
                     activeBoundaryBoxPath &&
                      <ContextMenu
                     anchor= {<MenuItem height={25} text={'Fill'} onPress={()=>{}}/>}
@@ -178,7 +164,7 @@ const CanvasContextMenu = ({
                             >
                                 <SelectBrushColor value={'#00FF00'} onValueChanged={(color: any) => applyFill(color)} />
                             </ContextMenu>
-                }
+                } */}
                 {
                     activeBoundaryBoxPath &&
                     <MenuItem height={25} text={'Duplicate'} onPress={duplicateSelected} />
@@ -195,8 +181,6 @@ const CanvasContextMenu = ({
                     activeBoundaryBoxPath &&
                     <MenuItem height={25} text={'Delete'} onPress={deleteSelected} />
                 }
-
-                <MenuItem height={25} text={'Viewbox'} onPress={adjustViewBox} />
             </View>
         </Modal >
     )

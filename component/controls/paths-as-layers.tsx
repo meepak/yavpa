@@ -14,6 +14,7 @@ import StrokeWidth from "./stroke-width";
 import MyPreview from "@c/my-preview";
 import StrokeOpacity from "./stroke-opacity";
 import { SvgDataContext } from "@x/svg-data";
+import MyCheckBox from "@c/my-check-box";
 
 
 
@@ -93,102 +94,115 @@ const PathsAsLayers = (
         return (
             <ScaleDecorator key={item.guid}>
                 <View
-                    style={{ ...styles.cell, padding: 5, backgroundColor: isActive ? 'rgba(0,0,255,0.2)' : 'transparent' }}>
+                    style={{ ...styles.cell, width: 180, padding: 5, backgroundColor: isActive ? 'rgba(0,0,255,0.2)' : 'transparent' }}>
+
+                    <View style={{...styles.row, height: 50}}>
+
+                    <View style={{ ...styles.col, width: 120 }}>
+                            <View style={styles.row}>
 
 
-                    <View style={styles.row}>
+                                {/* <TouchableOpacity onPress={() => handlePathUpdate(item, "selected", !item.selected)}> */}
+                                <MyCheckBox checked={item.selected} onChange={(checked) => handlePathUpdate(item, "selected", checked)} label="" iconStyle={{ color: 'black', size: 20, strokeWidth:2}}/>
+                                     {/* <MyIcon name={item.selected ? "checkbox-checked" : "checkbox-empty"} color='#120e31' size={20} /> */}
+                                {/* </TouchableOpacity> */}
+
+                                <TouchableOpacity style={{ ...styles.cell }}>
+                                    <ContextMenu
+                                        anchor={
+                                            <Text style={{ ...styles.cell, ...styles.link }}>{cleanBrushName(item.stroke)}</Text>
+                                        }
+                                        width={140}
+                                        height={500}
+                                    >
+                                        <SelectBrushColor value={item.stroke} onValueChanged={(color: any) => handlePathUpdate(item, "stroke", color)} />
+                                    </ContextMenu>
+                                </TouchableOpacity>
+
+                            </View>
+
+                            <View style={styles.row}>
 
 
-                        <TouchableOpacity onPress={() => handlePathUpdate(item, "selected", !item.selected)}>
-                            <MyIcon name={item.selected ? "checkbox-checked" : "checkbox-empty"} color='#120e31' size={16} />
-                        </TouchableOpacity>
+                                <TouchableOpacity style={styles.cell}>
+                                    <ContextMenu anchor=
+                                        {
+                                            <Text style={{ ...styles.cell, ...styles.link }}>Width:&nbsp;{precise(item.strokeWidth, 2)}</Text>
+                                        }
+                                        width={100}
+                                        height={400}
+                                    >
+                                        <StrokeWidth
+                                            stroke={item.stroke}
+                                            value={item.strokeWidth}
+                                            strokeOpacity={item.strokeOpacity}
+                                            onValueChanged={(value: any) => handlePathUpdate(item, "strokeWidth", value)}
+                                        />
+                                    </ContextMenu>
+                                </TouchableOpacity>
 
-                        <TouchableOpacity style={{ ...styles.cell }}>
-                            <ContextMenu
-                                anchor={
-                                    <Text style={{ ...styles.cell, ...styles.link }}>{cleanBrushName(item.stroke)}</Text>
-                                }
-                                width={140}
-                                height={500}
-                            >
-                                <SelectBrushColor value={item.stroke} onValueChanged={(color: any) => handlePathUpdate(item, "stroke", color)} />
-                            </ContextMenu>
-                        </TouchableOpacity>
+                                <TouchableOpacity onPress={() => handlePathUpdate(item, "visible", !item.visible)}>
+                                    <Feather name={item.visible ? "eye" : "eye-off"} size={20} />
+                                </TouchableOpacity>
+                            </View>
 
-                        <TouchableOpacity onPress={() => handlePathUpdate(item, "visible", !item.visible)}>
-                            <Feather name={item.visible ? "eye" : "eye-off"} size={16} />
-                        </TouchableOpacity>
+                            <View style={styles.row}>
+                                <TouchableOpacity onPress={() => deletePath(item)}>
+                                    <Feather name="trash" size={20} />
+                                </TouchableOpacity>
 
-                        <TouchableOpacity onPress={() => deletePath(item)}>
-                            <Feather name="trash" size={16} />
-                        </TouchableOpacity>
-                    </View>
-
-
-                    <View style={styles.row}>
-                        <View style={styles.col}>
-                            <TouchableOpacity style={styles.cell}>
-                                <ContextMenu anchor=
-                                    {
-                                        <Text style={{ ...styles.cell, ...styles.link }}>W:&nbsp;{precise(item.strokeWidth, 2)}</Text>
-                                    }
-                                    width={100}
-                                    height={400}
-                                >
-                                    <StrokeWidth
-                                        stroke={item.stroke}
-                                        value={item.strokeWidth}
-                                        strokeOpacity={item.strokeOpacity}
-                                        onValueChanged={(value: any) => handlePathUpdate(item, "strokeWidth", value)}
-                                    />
-                                </ContextMenu>
-                            </TouchableOpacity>
-
-
-                            <TouchableOpacity style={styles.cell}>
-                                <ContextMenu anchor=
-                                    {
-                                        <Text style={{ ...styles.cell, ...styles.link }}>O:&nbsp;{precise(item.strokeOpacity, 2)}</Text>
-                                    }
-                                    width={100}
-                                    height={400}
-                                >
-                                    <StrokeOpacity
-                                        stroke={item.stroke}
-                                        strokeWidth={item.strokeWidth}
-                                        value={item.strokeWidth}
-                                        onValueChanged={(value: any) => handlePathUpdate(item, "strokeOpacity", value)}
-                                    />
-                                </ContextMenu>
-                            </TouchableOpacity>
+                                <TouchableOpacity style={styles.cell}>
+                                    <ContextMenu anchor=
+                                        {
+                                            <Text style={{ ...styles.cell, ...styles.link }}>Opacity:&nbsp;{precise(item.strokeOpacity, 2)}</Text>
+                                        }
+                                        width={100}
+                                        height={400}
+                                    >
+                                        <StrokeOpacity
+                                            stroke={item.stroke}
+                                            strokeWidth={item.strokeWidth}
+                                            value={item.strokeWidth}
+                                            onValueChanged={(value: any) => handlePathUpdate(item, "strokeOpacity", value)}
+                                        />
+                                    </ContextMenu>
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                        <TouchableOpacity
-                            onPress={drag}>
-                            <View style={{
-                                width: previewSize.width,
-                                height: previewSize.height,
-                                position: 'absolute',
-                                top: -25,
-                                right: 15,
-                                zIndex: 0,
-                                backgroundColor: 'rgba(0,0,0,0.1)'
-                            }}>
-                                <MyPreview animate={false} data={pathAsSvgData} />
-                            </View>
 
-                            <View style={{ position: 'absolute', bottom: -20, right: -7 }}>
-                                <MyIcon
-                                    name="drag"
-                                    size={24}
-                                    color={'rgba(0,0,0,0.5)'}
-                                    fill={'rgba(0,0,0,0.4)'}
-                                />
-                            </View>
-                        </TouchableOpacity>
+                    <View style={{ ...styles.col, width: 60, height: 50,}}>
 
+                            <TouchableOpacity
+                                onPress={drag}>
+                                <View style={{
+                                    width: previewSize.width,
+                                    height: previewSize.height,
+                                    // position: 'absolute',
+                                    // top: -25,
+                                    // right: 15,
+                                    zIndex: 0,
+                                    backgroundColor: 'rgba(0,0,0,0.1)'
+                                }}>
+                                    <MyPreview animate={false} data={pathAsSvgData} />
+                                </View>
 
+                                <View style={{
+                                    transform: [{ rotate: '90deg' }],
+                                    // position: 'absolute', bottom: -20, right: -7
+                                    }}>
+                                    <MyIcon
+                                        name="drag"
+                                        size={24}
+                                        color={'rgba(0,0,0,0.5)'}
+                                        fill={'rgba(0,0,0,0.4)'}
+                                    />
+                                </View>
+                            </TouchableOpacity>
+
+                        </View>
+
+                        </View>
                     </View>
-                </View>
             </ScaleDecorator>
         )
     };
@@ -213,6 +227,7 @@ const PathsAsLayers = (
                     // ListHeaderComponent={HeaderComponent}
                     // stickyHeaderIndices={[0]}
                     onAnimValInit={(val) => console.log(val)}
+                    contentContainerStyle={{ paddingVertical: 10}}
 
                 />
 
@@ -227,15 +242,17 @@ const styles = StyleSheet.create({
         backgroundColor: "#ffff00",
     },
     row: {
-        width: 105,
+        width: 100,
         flexDirection: "row",
         alignItems: 'center', // Add this line
         justifyContent: "space-between",
+        alignContent: "space-between",
     },
     col: {
         flexDirection: "column",
-        justifyContent: 'flex-start',
+        justifyContent: 'space-between',
         alignItems: 'flex-start',
+        alignContent: "space-between",
     },
     cell1: {
         justifyContent: "center",
@@ -246,6 +263,7 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
         alignItems: "flex-start",
         padding: 1,
+        fontSize: 11,
         // borderWidth: 1,
         // borderColor: "#ccc",
     },
@@ -254,7 +272,6 @@ const styles = StyleSheet.create({
         fontStyle: "italic",
     },
     link: {
-        fontSize: 10,
         color: "blue",
         textDecorationLine: "underline",
     }

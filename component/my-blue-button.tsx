@@ -69,7 +69,7 @@ const MyBlueButton = (props: MyBlueButtonProps) => {
     const setPressedDesign = (pressed: boolean) => {
         setContainerStyle({
             ...containerStyle,
-            opacity: pressed ? 1 : 1,
+            opacity: 1,
             borderColor: pressed ? "#4f236d" : "#4f236d",
             ...(
                 props.aligned === 'left'
@@ -113,6 +113,7 @@ const MyBlueButton = (props: MyBlueButtonProps) => {
                     alignItems: 'center',
                     alignContent: 'space-between',
                     paddingHorizontal: 20,
+                    opacity: 1,
                 } : {}}>
                     {
                         props.icon?.desc &&
@@ -135,6 +136,7 @@ const MyBlueButton = (props: MyBlueButtonProps) => {
                     <View
                         pointerEvents="auto">
                         <View style={{
+                            opacity: 1,
                             top: props.icon?.top || undefined,
                             left: props.icon?.left || undefined
                         }}>{

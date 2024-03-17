@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Text, View, StyleSheet, ActivityIndicator } from "react-native";
+import { View, StyleSheet, ActivityIndicator } from "react-native";
 import Svg from "react-native-svg";
 import { createPathdata } from "@u/helper";
 import { CANVAS_VIEWBOX, PathDataType, PointType, ShapeType } from "@u/types";
@@ -10,9 +10,8 @@ import { defaultShape } from "@u/shapes";
 import { useSelectEffect } from "./canvas/use-select-effect";
 import { MyGestures } from "./canvas/my-gestures";
 import ErrorBoundary from "@c/error-boundary";
-import { ContextMenu } from "@c/controls";
-import Modal from "react-native-modal";
 import CanvasContextMenu from "./canvas/canvas-context-menu";
+import MyBoundaryBox from "@c/my-boundary-box";
 
 
 type SvgCanvasProps = {
@@ -52,13 +51,11 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 
   const [isLoading, setIsLoading] = useState(true);
 
+  const [menuPosition, setMenuPosition] = useState<PointType>({ x: -999, y: -999 });
 
-  const [viewBoxAdjustMode, setViewBoxAdjustMode] = useState(false);
 
   const [activeBoundaryBoxPath, setActiveBoundaryBoxPath] = useState<PathDataType | null>(null)
-  // const [boundaryBoxDashoffset, setBoundaryBoxDashoffset] = useState(5);
 
-  const [menuPosition, setMenuPosition] = useState<PointType>({ x: -999, y: -999 });
 
   // This is be enabled in next version only
   // erasure mode - erasure shape can be square or circle
@@ -84,11 +81,11 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     svgData,
     setSvgData,
     setEditMode,
+    activeBoundaryBoxPath,
     setActiveBoundaryBoxPath,
     stroke,
     strokeWidth,
     strokeOpacity,
-    viewBoxAdjustMode,
   });
 
 
@@ -123,8 +120,6 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     activeBoundaryBoxPath,
     setActiveBoundaryBoxPath,
     setMenuPosition,
-    viewBoxAdjustMode,
-    setViewBoxAdjustMode,
   };
 
 
@@ -166,11 +161,8 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
                     )}
 
 
-                    {
-                      activeBoundaryBoxPath && activeBoundaryBoxPath.visible && (
-                        <MyPath prop={activeBoundaryBoxPath} keyProp={"selectBoundaryBox"} key={"selectBoundaryBox"} />
-                      )
-                    }
+                    <MyBoundaryBox activeBoundaryBoxPath={activeBoundaryBoxPath} />
+
 
                   </Svg>
                 </ErrorBoundary>
@@ -185,7 +177,6 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
         setMenuPosition={setMenuPosition}
         svgData={svgData}
         setSvgData={setSvgData}
-        setViewBoxAdjustMode={setViewBoxAdjustMode}
      />
     </View >
   );

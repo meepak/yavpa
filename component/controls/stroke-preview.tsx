@@ -1,9 +1,7 @@
 
 import * as AvailableBrushes from "@c/my-brushes";
-import { CANVAS_VIEWBOX } from "@u/types";
 import { useEffect, useState } from "react";
-import { View } from "react-native";
-import Svg, { Defs, Line, Path } from "react-native-svg";
+import Svg, { Defs, Path } from "react-native-svg";
 
 
 

@@ -1,4 +1,3 @@
-import elevations from '@u/elevation';
 import { CANVAS_HEIGHT } from '@u/types';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
@@ -121,7 +120,7 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
     });
   };
 
-  
+
   render() {
     return (
       <View>

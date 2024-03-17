@@ -3,7 +3,7 @@ import { SetStateAction } from "react";
 import { GestureStateChangeEvent, GestureUpdateEvent, TapGestureHandlerEventPayload } from "react-native-gesture-handler";
 import { getPointsFromPath, getViewBoxTrimmed } from "@u/helper";
 import { polygonContains } from 'd3-polygon';
-import { getBoundaryBox } from "@u/boundary-box";
+import { getBoundaryBox } from "@c/my-boundary-box";
 
 export const handleSelectEvent = (
   event: GestureStateChangeEvent<TapGestureHandlerEventPayload>,
@@ -14,7 +14,6 @@ export const handleSelectEvent = (
     x: event.x,
     y: event.y,
   }
-
     const tappedInsidePathData = (pathData: PathDataType, isPathBbox = false) => {
 
       const pathBoundaryBox = isPathBbox

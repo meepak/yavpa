@@ -20,7 +20,7 @@ import { handleDragEvent } from "./handle-drag-event";
 import { handleScaleEvent } from "./handle-scale-event";
 import { handleRotateEvent } from "./handle-rotate-event";
 import { throttle } from "lodash";
-import { getBoundaryBox } from "@u/boundary-box";
+import { getBoundaryBox } from "@c/my-boundary-box";
 import { getDeviceOrientation, getPathLength, getPointsFromPath } from "@u/helper";
 
 
@@ -40,8 +40,6 @@ type MyGesturesProps = {
   activeBoundaryBoxPath: PathDataType | null,
   setActiveBoundaryBoxPath: (value: SetStateAction<PathDataType | null>) => void,
   setMenuPosition: (value: SetStateAction<PointType>) => void,
-  viewBoxAdjustMode: boolean,
-  setViewBoxAdjustMode: (value: SetStateAction<boolean>) => void,
   children: React.ReactNode,
 };
 
@@ -64,8 +62,6 @@ export const MyGestures = ({
   activeBoundaryBoxPath,
   setActiveBoundaryBoxPath,
   setMenuPosition,
-  viewBoxAdjustMode,
-  setViewBoxAdjustMode,
   children,
 }: MyGesturesProps): React.ReactNode => {
 
@@ -134,7 +130,6 @@ export const MyGestures = ({
   // For paths selection on screen
   const doubleTapSelectGesture = Gesture.Tap()
   doubleTapSelectGesture.numberOfTaps(2).onEnd((event) => {
-    setViewBoxAdjustMode(false);
     handleSelectEvent(event, activeBoundaryBoxPath, setSvgData);
   });
 
@@ -199,6 +194,7 @@ export const MyGestures = ({
   // Make the context menu appear
   const longPressGesture = Gesture.LongPress()
   longPressGesture.onStart((event) => {
+    if(activeBoundaryBoxPath == null) return;
     setMenuPosition({ x: event.x, y: event.y });
   });
 

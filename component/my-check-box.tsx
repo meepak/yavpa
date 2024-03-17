@@ -1,8 +1,8 @@
-import { 
-  TouchableOpacity, 
-  Text, 
-  View, 
-  TextStyle, 
+import {
+  TouchableOpacity,
+  Text,
+  View,
+  TextStyle,
   StyleProp } from "react-native";
 import MyIcon, { MyIconStyle } from "./my-icon";
 import React from "react";

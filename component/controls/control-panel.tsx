@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import MyIcon from "@c/my-icon";
 import ContextMenu from "component/controls/context-menu";
-import { I_AM_IOS } from "@u/types";
+import { I_AM_IOS, ModalAnimations } from "@u/types";
 
 const ICON_SIZE = 28;
 
@@ -91,7 +91,10 @@ const ControlPanel = ({ buttons, paddingLeft = 40, paddingRight = 40 }) => {
               }
               width={item.extraPanel?.width || 150}
               height={item.extraPanel?.height || 200}
-              closeMenuAt={forceRerenderAt}>
+              closeMenuAt={forceRerenderAt}
+              animationIn={item.key == 'layers' ? ModalAnimations.slideInRight : undefined}
+              animationOut={item.key == 'layers' ? ModalAnimations.slideOutRight : undefined}
+              >
               <>
                 {/* <AcceptButton /> */}
                 {item.extraControl}

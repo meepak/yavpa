@@ -165,6 +165,7 @@ export const handleDrawingEvent = (
 
       if (isValidPath(currentPath.path)) {
         currentPath.visible = true;
+        currentPath.selected = false;
         currentPath.length = getPathLength(points);
         console.log('setting completed path from drawing event');
         // setCompletedPaths((prev) => [...prev, currentPath]);

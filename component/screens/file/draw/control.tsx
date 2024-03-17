@@ -1,7 +1,7 @@
 import React, { } from "react";
 import {
-  SimplifySmooth, 
-  PathsAsLayers, 
+  SimplifySmooth,
+  PathsAsLayers,
   SelectShape,
   StrokeWidth,
   StrokeOpacity
@@ -123,7 +123,7 @@ const createDrawControls = ({
         <SelectShape onValueChanged={(value: string) => { drawShape(value); }} value={shape} />
       ),
       extraPanel: { width: 150, height: 400 }
-    }, 
+    },
     // {
     //   key: "erasure",
     //   icon: "erasure-off",
@@ -143,7 +143,7 @@ const createDrawControls = ({
       extraControl: (
         <PathsAsLayers svgData={svgData} setSvgData={setSvgData}/>
       ),
-      extraPanel: { width: 150, height: 'auto'}
+      extraPanel: { width: 200, height: 'auto'}
     },
   ])};
 

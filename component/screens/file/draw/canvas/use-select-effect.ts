@@ -1,4 +1,4 @@
-import { getBoundaryBox, getCanvasAsBoundaryBox } from "@u/boundary-box";
+import { getBoundaryBox } from "@c/my-boundary-box";
 import { PathDataType, SvgDataType } from "@u/types";
 import { useEffect } from "react";
 
@@ -6,42 +6,31 @@ export const useSelectEffect = ({
   svgData,
   setSvgData,
   setEditMode,
+  activeBoundaryBoxPath,
   setActiveBoundaryBoxPath,
   stroke,
   strokeWidth,
   strokeOpacity,
-  viewBoxAdjustMode,
 }) => {
 
   useEffect(() => {
 
-    if(viewBoxAdjustMode) {
-      setEditMode(false);
-      const canvasBoundaryBox = getCanvasAsBoundaryBox();
-      setActiveBoundaryBoxPath(canvasBoundaryBox);
-      setSvgData((prev: SvgDataType) => {
-        prev.pathData.forEach((item) => {
-          item.selected = true;
-        });
-        return prev;
-      });
-      return;
-    }
-
     let selectedPaths = svgData.pathData.filter((item: PathDataType) => item.selected);
 
-    if (selectedPaths.length === 0) {
+    if (selectedPaths.length === 0 || !activeBoundaryBoxPath) {
+      console.log('got nth')
+      setActiveBoundaryBoxPath(() => null);
       setEditMode(true);
-      setActiveBoundaryBoxPath(null);
       return;
     }
 
     setEditMode(false);
 
+    console.log("selectedPaths", selectedPaths.length);
     const rectPathData = getBoundaryBox(selectedPaths);
     setActiveBoundaryBoxPath(rectPathData);
 
-  }, [svgData, viewBoxAdjustMode]);
+  }, [svgData]);
 
 
   const updateSelectedPath = (property: string, value: any) => {

@@ -69,6 +69,7 @@ export const isValidPath = (path: string): boolean => {
   return true;
 }
 export const getPathFromPoints = (points: PointType[]) => {
+  if(!points || points.length === 0) return "";
   const isClosed = points[0].x === points[points.length - 1].x && points[0].y === points[points.length - 1].y;
   let path = points.map(({ x, y }, index) => {
     if (isClosed && index === points.length - 1) return '';

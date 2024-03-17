@@ -7,7 +7,6 @@ import { useCallback, useLayoutEffect, useState } from 'react';
 import { TouchableHighlight } from 'react-native';
 import Animated, { useSharedValue, useAnimatedScrollHandler } from 'react-native-reanimated';
 import { ContextMenu } from './controls';
-import elevations from '@u/elevation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const FILE_PREVIEW_WIDTH = 100;

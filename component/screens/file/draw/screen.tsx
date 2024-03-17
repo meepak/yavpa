@@ -89,7 +89,7 @@ const DrawScreen = ({ zoom, initControls }) => {
   return (
     <View style={{ flex: 1 }} onLayout={() => initControls(buttons)}>
         <SvgCanvas
-          editable={editMode} // to do get rid of this, as preview will act as read only mode
+          editable={editMode}
           // erasing={erasureMode}
           command={command}
           forceUpdate={commandEnforcer}
