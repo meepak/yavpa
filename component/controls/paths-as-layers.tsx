@@ -86,7 +86,7 @@ const PathsAsLayers = (
     const HeaderComponent = () =>
         <>
             <View style={{...styles.row, width: '100%'}}>
-                <MyCheckBox checked={allSelected} onChange={toggleAllSelection} label={""} checkBoxFirst iconStyle={{size: 20, color: '#000000'}}/>
+                <MyCheckBox checked={allSelected} onChange={toggleAllSelection} label={""} checkBoxFirst iconStyle={{ color: 'transparent', size: 24, fill: '#000000' }} />
 
                 <TouchableOpacity onPress={deleteAllSelectedPath}>
                     <Feather name="trash" size={20} />
@@ -135,7 +135,7 @@ const PathsAsLayers = (
 
 
                                 {/* <TouchableOpacity onPress={() => handlePathUpdate(item, "selected", !item.selected)}> */}
-                                <MyCheckBox checked={item.selected} onChange={(checked) => handlePathUpdate(item, "selected", checked)} label="" iconStyle={{ color: 'black', size: 20, strokeWidth:2}}/>
+                                <MyCheckBox checked={item.selected} onChange={(checked) => handlePathUpdate(item, "selected", checked)} label="" iconStyle={{ color: 'transparent', size: 24, fill: '#000000'}}/>
                                      {/* <MyIcon name={item.selected ? "checkbox-checked" : "checkbox-empty"} color={MY_BLACK} size={20} /> */}
                                 {/* </TouchableOpacity> */}
 

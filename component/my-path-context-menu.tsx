@@ -1,9 +1,8 @@
-import { ContextMenu, Divider } from "@c/controls";
+import { Divider } from "@c/controls";
 import { View, Text, Pressable } from "react-native"
 import Modal from "react-native-modal"
 import * as Crypto from "expo-crypto"
 import { useState } from "react";
-import SelectBrushColor from "@c/controls/select-brush-color";
 import { ModalAnimations } from "@u/types";
 
 export const getCanvasContextMenuSize = (activeBoundaryBoxPath: any, styleClipBoard: any) => {
@@ -22,7 +21,7 @@ export const getCanvasContextMenuSize = (activeBoundaryBoxPath: any, styleClipBo
     return {width: 100, height: count * (25 + 4)};
 };
 
-const CanvasContextMenu = ({
+const MyPathContextMenu = ({
     activeBoundaryBoxPath,
     setActiveBoundaryBoxPath,
     menuPosition,
@@ -186,4 +185,4 @@ const CanvasContextMenu = ({
     )
 }
 
-export default CanvasContextMenu;
+export default MyPathContextMenu;

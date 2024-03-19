@@ -8,7 +8,7 @@ import LottieView, { AnimationObject } from "lottie-react-native";
 import { SvgDataContext } from "@x/svg-data";
 import MyPreview from "@c/my-preview";
 import { getViewBoxTrimmed } from "@u/helper";
-import { CANVAS_HEIGHT, CANVAS_VIEWBOX, CANVAS_WIDTH, I_AM_IOS } from "@u/types";
+import { CANVAS_HEIGHT, CANVAS_VIEWBOX, CANVAS_WIDTH, FOOTER_HEIGHT, I_AM_IOS } from "@u/types";
 import * as format from "@u/formatters";
 import createLottie from "@u/lottie";
 import ErrorBoundary from "@c/error-boundary";
@@ -72,12 +72,12 @@ const ExportScreen = ({ initControls }) => {
   }, []);
 
   const exportOptions = [
-    {
-      name: "My Path internal format JSON",
-      description: "Very simple json representation of the path data so that it can be loaded/unloaded etc?",
-      downloadAction: () => download(svgData.metaData.name + ".json", nativeJson),
-      copyAction: () => copyToClipboard(nativeJson),
-    },
+    // {
+    //   name: "My Path internal format JSON",
+    //   description: "Very simple json representation of the path data so that it can be loaded/unloaded etc?",
+    //   downloadAction: () => download(svgData.metaData.name + ".json", nativeJson),
+    //   copyAction: () => copyToClipboard(nativeJson),
+    // },
     {
       name: "Static SVG",
       description: "Ideal for simple, scalable graphics. Lightweight and versatile.",
@@ -117,7 +117,7 @@ const ExportScreen = ({ initControls }) => {
                 <Text style={{ marginBottom: 5 }}>Disclaimer: "My Path" is in developmental preview.</Text>
                 <Text style={{ marginBottom: 20 }}>There are still lots of rough edges. Thank you for your understanding.</Text>
               </View>
-              <View style={{ width: 150 * CANVAS_WIDTH / CANVAS_HEIGHT, height: 150, marginRight: 5, alignSelf: 'flex-end', borderWidth: 1 }}>
+              <View style={{ width: 150 * CANVAS_WIDTH / CANVAS_HEIGHT, height: 150, marginRight: 15, alignSelf: 'flex-end', borderWidth: 1 }}>
                 <ErrorBoundary>
                   <MyPreview data={svgData} animate={animate} viewBox={CANVAS_VIEWBOX} />
                 </ErrorBoundary>
@@ -158,6 +158,7 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     padding: 20,
+    marginBottom: 20,
   },
   title: {
     fontSize: 24,

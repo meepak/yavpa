@@ -10,7 +10,7 @@ import { defaultShape } from "@u/shapes";
 import { useSelectEffect } from "./canvas/use-select-effect";
 import { MyGestures } from "./canvas/my-gestures";
 import ErrorBoundary from "@c/error-boundary";
-import CanvasContextMenu from "./canvas/canvas-context-menu";
+import MyPathContextMenu from "../../../my-path-context-menu";
 import MyBoundaryBox from "@c/my-boundary-box";
 
 
@@ -185,7 +185,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
             </MyGestures>
           )
       }
-      <CanvasContextMenu
+      <MyPathContextMenu
         activeBoundaryBoxPath={activeBoundaryBoxPath}
         setActiveBoundaryBoxPath={setActiveBoundaryBoxPath}
         menuPosition={menuPosition}

@@ -423,7 +423,7 @@ export const getPenOffset = async() => {
         penOffset.x = -1 * x; penOffset.y = 1 * y;
         break;
     }
-    console.log(orientation, penOffset);
+    // console.log(orientation, penOffset);
     return penOffset;
   } catch (error) {
     console.log('Error getting device orientation', error);
