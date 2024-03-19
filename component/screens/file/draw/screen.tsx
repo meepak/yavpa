@@ -6,17 +6,17 @@ import { AvailableShapes, PathDataType } from "@u/types";
 import { SvgDataContext } from "@x/svg-data";
 
 
-const DrawScreen = ({ zoom, initControls }) => {
+const DrawScreen = ({ initControls }) => {
   const [stroke, setStroke] = useState("#120e31");
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [strokeOpacity, setStrokeOpacity] = useState(1);
   const [simplifyTolerance, setSimplifyTolerance] = useState(0.0111);
-  const [d3CurveBasis, setD3CurveBasis] = useState(null); //"auto",null "open", "closed", null
+  const [d3CurveBasis, setD3CurveBasis] = useState("auto"); //"auto",null "open", "closed", null
   const [command, setCommand] = useState("");
   const [commandEnforcer, setCommandEnforcer] = useState(0); // since we may need to send same command, we use this increasing id to force update
   const [shape, setShape] = useState(AvailableShapes[0]);
   const [editMode, setEditMode] = useState(true);
-  // const [erasureMode, setErasureMode] = useState(false);
+  const [erasureMode, setErasureMode] = useState(false);
 
 
   const { svgData, setSvgData } = useContext(SvgDataContext);
@@ -31,6 +31,9 @@ const DrawScreen = ({ zoom, initControls }) => {
 
   useEffect(() => {
     executeCommand("open");
+
+    // on leaving clear the controls
+    return () => initControls([]);
   }, [])
 
 
@@ -50,10 +53,10 @@ const DrawScreen = ({ zoom, initControls }) => {
   //   setEditMode((prev) => !prev);
   // };
 
-  // const toggleErasure = () => {
-  //   setErasureMode((prev) => !prev);
-  //   // executeCommand("erase");
-  // }
+  const toggleErasure = () => {
+    setErasureMode((prev) => !prev);
+    // executeCommand("erase");
+  }
 
   const drawShape = (shape) => {
     setShape(shape);
@@ -82,15 +85,14 @@ const DrawScreen = ({ zoom, initControls }) => {
     setD3CurveBasis,
     shape,
     drawShape,
-    // toggleErasure,
-    // onSelectMode,
+    toggleErasure,
   });
 
   return (
     <View style={{ flex: 1 }} onLayout={() => initControls(buttons)}>
         <SvgCanvas
           editable={editMode}
-          // erasing={erasureMode}
+          erasing={erasureMode}
           command={command}
           forceUpdate={commandEnforcer}
           stroke={stroke}

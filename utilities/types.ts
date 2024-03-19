@@ -18,26 +18,27 @@ export const PRECISION = 3;
 // ---- fix for the canvas size ---------------------
 export const SCREEN_WIDTH = Dimensions.get("window").width;
 export const SCREEN_HEIGHT = Dimensions.get("window").height;
-export const MAX_HEADER_HEIGHT = 110;
-const CANVAS_PADDING_HORIZONTAL = 30;
-const CANVAS_PADDING_VERTICAL = 30;
+export const HEADER_HEIGHT = 110;
+export const FOOTER_HEIGHT = 40;
+export const CANVAS_PADDING_HORIZONTAL = 30;
+export const CANVAS_PADDING_VERTICAL = 30;
 
 // Thus,
 export const CANVAS_WIDTH = SCREEN_WIDTH - CANVAS_PADDING_HORIZONTAL * 2;
-export const CANVAS_HEIGHT = SCREEN_HEIGHT - MAX_HEADER_HEIGHT - CANVAS_PADDING_VERTICAL * 2;
+export const CANVAS_HEIGHT = SCREEN_HEIGHT - HEADER_HEIGHT - CANVAS_PADDING_VERTICAL * 1.5 -  FOOTER_HEIGHT;
 export const CANVAS_VIEWBOX = `0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`;
 export const CANVAS_PATH = `M0,0 L${CANVAS_WIDTH},0 L${CANVAS_WIDTH},${CANVAS_HEIGHT} L0,${CANVAS_HEIGHT} Z`;
 
 // console.log('SCREEN_WIDTH', SCREEN_WIDTH);
 // console.log('SCREEN_HEIGHT', SCREEN_HEIGHT);
-// console.log('MAX_HEADER_HEIGHT', MAX_HEADER_HEIGHT);
+// console.log('HEADER_HEIGHT', HEADER_HEIGHT);
 // console.log('CANVAS_WIDTH', CANVAS_WIDTH);
 // console.log('CANVAS_HEIGHT', CANVAS_HEIGHT);
 
 // -------------------------------------------------
 
 export const FILM_STRIP_HOLE_HEIGHT = 16;
-export const NUM_FILM_STRIP_HOLES = parseInt(((SCREEN_HEIGHT - MAX_HEADER_HEIGHT) / FILM_STRIP_HOLE_HEIGHT).toString()) + 10;
+export const NUM_FILM_STRIP_HOLES = parseInt(((SCREEN_HEIGHT - HEADER_HEIGHT) / FILM_STRIP_HOLE_HEIGHT).toString()) + 10;
 
 // -----------------------------------------------
 
@@ -50,8 +51,8 @@ export const ScreenModeInstruction = {
 
 
 export const ScreenModes: ScreenModeType[] = [
-    { name: "Draw", icon: "edit" },
-    { name: "Preview", icon: "preview" },
+    { name: "Draw", icon: "preview" }, // show preview icon in draw
+    { name: "Preview", icon: "edit" }, // I guess it makes ore sense??
     { name: "Export", icon: "export" },
 ];
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Alert, TouchableWithoutFeedback } from "react-native";
 import { PathDataType, SvgDataType } from "@u/types";
 import * as Crypto from "expo-crypto";
@@ -42,6 +42,22 @@ const PathsAsLayers = (
         ]);
     }
 
+    function deleteAllSelectedPath() {
+        Alert.alert("Delete Path", "Are you sure you want to delete all selected paths permanently?", [
+            { text: "Cancel", style: "cancel" },
+            {
+                text: "Delete",
+                onPress: () => {
+                    // delete indexth element from svgData.pathData
+                    setSvgData((prevSvgData: SvgDataType) => {
+                        const newLayers = prevSvgData.pathData.filter((path) => !path.selected);
+                        return { metaData: { ...prevSvgData.metaData, updatedAt: "" }, pathData: newLayers };
+                    });
+                },
+            },
+        ]);
+    }
+
     const handlePathUpdate = (path: PathDataType, prop: any, value: any) => {
         if (path[prop] === value) return;
         const index = svgData.pathData.indexOf(path);
@@ -54,13 +70,29 @@ const PathsAsLayers = (
         });
     }
 
+    const [allSelected, setAllSelected] = useState(false);
+    const toggleAllSelection = (checked: boolean) => {
+        setAllSelected(checked);
+        setSvgData((prevSvgData: SvgDataType) => {
+            const newLayers = prevSvgData.pathData.map((path) => ({ ...path, selected: checked }));
+            return { metaData: { ...prevSvgData.metaData, updatedAt: "" }, pathData: newLayers };
+        });
+    }
+
     const cleanBrushName = (brushName: string) => brushName.startsWith('url') ? brushName.slice(4, -1) : brushName;
 
     const ItemSeparator = () => <Divider width="100%" color="rgba(0,0,0,1)" height={2} />;
 
     const HeaderComponent = () =>
         <>
-            <View style={styles.col}>
+            <View style={{...styles.row, width: '100%'}}>
+                <MyCheckBox checked={allSelected} onChange={toggleAllSelection} label={""} checkBoxFirst iconStyle={{size: 20, color: '#000000'}}/>
+
+                <TouchableOpacity onPress={deleteAllSelectedPath}>
+                    <Feather name="trash" size={20} />
+                </TouchableOpacity>
+
+
                 <Text style={styles.cell1}>Total Paths: {svgData.pathData.length}</Text>
                 {/* <Text style={styles.cell1}>Time: {precise(svgData.pathData.reduce((sum, item) => sum + item.time, 0) / 1000, 0)} secs</Text> */}
             </View>

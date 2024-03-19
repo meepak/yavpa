@@ -27,8 +27,8 @@ const createPreviewControls = ({
         <AnimationParams
           animationParams={animationParams}
           onAnimationParamsChanged={(value: AnimationParamsType) => {
-            setAnimationParams((prev: AnimationParamsType) => ({ 
-              ...prev, 
+            setAnimationParams((prev: AnimationParamsType) => ({
+              ...prev,
               speed: value.speed,
               loop: value.loop,
               delay: value.delay,
@@ -51,7 +51,7 @@ const createPreviewControls = ({
           }}
           />
       ),
-      extraPanel: { width: 250, height: 140 }
+      extraPanel: { width: 300, height: 140 }
     },
   ];
 

@@ -6,7 +6,7 @@ import { polygonContains, polygonLength } from "d3-polygon";
 import path from "path";
 import { Accelerometer } from "expo-sensors";
 import simplify from "simplify-js";
-
+import { line, curveBasis } from 'd3-shape';
 
 export const createSvgData = (): SvgDataType => ({
   pathData: [],
@@ -68,6 +68,18 @@ export const isValidPath = (path: string): boolean => {
   if (path.includes('NaN')) return false;
   return true;
 }
+
+export const getRealPathFromPoints = (points: PointType[]) => {
+  if (!points || points.length === 0) return "";
+
+  const lineGenerator = line<PointType>()
+    .x(d => d.x)
+    .y(d => d.y)
+    .curve(curveBasis); // Use curveBasis for a smooth curve
+
+  return lineGenerator(points) || '';
+}
+
 export const getPathFromPoints = (points: PointType[]) => {
   if(!points || points.length === 0) return "";
   const isClosed = points[0].x === points[points.length - 1].x && points[0].y === points[points.length - 1].y;
@@ -194,6 +206,9 @@ export const getViewBoxTrimmed = (pathData: PathDataType[], offset = 20) => {
   let maxX = 0;
   let maxY = 0;
   // let offset = 20;
+
+  // just return the canvas if no path given
+  if(pathData.length === 0) return `0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`;
 
   // console.log("pathData", pathData)
   pathData.forEach((path) => {
@@ -375,3 +390,36 @@ export const getDeviceOrientation = () => {
     });
   });
 };
+
+
+// TODO make this user onfigurable for tiny finger people
+const penOffset = { x: 30, y: 30 };
+
+export const getPenOffset = async() => {
+  try {
+    const orientation = await getDeviceOrientation();
+    // console.log('Device orientation', orientation);
+    let x = Math.abs(penOffset.x);
+    let y = Math.abs(penOffset.y);
+    switch (orientation) {
+      case Orientation.PORTRAIT_UP:
+        penOffset.x = -1 * x; penOffset.y = -1 * y;
+        break;
+      case Orientation.PORTRAIT_DOWN:
+        penOffset.x = 1 * x; penOffset.y = 1 * y;
+        break;
+      case Orientation.LANDSCAPE_UP:
+        penOffset.x = 1 * x; penOffset.y = -1 * y;
+        break;
+      case Orientation.LANDSCAPE_DOWN:
+        penOffset.x = -1 * x; penOffset.y = 1 * y;
+        break;
+    }
+    console.log(orientation, penOffset);
+    return penOffset;
+  } catch (error) {
+    console.log('Error getting device orientation', error);
+  } finally {
+    // console.log('Device orientation check complete', penOffset);
+  }
+}

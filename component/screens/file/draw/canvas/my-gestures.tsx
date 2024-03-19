@@ -1,5 +1,5 @@
 
-import { SetStateAction, useCallback, useEffect, useState } from "react";
+import { SetStateAction, useState } from "react";
 import {
   Gesture,
   GestureDetector,
@@ -12,7 +12,6 @@ import {
   SvgDataType,
   ShapeType,
   PointType,
-  Orientation
 } from "@u/types";
 import { handleDrawingEvent } from "./handle-drawing-event";
 import { handleSelectEvent } from "./handle-select-event";
@@ -21,13 +20,14 @@ import { handleScaleEvent } from "./handle-scale-event";
 import { handleRotateEvent } from "./handle-rotate-event";
 import { throttle } from "lodash";
 import { getBoundaryBox } from "@c/my-boundary-box";
-import { getDeviceOrientation, getPathLength, getPointsFromPath } from "@u/helper";
+import { getPenOffset } from "@u/helper";
 
 
 type MyGesturesProps = {
   svgData: { pathData: PathDataType[]; metaData: MetaDataType; },
   setSvgData: (value: SetStateAction<SvgDataType>) => void,
   editMode: boolean,
+  erasureMode: boolean
   currentPath: PathDataType,
   setCurrentPath: (value: SetStateAction<PathDataType>) => void,
   startTime: number,
@@ -43,13 +43,12 @@ type MyGesturesProps = {
   children: React.ReactNode,
 };
 
-// TODO make this user onfigurable for tiny finger people
-const penOffset = { x: 30, y: 30 };
 
 export const MyGestures = ({
   svgData,
   setSvgData,
   editMode,
+  erasureMode,
   currentPath,
   setCurrentPath,
   startTime,
@@ -66,45 +65,23 @@ export const MyGestures = ({
 }: MyGesturesProps): React.ReactNode => {
 
 
-
+  const [penOffset, setPenOffset] = useState<PointType>({ x: 0, y: 0 });
 
   // For all things related to drawing a path
   const handlePanDrawingEvent = async (event: GestureUpdateEvent<PanGestureHandlerEventPayload>, state: string) => {
-    if (state === "began") {
-      try {
-        const orientation = await getDeviceOrientation();
-        // console.log('Device orientation', orientation);
-        let x = Math.abs(penOffset.x);
-        let y = Math.abs(penOffset.y);
-        switch (orientation) {
-          case Orientation.PORTRAIT_UP:
-            penOffset.x = -1 * x; penOffset.y = -1 * y;
-            break;
-          case Orientation.PORTRAIT_DOWN:
-            penOffset.x = 1 * x; penOffset.y = 1 * y;
-            break;
-          case Orientation.LANDSCAPE_UP:
-            penOffset.x = 1 * x; penOffset.y = -1 * y;
-            break;
-          case Orientation.LANDSCAPE_DOWN:
-            penOffset.x = -1 * x; penOffset.y = 1 * y;
-            break;
-        }
-      } catch (error) {
-        console.log('Error getting device orientation', error);
-      } finally {
-        // console.log('Device orientation check complete', penOffset);
-      }
+
+    if(state === 'began') { // need to measure at begining of each writing event
+      let pp = await getPenOffset() || { x: 0, y: 0 };
+      setPenOffset(pp);
     }
 
-    // console.log('penOffset', penOffset);
     handleDrawingEvent(
       event,
       state,
-      penOffset,
       svgData,
       setSvgData,
       editMode,
+      erasureMode,
       currentPath,
       setCurrentPath,
       startTime,
@@ -113,7 +90,8 @@ export const MyGestures = ({
       currentShape,
       setCurrentShape,
       simplifyTolerance,
-      d3CurveBasis
+      d3CurveBasis,
+      penOffset
     );
   };
 
@@ -151,7 +129,7 @@ export const MyGestures = ({
   // For moving paths on screen
   const panDragEvent = throttle((event, state) => {
     handleDragEvent(event, state, editMode, setSvgData, activeBoundaryBoxPath, setActiveBoundaryBoxPath);
-  }, 50);
+  }, 5);
 
   const panDragGesture = Gesture.Pan();
   panDragGesture.shouldCancelWhenOutside(false);
@@ -167,7 +145,7 @@ export const MyGestures = ({
   // For scaling of path
   const pinchZoomEvent = throttle((event, state) => {
     handleScaleEvent(event, state, editMode, setSvgData, activeBoundaryBoxPath, setActiveBoundaryBoxPath);
-  }, 50);
+  }, 5);
 
   const pinchZoomGesture = Gesture.Pinch()
   pinchZoomGesture.onBegin((event) => pinchZoomEvent(event, "began"))
@@ -180,7 +158,7 @@ export const MyGestures = ({
   // For rotation of path
   const rotateEvent = throttle((event, state) => {
     handleRotateEvent(event, state, editMode, setSvgData, activeBoundaryBoxPath, setActiveBoundaryBoxPath);
-  }, 50);
+  }, 5);
 
 
   const rotateGesture = Gesture.Rotation()

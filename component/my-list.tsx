@@ -1,7 +1,7 @@
 
 import MyPreview from '@c/my-preview';
 import { getFiles } from '@u/storage';
-import { CANVAS_HEIGHT, CANVAS_WIDTH, MAX_HEADER_HEIGHT, SCREEN_WIDTH, SvgDataType } from '@u/types';
+import { CANVAS_HEIGHT, CANVAS_WIDTH, HEADER_HEIGHT, SCREEN_WIDTH, SvgDataType } from '@u/types';
 import { router } from 'expo-router';
 import { useCallback, useLayoutEffect, useState } from 'react';
 import { TouchableHighlight } from 'react-native';
@@ -158,7 +158,7 @@ const MyList = ({ anchor, width, height }) => {
             height={height}
             showBackground={false}
             xPosition={SCREEN_WIDTH - width}
-            yPosition={MAX_HEADER_HEIGHT}
+            yPosition={HEADER_HEIGHT}
             positionOverride={true}
             // yOffsetFromAnchor={10}
             closeMenuAt={forceRerenderAt}

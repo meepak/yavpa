@@ -41,7 +41,7 @@ const AnimatedSplash = ({
       await SplashScreen.hideAsync();
       // Load stuff, life read files from the file syste,, custom fonts ??
       await Promise.all([]);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // await new Promise((resolve) => setTimeout(resolve, 2000));
     } catch (e) {
       // handle errors
     } finally {

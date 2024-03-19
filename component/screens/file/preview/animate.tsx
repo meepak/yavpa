@@ -7,7 +7,6 @@ import { Svg } from "react-native-svg";
 type Props = {
   svgData: SvgDataType;
   viewBox?: string;
-  zoom?: number;
 };
 
 const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnimate>) => {
@@ -87,7 +86,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
             duration: (animationParams.transition ?? 0) * 1000,
             useNativeDriver: true,
           }),
-        ] 
+        ]
         : animationParams.transitionType === TransitionType.Vibrate
           ? [
             Animated.timing(scale, {
@@ -182,17 +181,17 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
   useEffect(() => {
     // console.log('correction', correction);
     playAnimation();
-  }, [animationParams, props.zoom]);
+  }, [animationParams]);
 
   return (
     <Animated.View style={{
       ...StyleSheet.absoluteFillObject,
-      ...(animationParams.transitionType === TransitionType.Shrink || 
-        animationParams.transitionType === TransitionType.Vibrate 
+      ...(animationParams.transitionType === TransitionType.Shrink ||
+        animationParams.transitionType === TransitionType.Vibrate
         ? {
           transform: [{ scale: scale }]
         }
-        : animationParams.transitionType === TransitionType.Fade 
+        : animationParams.transitionType === TransitionType.Fade
         ? { opacity: opacity }
         : {}
       )

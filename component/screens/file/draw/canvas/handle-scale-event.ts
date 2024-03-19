@@ -40,6 +40,10 @@ export const handleScaleEvent = (
                         const points = getPointsFromPath(item.path);
                         const scaledPoints = scalePoints(points, scaleFactorX, scaleFactorY, focalPoint);
                         item.path = getPathFromPoints(scaledPoints);
+
+                        //we need original value to prevent this from going to 1 and equalizing with everyhting else
+                        item.strokeWidth *= scaleFactor;
+
                         item.updatedAt = new Date().toISOString();
                     }
                 });
@@ -56,21 +60,30 @@ export const handleScaleEvent = (
             // update starting scale for the next frame
             startScale = event.scale;
             break;
-        case "ended": setSvgData((prev) => {
-            prev.pathData.forEach((item) => {
-                if (item.selected === true) {
-                    const points = getPointsFromPath(item.path);
-                    // calculate new length, scale time proportion to change in length
-                    const newLength = getPathLength(points);
-                    // console.log("length, new length, old time", item.length, newLength, item.time);
-                    item.time = item.time * newLength / item.length;
-                    item.length = newLength;
-                    item.updatedAt = new Date().toISOString();
-                }
+        case "ended":
+            startScale = 1;
+            setSvgData((prev) => {
+                let points: { [key: string]: PointType[] } = {};
+
+                prev.pathData.forEach((item) => {
+                    if (item.selected === true) {
+                        points[item.guid] = getPointsFromPath(item.path);
+                    }
+                });
+
+                Object.keys(points).forEach((key) => {
+                    const newLength = getPathLength(points[key]);
+                    const item = prev.pathData.find((item) => item.guid === key);
+                    if (item) {
+                        item.time = item.time * newLength / item.length;
+                        item.length = newLength;
+                        item.updatedAt = new Date().toISOString();
+                    }
+                });
+
+                prev.metaData.updatedAt = new Date().toISOString();
+                return prev;
             });
-            prev.metaData.updatedAt = "";
-            return prev;
-        });
             break;
     }
 }

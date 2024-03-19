@@ -4,7 +4,7 @@ import { SvgDataType, I_AM_IOS } from "./types";
 import path from 'path';
 
 // const AppName = I_AM_IOS ? "mypath.mahat.au" : "draw-replay-svg-path";
-const AppName = 'jpt'; //isIOS ? "mypath.mahat.au" : "draw-replay-svg-path";
+const AppName = 'mypath.mahat.au'; //isIOS ? "mypath.mahat.au" : "draw-replay-svg-path";
 const AppSaveDirectory = FileSystem.documentDirectory + AppName + "/";
 
 let fileCache: SvgDataType[] = [];
@@ -46,7 +46,7 @@ export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
 };
 // lets include defaults first time and then it becomes part of user files that they are free to do whatever
 // can be brought back from settings if user wants it
-export const getFiles = async (includeDefaults = true): Promise<SvgDataType[]> => {
+export const getFiles = async (noDefaults = false): Promise<SvgDataType[]> => {
     try {
         if (fileCache.length > 0) {
             console.log('file cache get files')
@@ -71,7 +71,7 @@ export const getFiles = async (includeDefaults = true): Promise<SvgDataType[]> =
         console.log('set the filecache again..')
         // svgDataFiles.sort((a, b) => Date.parse(b.metaData.updatedAt) - Date.parse(a.metaData.updatedAt));
 
-        if (includeDefaults) {
+        if (!noDefaults) {
 
             const logoData = require('@c/logo/my-path.json');
             if (logoData && logoData.pathData.length > 0) {
@@ -105,6 +105,7 @@ export const getFile = async (guid: string): Promise<SvgDataType | null> => {
         if (file) {
             // reset selected path to false, find betteer way
             file.pathData.forEach(path => path.selected = false);
+            console.log('file found in fileCache');
             return file;
         }
         console.log('file not found in cache');

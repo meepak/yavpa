@@ -26,8 +26,7 @@ const createDrawControls = ({
   setD3CurveBasis,
   shape,
   drawShape,
-  // toggleErasure,
-  // onSelectMode,
+  toggleErasure,
 }) => {
   // console.log('createDrawControls', strokeWidth);
   return ([
@@ -124,18 +123,12 @@ const createDrawControls = ({
       ),
       extraPanel: { width: 150, height: 400 }
     },
-    // {
-    //   key: "erasure",
-    //   icon: "erasure-off",
-    //   toggleIcons: ["erasure", "erasure-off"],
-    //   onPress: toggleErasure,
-    // },
-
-    // {
-    //   key: "select",
-    //   icon: "select",
-    //   onPress: onSelectMode,
-    // },
+    {
+      key: "erasure",
+      icon: "erasure-off",
+      toggleIcons: ["erasure", "erasure-off"],
+      onPress: toggleErasure,
+    },
     {
       key: "layers",
       icon: "layers",

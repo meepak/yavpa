@@ -41,18 +41,25 @@ export const handleRotateEvent = (
 
             // rotate selected paths
             setSvgData((prev) => {
+                let points: { [key: string]: PointType[] } = {};
+
                 prev.pathData.forEach((item) => {
                     if (item.selected === true) {
-                        const points = getPointsFromPath(item.path);
+                        points[item.guid] = getPointsFromPath(item.path);
+                    }
+                });
 
-                        const rotatedPoints = rotatePoints(points, rotationAngle, pivot);
-                        item.path = getPathFromPoints(rotatedPoints);
+                Object.keys(points).forEach((key) => {
+                    points[key] = rotatePoints(points[key], rotationAngle, pivot);
+                });
+
+                prev.pathData.forEach((item) => {
+                    if (points[item.guid]) {
+                        item.path = getPathFromPoints(points[item.guid]);
                         item.updatedAt = new Date().toISOString();
                     }
                 });
 
-                //return {...prev } may be right way to go
-                //but it cause so much re-rendering things slow down
                 prev.updatedAt = new Date().toISOString();
                 return prev;
             });
@@ -70,6 +77,7 @@ export const handleRotateEvent = (
             startAngle = event.rotation;
             break;
         case "ended":
+            startAngle = 0;
             setSvgData((prev) => {
                 prev.metaData.updatedAt = "";
                 return prev;

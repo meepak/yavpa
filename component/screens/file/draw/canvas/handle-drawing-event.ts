@@ -1,4 +1,5 @@
 // import { applyErasure } from "@u/erasure";
+import { applyErasure } from "@u/erasure";
 import { getPathFromPoints, getPathLength, getPointsFromPath, isValidPath, precise } from "@u/helper";
 import { getD3CurveBasis, isValidShape, shapeData } from "@u/shapes";
 import { PathDataType, PointType, ShapeType, SvgDataType } from "@u/types";
@@ -14,11 +15,10 @@ ERASURE MODE IS NOT USED IN THIS VERSION, WILL REFINE IT LATER
 export const handleDrawingEvent = (
   event: GestureStateChangeEvent<PanGestureHandlerEventPayload> | GestureUpdateEvent<PanGestureHandlerEventPayload>,
   state: string,
-  penOffset: PointType,
   svgData: SvgDataType,
   setSvgData: { (value: SetStateAction<SvgDataType>): void; },
   editMode: boolean,
-  // erasureMode: boolean,
+  erasureMode: boolean,
   currentPath: PathDataType,
   setCurrentPath: { (value: SetStateAction<PathDataType>): void; },
   startTime: number,
@@ -29,25 +29,20 @@ export const handleDrawingEvent = (
   // completedPaths: PathDataType[],
   // setCompletedPaths: { (value: SetStateAction<PathDataType[]>): void; },
   simplifyTolerance: number,
-  d3CurveBasis: string
+  d3CurveBasis: string,
+  penOffset?: PointType,
 ) => {
 
-  const erasureMode = false; //disabling for safety in this version
+  // const erasureMode = false; //disabling for safety in this version
 
-  // This attempt to ensure one finger touch caused way too much trouble
-  // if (event.numberOfPointers !== 1) return;
 
   if (!editMode) return;
 
-  // if (selectMode && selectedPaths.length > 0) {
-  //   handleSelectedPathPanning(event, state);
-  //   return;
-  // }
 
 
   const pt = {
-    x: precise(event.x + penOffset.x),
-    y: precise(event.y + penOffset.y),
+    x: precise(event.x + (penOffset?.x ?? 0)),
+    y: precise(event.y+ (penOffset?.y ?? 0)),
   };
 
 
@@ -124,11 +119,10 @@ export const handleDrawingEvent = (
 
       if (erasureMode) {
         // use currentPath as erasure
-        // const newCompletedPaths = applyErasure(currentPath, svgData.pathData);
-        // setCompletedPaths(() => newCompletedPaths);
-        // setSvgData((prev: SvgDataType) => ({ metaData: { ...prev.metaData, updatedAt: "" }, pathData: newCompletedPaths }));
-        // setCurrentPath(newPathData());
-        // setStartTime(0);
+        const newCompletedPaths = applyErasure(currentPath, svgData.pathData);
+        setSvgData((prev: SvgDataType) => ({ metaData: { ...prev.metaData, updatedAt: "" }, pathData: newCompletedPaths }));
+        setCurrentPath(newPathData());
+        setStartTime(0);
         return;
       }
 

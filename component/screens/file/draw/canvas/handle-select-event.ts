@@ -18,7 +18,8 @@ export const handleSelectEvent = (
 
       const pathBoundaryBox = isPathBbox
                               ? pathData.path
-                              : getBoundaryBox([pathData]).path;
+                              : getBoundaryBox([pathData])?.path;
+      if(!pathBoundaryBox) return false;
       const points = getPointsFromPath(pathBoundaryBox);
       const d3Points = points.map((point) => [point.x, point.y] as [number, number]);
       return polygonContains(d3Points, [tapPoint.x, tapPoint.y]);

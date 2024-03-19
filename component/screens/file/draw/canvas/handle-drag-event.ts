@@ -2,7 +2,7 @@
 import { getPathFromPoints, getPointsFromPath } from "@u/helper";
 import { GestureUpdateEvent, PanGestureHandlerEventPayload } from "react-native-gesture-handler";
 import { SetStateAction, useCallback } from "react";
-import { PathDataType, SvgDataType } from "@u/types";
+import { PathDataType, PointType, SvgDataType } from "@u/types";
 
 const startPoint = {
   x: 0,
@@ -16,6 +16,8 @@ export const handleDragEvent = (
   activeBoundaryBoxPath: PathDataType | null,
   setActiveBoundaryBoxPath: { (value: SetStateAction<PathDataType | null>): void; },
 ) => {
+
+
   if (!activeBoundaryBoxPath || editMode) return;
   switch (state) {
     case "began":
@@ -48,23 +50,32 @@ export const handleDragEvent = (
       // move selected paths
 
       setSvgData((prev) => {
+        let points: { [key: string]: PointType[] } = {};
+
         prev.pathData.forEach((item) => {
           if (item.selected === true) {
-            const points = getPointsFromPath(item.path);
-            const movedPoints = points.map((point) => {
-              return {
-                x: point.x + xOffset,
-                y: point.y + yOffset,
-              };
-            });
+            points[item.guid] = getPointsFromPath(item.path);
+          }
+        });
 
-            item.path = getPathFromPoints(movedPoints);
+        Object.keys(points).forEach((key) => {
+          points[key] = points[key].map((p) => {
+            return {
+              x: p.x + xOffset,
+              y: p.y + yOffset,
+            };
+          });
+        });
+
+        prev.pathData.forEach((item) => {
+          if (points[item.guid]) {
+            item.path = getPathFromPoints(points[item.guid]);
             item.updatedAt = new Date().toISOString();
           }
         });
+
         return prev;
       });
-
 
       // for sake of rerendering
       setActiveBoundaryBoxPath({
@@ -74,12 +85,18 @@ export const handleDragEvent = (
       });
 
       break;
+
     case "ended":
+      // Reset startPoint
+      startPoint.x = 0;
+      startPoint.y = 0;
       console.log("select ended");
       setSvgData((prev) => {
         prev.metaData.updatedAt = "";
         return prev;
       });
+
+
       break;
   }
 };

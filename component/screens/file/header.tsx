@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Text, TextInput, TouchableOpacity, View, StyleSheet, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useRouter } from "expo-router";
 import { ControlPanel } from "component/controls";
-import { MAX_HEADER_HEIGHT, SCREEN_HEIGHT, ScreenModeInstruction, ScreenModes } from "@u/types";
+import { HEADER_HEIGHT, SCREEN_HEIGHT, ScreenModeInstruction, ScreenModes } from "@u/types";
 import MyIcon from "@c/my-icon";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MyPathLogo from "@c/logo/my-path-logo";
@@ -58,6 +58,9 @@ const Header = ({
     }, [title]);
 
 
+    // Change -- let just toggle between draw and preview
+    // Put dedicated button for export within preview
+
     const handleScreenModeButtonPress = () => {
         // console.log('screen mode button pressed')
         const currentScreenModeIndex = ScreenModes.findIndex((mode) => mode.name === screenMode.name);
@@ -69,7 +72,8 @@ const Header = ({
                 return;
             }
         }
-        const newScreenModeIndex = (currentScreenModeIndex + 1) % ScreenModes.length;
+        // const newScreenModeIndex = (currentScreenModeIndex + 1) % ScreenModes.length;
+        const newScreenModeIndex = currentScreenModeIndex === 0 ? 1 : 0;
         const newScreenMode = ScreenModes[newScreenModeIndex];
         setScreenMode(newScreenMode);
         console.log('new screen mode', newScreenMode.name);
@@ -100,7 +104,7 @@ const Header = ({
         if (screenMode.name === "Draw") {
             desc = "press to PREVIEW";
         } else if (screenMode.name === "Preview") {
-            desc = "press to EXPORT";
+            desc = "press to EDIT";
         } else if (screenMode.name === "Export") {
             desc = "press to DRAW";
         } else if (screenMode.name === "locked") {
@@ -109,11 +113,11 @@ const Header = ({
         return { desc, name };
     }
     const textInputHeight = 40;
-    const blueButtonTop = MAX_HEADER_HEIGHT - insets.top;
+    const blueButtonTop = HEADER_HEIGHT - insets.top;
     return (
         <View
             style={{
-                height: MAX_HEADER_HEIGHT + insets.top, // allow same header area in all devices
+                height: HEADER_HEIGHT + insets.top, // allow same header area in all devices
             }}
         >
             <HeaderGradientBackground>
@@ -163,7 +167,7 @@ const Header = ({
                             <MyList
                                 anchor={<MyPathLogo animate={false} width={48} height={48} />}
                                 width={150}
-                                height={SCREEN_HEIGHT - MAX_HEADER_HEIGHT - insets.top}
+                                height={SCREEN_HEIGHT - HEADER_HEIGHT - insets.top}
                             />
                         </View>
 
@@ -181,7 +185,7 @@ const Header = ({
                 icon={getBlueButtonIconProps(screenMode)}
                 onPress={handleScreenModeButtonPress}
                 aligned="left"
-                top={MAX_HEADER_HEIGHT}
+                top={HEADER_HEIGHT}
             />
         </View>
     );

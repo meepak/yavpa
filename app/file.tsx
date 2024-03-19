@@ -1,4 +1,4 @@
-import { CANVAS_HEIGHT, CANVAS_WIDTH, ScreenModes } from "@u/types";
+import { CANVAS_HEIGHT, CANVAS_PADDING_VERTICAL, CANVAS_WIDTH, HEADER_HEIGHT, ScreenModes } from "@u/types";
 import { ScreenModeType } from "@u/types";
 import { createSvgData, precise } from "@u/helper";
 import { getFile, saveSvgToFile } from "@u/storage";
@@ -13,6 +13,8 @@ import * as Crypto from "expo-crypto";
 import MyFilmStripView from "@c/my-film-strip-view";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import MyBlueButton from "@c/my-blue-button";
+import MyEdgeButton from "@c/my-edge-button";
+import Footer from "@c/screens/file/footer";
 
 
 const FileScreen = () => {
@@ -51,12 +53,6 @@ const FileScreen = () => {
         };
     }, []);
 
-    useEffect(() => {
-        return () => {
-            // console.log("reset svg data from context, component unmounted")
-            resetSvgData();
-        };
-    }, []);
 
     React.useEffect(() => {
         if (guid) {
@@ -71,9 +67,9 @@ const FileScreen = () => {
         }
     }, [guid]);
 
-    const handleScreenModeChanged = (mode: ScreenModeType) => {
-        setCurrentScreenMode(mode);
-    }
+    // const handleScreenModeChanged = (mode: ScreenModeType) => {
+    //     setCurrentScreenMode(mode);
+    // }
 
 
 
@@ -107,37 +103,37 @@ const FileScreen = () => {
     const getCurrentScreen = React.useCallback(() => {
         switch (currentScreenMode.name) {
             case ScreenModes[1].name: // Preview
-                return <PreviewScreen zoom={canvasScale} svgData={svgData} setSvgData={setSvgData} initControls={setControlButtons} />;
+                return <PreviewScreen svgData={svgData} setSvgData={setSvgData} initControls={setControlButtons} />;
             case ScreenModes[2].name: // Export
                 return <ExportScreen initControls={setControlButtons} />
             case ScreenModes[0].name: // Draw
             default:
-                return <DrawScreen zoom={canvasScale} initControls={setControlButtons} />
+                return <DrawScreen initControls={setControlButtons} />
                 break;
         }
     }, [currentScreenMode]);
 
 
 
-    const ZoomScaleText = () => (
-        canvasScale !== 1 &&
-        <MyBlueButton
-            text={() => <Text style={{
-                color: '#FFFFFF',
-                fontSize: 18,
-                fontWeight: 'bold',
-                textTransform: 'uppercase',
-                letterSpacing: 1,
-                opacity: 1,
-            }}>
-                {precise(canvasScale * 100, 0) + '%'}
-            </Text>
-            }
-            aligned="right"
-            onPress={() => setCanvasScale(1)}
-            bottom={insets.bottom + 16}
-        />
-    );
+    // const ZoomScaleText = () => (
+    //     canvasScale !== 1 &&
+    //     <MyBlueButton
+    //         text={() => <Text style={{
+    //             color: '#FFFFFF',
+    //             fontSize: 18,
+    //             fontWeight: 'bold',
+    //             textTransform: 'uppercase',
+    //             letterSpacing: 1,
+    //             opacity: 1,
+    //         }}>
+    //             {precise(canvasScale * 100, 0) + '%'}
+    //         </Text>
+    //         }
+    //         aligned="right"
+    //         onPress={() => setCanvasScale(1)}
+    //         bottom={insets.bottom + 16}
+    //     />
+    // );
     const ViewDecoration = (currentScreenMode.name === ScreenModes[1].name) ? MyFilmStripView : React.Fragment;
 
     return (
@@ -151,6 +147,15 @@ const FileScreen = () => {
                 initialScreenMode={currentScreenMode}
             />
             {
+                currentScreenMode.name === ScreenModes[0].name &&
+                <MyEdgeButton
+                    text="Layers"
+                    onClick={() => { }}
+                    leftOrRight="right"
+                    top={HEADER_HEIGHT * 1.35} />
+
+            }
+            {
                 currentScreenMode.name === ScreenModes[0].name ||
                     currentScreenMode.name === ScreenModes[1].name
                     ?
@@ -158,14 +163,15 @@ const FileScreen = () => {
                         <View
                             style={{
                                 flex: 1,
-                                alignContent: "center",
-                                justifyContent: "center",
+                                alignContent: "flex-start",
+                                justifyContent: "flex-start",
                                 alignItems: "center",
                                 backgroundColor: 'transparent',
+                                paddingTop: CANVAS_PADDING_VERTICAL,
                                 overflow: 'hidden',
                             }}
                         >
-                            <Text style={{
+                            {/* <Text style={{
                                 position: 'absolute',
                                 top: 30,
                                 left: 30,
@@ -177,44 +183,55 @@ const FileScreen = () => {
                                 zIndex: -1,
                             }}>
                                 {currentScreenMode.name.toUpperCase()}
-                            </Text>
-                            <ZoomScaleText />
+                            </Text> */}
+                            <View
+                                style={{
+                                    width: CANVAS_WIDTH,
+                                    height: CANVAS_HEIGHT,
+                                    borderWidth: 2,
+                                    borderColor: 'rgba(0,0,0,0.5)',
+                                    // ...elevations[7],
+                                    // shadowColor: "#120e31",
+                                    // backgroundColor: 'rgba(255,255,255,0.5)',
+                                    // shadowOffset: {
+                                    //   width: 0,
+                                    //   height: 7,
+                                    // },
+                                    // shadowOpacity: 0.44,
+                                    // shadowRadius: 6.27,
+                                    // elevation: 7,
 
-                                <View
-                                    style={{
-                                        width: CANVAS_WIDTH,
-                                        height: CANVAS_HEIGHT,
-                                        borderWidth: 1,
-                                        borderColor: 'rgba(0,0,0,0.5)',
-                                        // ...elevations[7],
-                                        // shadowColor: "#120e31",
-                                        // backgroundColor: 'rgba(255,255,255,0.5)',
-                                        // shadowOffset: {
-                                        //   width: 0,
-                                        //   height: 7,
-                                        // },
-                                        // shadowOpacity: 0.44,
-                                        // shadowRadius: 6.27,
-                                        // elevation: 7,
-
-                                    }}>
-                                    {getCurrentScreen()}
-                                </View>
+                                }}>
+                                {getCurrentScreen()}
+                            </View>
                         </View>
                     </ViewDecoration>
                     :
-                    <View
-                        style={{
-                            flex: 1,
-                            alignContent: "center",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            backgroundColor: 'transparent',
-                        }}
-                    >
-                        {getCurrentScreen()}
-                    </View>
+                    <>
+                        <View
+                            style={{
+                                flex: 1,
+                                alignContent: "center",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                backgroundColor: 'transparent',
+                            }}
+                        >
+                            {getCurrentScreen()}
+                        </View>
+                    </>
             }
+            {
+                currentScreenMode.name === ScreenModes[1].name ?
+                    <MyBlueButton
+                        icon={{ desc: 'EXPORT', name: 'export', size: 24, left: 0, top: 0 }}
+                        onPress={() => setCurrentScreenMode(ScreenModes[2])}
+                        bottom={insets.bottom + 16}
+                        aligned="right"
+                    // {...elevations[10]}
+                    /> : null
+            }
+            <Footer />
         </>
     );
 };

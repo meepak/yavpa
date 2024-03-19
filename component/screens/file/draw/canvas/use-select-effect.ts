@@ -6,7 +6,6 @@ export const useSelectEffect = ({
   svgData,
   setSvgData,
   setEditMode,
-  activeBoundaryBoxPath,
   setActiveBoundaryBoxPath,
   stroke,
   strokeWidth,
@@ -17,8 +16,7 @@ export const useSelectEffect = ({
 
     let selectedPaths = svgData.pathData.filter((item: PathDataType) => item.selected);
 
-    if (selectedPaths.length === 0 || !activeBoundaryBoxPath) {
-      console.log('got nth')
+    if (selectedPaths.length === 0) {
       setActiveBoundaryBoxPath(() => null);
       setEditMode(true);
       return;
@@ -26,7 +24,7 @@ export const useSelectEffect = ({
 
     setEditMode(false);
 
-    console.log("selectedPaths", selectedPaths.length);
+    // console.log("selectedPaths", selectedPaths.length);
     const rectPathData = getBoundaryBox(selectedPaths);
     setActiveBoundaryBoxPath(rectPathData);
 

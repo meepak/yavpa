@@ -8,6 +8,7 @@ interface MySliderProps extends SliderProps {
   name: string;
   suffix?: string;
   horizontal?: boolean;
+  plusMinusButtons?: boolean;
 }
 
 const MySlider = (props: MySliderProps) => {
@@ -17,6 +18,7 @@ const MySlider = (props: MySliderProps) => {
 
   const precision = props.step?.toString().split(".")[1]?.length || 0;
 
+  const showIconButton = props.plusMinusButtons !== false;
   const debouncedChange = debounce((newValue) => {
     processValueChange(newValue);
   }, 100);
@@ -38,31 +40,31 @@ const MySlider = (props: MySliderProps) => {
     processValueChange((valueRef.current ?? 1) + delta);
   };
 
-  const startInterval = (delta: number) => {
-    intervalRef.current = setInterval(() => {
-      handleValueChange(delta);
-    }, 100); // change slider value every 100ms
-  };
+  // const startInterval = (delta: number) => {
+  //   intervalRef.current = setInterval(() => {
+  //     handleValueChange(delta);
+  //   }, 100); // change slider value every 100ms
+  // };
 
-  const stopInterval = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-  };
+  // const stopInterval = () => {
+  //   if (intervalRef.current) {
+  //     clearInterval(intervalRef.current);
+  //     intervalRef.current = null;
+  //   }
+  // };
 
-  useEffect(() => {
-    return stopInterval; // stop interval when component unmounts
-  }, []);
+  // useEffect(() => {
+  //   return stopInterval; // stop interval when component unmounts
+  // }, []);
 
   return (
     <><View style={{
-      width: !props.horizontal ? 330 : 280,
+      width: !props.horizontal ? 330 : 270,
       ...(!props.horizontal && {
         transform: [
           { translateX: -135 },
           { rotate: "-90deg" },
-          { translateX: -170 }
+          { translateX: -150 }
         ],
       }),
       alignContent: 'center',
@@ -80,41 +82,49 @@ const MySlider = (props: MySliderProps) => {
       <Text style={{ fontWeight: 'bold', alignSelf: 'center' }}>{value}{props.suffix || ""}</Text>
     </View>
 
+      {showIconButton &&
+        <>
+          <View style={{
+            position: 'absolute',
+            bottom: !props.horizontal ? -20 : -10,
+            left: !props.horizontal ? -10 : 5,
+            width: 30,
+            height: 30,
+          }}>
+            <MyIcon
+              name="minus-circle"
+              size={28}
+              fill={'#120e31'}
+              strokeWidth={0.5}
+              // onPress={() => debouncedChange((value ?? 0) - 1)}
+              // onPressIn={() => startInterval(-1 * (props.step || 1))}
+              onPressOut={() => handleValueChange(-1 * (props.step || 1))}
+              color={'#120e31'}
+            />
+          </View>
 
-      <View style={{
-        position: 'absolute',
-        bottom: !props.horizontal ? -20 : 10,
-        left: !props.horizontal ? -15 : 0,
-        width: 24,
-        height: 24
-      }}>
-        <MyIcon
-          name="minus-circle"
-          size={22}
-          strokeWidth={2}
-          // onPress={() => debouncedChange((value ?? 0) - 1)}
-          onPressIn={() => startInterval(-1 * (props.step || 1))}
-          onPressOut={stopInterval}
-          color={'#120e31'}
-        />
-      </View><View style={{
-        position: 'absolute',
-        bottom: !props.horizontal ? -20 : 10,
-        right: !props.horizontal ? -30 : 0,
-        width: 24,
-        height: 24
-      }}>
-        <MyIcon
-          name="plus-circle"
-          size={22}
-          strokeWidth={2}
-          // onPress={() => debouncedChange((value  ?? 0) + 1)}
-          onPressIn={() => startInterval(1 * (props.step || 1))}
-          onPressOut={stopInterval}
-          color={'#120e31'}
+          <View style={{
+            position: 'absolute',
+            bottom: !props.horizontal ? -20 : -10,
+            right: !props.horizontal ? -30 : 0,
+            width: 30,
+            height: 30,
 
-        />
-      </View></>
+          }}>
+            <MyIcon
+              name="plus-circle"
+              size={28}
+              fill={'#120e31'}
+              strokeWidth={0.5}
+              // onPress={() => debouncedChange((value  ?? 0) + 1)}
+              // onPressIn={() => startInterval(1 * (props.step || 1))}
+              onPressOut={() => handleValueChange(1 * (props.step || 1))}
+              color={'#120e31'}
+
+            />
+          </View></>
+      }
+    </>
   );
 };
 

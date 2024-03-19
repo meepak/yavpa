@@ -17,8 +17,8 @@ import MyBoundaryBox from "@c/my-boundary-box";
 type SvgCanvasProps = {
   selectedPaths?: PathDataType[];
   setSelectedPaths?: React.Dispatch<React.SetStateAction<PathDataType[]>>;
-  zoom?: number;
   editable?: boolean;
+  erasing?: boolean;
   command?: string;
   forceUpdate?: number;
   strokeWidth?: number;
@@ -31,6 +31,7 @@ type SvgCanvasProps = {
 const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   const {
     editable = true,
+    erasing = false,
     command = "",
     forceUpdate = 0,
     strokeWidth = 2,
@@ -59,10 +60,10 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 
   // This is be enabled in next version only
   // erasure mode - erasure shape can be square or circle
-  // const [erasureMode, setErasureMode] = useState(false);
-  // useEffect(() => {
-  //   setErasureMode(erasing);
-  // }, [erasing])
+  const [erasureMode, setErasureMode] = useState(false);
+  useEffect(() => {
+    setErasureMode(erasing);
+  }, [erasing])
 
 
   useEffect(() => {
@@ -70,9 +71,21 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   }, []);
 
 
+  // if editable is true switch to writing mode
+  // else reset selet mode to allow eslect from start
   useEffect(() => {
     setEditMode(editable);
-  }, [editable])
+    if (editable) {
+      if(activeBoundaryBoxPath !== null) {
+        setActiveBoundaryBoxPath(null);
+      }
+      // setSvgData((prev) => {
+      //   prev.pathData.forEach(
+      //     (item) => item.selected = false);
+      //   return prev;
+      // });
+    }
+  }, [editable]);
 
 
 
@@ -81,7 +94,6 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     svgData,
     setSvgData,
     setEditMode,
-    activeBoundaryBoxPath,
     setActiveBoundaryBoxPath,
     stroke,
     strokeWidth,
@@ -108,6 +120,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     svgData,
     setSvgData,
     editMode,
+    erasureMode,
     currentPath,
     setCurrentPath,
     startTime,
@@ -170,14 +183,14 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
             </MyGestures>
           )
       }
-     <CanvasContextMenu
+      <CanvasContextMenu
         activeBoundaryBoxPath={activeBoundaryBoxPath}
         setActiveBoundaryBoxPath={setActiveBoundaryBoxPath}
         menuPosition={menuPosition}
         setMenuPosition={setMenuPosition}
         svgData={svgData}
         setSvgData={setSvgData}
-     />
+      />
     </View >
   );
 };
