@@ -41,7 +41,7 @@ export const CANVAS_PATH = `M0,0 L${CANVAS_WIDTH},0 L${CANVAS_WIDTH},${CANVAS_HE
 
 // -------------------------------------------------
 
-export const FILM_STRIP_HOLE_HEIGHT = 16;
+export const FILM_STRIP_HOLE_HEIGHT = 12;
 export const NUM_FILM_STRIP_HOLES = parseInt(((SCREEN_HEIGHT - HEADER_HEIGHT) / FILM_STRIP_HOLE_HEIGHT).toString()) + 10;
 
 // -----------------------------------------------

@@ -13,6 +13,8 @@ export const handleScaleEvent = (
     setSvgData: (value: SetStateAction<SvgDataType>) => void,
     activeBoundaryBoxPath: PathDataType | null,
     setActiveBoundaryBoxPath: (value: SetStateAction<PathDataType | null>) => void,
+    scaleMode: 'X' | 'Y' | 'XY',
+    setScaleMode: (value: SetStateAction<'X' | 'Y' | 'XY'>) => void
 ) => {
     if (!activeBoundaryBoxPath || editMode) return;
 
@@ -24,8 +26,8 @@ export const handleScaleEvent = (
         case "active":
             // calculate scale factor
             const scaleFactor = event.scale / startScale;
-            const scaleFactorX = scaleFactor;
-            const scaleFactorY = scaleFactor;
+            const scaleFactorX = scaleMode === 'X' || scaleMode === 'XY' ? scaleFactor : 1;
+            const scaleFactorY = scaleMode === 'Y' || scaleMode === 'XY' ? scaleFactor : 1;
 
             const focalPoint = {x: event.focalX, y: event.focalY};
             // scale boundary box
@@ -62,6 +64,7 @@ export const handleScaleEvent = (
             break;
         case "ended":
             startScale = 1;
+            setScaleMode('XY');
             setSvgData((prev) => {
                 let points: { [key: string]: PointType[] } = {};
 

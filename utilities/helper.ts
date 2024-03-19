@@ -291,6 +291,22 @@ export const rotatePoints = (points: PointType[], radianAngle: number, pivot: Po
   });
 };
 
+export const flipPoints = (points: PointType[], flipX: boolean, flipY: boolean) => {
+  // Calculate the object's center
+  const minX = Math.min(...points.map(point => point.x));
+  const maxX = Math.max(...points.map(point => point.x));
+  const minY = Math.min(...points.map(point => point.y));
+  const maxY = Math.max(...points.map(point => point.y));
+  const pivot = { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
+
+  // Flip the points around the pivot
+  return points.map((point) => {
+    const x = flipX ? pivot.x - (point.x - pivot.x) : point.x;
+    const y = flipY ? pivot.y - (point.y - pivot.y) : point.y;
+    return { x, y };
+  });
+}
+
 
 
 /**

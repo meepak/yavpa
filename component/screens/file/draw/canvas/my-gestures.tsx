@@ -39,7 +39,7 @@ type MyGesturesProps = {
   d3CurveBasis: string,
   activeBoundaryBoxPath: PathDataType | null,
   setActiveBoundaryBoxPath: (value: SetStateAction<PathDataType | null>) => void,
-  setMenuPosition: (value: SetStateAction<PointType>) => void,
+  scaleMode: 'X' | 'Y' | 'XY',
   children: React.ReactNode,
 };
 
@@ -60,7 +60,8 @@ export const MyGestures = ({
   d3CurveBasis,
   activeBoundaryBoxPath,
   setActiveBoundaryBoxPath,
-  setMenuPosition,
+  scaleMode,
+  setScaleMode,
   children,
 }: MyGesturesProps): React.ReactNode => {
 
@@ -144,7 +145,8 @@ export const MyGestures = ({
 
   // For scaling of path
   const pinchZoomEvent = throttle((event, state) => {
-    handleScaleEvent(event, state, editMode, setSvgData, activeBoundaryBoxPath, setActiveBoundaryBoxPath);
+    console.log("pinchZoomEvent", scaleMode);
+    handleScaleEvent(event, state, editMode, setSvgData, activeBoundaryBoxPath, setActiveBoundaryBoxPath, scaleMode, setScaleMode);
   }, 5);
 
   const pinchZoomGesture = Gesture.Pinch()
@@ -169,15 +171,9 @@ export const MyGestures = ({
       resetBoundaryBox();
     });
 
-  // Make the context menu appear
-  const longPressGesture = Gesture.LongPress()
-  longPressGesture.onStart((event) => {
-    if(activeBoundaryBoxPath == null) return;
-    setMenuPosition({ x: event.x, y: event.y });
-  });
 
   // combine all gestures and initialize
-  const composedPanTap = Gesture.Race(doubleTapSelectGesture, longPressGesture, panDragGesture)
+  const composedPanTap = Gesture.Race(doubleTapSelectGesture, panDragGesture)
   const composedPinch = Gesture.Race(pinchZoomGesture, rotateGesture)
   const composedGesture = Gesture.Simultaneous(panDrawGesture, composedPanTap, composedPinch)
   composedGesture.initialize();

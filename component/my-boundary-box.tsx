@@ -2,11 +2,13 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Animated, View } from 'react-native';
 import MyPath from "@c/my-path";
-import { createPathdata, getViewBoxTrimmed } from "@u/helper";
+import { createPathdata, flipPoints, getPathFromPoints, getPointsFromPath, getViewBoxTrimmed } from "@u/helper";
 import { shapeData } from "@u/shapes";
 import { CANVAS_VIEWBOX, MY_BLACK, PathDataType, PointType } from "@u/types";
 import MyIcon from './my-icon';
 import { SvgDataContext } from '@x/svg-data';
+import * as Crypto from "expo-crypto";
+import { Divider } from './controls';
 
 
 export const getBoundaryBox = (selectedPaths: PathDataType[]): PathDataType | null => {
@@ -40,10 +42,9 @@ export const getBoundaryBox = (selectedPaths: PathDataType[]): PathDataType | nu
 
 const BoundaryBoxIcons = ({
     activeBoundaryBoxPath,
-    // setActiveBoundaryBoxPath,
+    onScaleModeChange,
 }) => {
     const {svgData, setSvgData} = useContext(SvgDataContext);
-
     type PathStyleType = {
         strokeWidth: number,
         stroke: string,
@@ -110,9 +111,21 @@ const BoundaryBoxIcons = ({
             });
             return { ...prev, metaData: { ...prev.metaData, updatedAt: "" } };
         });
-        // setActiveBoundaryBoxPath(null);
-        close();
         console.log("duplicateSelected")
+    }
+
+    const flipPaths = (flipX = false, flipY = false) => {
+        setSvgData((prev) => {
+            prev.pathData.forEach((item) => {
+                if (item.selected === true) {
+                    const points = getPointsFromPath(item.path);
+                    const newPoints = flipPoints(points, flipX, flipY);
+                    item.path = getPathFromPoints(newPoints);
+                    item.updatedAt = Date.now().toString();
+                }
+            });
+            return { ...prev, metaData: { ...prev.metaData, updatedAt: "" } };
+        });
     }
 
     const deleteSelected = () => {
@@ -124,6 +137,7 @@ const BoundaryBoxIcons = ({
         console.log("deleteSelected")
     }
 
+
     const vbbox = getViewBoxTrimmed([activeBoundaryBoxPath], 0);
     const vbbPoints = vbbox.split(" "); // this is relative to canvas
     const canvasPoints = CANVAS_VIEWBOX.split(" "); // this is relative to screen
@@ -133,16 +147,14 @@ const BoundaryBoxIcons = ({
         x: parseFloat(vbbPoints[0]) + parseFloat(canvasPoints[0]),
         y: parseFloat(vbbPoints[1]) + parseFloat(canvasPoints[1]) - iconBoxHeight,
     }
-    const BbIcon = ({ name, onPress }) => {
-        return (
-            <MyIcon
+    const BbIcon = ({ name, onPress, strokeWidth=1 }) => {
+        return <MyIcon
                 name={name}
-                size={24}
+                size={20}
                 color={MY_BLACK}
-                strokeWidth={2}
+                strokeWidth={strokeWidth}
                 onPress={onPress}
-            />
-        )
+                style={{marginLeft: 5}}/>
     };
 
     return (<View style={{
@@ -155,10 +167,15 @@ const BoundaryBoxIcons = ({
         // width: 100, // auto/
         height: 25,
     }}>
-        {/* <BbIcon name={'duplicate'} onPress={duplicateSelected} />
+        {/* />
         <BbIcon name={'copy'} onPress={copyStyle} />
         <BbIcon name={'paste'} onPress={pasteStyle} /> */}
         <BbIcon name={'trash'} onPress={deleteSelected} />
+        <BbIcon name={'duplicate'} onPress={duplicateSelected} />
+        <BbIcon name={'flip-horizontal'} onPress={() => flipPaths(true, false)} />
+        <BbIcon name={'flip-vertical'} onPress={() => flipPaths(false, true)} />
+        <BbIcon name={'stretch-x'} onPress={() => onScaleModeChange('X')} strokeWidth={3} />
+        <BbIcon name={'stretch-y'} onPress={() => onScaleModeChange('Y')} strokeWidth={3} />
     </View>
     )
 }
@@ -258,9 +275,10 @@ const AnimatedBboxPath = Animated.createAnimatedComponent(MyPath);
 
 type BoundaryBoxProps = {
     activeBoundaryBoxPath: PathDataType | null;
+    onScaleModeChange: (value: 'X' | 'Y' | 'XY') => void;
 };
 
-const MyBoundaryBox: React.FC<BoundaryBoxProps> = ({ activeBoundaryBoxPath }) => {
+const MyBoundaryBox: React.FC<BoundaryBoxProps> = ({ activeBoundaryBoxPath, onScaleModeChange }) => {
     const animatedBboxValue = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
@@ -305,7 +323,7 @@ const MyBoundaryBox: React.FC<BoundaryBoxProps> = ({ activeBoundaryBoxPath }) =>
                         })
                     }} />
                 <BoundaryBoxCornors activeBoundaryBoxPath={activeBoundaryBoxPath} />
-                <BoundaryBoxIcons activeBoundaryBoxPath={activeBoundaryBoxPath} />
+                <BoundaryBoxIcons activeBoundaryBoxPath={activeBoundaryBoxPath} onScaleModeChange={onScaleModeChange} />
                 </>
         )
     );

@@ -52,11 +52,9 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  const [menuPosition, setMenuPosition] = useState<PointType>({ x: -999, y: -999 });
-
-
   const [activeBoundaryBoxPath, setActiveBoundaryBoxPath] = useState<PathDataType | null>(null)
 
+  const [scaleMode, setScaleMode] = useState<'X'|'Y'|'XY'>('XY');
 
   // This is be enabled in next version only
   // erasure mode - erasure shape can be square or circle
@@ -134,7 +132,8 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     d3CurveBasis,
     activeBoundaryBoxPath,
     setActiveBoundaryBoxPath,
-    setMenuPosition,
+    scaleMode,
+    setScaleMode,
   };
 
 
@@ -176,7 +175,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
                     )}
 
 
-                    <MyBoundaryBox activeBoundaryBoxPath={activeBoundaryBoxPath} />
+                    <MyBoundaryBox activeBoundaryBoxPath={activeBoundaryBoxPath} onScaleModeChange={(value) => setScaleMode(value)}/>
 
 
                   </Svg>
@@ -185,14 +184,6 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
             </MyGestures>
           )
       }
-      <MyPathContextMenu
-        activeBoundaryBoxPath={activeBoundaryBoxPath}
-        setActiveBoundaryBoxPath={setActiveBoundaryBoxPath}
-        menuPosition={menuPosition}
-        setMenuPosition={setMenuPosition}
-        svgData={svgData}
-        setSvgData={setSvgData}
-      />
     </View >
   );
 };

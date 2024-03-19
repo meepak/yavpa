@@ -105,6 +105,7 @@ const FileScreen = () => {
     const getCurrentScreen = React.useCallback(() => {
         switch (currentScreenMode.name) {
             case ScreenModes[1].name: // Preview
+            console.log('svgData', svgData.metaData.animation);
                 return <PreviewScreen svgData={svgData} setSvgData={setSvgData} initControls={setControlButtons} />;
             case ScreenModes[2].name: // Export
                 return <ExportScreen initControls={setControlButtons} />

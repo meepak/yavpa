@@ -1,8 +1,9 @@
-import { View } from "react-native";
+import { Text, View } from "react-native";
 import MySlider from "@c/my-slider";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MyCheckBox from "@c/my-check-box";
 import { MY_BLACK, TransitionType } from "@u/types";
+import RadioButtons from "@c/my-radio-buttons";
 
 const AnimationParams = ({ animationParams, onAnimationParamsChanged }) => {
   const [speedValue, setSpeedValue] = useState(animationParams.speed ?? 1)
@@ -10,6 +11,10 @@ const AnimationParams = ({ animationParams, onAnimationParamsChanged }) => {
   const [loopDelayValue, setLoopDelayValue] = useState(animationParams.delay ?? 0)
   const [loopTransitionValue, setLoopTransitionValue] = useState(animationParams.transition ?? 0)
   const [loopTransitionTypeValue, setLoopTransitionTypeValue] = useState(animationParams.transitionType ?? TransitionType.Fade)
+
+  useEffect(() => {
+    console.log('animationParams', animationParams);
+  }, [animationParams])
 
   return (
     <>
@@ -30,11 +35,11 @@ const AnimationParams = ({ animationParams, onAnimationParamsChanged }) => {
           onAnimationParamsChanged({ ...animationParams, speed: value });
         }}
       />
-      <View style={{ top: -10, alignItems: 'center' }}>
+      <View style={{ alignItems: 'center' }}>
         <MyCheckBox
           checked={loopStatusValue}
           label="Loop the animation:"
-          iconStyle={{ color: MY_BLACK, size: 22 }}
+          iconStyle={{ color: 'transparent', fill:MY_BLACK, size: 22 }}
           textStyle={{ color: MY_BLACK, fontSize: 16, fontWeight: 'bold' }}
           onChange={(value) => {
             setLoopStatusValue(() => value);
@@ -69,7 +74,20 @@ const AnimationParams = ({ animationParams, onAnimationParamsChanged }) => {
           onAnimationParamsChanged({ ...animationParams, transition: value });
         }}
       />
-      {/* To select transition type, need drop or check boxes arrangement, later */}
+
+        <View style={{ alignItems: 'flex-start' }}>
+          <Text style={{ color: MY_BLACK, fontWeight: 'bold' }}>Transition Type:</Text>
+        <RadioButtons
+          iconStyle={{ color: 'transparent', fill: MY_BLACK, size: 22 }}
+          labels = {['Fade', 'Vibrate', 'Shrink']}
+          values = {[TransitionType.Fade as any, TransitionType.Vibrate, TransitionType.Shrink]}
+          initialValue={animationParams.transitionType}
+          onChange={(value) => {
+              setLoopTransitionTypeValue(() => value);
+              onAnimationParamsChanged({ ...animationParams, transitionType: value });
+            }}
+          />
+          </View>
     </>
   )
 }

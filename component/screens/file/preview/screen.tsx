@@ -7,14 +7,19 @@ import { AnimationParamsType, SvgAnimateHandle } from "@u/types";
 const PreviewScreen = ({ svgData, setSvgData, initControls }) => {
 
   // const { svgData, setSvgData } = useContext(SvgDataContext);
+  console.log('svgdata animation params', svgData.metaData.animation)
   const [animationParams, setAnimationParams] = useState<AnimationParamsType>({
-    speed: svgData.metaData.animations?.speed || 1,
-    loop: svgData.metaData.animations?.loop || true,
-    delay: svgData.metaData.animations?.delay || 0,
-    transition: svgData.metaData.animations?.transition || 0,
-    transitionType: svgData.metaData.animations?.transitionType || 1,
-    correction: svgData.metaData.animations?.correction || 0.05,
+    speed: svgData.metaData.animation?.speed || 1,
+    loop: svgData.metaData.animation?.loop || true,
+    delay: svgData.metaData.animation?.delay || 0,
+    transition: svgData.metaData.animation?.transition || 0,
+    transitionType: svgData.metaData.animation?.transitionType || 1,
+    correction: svgData.metaData.animation?.correction || 0.05,
   });
+  console.log('animationParams', animationParams);
+
+
+
 
   const previewRef = useRef<SvgAnimateHandle | null>(null);
 

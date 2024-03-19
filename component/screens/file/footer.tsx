@@ -11,7 +11,10 @@ const Footer = () => {
     const insets = useSafeAreaInsets();
     const { svgData } = useContext(SvgDataContext);
     const screenWidth = Dimensions.get('window').width;
-    const [message, setMessage] = useState("");
+
+    const defaultMessage = "This is a development preview. Tips: Long press to delete the sketch. Double tap to select the path. Scroll the menu items to explore options.";
+
+    const [message, setMessage] = useState(defaultMessage);
 
     const scrollAnimation = useSharedValue(0);
 
@@ -31,7 +34,6 @@ const Footer = () => {
 
     useEffect(() => {
         if(svgData.pathData.length === 0) {
-            setMessage(randomQuotes()); // rndom quotes
             return;
         }
 
@@ -74,7 +76,7 @@ const Footer = () => {
             msg += "Selected Length: " + totalSelectedPathsLength + " | ";
 
             // console.log(msg);
-            setMessage(msg);
+            setMessage(defaultMessage + " | " + msg);
         }
     },[svgData])
 
@@ -121,18 +123,5 @@ const Footer = () => {
     );
 };
 
-const randomQuotes = () => {
-    const quotes = [
-        'Life in itself is an empty canvas; it becomes whatsoever you paint on it. You can paint misery, you can paint bliss. This freedom is your glory.',
-        'The canvas of life is waiting for some color.',
-        'An empty canvas is a living wonder - far lovelier than certain pictures.',
-        'To end up with a canvas that is no less beautiful than the empty canvas is to begin with.',
-        'An empty canvas is full only if you want it to be full.',
-        'Empty canvas. In appearance - really empty, silent, indifferent. Stunned, almost. In effect - full of tensions, with thousand subdued voices, heavy with expectations. A little frightened because it may be violated',
-    ];
-    const message = "Just go ahead and scribble something. If you need inspiration, here is a random quote -- " +
-        quotes[Math.floor(Math.random() * quotes.length)];
-    return message;
-};
 
 export default Footer;
