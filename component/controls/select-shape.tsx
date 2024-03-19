@@ -1,4 +1,4 @@
-import { AvailableShapes } from "@u/types";
+import { AvailableShapes, MY_BLACK } from "@u/types";
 import MyRadioButtons from '@c/my-radio-buttons';
 
 const SelectShape = ({ color = 'black', value, onValueChanged }) => {
@@ -14,7 +14,7 @@ const SelectShape = ({ color = 'black', value, onValueChanged }) => {
             onChange={handleShapeSelection}
             numOfColumns={1}
             textStyle={{ marginLeft: 10, marginBottom: 15 }}
-            iconStyle={{ size: 20, marginBottom: 15, color: '#120e31' }}
+            iconStyle={{ size: 20, marginBottom: 15, color: MY_BLACK }}
         />
     )
 }

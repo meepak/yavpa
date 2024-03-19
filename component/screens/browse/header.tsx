@@ -1,16 +1,16 @@
 import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import {Image} from 'expo-image'
+import { Image } from 'expo-image'
 import Animated, { Extrapolation, SharedValue, interpolate, useAnimatedStyle } from 'react-native-reanimated';
 import banner from '@a/banner.png';
 import alphaVersion from '@a/alpha-version.png';
 import MyPathLogo from '@c/logo/my-path-logo';
-import { HeaderGradientBackground } from '@c/screens/file/header';
 import { SCREEN_WIDTH } from '@u/types';
+import MyGradientBackground from '@c/my-gradient-background';
 
 
 interface HeaderProps {
-    scrollValue: SharedValue<number>;
+  scrollValue: SharedValue<number>;
 }
 
 const Header: React.FC<HeaderProps> = ({ scrollValue }) => {
@@ -28,7 +28,7 @@ const Header: React.FC<HeaderProps> = ({ scrollValue }) => {
         { scale: interpolate(scrollValue.value, [0, 180, 220], [1, 1, 0.5], Extrapolation.CLAMP) },
         { translateY: interpolate(scrollValue.value, [0, 180, 220], [0, 0, 60], Extrapolation.CLAMP) },
         { translateX: interpolate(scrollValue.value, [0, 180, 220], [0, 0, -30], Extrapolation.CLAMP) }
-    ]
+      ]
     }
   }, [scrollValue]);
 
@@ -63,11 +63,11 @@ const Header: React.FC<HeaderProps> = ({ scrollValue }) => {
 
   return (
     <View style={styles.headerWrapper}>
-      <HeaderGradientBackground>
+      <MyGradientBackground>
         <Animated.View style={imageAnimatedStyle}>
-        <Image
-          source={banner}
-          style={styles.image}
+          <Image
+            source={banner}
+            style={styles.image}
           />
         </Animated.View>
         <View style={styles.container}>
@@ -76,9 +76,9 @@ const Header: React.FC<HeaderProps> = ({ scrollValue }) => {
           </Animated.View>
           <View style={styles.details}>
             <Animated.View style={nameAnimatedStyle}>
-            <Text
-              style={styles.detailsHeader}>
-              MY PATH
+              <Text
+                style={styles.detailsHeader}>
+                MY PATH
               </Text>
             </Animated.View>
 
@@ -90,7 +90,7 @@ const Header: React.FC<HeaderProps> = ({ scrollValue }) => {
             </View>
           </View>
         </View>
-      </HeaderGradientBackground>
+      </MyGradientBackground>
     </View>
   );
 };
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   },
   actionsContainer: {
     flexDirection: 'row',
-    marginTop:20,
+    marginTop: 20,
     alignItems: 'flex-end',
     justifyContent: 'flex-end',
     width: SCREEN_WIDTH - 88,

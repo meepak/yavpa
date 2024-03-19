@@ -2,12 +2,12 @@ import React, { useContext, useEffect, useState } from "react";
 import { View } from "react-native";
 import SvgCanvas from "./canvas";
 import createDrawControls from "./control";
-import { AvailableShapes, PathDataType } from "@u/types";
+import { AvailableShapes, MY_BLACK, PathDataType } from "@u/types";
 import { SvgDataContext } from "@x/svg-data";
 
 
 const DrawScreen = ({ initControls }) => {
-  const [stroke, setStroke] = useState("#120e31");
+  const [stroke, setStroke] = useState(MY_BLACK);
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [strokeOpacity, setStrokeOpacity] = useState(1);
   const [simplifyTolerance, setSimplifyTolerance] = useState(0.0111);

@@ -8,6 +8,7 @@ import * as d3 from 'd3';
 import { createPathdata, getPathFromPoints, getPointsFromPath, getViewBoxTrimmed } from '@u/helper';
 import MyRadioButtons from '@c/my-radio-buttons';
 import { getD3CurveBasis } from '@u/shapes';
+import { MY_BLACK } from '@u/types';
 
 // Define a fixed set of points for the polyline
 // Function to generate points that form a circle
@@ -112,7 +113,7 @@ const SimplifySmooth = ({
                         onD3ValueChanged(value);
                     }}
                     textStyle={{ marginLeft: 5, marginBottom: 12}}
-                    iconStyle={{ size: 20, color: '#120e31', strokeWidth: 2, marginBottom: 10 }}
+                    iconStyle={{ size: 20, color: MY_BLACK, strokeWidth: 2, marginBottom: 10 }}
                 />
             </View>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>

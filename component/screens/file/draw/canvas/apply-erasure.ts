@@ -1,5 +1,5 @@
-import { getPathFromPoints, getPathLength, getPointsFromPath, precise } from './helper';
-import { PathDataType, PointType } from './types';
+import { getPathFromPoints, getPathLength, getPointsFromPath, precise } from '../../../../../utilities/helper';
+import { PathDataType, PointType } from '../../../../../utilities/types';
 import * as turf from '@turf/turf';
 import * as Crypto from "expo-crypto";
 
@@ -14,7 +14,7 @@ import * as Crypto from "expo-crypto";
 * 4. If it is outside, continue to next point
 **/
 export const applyErasure = (erasurePathData: PathDataType, completedPathsData: PathDataType[]): PathDataType[] => {
-    console.log("Erasure path", erasurePathData.path);
+    // console.log("Erasure path", erasurePathData.path);
     const erasurePathPoints = getPointsFromPath(erasurePathData.path);
     // make sure first and last points are same
     if (erasurePathPoints.length > 1) {

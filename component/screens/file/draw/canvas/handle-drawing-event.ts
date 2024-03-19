@@ -1,8 +1,8 @@
 // import { applyErasure } from "@u/erasure";
-import { applyErasure } from "@u/erasure";
+import { applyErasure } from "./apply-erasure";
 import { getPathFromPoints, getPathLength, getPointsFromPath, isValidPath, precise } from "@u/helper";
 import { getD3CurveBasis, isValidShape, shapeData } from "@u/shapes";
-import { PathDataType, PointType, ShapeType, SvgDataType } from "@u/types";
+import { MY_BLACK, PathDataType, PointType, ShapeType, SvgDataType } from "@u/types";
 import * as d3 from "d3-shape";
 import * as Crypto from "expo-crypto";
 import { SetStateAction } from "react";
@@ -58,7 +58,7 @@ export const handleDrawingEvent = (
         path: `M${pt.x},${pt.y}`,
         ...(erasureMode
           ? {
-            stroke: "#120e31",
+            stroke: MY_BLACK,
             strokeWidth: 2,
             strokeOpacity: 0.5,
             strokeLinecap: "round",

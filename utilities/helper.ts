@@ -120,15 +120,23 @@ export const getPointsFromPath = (path: string, resolution: number = 100, simpli
         break;
       case "M":
       case "L":
+        let lastPoint = points[points.length - 1];
+        if(lastPoint) {
+          let distance = Math.sqrt(Math.pow(coords[0] - lastPoint.x, 2) + Math.pow(coords[1] - lastPoint.y, 2));
+          if (distance > resolution) {
+            let numberOfPoints = Math.floor(distance / resolution);
+            for (let i = 0; i < numberOfPoints; i++) {
+              let t = i / numberOfPoints;
+              let x = lastPoint.x + (coords[0] - lastPoint.x) * t;
+              let y = lastPoint.y + (coords[1] - lastPoint.y) * t;
+              points.push({ x, y });
+            }
+          }
+        }
         point = { x: coords[0], y: coords[1] };
         points.push(point);
         if (firstPoint === null) {
           firstPoint = point;
-        }
-        break;
-      case "Z":
-        if (firstPoint !== null) {
-          points.push(firstPoint);
         }
         break;
       default:
@@ -207,7 +215,7 @@ export const getViewBoxTrimmed = (pathData: PathDataType[], offset = 20) => {
   let maxY = 0;
   // let offset = 20;
 
-  // just return the canvas if no path given
+  //
   if(pathData.length === 0) return `0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`;
 
   // console.log("pathData", pathData)

@@ -4,6 +4,7 @@ import {
   BrushType,
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
+  MY_BLACK,
   PathDataType,
   PointType,
   SvgDataType } from "./types";
@@ -152,7 +153,7 @@ function createTransform() {
 
 function createGroup(path: PathDataType, pathStartFrame: number, pathEndFrame: number) {
 
-  const strokeColor = hexToRgb(path.stroke ?? "#120e31");
+  const strokeColor = hexToRgb(path.stroke ?? MY_BLACK);
   const strokeOpacity = (path.strokeOpacity ?? 1) * 100;
   const strokeWidth = path.strokeWidth ?? 2;
   const fillColor = [0, 0, 0];

@@ -1,8 +1,9 @@
+import { MY_BLACK } from '@u/types';
 import React, { useState } from 'react';
 import { TextInput, View, Text, StyleSheet } from 'react-native';
 import ColorPicker from 'react-native-wheel-color-picker';
 
-const MyColorPicker = ({ initialColor = '#120e31', onColorSelected }) => {
+const MyColorPicker = ({ initialColor = MY_BLACK, onColorSelected }) => {
   const [inputColor, setInputColor] = useState(initialColor);
 
   const isValidHex = (text) => /^#([A-Fa-f0-9]{6})?$/.test(text);

@@ -1,7 +1,5 @@
-import { FILM_STRIP_HOLE_HEIGHT, NUM_FILM_STRIP_HOLES } from "@u/types";
+import { FILM_STRIP_HOLE_HEIGHT, MY_BLACK, NUM_FILM_STRIP_HOLES } from "@u/types";
 import { View, StyleSheet } from "react-native";
-
-const black = '#120e31';
 
 const MyFilmStripView = ({ children }) => (
   <View style={styles.container}>
@@ -12,9 +10,9 @@ const MyFilmStripView = ({ children }) => (
           style={[
             styles.hole,
             {
-              backgroundColor: i % 2 === 0 ? black : 'transparent',
-              borderRightWidth: 4, borderRightColor: black,
-              borderLeftWidth: 3, borderLeftColor: black
+              backgroundColor: i % 2 === 0 ? MY_BLACK : 'transparent',
+              borderRightWidth: 4, borderRightColor: MY_BLACK,
+              borderLeftWidth: 3, borderLeftColor: MY_BLACK
             }
           ]}
         />
@@ -30,9 +28,9 @@ const MyFilmStripView = ({ children }) => (
           style={[
             styles.hole,
             {
-              backgroundColor: i % 2 === 0 ? black : 'transparent',
-              borderRightWidth: 3, borderRightColor: black,
-              borderLeftWidth: 4, borderLeftColor: black,
+              backgroundColor: i % 2 === 0 ? MY_BLACK : 'transparent',
+              borderRightWidth: 3, borderRightColor: MY_BLACK,
+              borderLeftWidth: 4, borderLeftColor: MY_BLACK,
             },
           ]}
         />

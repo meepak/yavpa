@@ -1,4 +1,5 @@
 import elevations from '@u/elevation';
+import { MY_BLACK } from '@u/types';
 import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native'
 
@@ -42,7 +43,7 @@ const MyToggleButton = (props: { values: string[], initialValue: string, onClick
             >
                 <Text style={{
                         alignSelf: 'center',
-                        color: selected === value ? `#ffffff` : `#120e31`,
+                        color: selected === value ? `#ffffff` : MY_BLACK,
                     }}>
                     {value}
                 </Text>

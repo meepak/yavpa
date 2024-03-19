@@ -1,42 +1,17 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Text, TextInput, TouchableOpacity, View, StyleSheet, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { TextInput, TouchableOpacity, View, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useRouter } from "expo-router";
 import { ControlPanel } from "component/controls";
-import { HEADER_HEIGHT, SCREEN_HEIGHT, ScreenModeInstruction, ScreenModes } from "@u/types";
+import { HEADER_HEIGHT, SCREEN_HEIGHT, ScreenModes } from "@u/types";
 import MyIcon from "@c/my-icon";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MyPathLogo from "@c/logo/my-path-logo";
-import { LinearGradient } from "expo-linear-gradient";
 import { SvgDataContext } from "@x/svg-data";
 import MyList from "@c/my-list";
 import MyBlueButton from "@c/my-blue-button";
 import { ToastContext } from "@x/toast-context";
+import MyGradientBackground from "@c/my-gradient-background";
 
-/*
-<></> --> takes full parent's space by default
-<View</View> --> takes only required space by default
-<View style={{ flex: 1 }}></View> is same as <></>
-*/
-const HeaderGradientBackground = ({ children }) => (
-    <>
-        <View style={{ ...StyleSheet.absoluteFillObject, opacity: 1 }}>
-            <LinearGradient
-                colors={['#4f236d', '#040827', '#040827']}
-                start={[1, 0.25]} // left, top
-                end={[0, 1]}  // right, bottom
-                style={StyleSheet.absoluteFillObject}
-            />
-            {/* <LinearGradient
-                colors={['#da857900', '#0573b401', '#042f6bAA', '#fdf9b411']}
-                start={{ x: 0, y: 1 }}
-                end={{ x: 0, y: 1 }}
-                locations={[1, 0.8, 0.6, 0]}
-                style={StyleSheet.absoluteFillObject}
-            /> */}
-        </View>
-        {children}
-    </>
-)
 
 const Header = ({
     title,
@@ -102,7 +77,7 @@ const Header = ({
         let desc = screenMode.name;
         let name = screenMode.icon;
         if (screenMode.name === "Draw") {
-            desc = "press to PREVIEW";
+            desc = "press to PLAY";
         } else if (screenMode.name === "Preview") {
             desc = "press to EDIT";
         } else if (screenMode.name === "Export") {
@@ -120,7 +95,7 @@ const Header = ({
                 height: HEADER_HEIGHT + insets.top, // allow same header area in all devices
             }}
         >
-            <HeaderGradientBackground>
+            <MyGradientBackground>
                 <View style={{ flex: 1, justifyContent: 'space-between' }}>
                     <View
                         style={{
@@ -180,7 +155,7 @@ const Header = ({
                         />
                     </View>
                 </View>
-            </HeaderGradientBackground>
+            </MyGradientBackground>
             <MyBlueButton
                 icon={getBlueButtonIconProps(screenMode)}
                 onPress={handleScreenModeButtonPress}
@@ -191,4 +166,4 @@ const Header = ({
     );
 }
 
-export { HeaderGradientBackground, Header as default };
+export default Header;

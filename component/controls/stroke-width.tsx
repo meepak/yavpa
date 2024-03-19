@@ -1,12 +1,13 @@
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import MySlider from "@c/my-slider";
 import { useState } from "react";
 import StrokePreview from "./stroke-preview";
 
 const StrokeWidth = ({ stroke, strokeOpacity, value, onValueChanged }) => {
   const [currentValue, setCurrentValue] = useState(value)
+
   const handleValueChange = (value: number) => {
-    setCurrentValue(() => value);
+    setCurrentValue(value);
     onValueChanged(value);
   }
   return (
@@ -20,8 +21,10 @@ const StrokeWidth = ({ stroke, strokeOpacity, value, onValueChanged }) => {
           minimumValue={1}
           maximumValue={100}
           step={1}
-          value={value}
-          onValueChange={handleValueChange} />
+          value={currentValue}
+          onValueChange={handleValueChange}
+
+          />
       </View>
     </View>
   )

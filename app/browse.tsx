@@ -10,7 +10,7 @@ import {
   ActivityIndicator
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { CANVAS_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SvgDataType } from "@u/types";
+import { CANVAS_WIDTH, MY_BLACK, SCREEN_HEIGHT, SCREEN_WIDTH, SvgDataType } from "@u/types";
 import { deleteFile, getFiles } from "@u/storage";
 import { useRouter } from "expo-router";
 import { StickyHeaderFlatList, useStickyHeaderScrollProps } from 'react-native-sticky-parallax-header';
@@ -209,7 +209,7 @@ const BrowseScreen = () => {
               style={{ top: -HEADER_BAR_HEIGHT }}
               animating
               size={150}
-              color="#120e31"
+              color={MY_BLACK}
             />
           </View>
         )}

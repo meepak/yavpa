@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useEffect, useRef } from 'react';
 import Toast from 'react-native-root-toast';
 import { RootSiblingParent } from 'react-native-root-siblings';
+import { MY_BLACK } from '@u/types';
 
 type ToastFunction = (message: string, options?: object) => void;
 
@@ -19,7 +20,7 @@ function ToastProvider({ children }) {
             hideOnPress: true,
             delay: 0,
             textColor: '#fff',
-            backgroundColor: '#120e31',
+            backgroundColor: MY_BLACK, // TODO choose something else
             shadowColor: '#a805ee',
             opacity: 1,
             textStyle: { fontSize: 20 },

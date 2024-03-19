@@ -49,7 +49,7 @@ const ControlPanel = ({ buttons, paddingLeft = 40, paddingRight = 40 }) => {
   //       justifyContent: "center",
   //       alignItems: "center",
   //       borderWidth: 2,
-  //       borderColor: "#120e31",
+  //       borderColor: MY_BLACK,
   //       borderRadius: 14,
   //     }}
   //     onPress={hideMenu}

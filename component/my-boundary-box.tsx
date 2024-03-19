@@ -4,7 +4,7 @@ import { Animated } from 'react-native';
 import MyPath from "@c/my-path";
 import { createPathdata, getViewBoxTrimmed } from "@u/helper";
 import { shapeData } from "@u/shapes";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, PathDataType } from "@u/types";
+import { CANVAS_PATH, PathDataType } from "@u/types";
 
 // TODO There is more room for refactoring and no one else need to call getBoundaryBox explicitly
 
@@ -28,7 +28,7 @@ export const getBoundaryBox = (selectedPaths: PathDataType[]): PathDataType|null
     });
 
     let path = rectPath;
-    const rectPathData = createPathdata("#000000", 3, 1);
+    const rectPathData = createPathdata("url(#MYIR1)", 3, 1);
     rectPathData.visible = true;
     rectPathData.path = path;
     rectPathData.strokeDasharray = "7,7";
@@ -38,7 +38,7 @@ export const getBoundaryBox = (selectedPaths: PathDataType[]): PathDataType|null
 
 export const getCanvasAsBoundaryBox = () => {
     const pathData = createPathdata("#fdf9b4", 7, 1);
-    pathData.path = `M0 0 L${CANVAS_WIDTH} 0 L${CANVAS_WIDTH} ${CANVAS_HEIGHT} L0 ${CANVAS_HEIGHT} Z`;
+    pathData.path = CANVAS_PATH;
     pathData.strokeDasharray = "7,7";
     pathData.strokeDashoffset = 0;
     return pathData;
@@ -83,7 +83,7 @@ const MyBoundaryBox: React.FC<BoundaryBoxProps> = ({ activeBoundaryBoxPath }) =>
                 key={"selectBoundaryBox"}
                 prop={{
                     ...activeBoundaryBoxPath,
-                    stroke: strokeColor,
+                    // stroke: strokeColor,
                     strokeDashoffset: animatedBboxValue.interpolate({
                         inputRange: [0, 1],
                         outputRange: [7, 0],

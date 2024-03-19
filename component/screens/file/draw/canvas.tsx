@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { View, StyleSheet, ActivityIndicator } from "react-native";
 import Svg from "react-native-svg";
 import { createPathdata } from "@u/helper";
-import { CANVAS_VIEWBOX, PathDataType, PointType, ShapeType } from "@u/types";
+import { CANVAS_VIEWBOX, MY_BLACK, PathDataType, PointType, ShapeType } from "@u/types";
 import MyPath from "@c/my-path";
 import { useCommandEffect } from "./canvas/use-command-effect";
 import { SvgDataContext } from "@x/svg-data";
@@ -36,7 +36,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     forceUpdate = 0,
     strokeWidth = 2,
     strokeOpacity = 1,
-    stroke = "#120e31",
+    stroke = MY_BLACK,
     simplifyTolerance = 0.0111,
     d3CurveBasis = null,
   } = props;
@@ -68,6 +68,13 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 
   useEffect(() => {
     setIsLoading(false);
+    return () => {
+      setSvgData((prev) => {
+        prev.pathData.forEach(
+          (item) => item.selected = false);
+        return prev;
+      });
+    }
   }, []);
 
 
@@ -79,11 +86,6 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
       if(activeBoundaryBoxPath !== null) {
         setActiveBoundaryBoxPath(null);
       }
-      // setSvgData((prev) => {
-      //   prev.pathData.forEach(
-      //     (item) => item.selected = false);
-      //   return prev;
-      // });
     }
   }, [editable]);
 
@@ -145,7 +147,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
               <ActivityIndicator
                 animating
                 size={200}
-                color="#120e31"
+                color={MY_BLACK}
               />
             </View>
           )

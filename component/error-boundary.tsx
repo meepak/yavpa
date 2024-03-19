@@ -4,6 +4,7 @@ import { Divider } from './controls';
 // import MyPathLogo from './logo/my-path-logo';
 // import { CANVAS_WIDTH } from '@u/types';
 import * as Updates from 'expo-updates';
+import { MY_BLACK } from '@u/types';
 
 
 interface ErrorBoundaryProps {
@@ -43,7 +44,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
             Updates.reloadAsync();
             this.setState({hasError: false});
             }}>
-            <Text style={{ color: '#120e31' }} >Restart</Text>
+            <Text style={{ color: MY_BLACK }} >Restart</Text>
           </TouchableOpacity>
         </View >
       );

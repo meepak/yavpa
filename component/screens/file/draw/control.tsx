@@ -29,6 +29,13 @@ const createDrawControls = ({
   toggleErasure,
 }) => {
   // console.log('createDrawControls', strokeWidth);
+  const selectedPath = svgData.pathData.find((item) => item.selected === true);
+  // if (selectedPath) {
+  //   stroke = selectedPath.stroke;
+  //   strokeOpacity = selectedPath.strokeOpacity;
+  //   strokeWidth = selectedPath.strokeWidth;
+  // }
+
   return ([
     {
       key: "undo",
@@ -46,7 +53,7 @@ const createDrawControls = ({
       title: "Select Stroke Color",
       extraControl: (
         <SelectBrushColor
-        value={stroke}
+          value={selectedPath?.stroke || stroke}
         onValueChanged={(color: string) => setStroke(() => color)}
         />
       ),
@@ -70,9 +77,9 @@ const createDrawControls = ({
       title: "Set Stroke Width",
       extraControl: (
         <StrokeWidth
-          stroke={stroke}
-          strokeOpacity={strokeOpacity}
-          value={strokeWidth}
+          stroke={selectedPath?.stroke || stroke}
+          strokeOpacity={selectedPath?.strokeOpacity || strokeOpacity}
+          value={selectedPath?.strokeWidth || strokeWidth}
           onValueChanged={(value: number) => {
             setStrokeWidth(() => value);
           }}
@@ -86,9 +93,9 @@ const createDrawControls = ({
       title: "Set Stroke Opacity",
       extraControl: (
         <StrokeOpacity
-          stroke={stroke}
-          strokeWidth={strokeWidth}
-          value={strokeOpacity}
+          stroke={selectedPath?.stroke || stroke}
+          strokeWidth={selectedPath?.strokeWidth || strokeWidth}
+          value={selectedPath?.strokeOpacity || strokeOpacity}
           onValueChanged={(value: number) => {
             setStrokeOpacity(() => value);
           }}

@@ -2,7 +2,7 @@ import { View } from "react-native";
 import MySlider from "@c/my-slider";
 import { useState } from "react";
 import MyCheckBox from "@c/my-check-box";
-import { TransitionType } from "@u/types";
+import { MY_BLACK, TransitionType } from "@u/types";
 
 const AnimationParams = ({ animationParams, onAnimationParamsChanged }) => {
   const [speedValue, setSpeedValue] = useState(animationParams.speed ?? 1)
@@ -34,8 +34,8 @@ const AnimationParams = ({ animationParams, onAnimationParamsChanged }) => {
         <MyCheckBox
           checked={loopStatusValue}
           label="Loop the animation:"
-          iconStyle={{ color: '#120e31', size: 22 }}
-          textStyle={{ color: '#120e31', fontSize: 16, fontWeight: 'bold' }}
+          iconStyle={{ color: MY_BLACK, size: 22 }}
+          textStyle={{ color: MY_BLACK, fontSize: 16, fontWeight: 'bold' }}
           onChange={(value) => {
             setLoopStatusValue(() => value);
             onAnimationParamsChanged({ ...animationParams, loop: value });

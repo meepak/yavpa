@@ -1,10 +1,19 @@
 import { View } from "react-native";
 import MySlider from "@c/my-slider";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import StrokePreview from "./stroke-preview";
+import { SvgDataContext } from "@x/svg-data";
 
 const StrokeOpacity = ({ stroke, strokeWidth, value, onValueChanged }) => {
   const [currentValue, setCurrentValue] = useState(value)
+  const {svgData } = useContext(SvgDataContext);
+
+  useEffect(() => {
+    const selectedPathOpacity = svgData.pathData.find((path) => path.selected)?.strokeOpacity;
+    if (selectedPathOpacity !== undefined) {
+      setCurrentValue(selectedPathOpacity);
+    }
+  }, []);
   const handleValueChange = (value: number) => {
     setCurrentValue(() => value);
     onValueChanged(value);
@@ -22,6 +31,7 @@ const StrokeOpacity = ({ stroke, strokeWidth, value, onValueChanged }) => {
         step={0.01}
         value={currentValue}
         onValueChange={handleValueChange}
+        vertical={true}
       />
       </View>
     </View>

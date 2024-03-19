@@ -7,6 +7,8 @@ import { Dimensions, Platform } from "react-native";
 export const I_AM_ANDROID = Platform.OS === "android";
 export const I_AM_IOS = Platform.OS === "ios";
 
+export const MY_BLACK = '#120e31'
+
 export enum Orientation {
     PORTRAIT_UP = "PORTRAIT_UP",
     PORTRAIT_DOWN = "PORTRAIT_DOWN",
@@ -19,8 +21,10 @@ export const PRECISION = 3;
 export const SCREEN_WIDTH = Dimensions.get("window").width;
 export const SCREEN_HEIGHT = Dimensions.get("window").height;
 export const HEADER_HEIGHT = 110;
+// We need to make footer optional through configuration, i can't adjust that if heigt is constant
+// TODO once user configuration is implemented, take footer height from context
 export const FOOTER_HEIGHT = 40;
-export const CANVAS_PADDING_HORIZONTAL = 30;
+export const CANVAS_PADDING_HORIZONTAL = 20;
 export const CANVAS_PADDING_VERTICAL = 30;
 
 // Thus,
@@ -51,8 +55,8 @@ export const ScreenModeInstruction = {
 
 
 export const ScreenModes: ScreenModeType[] = [
-    { name: "Draw", icon: "preview" }, // show preview icon in draw
-    { name: "Preview", icon: "edit" }, // I guess it makes ore sense??
+    { name: "Draw", icon: "edit" }, // show preview icon in draw
+    { name: "Preview", icon: "preview" }, // I guess it makes ore sense??
     { name: "Export", icon: "export" },
 ];
 

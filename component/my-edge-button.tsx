@@ -1,15 +1,19 @@
-import { View, Text } from "react-native";
+import { MY_BLACK } from "@u/types";
+import { View, Text, Pressable } from "react-native";
+import MyIcon from "./my-icon";
 
 
 interface MyEdgeButtonProps {
+    myIcon?: {name: string, size: number};
     text: string;
-    onClick: () => void;
+    onPress: () => void;
     top?: number;
     leftOrRight?: 'left' | 'right';
 }
 
 const MyEdgeButton = (props: MyEdgeButtonProps) => {
     return (
+        <Pressable onPress={props.onPress}>
         <View style={{
             position: 'absolute',
             top: props.top || undefined,
@@ -22,7 +26,7 @@ const MyEdgeButton = (props: MyEdgeButtonProps) => {
             <View style={{
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: "#120e31",
+                backgroundColor: MY_BLACK,
                 opacity: 1,
                 width: 30,
                 height: 'auto',
@@ -51,19 +55,37 @@ const MyEdgeButton = (props: MyEdgeButtonProps) => {
                         }
                 ),
             }}>
-                <Text style={{
-                    color: '#FFFFFF',
-                    fontSize: 14,
-                    fontWeight: '500',
-                    textTransform: 'uppercase',
-                    letterSpacing: 1,
-                    opacity: 1,
-                    transform: [{ rotate: props.leftOrRight === 'left' ? '90deg' : '180deg' }],
+                <View style={{
+                    flexDirection: 'column',
                 }}>
-                    {props.text}
-                </Text>
+                    {
+                        props.myIcon &&
+                        <View style={{ marginBottom: 15, marginLeft: 7}}>
+                        <MyIcon
+                            // onPress={props.onPress} // do not pass onPress to MyIcon
+                            name={props.myIcon.name}
+                            color="#FFFFFF"
+                            style={{ size: props.myIcon.size || undefined }}
+                        />
+                        </View>
+                    }
+                    {props.text.split('').map((char, index) => (
+                        <Text key={index} style={{
+                            color: '#FFFFFF',
+                            fontSize: 14,
+                            fontWeight: '500',
+                            textTransform: 'uppercase',
+                            opacity: 1,
+                            marginVertical: -5,
+                            transform: [{ rotate: props.leftOrRight === 'left' ? '90deg' : '90deg' }],
+                        }}>
+                            {char}
+                        </Text>
+                    ))}
+                </View>
             </View>
         </View>
+        </Pressable>
     )
 }
 

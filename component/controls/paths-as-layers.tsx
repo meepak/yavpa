@@ -136,7 +136,7 @@ const PathsAsLayers = (
 
                                 {/* <TouchableOpacity onPress={() => handlePathUpdate(item, "selected", !item.selected)}> */}
                                 <MyCheckBox checked={item.selected} onChange={(checked) => handlePathUpdate(item, "selected", checked)} label="" iconStyle={{ color: 'black', size: 20, strokeWidth:2}}/>
-                                     {/* <MyIcon name={item.selected ? "checkbox-checked" : "checkbox-empty"} color='#120e31' size={20} /> */}
+                                     {/* <MyIcon name={item.selected ? "checkbox-checked" : "checkbox-empty"} color={MY_BLACK} size={20} /> */}
                                 {/* </TouchableOpacity> */}
 
                                 <TouchableOpacity style={{ ...styles.cell }}>

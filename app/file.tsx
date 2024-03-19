@@ -1,4 +1,4 @@
-import { CANVAS_HEIGHT, CANVAS_PADDING_VERTICAL, CANVAS_WIDTH, HEADER_HEIGHT, ScreenModes } from "@u/types";
+import { CANVAS_HEIGHT, CANVAS_PADDING_HORIZONTAL, CANVAS_PADDING_VERTICAL, CANVAS_WIDTH, FOOTER_HEIGHT, HEADER_HEIGHT, SCREEN_WIDTH, ScreenModes } from "@u/types";
 import { ScreenModeType } from "@u/types";
 import { createSvgData, precise } from "@u/helper";
 import { getFile, saveSvgToFile } from "@u/storage";
@@ -15,12 +15,13 @@ import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import MyBlueButton from "@c/my-blue-button";
 import MyEdgeButton from "@c/my-edge-button";
 import Footer from "@c/screens/file/footer";
+import { ContextMenu, PathsAsLayers } from "@c/controls";
 
 
 const FileScreen = () => {
-    const insets = useSafeAreaInsets();
+    // const insets = useSafeAreaInsets();
 
-    const [canvasScale, setCanvasScale] = useState(1);
+    // const [canvasScale, setCanvasScale] = useState(1);
     const { svgData, setSvgData } = useContext(SvgDataContext);
     const [controlButtons, setControlButtons] = useState([
         {
@@ -30,6 +31,7 @@ const FileScreen = () => {
     ]);
     const { guid } = useLocalSearchParams<{ guid: string; }>(); // Capture the GUID from the URL
     const [currentScreenMode, setCurrentScreenMode] = useState(ScreenModes[0]); // default DRAW, but save & read from metadata
+
 
     //****************************IMPORTANT********************************** */
     // If you are updating svgData through context and if it requires saving to file
@@ -146,15 +148,33 @@ const FileScreen = () => {
                 onScreenModeChanged={setCurrentScreenMode}
                 initialScreenMode={currentScreenMode}
             />
-            {
+            {/*
+            WILL INTRODUCE EDGE BUTTONS IN NEW VERSION!!
                 currentScreenMode.name === ScreenModes[0].name &&
-                <MyEdgeButton
+                <ContextMenu
+                anchor= {(<MyEdgeButton
+                    myIcon={{ name: 'layers', size: 24 }}
                     text="Layers"
-                    onClick={() => { }}
                     leftOrRight="right"
-                    top={HEADER_HEIGHT * 1.35} />
+                    onPress={() => { }}
+                    top={HEADER_HEIGHT * 1.35}
+                    />)}
 
-            }
+                        width={180}
+                        height={400}
+                        showBackground={false}
+                        xPosition={SCREEN_WIDTH - 200}
+                        yPosition={HEADER_HEIGHT * 1.35}
+                        positionOverride={true}
+                        yOffsetFromAnchor={10}
+                        animationIn={"slideInRight"}
+                        animationOut={"slideOutRight"}
+
+                    >
+                        <PathsAsLayers svgData={svgData} setSvgData={(value) => setSvgData} />
+                    </ContextMenu>
+
+                */}
             {
                 currentScreenMode.name === ScreenModes[0].name ||
                     currentScreenMode.name === ScreenModes[1].name
@@ -168,6 +188,8 @@ const FileScreen = () => {
                                 alignItems: "center",
                                 backgroundColor: 'transparent',
                                 paddingTop: CANVAS_PADDING_VERTICAL,
+                                paddingHorizontal: CANVAS_PADDING_HORIZONTAL / 2,
+                                // paddingRight: CANVAS_PADDING_HORIZONTAL / 2, // TO CREATE ROOM FOR EDGE BUTTON
                                 overflow: 'hidden',
                             }}
                         >
@@ -191,7 +213,7 @@ const FileScreen = () => {
                                     borderWidth: 2,
                                     borderColor: 'rgba(0,0,0,0.5)',
                                     // ...elevations[7],
-                                    // shadowColor: "#120e31",
+                                    // shadowColor: {MY_BLACK},
                                     // backgroundColor: 'rgba(255,255,255,0.5)',
                                     // shadowOffset: {
                                     //   width: 0,
@@ -226,7 +248,7 @@ const FileScreen = () => {
                     <MyBlueButton
                         icon={{ desc: 'EXPORT', name: 'export', size: 24, left: 0, top: 0 }}
                         onPress={() => setCurrentScreenMode(ScreenModes[2])}
-                        bottom={insets.bottom + 16}
+                        bottom={FOOTER_HEIGHT/2} // TODO adjust if this is blocking footer message
                         aligned="right"
                     // {...elevations[10]}
                     /> : null
