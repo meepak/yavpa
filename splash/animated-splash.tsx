@@ -69,7 +69,7 @@ const AnimatedSplash = ({
             }}
             source={image}
             onLoadEnd={onImageLoaded}
-            fadeDuration={0}
+            fadeDuration={100}
           />
           {/* <MyPathLogo animate={false} width={"100%"} height={"100%"} /> */}
           </Background>

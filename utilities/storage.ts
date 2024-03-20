@@ -72,21 +72,22 @@ export const getFiles = async (noDefaults = false): Promise<SvgDataType[]> => {
         myConsole.log('set the filecache again..')
         // svgDataFiles.sort((a, b) => Date.parse(b.metaData.updatedAt) - Date.parse(a.metaData.updatedAt));
 
-        if (!noDefaults) {
+        if (svgDataFiles.length === 0 && !noDefaults) {
 
             const logoData = require('@c/logo/my-path.json');
+
             if (logoData && logoData.pathData.length > 0) {
                 // check a copy already exist or not
                 const index = svgDataFiles.findIndex(file => file.metaData.guid === logoData.metaData.guid);
                 if (index === -1) {
-                    svgDataFiles.push(logoData);
+                    svgDataFiles.push({...logoData, metaData: {...logoData.metaData, updatedAt: new Date().toISOString()}});
                 }
             }
             const creativeVoidData = require('@c/creative-void/creative-void.json');
             if (creativeVoidData && creativeVoidData.pathData.length > 0) {
                 const index = svgDataFiles.findIndex(file => file.metaData.guid === logoData.metaData.guid);
                 if (index === -1) {
-                    svgDataFiles.push(creativeVoidData);
+                    svgDataFiles.push({ ...creativeVoidData, metaData: { ...creativeVoidData.metaData, updatedAt: new Date().toISOString() } });
                 }
             }
         }

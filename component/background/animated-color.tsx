@@ -5,14 +5,26 @@ import { Animated, StyleSheet } from 'react-native';
 // TODO find matching gradient colors, darker at first and pastel at the end as regular background
 export const AnimatedColorOptions = {
   splash: {
-    duration: 500,
-    inputRange: [0, 1, 2, 3, 4, 5],
-    outputRange: ['#8f0fff', '#b57edc', '#cccfff', '#fae6fa', '#fff0f5', '#e6e6fa']
+    duration: 1000,
+    inputRange: [1, 2, 2, 3, 4],
+    outputRange: ['#020935', '#020935DD', '#02093599', '#02093577', '#02093501']
   },
   default: {
-    duration: 7777,
-    inputRange: [0, 1, 2, 3, 4, 5 ],
-    outputRange: [ '#f0f8ff', '#f2f3f4', '#fff8e7', '#f8f8ff', '#f5fffa', '#f7f7f7']
+    duration: 20000,
+    inputRange: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    outputRange: [
+      '#fde2e4CC',
+      '#e2f0fdCC',
+      '#e4fde2CC',
+      '#f0f9f7CC',
+      '#e2e4fdCC',
+      '#f7f0f9CC',
+      '#e0f2fdCC',
+      '#fde4e2CC',
+      '#f0f7f9CC',
+      '#fde2f4CC'
+    ]
+
   }
 }
 
