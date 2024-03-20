@@ -12,7 +12,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {
   /* reloading the app might trigger some race conditions, ignore them */
 });
 
-import splashImage from "../assets/splash.png";
+const splashImage = require("@a/splash.png");
 const bgColor = 'transparent';
 
 const App = () => {

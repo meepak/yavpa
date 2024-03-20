@@ -4,11 +4,12 @@ import { Brushes, getBrush } from "@c/my-brushes";
 import { Path } from "react-native-svg";
 import { BrushType, PathDataType } from "@u/types";
 import { isValidPath } from "@u/helper";
+import myConsole from "./my-console-log";
 
 class MyPath extends React.PureComponent<{prop: PathDataType, keyProp: string}> {
     render() {
       if(!isValidPath(this.props.prop.path)) {
-        console.log("MyPath was given invalid path data - ", this.props.prop.path, " -", this.props.prop.guid);
+        myConsole.log("MyPath was given invalid path data - ", this.props.prop.path, " -", this.props.prop.guid);
         return null;
       }
 

@@ -7,6 +7,7 @@ import path from "path";
 import { Accelerometer } from "expo-sensors";
 import simplify from "simplify-js";
 import { line, curveBasis } from 'd3-shape';
+import myConsole from "@c/my-console-log";
 
 export const createSvgData = (): SvgDataType => ({
   pathData: [],
@@ -146,12 +147,12 @@ export const getPointsFromPath = (path: string, resolution: number = 100, simpli
   });
 
 
-  // console.log(points.length, "Points");
+  // myConsole.log(points.length, "Points");
 
   //simplify cPoints to reduce number of points
   const simplifiedPoints = simplify(points, simplifyTolerance);
 
-  // console.log(simplifiedPoints.length, "simplifiedPoints");
+  // myConsole.log(simplifiedPoints.length, "simplifiedPoints");
 
   return simplifiedPoints;
 };
@@ -218,18 +219,18 @@ export const getViewBoxTrimmed = (pathData: PathDataType[], offset = 20) => {
   //
   if(pathData.length === 0) return `0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`;
 
-  // console.log("pathData", pathData)
+  // myConsole.log("pathData", pathData)
   pathData.forEach((path) => {
-    // console.log("path", path)
+    // myConsole.log("path", path)
     const points = getPointsFromPath(path.path);
-    // console.log("points", points);
+    // myConsole.log("points", points);
     points.forEach((point) => {
       if (point.x === undefined || point.y === undefined) {
-        // console.log("point.x or point.y is undefined", point);
+        // myConsole.log("point.x or point.y is undefined", point);
         return;
       }
       if (Number.isNaN(point.x) || Number.isNaN(point.y)) {
-        // console.log("point.x or point.y is NaN", point);
+        // myConsole.log("point.x or point.y is NaN", point);
         return;
       }
       minX = Math.min(minX, point.x);
@@ -246,7 +247,7 @@ export const getViewBoxTrimmed = (pathData: PathDataType[], offset = 20) => {
   maxY = r(maxY) ?? CANVAS_HEIGHT ?? SCREEN_HEIGHT;
 
   const viewBox = `${minX - offset} ${minY - offset} ${maxX - minX + 2 * offset} ${maxY - minY + 2 * offset}`;
-  // console.log("viewBox trimmed", viewBox);
+  // myConsole.log("viewBox trimmed", viewBox);
   return viewBox;
 };
 
@@ -320,7 +321,7 @@ export const jsonDeepCompare = (json1: any, json2: any, log = false) => {
     const set = new Set([...a, ...b]);
     const diff = [...set].filter((char) => !a.includes(char) || !b.includes(char)).join("");
     if (log) {
-      console.log("Difference", diff);
+      myConsole.log("Difference", diff);
     }
     return diff === "";
   }
@@ -422,7 +423,7 @@ const penOffset = { x: 30, y: 30 };
 export const getPenOffset = async() => {
   try {
     const orientation = await getDeviceOrientation();
-    // console.log('Device orientation', orientation);
+    // myConsole.log('Device orientation', orientation);
     let x = Math.abs(penOffset.x);
     let y = Math.abs(penOffset.y);
     switch (orientation) {
@@ -439,11 +440,11 @@ export const getPenOffset = async() => {
         penOffset.x = -1 * x; penOffset.y = 1 * y;
         break;
     }
-    // console.log(orientation, penOffset);
+    // myConsole.log(orientation, penOffset);
     return penOffset;
   } catch (error) {
-    console.log('Error getting device orientation', error);
+    myConsole.log('Error getting device orientation', error);
   } finally {
-    // console.log('Device orientation check complete', penOffset);
+    // myConsole.log('Device orientation check complete', penOffset);
   }
 }

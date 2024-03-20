@@ -15,7 +15,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
   // make a shallow copy of pathData, so any animation changes don't affect the original data
   const pathData = props.svgData.pathData.map((path) => ({ ...path }));
 
-  // console.log('pathData', pathData);
+  // myConsole.log('pathData', pathData);
 
   // get the one from meta data, if using trimmed view box is what needed
   // update at commented place
@@ -148,26 +148,26 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
 
   // play animation
   const playAnimation = () => {
-    // console.log('playing animation')
+    // myConsole.log('playing animation')
     if (animations == undefined || !animations) {
       // Create an array of animations
       animations = getAnimations();
     }
 
     if (animationParams.loop) {
-      // console.log('looping', loopDelay)
+      // myConsole.log('looping', loopDelay)
       animatedValues.forEach((animatedValue) => animatedValue.setValue(0));
       animations.reset();
       Animated.loop(animations).start();
     } else {
-      // console.log('not looping')
+      // myConsole.log('not looping')
       animations.start();
     }
   };
 
   // stop animation
   const stopAnimation = () => {
-    // console.log("stopping animation");
+    // myConsole.log("stopping animation");
     animations.stop();
   };
 
@@ -179,7 +179,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
   }));
 
   useEffect(() => {
-    // console.log('correction', correction);
+    // myConsole.log('correction', correction);
     playAnimation();
   }, [animationParams]);
 
@@ -202,7 +202,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
         viewBox={viewBox}
       >
         {pathData.map((path, index) => {
-          const strokeDasharray = path.length * (1 + (props.svgData.metaData.animation?.correction || animationParams.correction));
+          const strokeDasharray = path.length * (1 + animationParams.correction);
           const strokeDashoffset = animatedValues[index].interpolate({
             inputRange: [0, 1],
             outputRange: [strokeDasharray, 0],

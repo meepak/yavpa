@@ -5,6 +5,7 @@ import { Divider } from './controls';
 // import { CANVAS_WIDTH } from '@u/types';
 import * as Updates from 'expo-updates';
 import { MY_BLACK } from '@u/types';
+import myConsole from './my-console-log';
 
 
 interface ErrorBoundaryProps {
@@ -27,7 +28,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: any, errorInfo: any) {
-    console.log(error, errorInfo);
+    myConsole.log(error, errorInfo);
   }
   render() {
     if (this.state.hasError) {

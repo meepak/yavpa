@@ -14,14 +14,14 @@ const MyColorPicker = ({ initialColor = MY_BLACK, onColorSelected }) => {
         color={isValidHex(inputColor) ? inputColor : initialColor}
         swatchesOnly={false}
         onColorChange={(color) => {
-          // console.log('color changed', color);
+          // myConsole.log('color changed', color);
           setInputColor(color);
           if (isValidHex(color)) {
             onColorSelected(color);
           }
         }}
         // onColorChangeComplete={(color) => {
-        //   console.log('color changed complete', color);
+        //   myConsole.log('color changed complete', color);
         //   setInputColor(color);
         //   if (isValidHex(color)) {
         //     onColorSelected(color);

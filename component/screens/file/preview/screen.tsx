@@ -3,11 +3,12 @@ import { View } from "react-native";
 import SvgAnimate from "./animate";
 import createPreviewControls from "./control";
 import { AnimationParamsType, SvgAnimateHandle } from "@u/types";
+import myConsole from "@c/my-console-log";
 
 const PreviewScreen = ({ svgData, setSvgData, initControls }) => {
 
   // const { svgData, setSvgData } = useContext(SvgDataContext);
-  console.log('svgdata animation params', svgData.metaData.animation)
+  myConsole.log('svgdata animation params', svgData.metaData.animation)
   const [animationParams, setAnimationParams] = useState<AnimationParamsType>({
     speed: svgData.metaData.animation?.speed || 1,
     loop: svgData.metaData.animation?.loop || true,
@@ -16,7 +17,7 @@ const PreviewScreen = ({ svgData, setSvgData, initControls }) => {
     transitionType: svgData.metaData.animation?.transitionType || 1,
     correction: svgData.metaData.animation?.correction || 0.05,
   });
-  console.log('animationParams', animationParams);
+  myConsole.log('animationParams', animationParams);
 
 
 
@@ -38,7 +39,7 @@ const PreviewScreen = ({ svgData, setSvgData, initControls }) => {
       previewRef.current.setAnimationParams(animationParams);
     }
     if (svgData.metaData.animation && svgData.metaData.animation !== animationParams) {
-      console.log('animation params updated, should trigger saving to file');
+      myConsole.log('animation params updated, should trigger saving to file');
       setSvgData((prev) => ({ ...prev, metaData: { ...prev.metaData, animation: animationParams, updatedAt: "" } }));
     }
 

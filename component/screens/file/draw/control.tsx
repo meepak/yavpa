@@ -28,7 +28,7 @@ const createDrawControls = ({
   drawShape,
   toggleErasure,
 }) => {
-  // console.log('createDrawControls', strokeWidth);
+  // myConsole.log('createDrawControls', strokeWidth);
   const selectedPath = svgData.pathData.find((item) => item.selected === true);
   // if (selectedPath) {
   //   stroke = selectedPath.stroke;

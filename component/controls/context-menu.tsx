@@ -1,3 +1,4 @@
+import myConsole from '@c/my-console-log';
 import { CANVAS_HEIGHT } from '@u/types';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
@@ -66,23 +67,23 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
 
   componentDidUpdate(prevProps: ContextMenuProps, prevState: ContextMenuState) {
     if (prevState.menuVisible !== this.state.menuVisible) {
-      // console.log('menu close -- trigger unknown if no reason below?? ', this.state.menuVisible);
+      // myConsole.log('menu close -- trigger unknown if no reason below?? ', this.state.menuVisible);
     }
 
     if (prevProps.closeMenuAt !== this.props.closeMenuAt && this.state.menuVisible) {
-      // console.log('REASON:: closeMenuAt trigger closure', this.props.closeMenuAt);
+      // myConsole.log('REASON:: closeMenuAt trigger closure', this.props.closeMenuAt);
       this.hideMenu();
     }
   }
 
   hideMenu = () => {
-    // console.log('REASON:: hideMenu trigger closure', this.props.closeMenuAt);
+    // myConsole.log('REASON:: hideMenu trigger closure', this.props.closeMenuAt);
     this.setState({ menuVisible: false });
   };
 
   showMenu = () => {
     if (this.props.positionOverride && this.props.xPosition && this.props.yPosition) {
-      console.log('overriden already??');
+      myConsole.log('overriden already??');
       this.setState({ xPosition: this.props.xPosition, yPosition: this.props.yPosition, menuVisible: true });
       return;
     }

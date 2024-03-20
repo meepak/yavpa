@@ -49,7 +49,7 @@ const DrawScreen = ({ initControls }) => {
   const onRedo = () => executeCommand("redo");
   // const onLock = () => {
   //   const mode = editMode ? "lock" : "unlock";
-  //   console.log('mode', mode);
+  //   myConsole.log('mode', mode);
   //   setEditMode((prev) => !prev);
   // };
 

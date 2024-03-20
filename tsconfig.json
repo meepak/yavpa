@@ -13,7 +13,6 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "moduleDetection": "auto",
     "baseUrl": ".",
     "paths": {
       "@c/*": [
@@ -30,7 +29,15 @@
       ],
       "@x/*": [
         "context/*"
-      ],
+      ]
     }
-  }
+  },
+  "include": [
+    "app/**/*",
+    "assets/**/*",
+    "component/**/*",
+    "utilities/**/*",
+    "context/**/*",
+    "splash/**/*",
+  ]
 }

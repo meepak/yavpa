@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import MyCheckBox from "@c/my-check-box";
 import { MY_BLACK, TransitionType } from "@u/types";
 import RadioButtons from "@c/my-radio-buttons";
+import myConsole from "@c/my-console-log";
 
 const AnimationParams = ({ animationParams, onAnimationParamsChanged }) => {
   const [speedValue, setSpeedValue] = useState(animationParams.speed ?? 1)
@@ -13,7 +14,7 @@ const AnimationParams = ({ animationParams, onAnimationParamsChanged }) => {
   const [loopTransitionTypeValue, setLoopTransitionTypeValue] = useState(animationParams.transitionType ?? TransitionType.Fade)
 
   useEffect(() => {
-    console.log('animationParams', animationParams);
+    myConsole.log('animationParams', animationParams);
   }, [animationParams])
 
   return (
@@ -79,8 +80,8 @@ const AnimationParams = ({ animationParams, onAnimationParamsChanged }) => {
           <Text style={{ color: MY_BLACK, fontWeight: 'bold' }}>Transition Type:</Text>
         <RadioButtons
           iconStyle={{ color: 'transparent', fill: MY_BLACK, size: 22 }}
-          labels = {['Fade', 'Vibrate', 'Shrink']}
-          values = {[TransitionType.Fade as any, TransitionType.Vibrate, TransitionType.Shrink]}
+          labels={['Fade', 'Shrink']} //'Vibrate',
+          values={[TransitionType.Fade as any, TransitionType.Shrink]} //TransitionType.Vibrate,
           initialValue={animationParams.transitionType}
           onChange={(value) => {
               setLoopTransitionTypeValue(() => value);

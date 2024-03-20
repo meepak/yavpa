@@ -10,7 +10,6 @@ import { defaultShape } from "@u/shapes";
 import { useSelectEffect } from "./canvas/use-select-effect";
 import { MyGestures } from "./canvas/my-gestures";
 import ErrorBoundary from "@c/error-boundary";
-import MyPathContextMenu from "../../../my-path-context-menu";
 import MyBoundaryBox from "@c/my-boundary-box";
 
 

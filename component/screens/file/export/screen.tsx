@@ -12,6 +12,7 @@ import { CANVAS_HEIGHT, CANVAS_VIEWBOX, CANVAS_WIDTH, FOOTER_HEIGHT, I_AM_IOS } 
 import * as format from "@u/formatters";
 import createLottie from "@u/lottie";
 import ErrorBoundary from "@c/error-boundary";
+import myConsole from "@c/my-console-log";
 
 const ExportScreen = ({ initControls }) => {
   const { svgData } = useContext(SvgDataContext);
@@ -38,9 +39,9 @@ const ExportScreen = ({ initControls }) => {
       setSmilSvg(format.getSmilSvg(svgData));
       setCssSvg(format.getCssSvg(svgData));
     } catch (e) {
-      console.log("error occcured, log properly - " + e);
+      myConsole.log("error occcured, log properly - " + e);
     } finally {
-      console.log("al goo di guess");
+      myConsole.log("al goo di guess");
     }
   }, []);
 
@@ -55,7 +56,7 @@ const ExportScreen = ({ initControls }) => {
   // and data in it in both ios and android
   // ask for permission if needed
   const download = async (filename = "", data = "") => {
-    // console.log(data)
+    // myConsole.log(data)
     if (!filename || !data) return;
     const uri = FileSystem.cacheDirectory + filename;
     await FileSystem.writeAsStringAsync(uri, data, { encoding: FileSystem.EncodingType.UTF8 });

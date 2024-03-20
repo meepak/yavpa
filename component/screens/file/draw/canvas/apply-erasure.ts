@@ -1,4 +1,5 @@
-import { getPathFromPoints, getPathLength, getPointsFromPath, precise } from '../../../../../utilities/helper';
+import path from 'path';
+import { getPathFromPoints, getPathLength, getPointsFromPath, isPath1InsidePath2, precise } from '../../../../../utilities/helper';
 import { PathDataType, PointType } from '../../../../../utilities/types';
 import * as turf from '@turf/turf';
 import * as Crypto from "expo-crypto";
@@ -14,7 +15,7 @@ import * as Crypto from "expo-crypto";
 * 4. If it is outside, continue to next point
 **/
 export const applyErasure = (erasurePathData: PathDataType, completedPathsData: PathDataType[]): PathDataType[] => {
-    // console.log("Erasure path", erasurePathData.path);
+    // myConsole.log("Erasure path", erasurePathData.path);
     const erasurePathPoints = getPointsFromPath(erasurePathData.path);
     // make sure first and last points are same
     if (erasurePathPoints.length > 1) {
@@ -30,16 +31,16 @@ export const applyErasure = (erasurePathData: PathDataType, completedPathsData: 
 
     ///** increase resolution */
 
+    // completed paths is within erasure points delete them
+    // any completed paths within erasure paths is to be deleted
 
     completedPathsData.forEach((pathData, index) => {
         if(pathData.path === "" || !pathData.visible) {
             return null;
         }
-        // console.log("Checking Completed path", pathData.guid)
+        // myConsole.log("Checking Completed path", pathData.guid)
         // Create a path for each completed path
         let points = getPointsFromPath(pathData.path);
-
-
 
 
         // Convert path points to a Turf.js line string
@@ -87,7 +88,7 @@ export const applyErasure = (erasurePathData: PathDataType, completedPathsData: 
                 ...newPaths.map((newPath) => {
                     const length = getPathLength(newPath);
                     const time = (length / pathData.length) * pathData.time;
-                    // console.log("length", length, "time", time);
+                    // myConsole.log("length", length, "time", time);
                     return {
                         ...pathData,
                         path: getPathFromPoints(newPath),
@@ -100,5 +101,20 @@ export const applyErasure = (erasurePathData: PathDataType, completedPathsData: 
         }
     });
 
-    return completedPathsData;
+    return completedPathsData.filter((pathData) => {
+        if(!pathData || pathData.path === "") {
+            return false; //remove it
+        }
+        let points = getPointsFromPath(pathData.path);
+        let line = turf.lineString(points.map(point => [point.x, point.y]));
+        let erasurePolygon = turf.polygon([erasurePathPoints.map((point) => [point.x, point.y])]);
+
+        // If the line is not contained within the erasure polygon, keep it
+        if (!turf.booleanContains(erasurePolygon, line)) {
+            return true;
+        }
+
+        // Otherwise, remove it
+        return false;
+    });
 }

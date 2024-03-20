@@ -2,6 +2,7 @@ import * as FileSystem from "expo-file-system";
 import { parseSvgData } from "./helper";
 import { SvgDataType, I_AM_IOS } from "./types";
 import path from 'path';
+import myConsole from "@c/my-console-log";
 
 // const AppName = I_AM_IOS ? "mypath.mahat.au" : "draw-replay-svg-path";
 const AppName = 'mypath.mahat.au'; //isIOS ? "mypath.mahat.au" : "draw-replay-svg-path";
@@ -22,10 +23,10 @@ export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
     }
 
     // Clear the previous timeout
-    // console.log('clearing timeout.');
+    // myConsole.log('clearing timeout.');
     clearTimeout(saveTimeout);
 
-    // console.log('saving file in 2 seconds.');
+    // myConsole.log('saving file in 2 seconds.');
     // Set a new timeout
     saveTimeout = setTimeout(async () => {
         try {
@@ -38,7 +39,7 @@ export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
             }
 
             await FileSystem.writeAsStringAsync(filename, json);
-            console.log('*****FILE SAVED TO DISK***')
+            myConsole.log('*****FILE SAVED TO DISK***')
         } catch (err) {
             console.error("Failed to save file:", err);
         }
@@ -49,10 +50,10 @@ export const saveSvgToFile = async (svgData: SvgDataType, name = "") => {
 export const getFiles = async (noDefaults = false): Promise<SvgDataType[]> => {
     try {
         if (fileCache.length > 0) {
-            console.log('file cache get files')
+            myConsole.log('file cache get files')
             return fileCache;
         }
-        console.log('I should never be reached after first time.');
+        myConsole.log('I should never be reached after first time.');
         const dirInfo = await FileSystem.getInfoAsync(AppSaveDirectory);
         if (!dirInfo.exists) {
             await FileSystem.makeDirectoryAsync(AppSaveDirectory, { intermediates: true });
@@ -68,7 +69,7 @@ export const getFiles = async (noDefaults = false): Promise<SvgDataType[]> => {
             const svgData = parseSvgData(JSON.parse(json));
             svgDataFiles.push(svgData);
         }
-        console.log('set the filecache again..')
+        myConsole.log('set the filecache again..')
         // svgDataFiles.sort((a, b) => Date.parse(b.metaData.updatedAt) - Date.parse(a.metaData.updatedAt));
 
         if (!noDefaults) {
@@ -105,10 +106,10 @@ export const getFile = async (guid: string): Promise<SvgDataType | null> => {
         if (file) {
             // reset selected path to false, find betteer way
             file.pathData.forEach(path => path.selected = false);
-            console.log('file found in fileCache');
+            myConsole.log('file found in fileCache');
             return file;
         }
-        console.log('file not found in cache');
+        myConsole.log('file not found in cache');
 
         const filename = path.join(AppSaveDirectory, `${guid}.json`);
         const info = await FileSystem.getInfoAsync(filename);

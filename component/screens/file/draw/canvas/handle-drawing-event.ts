@@ -1,4 +1,5 @@
 // import { applyErasure } from "@u/erasure";
+import myConsole from "@c/my-console-log";
 import { applyErasure } from "./apply-erasure";
 import { getPathFromPoints, getPathLength, getPointsFromPath, isValidPath, precise } from "@u/helper";
 import { getD3CurveBasis, isValidShape, shapeData } from "@u/shapes";
@@ -115,7 +116,7 @@ export const handleDrawingEvent = (
       break;
     case "ended":
       currentPath.time = Date.now() - startTime;
-      // console.log("time", currentPath.time)
+      // myConsole.log("time", currentPath.time)
 
       if (erasureMode) {
         // use currentPath as erasure
@@ -149,7 +150,7 @@ export const handleDrawingEvent = (
           const line = d3.line().curve(curveBasis);
           // Generate the path data
           currentPath.path = line(pointsXY as [number, number][]) || "";
-          // console.log(currentPath);
+          // myConsole.log(currentPath);
         }
       }
 
@@ -161,7 +162,7 @@ export const handleDrawingEvent = (
         currentPath.visible = true;
         currentPath.selected = false;
         currentPath.length = getPathLength(points);
-        console.log('setting completed path from drawing event');
+        myConsole.log('setting completed path from drawing event');
         // setCompletedPaths((prev) => [...prev, currentPath]);
         setSvgData((prev: SvgDataType) => ({
           metaData: { ...prev.metaData, updatedAt: "" },

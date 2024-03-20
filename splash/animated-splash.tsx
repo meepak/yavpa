@@ -1,5 +1,6 @@
 
 import {Background, BackgroundOptions} from "@c/background";
+import myConsole from "@c/my-console-log";
 import { SplashScreen } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Animated, StyleSheet, View } from "react-native";
@@ -22,7 +23,7 @@ const AnimatedSplash = ({
 
   useEffect(() => {
     if (isAppReady) {
-      console.log('[ANIMATED SPLASH] app ready')
+      myConsole.log('[ANIMATED SPLASH] app ready')
       Animated.timing(animation, {
         toValue: 0,
         duration: 1200,

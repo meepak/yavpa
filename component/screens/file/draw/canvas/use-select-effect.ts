@@ -24,7 +24,7 @@ export const useSelectEffect = ({
 
     setEditMode(false);
 
-    // console.log("selectedPaths", selectedPaths.length);
+    // myConsole.log("selectedPaths", selectedPaths.length);
     const rectPathData = getBoundaryBox(selectedPaths);
     setActiveBoundaryBoxPath(rectPathData);
 

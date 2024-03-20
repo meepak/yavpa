@@ -10,7 +10,7 @@ const MyGradientBackground = ({ children, reverse = false }) => (
     <>
         <View style={{ ...StyleSheet.absoluteFillObject }}>
             <LinearGradient
-                colors={['#512dbb', '#041969', '#020935', '#020935', '#01030f']}
+                colors={['#512dab', '#041969', '#020935', '#020935', '#01030f']}
                 start={[Number(!reverse), 0]} // left, top
                 end={[Number(reverse), 1]}  // right, bottom
                 locations={[0, 0.25, 0.45, 0.65, 1]}

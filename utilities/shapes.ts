@@ -15,7 +15,7 @@ export const calculateDistance = (point1: PointType, point2: PointType) => {
     const dx = point2.x - point1.x;
     const dy = point2.y - point1.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
-    // console.log("distance", distance, point1, point2);
+    // myConsole.log("distance", distance, point1, point2);
     return distance;
 };
 

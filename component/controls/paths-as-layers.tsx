@@ -15,6 +15,7 @@ import MyPreview from "@c/my-preview";
 import StrokeOpacity from "./stroke-opacity";
 import { SvgDataContext } from "@x/svg-data";
 import MyCheckBox from "@c/my-check-box";
+import myConsole from "@c/my-console-log";
 
 
 
@@ -258,7 +259,7 @@ const PathsAsLayers = (
                     ItemSeparatorComponent={ItemSeparator}
                     // ListHeaderComponent={HeaderComponent}
                     // stickyHeaderIndices={[0]}
-                    onAnimValInit={(val) => console.log(val)}
+                    onAnimValInit={(val) => myConsole.log(val)}
                     contentContainerStyle={{ paddingVertical: 10}}
 
                 />

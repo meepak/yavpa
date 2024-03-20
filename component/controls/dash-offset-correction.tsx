@@ -15,7 +15,7 @@ const DashOffsetCorrection = ({ value, onValueChanged }) => {
         name = {"Adjust value to cleanup pre-animation artifacts"}
         style={{ width: 250, height: 40, top: -10 }}
         minimumValue={0.0001}
-        maximumValue={0.15}
+        maximumValue={0.25}
          horizontal={true}
         step={0.001}
         value={currentValue}

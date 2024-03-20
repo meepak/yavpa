@@ -1,6 +1,6 @@
 import { RotationGestureHandlerEventPayload, GestureUpdateEvent } from "react-native-gesture-handler";
 import { SetStateAction } from "react";
-import { PathDataType, SvgDataType } from "@u/types";
+import { PathDataType, PointType, SvgDataType } from "@u/types";
 import { getPointsFromPath, getPathFromPoints, rotatePoints } from "@u/helper";
 import * as Crypto from "expo-crypto";
 

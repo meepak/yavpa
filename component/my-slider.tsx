@@ -5,6 +5,7 @@ import { debounce } from 'lodash';
 import MyIcon from "./my-icon";
 import { MY_BLACK } from "@u/types";
 import { precise } from "@u/helper";
+import myConsole from "./my-console-log";
 
 interface MySliderProps extends SliderProps {
   name: string;
@@ -19,7 +20,7 @@ const MySlider = (props: MySliderProps) => {
 
   useEffect(() => {
     valueRef.current = value;
-    console.log('value is et', value)
+    myConsole.log('value is et', value)
   }, [value]);
 
   const showIconButton = props.plusMinusButtons !== false;

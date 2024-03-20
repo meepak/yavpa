@@ -33,11 +33,11 @@ export const CANVAS_HEIGHT = SCREEN_HEIGHT - HEADER_HEIGHT - CANVAS_PADDING_VERT
 export const CANVAS_VIEWBOX = `0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`;
 export const CANVAS_PATH = `M0,0 L${CANVAS_WIDTH},0 L${CANVAS_WIDTH},${CANVAS_HEIGHT} L0,${CANVAS_HEIGHT} Z`;
 
-// console.log('SCREEN_WIDTH', SCREEN_WIDTH);
-// console.log('SCREEN_HEIGHT', SCREEN_HEIGHT);
-// console.log('HEADER_HEIGHT', HEADER_HEIGHT);
-// console.log('CANVAS_WIDTH', CANVAS_WIDTH);
-// console.log('CANVAS_HEIGHT', CANVAS_HEIGHT);
+// myConsole.log('SCREEN_WIDTH', SCREEN_WIDTH);
+// myConsole.log('SCREEN_HEIGHT', SCREEN_HEIGHT);
+// myConsole.log('HEADER_HEIGHT', HEADER_HEIGHT);
+// myConsole.log('CANVAS_WIDTH', CANVAS_WIDTH);
+// myConsole.log('CANVAS_HEIGHT', CANVAS_HEIGHT);
 
 // -------------------------------------------------
 

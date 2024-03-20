@@ -74,7 +74,7 @@ export const getSmilSvg = (svgData: SvgDataType, trimViewBox = true) => {
   });
   text += "</svg>";
 
-  // console.log(svgData)
+  // myConsole.log(svgData)
   return text;
 };
 

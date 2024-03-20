@@ -19,6 +19,7 @@ import Header from "@c/screens/browse/header";
 import MyPreview from "@c/my-preview";
 import CreativeVoid from "@c/creative-void/creative-void";
 import MyBlueButton from "@c/my-blue-button";
+import myConsole from "@c/my-console-log";
 
 const PARALLAX_HEIGHT = 238;
 const HEADER_BAR_HEIGHT = 92;
@@ -79,7 +80,7 @@ const BrowseScreen = () => {
         setNoSketch(true);
       }
     } catch (error) {
-      console.log('error fetching files', error)
+      myConsole.log('error fetching files', error)
     }
   }, []);
 
@@ -88,14 +89,14 @@ const BrowseScreen = () => {
   }, [fetchFiles]);
 
   const deleteSketchAlert = (guid: string) => {
-    // console.log('confirm delete ' + guid);
+    // myConsole.log('confirm delete ' + guid);
     Alert.alert("Delete Sketch", "Are you sure you want to delete this sketch permanently?", [
       { text: "Cancel", style: "cancel" },
       {
         text: "Delete",
         onPress: async () => {
 
-          // console.log('delete', guid)
+          // myConsole.log('delete', guid)
           const result = await deleteFile(guid)
           if (result) {
             await fetchFiles();

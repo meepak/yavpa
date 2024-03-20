@@ -8,7 +8,7 @@ import { CANVAS_VIEWBOX, MY_BLACK, PathDataType, PointType } from "@u/types";
 import MyIcon from './my-icon';
 import { SvgDataContext } from '@x/svg-data';
 import * as Crypto from "expo-crypto";
-import { Divider } from './controls';
+import myConsole from './my-console-log';
 
 
 export const getBoundaryBox = (selectedPaths: PathDataType[]): PathDataType | null => {
@@ -31,7 +31,7 @@ export const getBoundaryBox = (selectedPaths: PathDataType[]): PathDataType | nu
     });
 
     let path = rectPath;
-    const rectPathData = createPathdata("#fdf9b4", 3, 1);
+    const rectPathData = createPathdata("#fdf9b4", 2, 1); //stroke, width, opacity
     rectPathData.visible = true;
     rectPathData.path = path;
     rectPathData.strokeDasharray = "7,7";
@@ -111,7 +111,7 @@ const BoundaryBoxIcons = ({
             });
             return { ...prev, metaData: { ...prev.metaData, updatedAt: "" } };
         });
-        console.log("duplicateSelected")
+        myConsole.log("duplicateSelected")
     }
 
     const flipPaths = (flipX = false, flipY = false) => {
@@ -134,7 +134,7 @@ const BoundaryBoxIcons = ({
             return { ...prev, metaData: { ...prev.metaData, updatedAt: "" } };
         });
         // setActiveBoundaryBoxPath(null);
-        console.log("deleteSelected")
+        myConsole.log("deleteSelected")
     }
 
 
@@ -147,14 +147,14 @@ const BoundaryBoxIcons = ({
         x: parseFloat(vbbPoints[0]) + parseFloat(canvasPoints[0]),
         y: parseFloat(vbbPoints[1]) + parseFloat(canvasPoints[1]) - iconBoxHeight,
     }
-    const BbIcon = ({ name, onPress, strokeWidth=1 }) => {
+    const BbIcon = ({ name, onPress, strokeWidth=1, size=20, marginBottom = 0, marginLeft=5 }) => {
         return <MyIcon
                 name={name}
-                size={20}
-                color={MY_BLACK}
+                size={size}
+                color={'#6b0772'}
                 strokeWidth={strokeWidth}
                 onPress={onPress}
-                style={{marginLeft: 5}}/>
+                style={{marginLeft: marginLeft, marginBottom: marginBottom }}/>
     };
 
     return (<View style={{
@@ -165,17 +165,18 @@ const BoundaryBoxIcons = ({
         justifyContent: 'flex-start',
         alignItems: 'center',
         // width: 100, // auto/
-        height: 25,
+        height: 24,
     }}>
         {/* />
         <BbIcon name={'copy'} onPress={copyStyle} />
         <BbIcon name={'paste'} onPress={pasteStyle} /> */}
-        <BbIcon name={'trash'} onPress={deleteSelected} />
-        <BbIcon name={'duplicate'} onPress={duplicateSelected} />
-        <BbIcon name={'flip-horizontal'} onPress={() => flipPaths(true, false)} />
-        <BbIcon name={'flip-vertical'} onPress={() => flipPaths(false, true)} />
-        <BbIcon name={'stretch-x'} onPress={() => onScaleModeChange('X')} strokeWidth={3} />
-        <BbIcon name={'stretch-y'} onPress={() => onScaleModeChange('Y')} strokeWidth={3} />
+
+        <BbIcon size={18} marginBottom={-4} strokeWidth={1.4} marginLeft={7} name={'duplicate'} onPress={duplicateSelected} />
+        <BbIcon size={18} marginBottom={-4} strokeWidth={2} marginLeft={8} name={'flip-horizontal'} onPress={() => flipPaths(true, false)} />
+        <BbIcon size={16} marginBottom={-5} strokeWidth={2} marginLeft={9} name={'flip-vertical'} onPress={() => flipPaths(false, true)} />
+        <BbIcon size={15} marginBottom={-5} strokeWidth={8} marginLeft={7} name={'stretch-x'} onPress={() => onScaleModeChange('X')} />
+        <BbIcon size={15} marginBottom={-5} strokeWidth={8} marginLeft={7} name={'stretch-y'} onPress={() => onScaleModeChange('Y')} />
+        <BbIcon size={18} marginBottom={-3} name={'trash'} onPress={deleteSelected} />
     </View>
     )
 }

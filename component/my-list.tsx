@@ -1,13 +1,14 @@
 
 import MyPreview from '@c/my-preview';
 import { getFiles } from '@u/storage';
-import { CANVAS_HEIGHT, CANVAS_WIDTH, HEADER_HEIGHT, SCREEN_WIDTH, SvgDataType } from '@u/types';
+import { CANVAS_HEIGHT, CANVAS_WIDTH, HEADER_HEIGHT, ModalAnimations, SCREEN_WIDTH, SvgDataType } from '@u/types';
 import { router } from 'expo-router';
 import { useCallback, useLayoutEffect, useState } from 'react';
-import { TouchableHighlight } from 'react-native';
+import { Modal, TouchableHighlight } from 'react-native';
 import Animated, { useSharedValue, useAnimatedScrollHandler } from 'react-native-reanimated';
 import { ContextMenu } from './controls';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import myConsole from './my-console-log';
 
 const FILE_PREVIEW_WIDTH = 100;
 
@@ -33,7 +34,7 @@ const MyList = ({ anchor, width, height }) => {
             // svgData = svgData.sort((a, b) => Date.parse(a.metaData.updatedAt) - Date.parse(b.metaData.updatedAt));
             setFiles(svgData);
         } catch (error) {
-            console.log('error fetching files', error)
+            myConsole.log('error fetching files', error)
         }
     }, []);
 
@@ -158,12 +159,12 @@ const MyList = ({ anchor, width, height }) => {
             height={height}
             showBackground={false}
             xPosition={SCREEN_WIDTH - width}
-            yPosition={HEADER_HEIGHT}
+            yPosition={HEADER_HEIGHT - insets.top + 7}
             positionOverride={true}
             // yOffsetFromAnchor={10}
             closeMenuAt={forceRerenderAt}
-            animationIn={"slideInRight"}
-            animationOut={"slideOutRight"}
+            animationIn={ModalAnimations.slideInRight}
+            animationOut={ModalAnimations.slideOutRight}
         >
             <Animated.FlatList
                 // contentContainerStyle={{ padding: 5 }}

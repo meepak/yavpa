@@ -40,7 +40,7 @@ const MyIcon: React.FC<MyIconProps> = ({
   let height = parseFloat(viewBox.split(' ')[3]);
   const iconWidth = style.size || size || width;
   const iconHeight = iconWidth * height / width;
-  // console.log('Icon ', name, ' width: ', iconWidth, ' height: ', iconHeight);
+  // myConsole.log('Icon ', name, ' width: ', iconWidth, ' height: ', iconHeight);
 
   return (
     <TouchableOpacity onPress={onPress} onPressIn={onPressIn} onPressOut={onPressOut}>

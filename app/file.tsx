@@ -1,21 +1,17 @@
-import { CANVAS_HEIGHT, CANVAS_PADDING_HORIZONTAL, CANVAS_PADDING_VERTICAL, CANVAS_WIDTH, FOOTER_HEIGHT, HEADER_HEIGHT, SCREEN_WIDTH, ScreenModes } from "@u/types";
-import { ScreenModeType } from "@u/types";
-import { createSvgData, precise } from "@u/helper";
+import { CANVAS_HEIGHT, CANVAS_PADDING_HORIZONTAL, CANVAS_PADDING_VERTICAL, CANVAS_WIDTH, FOOTER_HEIGHT, ScreenModes } from "@u/types";
+import { createSvgData } from "@u/helper";
 import { getFile, saveSvgToFile } from "@u/storage";
 import { SvgDataContext } from "@x/svg-data";
 import { DrawScreen, ExportScreen, Header, PreviewScreen } from "@c/screens/file";
 import { useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { View } from "react-native";
 import * as Crypto from "expo-crypto";
 import MyFilmStripView from "@c/my-film-strip-view";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import MyBlueButton from "@c/my-blue-button";
-import MyEdgeButton from "@c/my-edge-button";
 import Footer from "@c/screens/file/footer";
-import { ContextMenu, PathsAsLayers } from "@c/controls";
+import myConsole from "@c/my-console-log";
 
 
 const FileScreen = () => {
@@ -50,7 +46,7 @@ const FileScreen = () => {
 
     useEffect(() => {
         return () => {
-            // console.log("reset svg data from context, component unmounted")
+            // myConsole.log("reset svg data from context, component unmounted")
             resetSvgData();
         };
     }, []);
@@ -58,11 +54,11 @@ const FileScreen = () => {
 
     React.useEffect(() => {
         if (guid) {
-            console.log(`Open file with GUID: ${guid}`);
+            myConsole.log(`Open file with GUID: ${guid}`);
             openSvgDataFile(guid);
 
         } else { //create new file
-            // console.log('Create new file');
+            // myConsole.log('Create new file');
             const newSvgData = createSvgData();
             newSvgData.metaData.guid = Crypto.randomUUID();
             setSvgData(newSvgData);
@@ -78,10 +74,10 @@ const FileScreen = () => {
     async function openSvgDataFile(guid: string) {
         const svgDataFromFile = await getFile(guid);
         if (svgDataFromFile && svgDataFromFile.metaData.guid === guid) {
-            console.log('File found with GUID: ', guid);
+            myConsole.log('File found with GUID: ', guid);
             setSvgData(svgDataFromFile);
         } else {
-            console.log('No file found with GUID: ', guid);
+            myConsole.log('No file found with GUID: ', guid);
             resetSvgData();
         }
     }
@@ -94,18 +90,18 @@ const FileScreen = () => {
         if (name === svgData.metaData.name) {
             return;
         }
-        console.log('name changed to ', name);
+        myConsole.log('name changed to ', name);
         setSvgData((prev) => ({ ...prev, metaData: { ...prev.metaData, name, updatedAt: "" } }));
     }
 
 
 
 
-    // console.log(controlButtons)
+    // myConsole.log(controlButtons)
     const getCurrentScreen = React.useCallback(() => {
         switch (currentScreenMode.name) {
             case ScreenModes[1].name: // Preview
-            console.log('svgData', svgData.metaData.animation);
+            myConsole.log('svgData', svgData.metaData.animation);
                 return <PreviewScreen svgData={svgData} setSvgData={setSvgData} initControls={setControlButtons} />;
             case ScreenModes[2].name: // Export
                 return <ExportScreen initControls={setControlButtons} />

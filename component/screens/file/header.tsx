@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { TextInput, TouchableOpacity, View, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useRouter } from "expo-router";
 import { ControlPanel } from "component/controls";
-import { HEADER_HEIGHT, SCREEN_HEIGHT, ScreenModes } from "@u/types";
+import { FOOTER_HEIGHT, HEADER_HEIGHT, SCREEN_HEIGHT, ScreenModes } from "@u/types";
 import MyIcon from "@c/my-icon";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MyPathLogo from "@c/logo/my-path-logo";
@@ -11,6 +11,7 @@ import MyList from "@c/my-list";
 import MyBlueButton from "@c/my-blue-button";
 import { ToastContext } from "@x/toast-context";
 import MyGradientBackground from "@c/my-gradient-background";
+import myConsole from "@c/my-console-log";
 
 
 const Header = ({
@@ -37,7 +38,7 @@ const Header = ({
     // Put dedicated button for export within preview
 
     const handleScreenModeButtonPress = () => {
-        // console.log('screen mode button pressed')
+        // myConsole.log('screen mode button pressed')
         const currentScreenModeIndex = ScreenModes.findIndex((mode) => mode.name === screenMode.name);
         if (currentScreenModeIndex >= 0 && ScreenModes[currentScreenModeIndex].name === "Draw") {
             // get count of visible paths
@@ -51,13 +52,13 @@ const Header = ({
         const newScreenModeIndex = currentScreenModeIndex === 0 ? 1 : 0;
         const newScreenMode = ScreenModes[newScreenModeIndex];
         setScreenMode(newScreenMode);
-        console.log('new screen mode', newScreenMode.name);
+        myConsole.log('new screen mode', newScreenMode.name);
         // setButtonInstruction(ScreenModeInstruction[newScreenMode.name]);
         onScreenModeChanged && onScreenModeChanged(newScreenMode);
     };
 
     const handleBackButtonPress = () => {
-        // console.log('baack pressed')
+        // myConsole.log('baack pressed')
         if (router.canGoBack()) {
             router.back()
         }
@@ -142,7 +143,7 @@ const Header = ({
                             <MyList
                                 anchor={<MyPathLogo animate={false} width={48} height={48} />}
                                 width={150}
-                                height={SCREEN_HEIGHT - HEADER_HEIGHT - insets.top}
+                                height={SCREEN_HEIGHT - HEADER_HEIGHT - FOOTER_HEIGHT}
                             />
                         </View>
 

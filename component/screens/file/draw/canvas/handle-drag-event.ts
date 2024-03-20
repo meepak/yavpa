@@ -3,6 +3,7 @@ import { getPathFromPoints, getPointsFromPath } from "@u/helper";
 import { GestureUpdateEvent, PanGestureHandlerEventPayload } from "react-native-gesture-handler";
 import { SetStateAction, useCallback } from "react";
 import { PathDataType, PointType, SvgDataType } from "@u/types";
+import myConsole from "@c/my-console-log";
 
 const startPoint = {
   x: 0,
@@ -21,13 +22,13 @@ export const handleDragEvent = (
   if (!activeBoundaryBoxPath || editMode) return;
   switch (state) {
     case "began":
-      // console.log("start pan began in", Platform.OS);
+      // myConsole.log("start pan began in", Platform.OS);
       // track starting point
       startPoint.x = event.translationX;
       startPoint.y = event.translationY;
       break;
     case "active":
-      // console.log("select pan active in", Platform.OS);
+      // myConsole.log("select pan active in", Platform.OS);
       // track how x offset and y offset
       // apply to selected paths and boudary box
       const xOffset = event.translationX - startPoint.x;
@@ -90,7 +91,7 @@ export const handleDragEvent = (
       // Reset startPoint
       startPoint.x = 0;
       startPoint.y = 0;
-      console.log("select ended");
+      myConsole.log("select ended");
       setSvgData((prev) => {
         prev.metaData.updatedAt = "";
         return prev;

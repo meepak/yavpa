@@ -307,7 +307,7 @@ function createLottie(svgData: SvgDataType) {
   lottie.layers = layers.reverse() as any; //reverse so the stacking layer matches of svg
 
   const lottieJson = JSON.stringify(lottie);
-  // console.log(lottieJson);
+  // myConsole.log(lottieJson);
   return lottieJson;
 }
 

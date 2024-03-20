@@ -21,6 +21,7 @@ import { handleRotateEvent } from "./handle-rotate-event";
 import { throttle } from "lodash";
 import { getBoundaryBox } from "@c/my-boundary-box";
 import { getPenOffset } from "@u/helper";
+import myConsole from "@c/my-console-log";
 
 
 type MyGesturesProps = {
@@ -40,6 +41,7 @@ type MyGesturesProps = {
   activeBoundaryBoxPath: PathDataType | null,
   setActiveBoundaryBoxPath: (value: SetStateAction<PathDataType | null>) => void,
   scaleMode: 'X' | 'Y' | 'XY',
+  setScaleMode: (value: SetStateAction<'X' | 'Y' | 'XY'>) => void,
   children: React.ReactNode,
 };
 
@@ -145,7 +147,7 @@ export const MyGestures = ({
 
   // For scaling of path
   const pinchZoomEvent = throttle((event, state) => {
-    console.log("pinchZoomEvent", scaleMode);
+    myConsole.log("pinchZoomEvent", scaleMode);
     handleScaleEvent(event, state, editMode, setSvgData, activeBoundaryBoxPath, setActiveBoundaryBoxPath, scaleMode, setScaleMode);
   }, 5);
 

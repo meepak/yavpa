@@ -75,7 +75,7 @@ const Footer = () => {
             msg += "Selected: " + (totalSelectedPaths) + " | ";
             msg += "Selected Length: " + totalSelectedPathsLength + " | ";
 
-            // console.log(msg);
+            // myConsole.log(msg);
             setMessage(defaultMessage + " | " + msg);
         }
     },[svgData])

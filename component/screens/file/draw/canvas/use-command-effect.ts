@@ -1,3 +1,4 @@
+import myConsole from "@c/my-console-log";
 import { createPathdata, createSvgData } from "@u/helper";
 import { PathDataType, ShapeType, SvgDataType } from "@u/types";
 import { SvgDataContext } from "@x/svg-data";
@@ -42,13 +43,13 @@ export const useCommandEffect = (
             metaData: { ...prev.metaData, updatedAt: "" },
             pathData: prev.pathData.slice(0, -1)
           }));
-          console.log(undonePaths.length)
+          myConsole.log(undonePaths.length)
         }
         break;
       case "redo":
-        console.log("redooo")
+        myConsole.log("redooo")
         if (undonePaths.length > 0) {
-          console.log("redooo inside")
+          myConsole.log("redooo inside")
           setSvgData((prev) => ({
             metaData: { ...prev.metaData, updatedAt: "" },
             pathData: [...prev.pathData, undonePaths[undonePaths.length - 1]],
