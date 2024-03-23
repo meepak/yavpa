@@ -13,6 +13,7 @@
  */
 
  import { Platform } from 'react-native'
+import { I_AM_ANDROID, I_AM_IOS } from './types'
 
  const webDepth = {
      umbra: [
@@ -122,11 +123,11 @@
 
  const generateElevationStyle = (depth=0) => {
      let style = {}
-     if (isAndroid) {
+     if (I_AM_ANDROID) {
          style = {
              elevation: depth
          }
-     } else if (isIOS) {
+     } else if (I_AM_IOS) {
          const s = parseShadow(webDepth.penumbra[depth])
          const y = s.y === 1 ? 1 : Math.floor(s.y * 0.5)
          style = {
@@ -165,11 +166,11 @@
      // }
      // return {elevation:anim.interpolate({inputRange,outputRange,...opts})}
      // return {elevation:24}
-     if (isAndroid) {
+     if (I_AM_ANDROID) {
          style = {
              elevation: anim.interpolate({inputRange,outputRange,...opts})
          }
-     } else if (isIOS) {
+     } else if (I_AM_IOS) {
          const output = { height:[], shadowOpacity:[], shadowRadius:[] }
          outputRange.forEach(depth => {
              const s = parseShadow(webDepth.penumbra[depth])

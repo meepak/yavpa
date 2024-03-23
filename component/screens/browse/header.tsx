@@ -2,11 +2,12 @@ import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image'
 import Animated, { Extrapolation, SharedValue, interpolate, useAnimatedStyle } from 'react-native-reanimated';
-import banner from '@a/banner.png';
-import alphaVersion from '@a/alpha-version.png';
 import MyPathLogo from '@c/logo/my-path-logo';
 import { SCREEN_WIDTH } from '@u/types';
 import MyGradientBackground from '@c/my-gradient-background';
+
+const banner = require('@a/banner.png');
+const alphaVersion = require('@a/alpha-version.png');
 
 
 interface HeaderProps {
@@ -85,9 +86,7 @@ const Header: React.FC<HeaderProps> = ({ scrollValue }) => {
             <Animated.View style={sloganAnimatedStyle}>
               <Text style={styles.detailsDesc}>Animate every stroke.</Text>
             </Animated.View>
-            <View style={styles.actionsContainer}>
-              <Image source={alphaVersion} style={styles.actionsVersion} />
-            </View>
+
           </View>
         </View>
       </MyGradientBackground>
@@ -127,16 +126,6 @@ const styles = StyleSheet.create({
   detailsDesc: {
     color: '#CCCCCC',
     fontSize: 20,
-  },
-  actionsContainer: {
-    flexDirection: 'row',
-    marginTop: 20,
-    alignItems: 'flex-end',
-    justifyContent: 'flex-end',
-    width: SCREEN_WIDTH - 88,
-  },
-  actionsVersion: {
-    height: 16,
   },
   headerWrapper: {
     // top: -2

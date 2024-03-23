@@ -172,7 +172,7 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
                           width: this.props.width,
                           padding: 20,
                           borderRadius: 10,
-                          backgroundColor: `rgba(150,150,250, 0.75)`,
+                          backgroundColor: `rgba(150,150,250, 0.85)`,
                           borderWidth: 0.7,
                           borderColor: "rgba(0,0,0,0.5)",
                           // ...elevations[2],

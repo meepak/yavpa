@@ -1,7 +1,7 @@
 import { Text, View, StyleSheet, Pressable } from "react-native";
 import MyIcon from "./my-icon";
 import { useState } from "react";
-import { MY_BLACK } from "@u/types";
+import { BLUE_BUTTON_WIDTH, MY_BLACK } from "@u/types";
 
 type MyBlueButtonProps = {
     icon?: { desc: string; name: string; size?: number, left?: number, top?: number };
@@ -13,7 +13,7 @@ type MyBlueButtonProps = {
     bottom?: number;
     aligned?: 'left' | 'right';
 };
-const SIZE = 50;
+const SIZE = BLUE_BUTTON_WIDTH / 2;
 const MyBlueButton = (props: MyBlueButtonProps) => {
     const styles = StyleSheet.create({
         position: {

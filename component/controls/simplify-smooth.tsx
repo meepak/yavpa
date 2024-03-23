@@ -25,9 +25,10 @@ const generateCirclePoints = (radius: number, numPoints: number) => {
 };
 
 const D3VALUES = [
-    { key: "none", label: "No smoothing" },
+    { key: "smart", label: "Smooth freehand lines only"},
+    { key: "none", label: "Never smoothing" },
     { key: "linear", label: "Discreet Lines" },
-    { key: "auto", label: "Auto smoothing" },
+    { key: "auto", label: "Always auto smoothing" },
     { key: "open", label: "Auto smoothing with end open" },
     { key: "closed", label: "Auto smoothing with end closed" },
 ]
@@ -82,7 +83,7 @@ const SimplifySmooth = ({
             onSimplifyValueChanged(currentSimplify);
         }
 
-        let curveBasis = getD3CurveBasis(currentD3);
+        let curveBasis = getD3CurveBasis(currentD3, false);
 
         if (curveBasis) {
             const line = d3.line().curve(curveBasis);
@@ -118,7 +119,7 @@ const SimplifySmooth = ({
             </View>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
                 <MySlider
-                    name="Simplify & Smooth path"
+                    name="Simplify Tolerance"
                     // style={{ width: 250, height: 40 }}
                     minimumValue={0}
                     maximumValue={7}

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Alert, TouchableWithoutFeedback } from "react-native";
-import { PathDataType, SvgDataType } from "@u/types";
+import { CANVAS_WIDTH, PathDataType, SvgDataType } from "@u/types";
 import * as Crypto from "expo-crypto";
 
 import { Feather } from '@expo/vector-icons';
@@ -123,7 +123,7 @@ const PathsAsLayers = (
             ? { width: maxPreviewSize, height: height * maxPreviewSize / width }
             : { width: width * maxPreviewSize / height, height: maxPreviewSize }
 
-
+        pathAsSvgData.pathData[0].strokeWidth = pathAsSvgData.pathData[0].strokeWidth * CANVAS_WIDTH / previewSize.width;
         return (
             <ScaleDecorator key={item.guid}>
                 <View
@@ -203,33 +203,25 @@ const PathsAsLayers = (
                             </View>
                         </View>
 
-                    <View style={{ ...styles.col, width: 60, height: 50,}}>
+                    <View style={{ ...styles.col, width: 40, height: 50,}}>
 
                             <TouchableOpacity
                                 onPress={drag}>
                                 <View style={{
+                                    width: 40,
+                                    height: 50,
+                                    backgroundColor:
+                                    'rgba(0,0,0,0.1)'
+                                    }}>
+                                <View style={{
                                     width: previewSize.width,
                                     height: previewSize.height,
-                                    // position: 'absolute',
-                                    // top: -25,
-                                    // right: 15,
                                     zIndex: 0,
-                                    backgroundColor: 'rgba(0,0,0,0.1)'
                                 }}>
                                     <MyPreview animate={false} data={pathAsSvgData} />
                                 </View>
-
-                                <View style={{
-                                    transform: [{ rotate: '90deg' }],
-                                    // position: 'absolute', bottom: -20, right: -7
-                                    }}>
-                                    <MyIcon
-                                        name="drag"
-                                        size={24}
-                                        color={'rgba(0,0,0,0.5)'}
-                                        fill={'rgba(0,0,0,0.4)'}
-                                    />
                                 </View>
+
                             </TouchableOpacity>
 
                         </View>
@@ -250,18 +242,21 @@ const PathsAsLayers = (
                     renderItem={renderItem}
                     keyExtractor={(item) => `draggable-item-${item.guid}`}
                     onDragEnd={
-                        (data) => setSvgData(
-                            (prevSvgData: SvgDataType) => ({
-                                metaData: { ...prevSvgData.metaData, updatedAt: "" },
-                                pathData: data.data.reverse()
-                            })
-                        )} // update the svgData.pathData with new order
+                        (data) => {
+                            if (data.from !== data.to) {
+                                setSvgData(
+                                    (prevSvgData: SvgDataType) => ({
+                                        metaData: { ...prevSvgData.metaData, updatedAt: "" },
+                                        pathData: data.data.reverse()
+                                    })
+                                ); // update the svgData.pathData with new order
+                            }
+                        }
+                    }
                     ItemSeparatorComponent={ItemSeparator}
                     // ListHeaderComponent={HeaderComponent}
                     // stickyHeaderIndices={[0]}
-                    onAnimValInit={(val) => myConsole.log(val)}
                     contentContainerStyle={{ paddingVertical: 10}}
-
                 />
 
             </View>

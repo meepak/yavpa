@@ -11,7 +11,7 @@ const DrawScreen = ({ initControls }) => {
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [strokeOpacity, setStrokeOpacity] = useState(1);
   const [simplifyTolerance, setSimplifyTolerance] = useState(0.0111);
-  const [d3CurveBasis, setD3CurveBasis] = useState("auto"); //"auto",null "open", "closed", null
+  const [d3CurveBasis, setD3CurveBasis] = useState(undefined); //"auto",null "open", "closed", null
   const [command, setCommand] = useState("");
   const [commandEnforcer, setCommandEnforcer] = useState(0); // since we may need to send same command, we use this increasing id to force update
   const [shape, setShape] = useState(AvailableShapes[0]);

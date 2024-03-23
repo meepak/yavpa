@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { TextInput, TouchableOpacity, View, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useRouter } from "expo-router";
 import { ControlPanel } from "component/controls";
-import { FOOTER_HEIGHT, HEADER_HEIGHT, SCREEN_HEIGHT, ScreenModes } from "@u/types";
+import { BLUE_BUTTON_WIDTH, FOOTER_HEIGHT, HEADER_HEIGHT, SCREEN_HEIGHT, ScreenModes } from "@u/types";
 import MyIcon from "@c/my-icon";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MyPathLogo from "@c/logo/my-path-logo";
@@ -89,13 +89,9 @@ const Header = ({
         return { desc, name };
     }
     const textInputHeight = 40;
-    const blueButtonTop = HEADER_HEIGHT - insets.top;
+    const blueButtonTop = HEADER_HEIGHT - BLUE_BUTTON_WIDTH / 3;
     return (
-        <View
-            style={{
-                height: HEADER_HEIGHT + insets.top, // allow same header area in all devices
-            }}
-        >
+        <View style={{ height: HEADER_HEIGHT,  }}  >
             <MyGradientBackground>
                 <View style={{ flex: 1, justifyContent: 'space-between' }}>
                     <View
@@ -161,7 +157,7 @@ const Header = ({
                 icon={getBlueButtonIconProps(screenMode)}
                 onPress={handleScreenModeButtonPress}
                 aligned="left"
-                top={HEADER_HEIGHT}
+                top={blueButtonTop}
             />
         </View>
     );

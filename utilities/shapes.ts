@@ -152,7 +152,7 @@ const PolygonPath = (start: PointType, end: PointType, sides: number) => {
 }
 
 // used in simply-smooth control and uses by canvas to draw
-export const getD3CurveBasis = (d3Value: string): d3.CurveFactory | d3.CurveFactoryLineOnly | undefined => {
+export const getD3CurveBasis = (d3Value: string, validShape: boolean): d3.CurveFactory | d3.CurveFactoryLineOnly | undefined => {
     switch (d3Value) {
         case "auto":
             return d3.curveBasis;
@@ -163,6 +163,12 @@ export const getD3CurveBasis = (d3Value: string): d3.CurveFactory | d3.CurveFact
         case "linear":
             return d3.curveLinear;
         default:
-            return undefined;
+            if (!validShape) {
+                console.log('smooth me');
+                return d3.curveBasis;
+            } else {
+                console.log('DO NOT smooth me');
+                return d3.curveLinear;
+            }
     }
 }

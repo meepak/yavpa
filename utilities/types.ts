@@ -20,19 +20,20 @@ export const PRECISION = 3;
 // ---- fix for the canvas size ---------------------
 export const SCREEN_WIDTH = Dimensions.get("window").width;
 export const SCREEN_HEIGHT = Dimensions.get("window").height;
-export const HEADER_HEIGHT = 110;
+export const HEADER_HEIGHT = 140;
 // We need to make footer optional through configuration, i can't adjust that if heigt is constant
 // TODO once user configuration is implemented, take footer height from context
-export const FOOTER_HEIGHT = 40;
+export const FOOTER_HEIGHT = 0; //40;
 export const CANVAS_PADDING_HORIZONTAL = 20;
-export const CANVAS_PADDING_VERTICAL = 30;
+export const CANVAS_PADDING_VERTICAL = 25;
 
 // Thus,
 export const CANVAS_WIDTH = SCREEN_WIDTH - CANVAS_PADDING_HORIZONTAL * 2;
-export const CANVAS_HEIGHT = SCREEN_HEIGHT - HEADER_HEIGHT - CANVAS_PADDING_VERTICAL * 1.5 -  FOOTER_HEIGHT;
+export const CANVAS_HEIGHT = SCREEN_HEIGHT - HEADER_HEIGHT - CANVAS_PADDING_VERTICAL * 2 -  FOOTER_HEIGHT + (I_AM_ANDROID ? 30 : 0);
 export const CANVAS_VIEWBOX = `0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`;
 export const CANVAS_PATH = `M0,0 L${CANVAS_WIDTH},0 L${CANVAS_WIDTH},${CANVAS_HEIGHT} L0,${CANVAS_HEIGHT} Z`;
 
+export const BLUE_BUTTON_WIDTH = 100;
 // myConsole.log('SCREEN_WIDTH', SCREEN_WIDTH);
 // myConsole.log('SCREEN_HEIGHT', SCREEN_HEIGHT);
 // myConsole.log('HEADER_HEIGHT', HEADER_HEIGHT);

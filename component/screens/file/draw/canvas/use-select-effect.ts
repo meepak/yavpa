@@ -1,4 +1,4 @@
-import { getBoundaryBox } from "@c/my-boundary-box";
+import { getBoundaryBox } from "@c/my-boundary-box-paths";
 import { PathDataType, SvgDataType } from "@u/types";
 import { useEffect } from "react";
 

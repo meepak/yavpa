@@ -136,10 +136,7 @@ export const handleDrawingEvent = (
         }
       }
 
-      let curveBasis: d3.CurveFactoryLineOnly | undefined;
-      if (d3CurveBasis) {
-        curveBasis = getD3CurveBasis(d3CurveBasis);
-      }
+      let curveBasis: d3.CurveFactoryLineOnly = getD3CurveBasis(d3CurveBasis, isValidShape(currentShape.name));
       if (curveBasis && points.length >= 2) {
         const pointsXY = points.map((point) => [
           point.x,
@@ -157,6 +154,8 @@ export const handleDrawingEvent = (
       if (currentPath.path === "") {
         currentPath.path = getPathFromPoints(points);
       }
+
+
 
       if (isValidPath(currentPath.path)) {
         currentPath.visible = true;

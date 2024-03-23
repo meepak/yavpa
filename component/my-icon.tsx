@@ -22,18 +22,20 @@ export interface MyIconProps {
   fill?: string;
   strokeWidth?: number;
   style?: MyIconStyle;
+  hitSlop?: {top: number, left: number, bottom: number, right: number};
 }
 
 const MyIcon: React.FC<MyIconProps> = ({
   name,
-  onPress = () => { },
-  onPressIn = () => { },
-  onPressOut = () => { },
+  onPress = undefined,
+  onPressIn = undefined,
+  onPressOut = undefined,
   size = 26,
   color = "#FFFFFF",
   fill = 'none',
   strokeWidth = 1,
   style = {},
+  hitSlop = { top: 10, left: 10, bottom: 10, right: 10 }
 }) => {
   const { paths, transform, viewBox } = getPath(name);
   let width = parseFloat(viewBox.split(' ')[2]);
@@ -43,7 +45,12 @@ const MyIcon: React.FC<MyIconProps> = ({
   // myConsole.log('Icon ', name, ' width: ', iconWidth, ' height: ', iconHeight);
 
   return (
-    <TouchableOpacity onPress={onPress} onPressIn={onPressIn} onPressOut={onPressOut}>
+    <TouchableOpacity
+      onPress={onPress && onPress}
+      onPressIn={onPressIn && onPressIn}
+      onPressOut={onPressOut && onPressOut}
+        hitSlop={hitSlop}
+        >
       <Svg
         width={iconWidth}
         height={iconHeight}

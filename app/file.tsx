@@ -1,4 +1,4 @@
-import { CANVAS_HEIGHT, CANVAS_PADDING_HORIZONTAL, CANVAS_PADDING_VERTICAL, CANVAS_WIDTH, FOOTER_HEIGHT, ScreenModes } from "@u/types";
+import { BLUE_BUTTON_WIDTH, CANVAS_HEIGHT, CANVAS_PADDING_HORIZONTAL, CANVAS_PADDING_VERTICAL, CANVAS_WIDTH, FOOTER_HEIGHT, HEADER_HEIGHT, SCREEN_WIDTH, ScreenModes } from "@u/types";
 import { createSvgData } from "@u/helper";
 import { getFile, saveSvgToFile } from "@u/storage";
 import { SvgDataContext } from "@x/svg-data";
@@ -6,12 +6,14 @@ import { DrawScreen, ExportScreen, Header, PreviewScreen } from "@c/screens/file
 import { useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import * as Crypto from "expo-crypto";
 import MyFilmStripView from "@c/my-film-strip-view";
 import MyBlueButton from "@c/my-blue-button";
-import Footer from "@c/screens/file/footer";
+// import Footer from "@c/screens/file/footer";
 import myConsole from "@c/my-console-log";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+// import DrawingDynamicOptions from "@c/screens/file/draw/dynamic-options";
 
 
 const FileScreen = () => {
@@ -28,6 +30,7 @@ const FileScreen = () => {
     const { guid } = useLocalSearchParams<{ guid: string; }>(); // Capture the GUID from the URL
     const [currentScreenMode, setCurrentScreenMode] = useState(ScreenModes[0]); // default DRAW, but save & read from metadata
 
+    const insets = useSafeAreaInsets();
 
     //****************************IMPORTANT********************************** */
     // If you are updating svgData through context and if it requires saving to file
@@ -113,6 +116,32 @@ const FileScreen = () => {
     }, [currentScreenMode]);
 
 
+    const DisplayScreenName = () => {
+        const positions = [
+            { top: 30, left: 30 },
+            { bottom: 10, right: 30 },
+        ];
+        return (
+        <>
+            {positions.map((position, index) => (
+                <Text
+                    key={index}
+                    style={{
+                        position: 'absolute',
+                        color: 'rgba(255,255,255,0.8)',
+                        fontSize: 64,
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        letterSpacing: 1,
+                        zIndex: -1,
+                        ...position,
+                    }}
+                >
+                    {currentScreenMode.name.toUpperCase()}
+                </Text>
+            ))}
+        </>
+    )};
 
     // const ZoomScaleText = () => (
     //     canvasScale !== 1 &&
@@ -145,6 +174,7 @@ const FileScreen = () => {
                 onScreenModeChanged={setCurrentScreenMode}
                 initialScreenMode={currentScreenMode}
             />
+            <>
             {/*
             WILL INTRODUCE EDGE BUTTONS IN NEW VERSION!!
                 currentScreenMode.name === ScreenModes[0].name &&
@@ -172,37 +202,40 @@ const FileScreen = () => {
                     </ContextMenu>
 
                 */}
+            </>
             {
-                currentScreenMode.name === ScreenModes[0].name ||
-                    currentScreenMode.name === ScreenModes[1].name
+               ( currentScreenMode.name === ScreenModes[0].name ||
+                    currentScreenMode.name === ScreenModes[1].name)
                     ?
                     <ViewDecoration>
+                        <View style={{ flex: 1 }}>
+                            <>
+                        {/* <View style = {{
+                            position: 'absolute',
+                            top: 0,
+                            right: 0,
+                            backgroundColor: 'red',
+                            maxWidth: SCREEN_WIDTH - BLUE_BUTTON_WIDTH - 10,
+                            maxHeight: CANVAS_PADDING_VERTICAL - 5,
+                            overflow: 'hidden',
+                        }}>
+                            <DrawingDynamicOptions screenMode={currentScreenMode} />
+                        </View> */}
+                            </>
                         <View
                             style={{
                                 flex: 1,
-                                alignContent: "flex-start",
-                                justifyContent: "flex-start",
+                                    alignContent: "flex-start",
+                                    justifyContent: "flex-start",
                                 alignItems: "center",
                                 backgroundColor: 'transparent',
                                 paddingTop: CANVAS_PADDING_VERTICAL,
-                                paddingHorizontal: CANVAS_PADDING_HORIZONTAL / 2,
+                                // paddingHorizontal: CANVAS_PADDING_HORIZONTAL / 2,
                                 // paddingRight: CANVAS_PADDING_HORIZONTAL / 2, // TO CREATE ROOM FOR EDGE BUTTON
                                 overflow: 'hidden',
                             }}
                         >
-                            {/* <Text style={{
-                                position: 'absolute',
-                                top: 30,
-                                left: 30,
-                                color: 'rgba(255,255,255,0.8)',
-                                fontSize: 42,
-                                fontWeight: 'bold',
-                                textTransform: 'uppercase',
-                                letterSpacing: 1,
-                                zIndex: -1,
-                            }}>
-                                {currentScreenMode.name.toUpperCase()}
-                            </Text> */}
+                            <DisplayScreenName />
                             <View
                                 style={{
                                     width: CANVAS_WIDTH,
@@ -223,6 +256,7 @@ const FileScreen = () => {
                                 }}>
                                 {getCurrentScreen()}
                             </View>
+                        </View>
                         </View>
                     </ViewDecoration>
                     :
@@ -245,12 +279,12 @@ const FileScreen = () => {
                     <MyBlueButton
                         icon={{ desc: 'EXPORT', name: 'export', size: 24, left: 0, top: 0 }}
                         onPress={() => setCurrentScreenMode(ScreenModes[2])}
-                        bottom={FOOTER_HEIGHT/2} // TODO adjust if this is blocking footer message
+                        bottom={insets.bottom + 16}
                         aligned="right"
                     // {...elevations[10]}
                     /> : null
             }
-            <Footer />
+            {/* <Footer /> */}
         </>
     );
 };

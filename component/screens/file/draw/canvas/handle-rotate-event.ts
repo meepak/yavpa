@@ -82,6 +82,11 @@ export const handleRotateEvent = (
                 prev.metaData.updatedAt = "";
                 return prev;
             });
+            setActiveBoundaryBoxPath({
+                ...activeBoundaryBoxPath,
+                visible: true,
+                updatedAt: new Date().toISOString(),
+            });
             break;
     }
 }

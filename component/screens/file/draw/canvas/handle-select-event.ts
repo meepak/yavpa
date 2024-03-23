@@ -3,7 +3,7 @@ import { SetStateAction } from "react";
 import { GestureStateChangeEvent, GestureUpdateEvent, TapGestureHandlerEventPayload } from "react-native-gesture-handler";
 import { getPointsFromPath, getViewBoxTrimmed } from "@u/helper";
 import { polygonContains } from 'd3-polygon';
-import { getBoundaryBox } from "@c/my-boundary-box";
+import { getBoundaryBox } from "@c/my-boundary-box-paths";
 
 export const handleSelectEvent = (
   event: GestureStateChangeEvent<TapGestureHandlerEventPayload>,

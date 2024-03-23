@@ -10,7 +10,8 @@ import { defaultShape } from "@u/shapes";
 import { useSelectEffect } from "./canvas/use-select-effect";
 import { MyGestures } from "./canvas/my-gestures";
 import ErrorBoundary from "@c/error-boundary";
-import MyBoundaryBox from "@c/my-boundary-box";
+import MyBoundaryBoxPaths from "@c/my-boundary-box-paths";
+import BoundaryBoxIcons from "@c/my-boundary-box-icons";
 
 
 type SvgCanvasProps = {
@@ -150,12 +151,12 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
             </View>
           )
           : (
-            <MyGestures {...myGestureProps}>
+            <><MyGestures {...myGestureProps}>
               <View style={styles.container}>
                 <ErrorBoundary>
                   {/* All drawings were drawn in this canvas with this viewbox
-                They need to be edited in this dimension,
-                we can save and play on whatever dimension we want, thus using fixed default viewbox*/}
+They need to be edited in this dimension,
+we can save and play on whatever dimension we want, thus using fixed default viewbox*/}
                   <Svg
                     width='100%'
                     height={'100%'}
@@ -173,14 +174,17 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
                       <MyPath prop={currentPath} keyProp={"current"} key={currentPath.guid} />
                     )}
 
-
-                    <MyBoundaryBox activeBoundaryBoxPath={activeBoundaryBoxPath} onScaleModeChange={(value) => setScaleMode(value)}/>
+                    <MyBoundaryBoxPaths activeBoundaryBoxPath={activeBoundaryBoxPath}  />
 
 
                   </Svg>
                 </ErrorBoundary>
               </View>
             </MyGestures>
+
+              <BoundaryBoxIcons activeBoundaryBoxPath={activeBoundaryBoxPath} scaleMode={scaleMode} onScaleModeChange={(value) => setScaleMode(value)} />
+
+            </>
           )
       }
     </View >

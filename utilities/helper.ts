@@ -1,6 +1,6 @@
 import { Linecap, Linejoin } from "react-native-svg";
 import * as Crypto from "expo-crypto";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, CANVAS_VIEWBOX, PRECISION, PointType, ScreenModes, TransitionType, SCREEN_WIDTH, SCREEN_HEIGHT, Orientation } from "./types";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, CANVAS_VIEWBOX, PRECISION, PointType, ScreenModes, TransitionType, SCREEN_WIDTH, SCREEN_HEIGHT, Orientation, I_AM_ANDROID } from "./types";
 import { PathDataType, SvgDataType } from "./types";
 import { polygonContains, polygonLength } from "d3-polygon";
 import path from "path";
@@ -100,6 +100,9 @@ export const getPointsFromPath = (path: string, resolution: number = 100, simpli
   if (typeof path !== "string") { return []; }
   if (path === "") { return []; }
   path = path.trim();
+
+  const isClosed = path.endsWith('Z');
+
   const commands = path.split(/(?=[MLCZ])/i);
   let firstPoint: PointType | null = null;
   let previousPoint: PointType | null = null;
@@ -153,6 +156,10 @@ export const getPointsFromPath = (path: string, resolution: number = 100, simpli
   const simplifiedPoints = simplify(points, simplifyTolerance);
 
   // myConsole.log(simplifiedPoints.length, "simplifiedPoints");
+
+  if(isClosed) {
+    simplifiedPoints.push({x: simplifiedPoints[0].x, y: simplifiedPoints[0].y});
+  }
 
   return simplifiedPoints;
 };
@@ -424,22 +431,32 @@ export const getPenOffset = async() => {
   try {
     const orientation = await getDeviceOrientation();
     // myConsole.log('Device orientation', orientation);
-    let x = Math.abs(penOffset.x);
-    let y = Math.abs(penOffset.y);
+    let factorX = 1;
+    let factorY = 1;
     switch (orientation) {
       case Orientation.PORTRAIT_UP:
-        penOffset.x = -1 * x; penOffset.y = -1 * y;
+        factorX = -1;
+        factorY = -1;
         break;
       case Orientation.PORTRAIT_DOWN:
-        penOffset.x = 1 * x; penOffset.y = 1 * y;
+        factorX = 1;
+        factorY = 1;
         break;
       case Orientation.LANDSCAPE_UP:
-        penOffset.x = 1 * x; penOffset.y = -1 * y;
+        factorX = 1;
+        factorY = -1;
         break;
       case Orientation.LANDSCAPE_DOWN:
-        penOffset.x = -1 * x; penOffset.y = 1 * y;
+        factorX = -1;
+        factorY = 1;
         break;
     }
+
+    factorX = I_AM_ANDROID ? factorX : -1 * factorX;
+    factorY = I_AM_ANDROID ? factorY : -1 * factorY;
+
+    penOffset.x = factorX * Math.abs(penOffset.x);
+    penOffset.y = factorY * Math.abs(penOffset.y);
     // myConsole.log(orientation, penOffset);
     return penOffset;
   } catch (error) {

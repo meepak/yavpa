@@ -6,7 +6,7 @@ import { Animated, StyleSheet } from 'react-native';
 export const AnimatedColorOptions = {
   splash: {
     duration: 1000,
-    inputRange: [1, 2, 2, 3, 4],
+    inputRange: [0, 1, 2, 3, 4],
     outputRange: ['#020935', '#020935DD', '#02093599', '#02093577', '#02093501']
   },
   default: {
