@@ -190,7 +190,7 @@ export const MyGestures = ({
   // combine all gestures and initialize
   // const composedPanTap = Gesture.Simultaneous(doubleTapSelectGesture);
   const composedPanDrag = Gesture.Simultaneous(panDrawGesture, panDragGesture);
-  const composedPinch = Gesture.Simultaneous(pinchZoomGesture, rotateGesture);
+  const composedPinch = Gesture.Race(pinchZoomGesture, rotateGesture);
   const composedGesture = Gesture.Race(composedPinch, composedPanDrag, doubleTapSelectGesture);
   composedGesture.initialize();
 

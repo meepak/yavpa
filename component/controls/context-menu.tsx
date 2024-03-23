@@ -67,23 +67,29 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
 
   componentDidUpdate(prevProps: ContextMenuProps, prevState: ContextMenuState) {
     if (prevState.menuVisible !== this.state.menuVisible) {
-      // myConsole.log('menu close -- trigger unknown if no reason below?? ', this.state.menuVisible);
+      myConsole.log('menu close -- trigger unknown if no reason below?? ', this.state.menuVisible);
     }
 
     if (prevProps.closeMenuAt !== this.props.closeMenuAt && this.state.menuVisible) {
       // myConsole.log('REASON:: closeMenuAt trigger closure', this.props.closeMenuAt);
-      this.hideMenu();
+      // this.hideMenu();
     }
   }
 
   hideMenu = () => {
-    // myConsole.log('REASON:: hideMenu trigger closure', this.props.closeMenuAt);
+    myConsole.log('REASON:: hideMenu trigger closure', this.props.closeMenuAt);
     this.setState({ menuVisible: false });
   };
 
   showMenu = () => {
+    myConsole.log('opning..who\'d overridding this already??', Date.now() - (this.props.closeMenuAt || 0));
+    // if the menu close time is within last 200 ms, do not open agian
+    if (this.props.closeMenuAt && (Date.now() - this.props.closeMenuAt < 200)) {
+      myConsole.log('CANC:: showMenu trigger closure', this.props.closeMenuAt);
+      return;
+    }
     if (this.props.positionOverride && this.props.xPosition && this.props.yPosition) {
-      myConsole.log('overriden already??');
+
       this.setState({ xPosition: this.props.xPosition, yPosition: this.props.yPosition, menuVisible: true });
       return;
     }

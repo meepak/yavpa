@@ -73,12 +73,12 @@ const ExportScreen = ({ initControls }) => {
   }, []);
 
   const exportOptions = [
-    // {
-    //   name: "My Path internal format JSON",
-    //   description: "Very simple json representation of the path data so that it can be loaded/unloaded etc?",
-    //   downloadAction: () => download(svgData.metaData.name + ".json", nativeJson),
-    //   copyAction: () => copyToClipboard(nativeJson),
-    // },
+    {
+      name: "My Path internal format JSON",
+      description: "Very simple json representation of the path data so that it can be loaded/unloaded etc?",
+      downloadAction: () => download(svgData.metaData.name + ".json", nativeJson),
+      copyAction: () => copyToClipboard(nativeJson),
+    },
     {
       name: "Static SVG",
       description: "Ideal for simple, scalable graphics. Lightweight and versatile.",

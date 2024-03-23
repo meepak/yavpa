@@ -7,6 +7,7 @@ import {
   StrokeOpacity
 } from "component/controls"
 import SelectBrushColor from "@c/controls/select-brush-color";
+import { PathDataType } from "@u/types";
 
 const createDrawControls = ({
   // onLock,
@@ -29,7 +30,7 @@ const createDrawControls = ({
   toggleErasure,
 }) => {
   // myConsole.log('createDrawControls', strokeWidth);
-  const selectedPath = svgData.pathData.find((item) => item.selected === true);
+  const selectedPath = {...(svgData.pathData.find((item) => item.selected === true))};
   // if (selectedPath) {
   //   stroke = selectedPath.stroke;
   //   strokeOpacity = selectedPath.strokeOpacity;
@@ -141,10 +142,10 @@ const createDrawControls = ({
       icon: "layers",
       title: "Layers",
       extraControl: (
-        <PathsAsLayers svgData={svgData} setSvgData={setSvgData}/>
+        <PathsAsLayers />
       ),
       extraPanel: { width: 200, height: 'auto'}
     },
   ])};
 
-export default createDrawControls
+export default createDrawControls;

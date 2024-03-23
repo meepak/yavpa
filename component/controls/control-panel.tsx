@@ -10,10 +10,11 @@ import ContextMenu from "component/controls/context-menu";
 import { I_AM_IOS, ModalAnimations } from "@u/types";
 
 const ICON_SIZE = 28;
+const currentTime = Date.now();
 
 const ControlPanel = ({ buttons, paddingLeft = 40, paddingRight = 40 }) => {
 
-  const [forceRerenderAt, setForceRerenderAt] = useState(Date.now());
+  const [forceRerenderAt, setForceRerenderAt] = useState(currentTime);
 
   // const hideMenu = () => setForceRerenderAt(Date.now());
 
@@ -38,25 +39,7 @@ const ControlPanel = ({ buttons, paddingLeft = 40, paddingRight = 40 }) => {
     }
   };
 
-  // const AcceptButton = () => (
-  //   <TouchableOpacity
-  //     style={{
-  //       position: 'absolute',
-  //       bottom: 0,
-  //       right: 10,
-  //       width: 28,
-  //       height: 28,
-  //       justifyContent: "center",
-  //       alignItems: "center",
-  //       borderWidth: 2,
-  //       borderColor: MY_BLACK,
-  //       borderRadius: 14,
-  //     }}
-  //     onPress={hideMenu}
-  //   >
-  //     <MyIcon color={'#111111'} name={'ok'} />
-  //   </TouchableOpacity>
-  // )
+
 
   return (
     <View style={{

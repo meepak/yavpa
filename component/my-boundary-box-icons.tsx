@@ -129,7 +129,7 @@ const BoundaryBoxIcons = ({
 
         setSvgData((prev) => {
             prev.pathData.forEach((item) => item.selected = false);
-            return { ...prev, metaData: { ...prev.metaData, updatedAt: "" } };
+            return { ...prev, pathData:prev.pathData, metaData: { ...prev.metaData, updatedAt: "" }, updatedAt: new Date().toISOString() };
         });
         // setActiveBoundaryBoxPath(null);
         myConsole.log("deleteSelected")

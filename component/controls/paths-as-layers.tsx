@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Alert, TouchableWithoutFeedback } from "react-native";
-import { CANVAS_WIDTH, PathDataType, SvgDataType } from "@u/types";
+import { CANVAS_WIDTH, MY_BLACK, PathDataType, SvgDataType } from "@u/types";
 import * as Crypto from "expo-crypto";
 
 import { Feather } from '@expo/vector-icons';
@@ -19,13 +19,8 @@ import myConsole from "@c/my-console-log";
 
 
 
-const PathsAsLayers = (
-    { svgData, setSvgData }:
-        {
-            svgData: SvgDataType,
-            setSvgData: (value: React.SetStateAction<SvgDataType>) => {}
-        }) => {
-
+const PathsAsLayers = () => {
+    const { svgData, setSvgData } = React.useContext(SvgDataContext);
     // remove the path permanently
     function deletePath(item: PathDataType) {
         Alert.alert("Delete Path", "Are you sure you want to delete this path permanently?", [
@@ -59,6 +54,13 @@ const PathsAsLayers = (
         ]);
     }
 
+    function reversePaths() {
+        setSvgData((prev: SvgDataType) => {
+            const newLayers = prev.pathData.reverse();
+            return { metaData: { ...prev.metaData, updatedAt: "" }, pathData: newLayers };
+        });
+    }
+
     const handlePathUpdate = (path: PathDataType, prop: any, value: any) => {
         if (path[prop] === value) return;
         const index = svgData.pathData.indexOf(path);
@@ -86,31 +88,29 @@ const PathsAsLayers = (
 
     const HeaderComponent = () =>
         <>
+
+            <Text style={styles.cell1}>Total: {svgData.pathData.length} paths</Text>
             <View style={{...styles.row, width: '100%'}}>
                 <MyCheckBox checked={allSelected} onChange={toggleAllSelection} label={""} checkBoxFirst iconStyle={{ color: 'transparent', size: 24, fill: '#000000' }} />
 
                 <TouchableOpacity onPress={deleteAllSelectedPath}>
-                    <Feather name="trash" size={20} />
+                    <MyIcon name="trash" size={20} color={MY_BLACK} />
                 </TouchableOpacity>
 
+                <TouchableOpacity onPress={reversePaths}>
+                    <MyIcon name="sort" strokeWidth={2} size={28} color={MY_BLACK} style={{marginBottom: -2}} />
+                </TouchableOpacity>
 
-                <Text style={styles.cell1}>Total Paths: {svgData.pathData.length}</Text>
-                {/* <Text style={styles.cell1}>Time: {precise(svgData.pathData.reduce((sum, item) => sum + item.time, 0) / 1000, 0)} secs</Text> */}
             </View>
             <Divider width="100%" color="rgba(1,1,1,0.7)" height={4} />
 
         </>;
 
     const pathToSvgData = (path: PathDataType): SvgDataType => {
+        const newSvg = createSvgData();
         return {
-            ...createSvgData(),
+            ...newSvg,
             pathData: [{ ...path, visible: true }],
-            metaData: {
-                ...createSvgData().metaData,
-                // guid: Crypto.randomUUID(),
-                viewBox: getViewBoxTrimmed([path]), // this is going to make
-                // disproportionally larger to smaller paths, try another strategy
-            }
         };
     }
 
@@ -136,7 +136,7 @@ const PathsAsLayers = (
 
 
                                 {/* <TouchableOpacity onPress={() => handlePathUpdate(item, "selected", !item.selected)}> */}
-                                <MyCheckBox checked={item.selected} onChange={(checked) => handlePathUpdate(item, "selected", checked)} label="" iconStyle={{ color: 'transparent', size: 24, fill: '#000000'}}/>
+                                <MyCheckBox checked={svgData.pathData.every((item) => item.selected)} onChange={(checked) => handlePathUpdate(item, "selected", checked)} label="" iconStyle={{ color: 'transparent', size: 24, fill: '#000000'}}/>
                                      {/* <MyIcon name={item.selected ? "checkbox-checked" : "checkbox-empty"} color={MY_BLACK} size={20} /> */}
                                 {/* </TouchableOpacity> */}
 
@@ -181,7 +181,7 @@ const PathsAsLayers = (
 
                             <View style={styles.row}>
                                 <TouchableOpacity onPress={() => deletePath(item)}>
-                                    <Feather name="trash" size={20} />
+                                    <MyIcon name="trash" size={20} color={MY_BLACK} />
                                 </TouchableOpacity>
 
                                 <TouchableOpacity style={styles.cell}>
@@ -238,7 +238,7 @@ const PathsAsLayers = (
             <View style={{ width: '100%', height: '90%' }}>
                 <HeaderComponent />
                 <DraggableFlatList
-                    data={[...svgData.pathData].reverse()}
+                    data={(JSON.parse(JSON.stringify(svgData.pathData))).reverse()}
                     renderItem={renderItem}
                     keyExtractor={(item) => `draggable-item-${item.guid}`}
                     onDragEnd={
