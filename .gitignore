@@ -42,4 +42,5 @@ temp/*
 
 .vscode/*
 .yarn/*
-.yarn/*.*
+.yarn/*.gz
+
