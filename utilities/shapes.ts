@@ -164,10 +164,8 @@ export const getD3CurveBasis = (d3Value: string, validShape: boolean): d3.CurveF
             return d3.curveLinear;
         default:
             if (!validShape) {
-                console.log('smooth me');
                 return d3.curveBasis;
             } else {
-                console.log('DO NOT smooth me');
                 return d3.curveLinear;
             }
     }

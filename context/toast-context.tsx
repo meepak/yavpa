@@ -3,14 +3,34 @@ import Toast from 'react-native-root-toast';
 import { RootSiblingParent } from 'react-native-root-siblings';
 import { MY_BLACK } from '@u/types';
 
-type ToastFunction = (message: string, options?: object) => void;
+export interface ToastOptions {
+    duration?: number;
+    position?: number;
+    shadow?: boolean;
+    animation?: boolean;
+    hideOnPress?: boolean;
+    delay?: number;
+    textColor?: string;
+    backgroundColor?: string;
+    shadowColor?: string;
+    opacity?: number;
+    textStyle?: object;
+}
 
-const ToastContext = createContext<ToastFunction>(() => { });
+export type ToastFunction = (message: string, options?: ToastOptions) => void;
+
+export interface ToastContextType {
+    showToast: ToastFunction;
+}
+
+const ToastContext = createContext<ToastContextType>({
+  showToast: (message: string, options?: object) => {}
+});
 
 function ToastProvider({ children }) {
     const toastRef = useRef();
 
-    const showToast = useCallback((message, options = {}) => {
+    const showToast:ToastFunction = useCallback((message: string, options: ToastOptions = {}) => {
         // provide my toast options
         let defaultOptions = {
             duration: Toast.durations.LONG,
@@ -45,11 +65,11 @@ function ToastProvider({ children }) {
 
     return (
         <RootSiblingParent>
-            <ToastContext.Provider value={showToast}>
+            <ToastContext.Provider value={{showToast}}>
                 {children}
             </ToastContext.Provider>
         </RootSiblingParent>
     );
 }
 
-export { ToastContext as ToastContext, ToastProvider };
+export { ToastContext, ToastProvider };

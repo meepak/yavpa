@@ -1,7 +1,7 @@
 import { Linecap, Linejoin } from "react-native-svg";
 import * as Crypto from "expo-crypto";
-import { CANVAS_HEIGHT, CANVAS_WIDTH, CANVAS_VIEWBOX, PRECISION, PointType, ScreenModes, TransitionType, SCREEN_WIDTH, SCREEN_HEIGHT, Orientation, I_AM_ANDROID } from "./types";
-import { PathDataType, SvgDataType } from "./types";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, CANVAS_VIEWBOX, PRECISION, PointType, ScreenModes, TransitionType, SCREEN_WIDTH, SCREEN_HEIGHT, Orientation, I_AM_ANDROID, ImageDataType } from "./types";
+import { PathDataType, MyPathDataType } from "./types";
 import { polygonContains, polygonLength } from "d3-polygon";
 import path from "path";
 import { Accelerometer } from "expo-sensors";
@@ -9,8 +9,9 @@ import simplify from "simplify-js";
 import { line, curveBasis } from 'd3-shape';
 import myConsole from "@c/my-console-log";
 
-export const createSvgData = (): SvgDataType => ({
+export const createMyPathData = (): MyPathDataType => ({
   pathData: [],
+  imageData: [],
   metaData: {
     guid: "",
     created_at: Date.now().toString(),
@@ -24,10 +25,11 @@ export const createSvgData = (): SvgDataType => ({
       loop: true,
       delay: 0,
       transition: 0,
-      transitionType: TransitionType.Fade,
+      transitionType: TransitionType.None,
       correction: 0.05,
     }
   },
+  updatedAt: new Date().toString(),
 });
 
 // not used but keeping for reference
@@ -41,6 +43,7 @@ export const createPathdata = (
   strokeDasharray?: string | undefined,
   strokeDashoffset?: number | undefined,
 ): PathDataType => ({
+  type: "d",
   path: "",
   stroke: stroke ?? "#120e31",
   strokeWidth: strokeWidth ?? 2,
@@ -57,10 +60,26 @@ export const createPathdata = (
   selected: false,
 });
 
+export const createImageData = (guid: string, data: string, width: number, height: number): ImageDataType => ({
+  type: "image",
+  guid: guid,
+  data: data,
+  width: width,
+  height: height,
+  x: 0,
+  y: 0,
+  visible: false,
+  rotation: 0,
+  scale: 1,
+  opacity: 1,
+  selected: false,
+
+});
+
 export const precise = (num: string | number, precision = PRECISION): number =>
   parseFloat(parseFloat(num as string).toFixed(precision));
 
-export const isValidPath = (path: string): boolean => {
+export  const  isValidPath = (path: string): boolean => {
   if (path === undefined || path === null) return false;
   if (path === "") return false;
   let p = path.toUpperCase();
@@ -339,21 +358,30 @@ export const jsonDeepCompare = (json1: any, json2: any, log = false) => {
 }
 
 
-export function parseSvgData(svgData: any, update_updatedAt = false): SvgDataType {
+export function parseMyPathData(myPathData: any, update_updatedAt = false): MyPathDataType {
   const isValid = (val: any) => (val !== null && val !== undefined && (val || val === false));
 
-  ///check if svgData has pathData and if not set default values
-  if (!isValid(svgData.pathData) && !Array.isArray(svgData.pathData)) {
-    svgData.pathData = [];
+  ///check if myPathData has pathData and if not set default values
+  if (!isValid(myPathData.pathData) && !Array.isArray(myPathData.pathData)) {
+    myPathData.pathData = [];
   }
 
   // filter out invalid path string
-  svgData.pathData = svgData.pathData.filter((pathData: any) => {
-    return isValidPath(pathData.path);
+  myPathData.pathData = myPathData.pathData.filter((pathData: any) => {
+    if(!isValid(pathData.type)) {
+      pathData.type = 'd';
+    }
+
+    if(pathData.type === 'd') {
+      return isValidPath(pathData.path);
+    }
+    if(pathData.type === 'image') {
+      return isValid(pathData.guid);
+    }
   });
 
   //check if pathData is of type PathDataType else set default values
-  svgData.pathData = svgData.pathData.map((pathData: any) => {
+  myPathData.pathData = myPathData.pathData.map((pathData: any) => {
     if (!isValid(pathData.stroke)) {
       pathData.stroke = "#120e31";
     }
@@ -384,27 +412,27 @@ export function parseSvgData(svgData: any, update_updatedAt = false): SvgDataTyp
   });
 
 
-  // check if svgData has metaData and if not set default values
-  svgData.metaData = svgData.metaData || {};
-  if (!isValid(svgData.metaData.guid)) {
-    svgData.metaData.guid = Crypto.randomUUID();
+  // check if myPathData has metaData and if not set default values
+  myPathData.metaData = myPathData.metaData || {};
+  if (!isValid(myPathData.metaData.guid)) {
+    myPathData.metaData.guid = Crypto.randomUUID();
   }
-  if (!isValid(svgData.metaData.created_at)) {
-    svgData.metaData.created_at = new Date().toISOString();
+  if (!isValid(myPathData.metaData.created_at)) {
+    myPathData.metaData.created_at = new Date().toISOString();
   }
-  if (!isValid(svgData.metaData.updatedAt) || update_updatedAt) {
-    svgData.metaData.updatedAt = new Date().toISOString();
+  if (!isValid(myPathData.metaData.updatedAt) || update_updatedAt) {
+    myPathData.metaData.updatedAt = new Date().toISOString();
   }
-  if (!isValid(svgData.metaData.name) || svgData.metaData.name === svgData.metaData.guid) {
-    svgData.metaData.name = svgData.metaData.updatedAt.split('.')[0].split('T').join(' ');
+  if (!isValid(myPathData.metaData.name) || myPathData.metaData.name === myPathData.metaData.guid) {
+    myPathData.metaData.name = myPathData.metaData.updatedAt.split('.')[0].split('T').join(' ');
   }
-  if (!isValid(svgData.metaData.viewBox)) {
-    svgData.metaData.viewBox = CANVAS_VIEWBOX;
+  if (!isValid(myPathData.metaData.viewBox)) {
+    myPathData.metaData.viewBox = CANVAS_VIEWBOX;
   }
-  if (!isValid(svgData.metaData.viewBoxTrimmed)) {
-    svgData.metaData.viewBoxTrimmed = getViewBoxTrimmed(svgData.pathData);
+  if (!isValid(myPathData.metaData.viewBoxTrimmed)) {
+    myPathData.metaData.viewBoxTrimmed = getViewBoxTrimmed(myPathData.pathData);
   }
-  return svgData;
+  return myPathData;
 }
 
 

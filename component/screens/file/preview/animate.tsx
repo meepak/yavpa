@@ -1,11 +1,12 @@
 import MyPath from "@c/my-path";
-import { CANVAS_VIEWBOX, SvgDataType, TransitionType } from "@u/types";
+import MyPathImage from "@c/my-path-image";
+import { CANVAS_VIEWBOX, MyPathDataType, TransitionType } from "@u/types";
 import React, { useEffect, useRef } from "react";
 import { Animated, Easing, StyleSheet } from "react-native";
 import { Svg } from "react-native-svg";
 
 type Props = {
-  svgData: SvgDataType;
+  myPathData: MyPathDataType;
   viewBox?: string;
 };
 
@@ -13,14 +14,14 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
   const AnimatedPath = Animated.createAnimatedComponent(MyPath);
 
   // make a shallow copy of pathData, so any animation changes don't affect the original data
-  const pathData = props.svgData.pathData.map((path) => ({ ...path }));
+  const pathData = props.myPathData.pathData.map((path) => ({ ...path }));
 
   // myConsole.log('pathData', pathData);
 
   // get the one from meta data, if using trimmed view box is what needed
   // update at commented place
   // const viewBox = getViewBox(pathData);
-  const viewBox = props.viewBox || CANVAS_VIEWBOX; // props.svgData.metaData.viewBox;
+  const viewBox = props.viewBox || CANVAS_VIEWBOX; // props.myPathData.metaData.viewBox;
 
   // TODO: combine to one state
   const [animationParams, setAnimationParams] = React.useState({
@@ -28,7 +29,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
     loop: true,
     delay: 0,
     transition: 0,
-    transitionType: 1,
+    transitionType: 0,
     correction: 0.05,
   });
   // const [speed, setSpeed] = React.useState(1); // this is causing rerendering during value change
@@ -46,11 +47,11 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
 
 
   useEffect(() => {
-    const animationData = props.svgData.metaData.animation;
+    const animationData = props.myPathData.metaData.animation;
     if (animationData) {
       setAnimationParams(animationData);
     }
-  }, [props.svgData])
+  }, [props.myPathData])
 
   // Create an array of animated values
   const animatedValues = pathData.map(() => new Animated.Value(0));
@@ -79,7 +80,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
     ...(animationParams.loop ? [
       // Fade out the entire SVG in configured period
       Animated.delay(animationParams.delay * 1000),
-      ...(animationParams.transitionType === TransitionType.Shrink
+      ...(animationParams.transitionType == TransitionType.Shrink
         ? [
           Animated.timing(scale, {
             toValue: 0.1,
@@ -87,47 +88,32 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
             useNativeDriver: true,
           }),
         ]
-        : animationParams.transitionType === TransitionType.Vibrate
+        : animationParams.transitionType == TransitionType.Grow
           ? [
             Animated.timing(scale, {
-              toValue: 1.05,
-              duration: 250,
+              toValue: 10,
+              duration: (animationParams.transition ?? 0) * 1000,
               useNativeDriver: true,
             }),
-            Animated.timing(scale, {
-              toValue: 0.95,
-              duration: 250,
-              useNativeDriver: true,
-            }),
-            Animated.timing(scale, {
-              toValue: 1,
-              duration: 250,
-              useNativeDriver: true,
-            }),
-            // // Animated.loop(
-            // //   Animated.sequence([
-            // //     Animated.timing(scale, {
-            // //       toValue: 0.7, // increase scale
-            // //       duration: 1000, // half of the original duration for rhythmic effect
-            // //       useNativeDriver: true,
-            // //     }),
-            // //     Animated.timing(scale, {
-            // //       toValue: 1.0, // decrease scale
-            // //       duration: 1000, // half of the original duration for rhythmic effect
-            // //       useNativeDriver: true,
-            // //     }),
-            // //   ]),
-            // ),
           ]
-          : animationParams.transitionType === TransitionType.Fade
-            ? [
-              Animated.timing(opacity, {
-                toValue: 0.1,
-                duration: (animationParams.transition ?? 0) * 1000,
+          : animationParams.transitionType == TransitionType.Shake
+            ? Array.from({ length: 15 }, (_, i) => {
+              const toValue = i % 3 === 0 ? 0.95 : i % 3 === 1 ? 1.05 : 1.15;
+              return Animated.timing(scale, {
+                toValue,
+                duration: (animationParams.transition ?? 0) * 1000 / 15,
                 useNativeDriver: true,
-              }),
-            ]
-            : []
+              });
+            })
+            : animationParams.transitionType === TransitionType.Fade
+              ? [
+                Animated.timing(opacity, {
+                  toValue: 0.1,
+                  duration: (animationParams.transition ?? 0) * 1000,
+                  useNativeDriver: true,
+                }),
+              ]
+              : []
       ),
 
       // Reset animatedValues here to truly reset loop animation
@@ -187,13 +173,14 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
     <Animated.View style={{
       ...StyleSheet.absoluteFillObject,
       ...(animationParams.transitionType === TransitionType.Shrink ||
-        animationParams.transitionType === TransitionType.Vibrate
+        animationParams.transitionType === TransitionType.Grow ||
+        animationParams.transitionType === TransitionType.Shake
         ? {
           transform: [{ scale: scale }]
         }
         : animationParams.transitionType === TransitionType.Fade
-        ? { opacity: opacity }
-        : {}
+          ? { opacity: opacity }
+          : {}
       )
     }}>
       <Svg
@@ -201,6 +188,12 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
         height={'100%'}
         viewBox={viewBox}
       >
+        {props.myPathData.imageData?.map((item) => (
+          item.visible
+            ? <MyPathImage prop={item} keyProp={"completed-" + item.guid} key={item.guid} />
+            : null
+        ))}
+
         {pathData.map((path, index) => {
           const strokeDasharray = path.length * (1 + animationParams.correction);
           const strokeDashoffset = animatedValues[index].interpolate({

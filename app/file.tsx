@@ -1,7 +1,7 @@
 import { BLUE_BUTTON_WIDTH, CANVAS_HEIGHT, CANVAS_PADDING_HORIZONTAL, CANVAS_PADDING_VERTICAL, CANVAS_WIDTH, FOOTER_HEIGHT, HEADER_HEIGHT, SCREEN_WIDTH, ScreenModes } from "@u/types";
-import { createSvgData } from "@u/helper";
+import { createMyPathData } from "@u/helper";
 import { getFile, saveSvgToFile } from "@u/storage";
-import { SvgDataContext } from "@x/svg-data";
+import { MyPathDataContext } from "@x/svg-data";
 import { DrawScreen, ExportScreen, Header, PreviewScreen } from "@c/screens/file";
 import { useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -20,7 +20,7 @@ const FileScreen = () => {
     // const insets = useSafeAreaInsets();
 
     // const [canvasScale, setCanvasScale] = useState(1);
-    const { svgData, setSvgData } = useContext(SvgDataContext);
+    const { myPathData, setMyPathData } = useContext(MyPathDataContext);
     const [controlButtons, setControlButtons] = useState([
         {
             name: "Loading...",
@@ -33,24 +33,24 @@ const FileScreen = () => {
     const insets = useSafeAreaInsets();
 
     //****************************IMPORTANT********************************** */
-    // If you are updating svgData through context and if it requires saving to file
+    // If you are updating myPathData through context and if it requires saving to file
     // set the updatedAt date to blank, so that it will be saved to file
     useEffect(() => {
         const saveData = async () => {
-            await saveSvgToFile(svgData);
-            // setSvgData({ ...svgData, metaData: { ...svgData.metaData, updatedAt: Date.now().toString() } });
+            await saveSvgToFile(myPathData);
+            // setMyPathData({ ...myPathData, metaData: { ...myPathData.metaData, updatedAt: Date.now().toString() } });
         };
 
-        if (svgData && svgData.metaData && svgData.metaData.guid != "" && svgData.metaData.updatedAt === "") {
+        if (myPathData && myPathData.metaData && myPathData.metaData.guid != "" && myPathData.metaData.updatedAt === "") {
             saveData();
         }
-    }, [svgData]);
+    }, [myPathData]);
     //**************************************************************************** */
 
     useEffect(() => {
         return () => {
             // myConsole.log("reset svg data from context, component unmounted")
-            resetSvgData();
+            resetMyPathData();
         };
     }, []);
 
@@ -58,13 +58,13 @@ const FileScreen = () => {
     React.useEffect(() => {
         if (guid) {
             myConsole.log(`Open file with GUID: ${guid}`);
-            openSvgDataFile(guid);
+            openMyPathDataFile(guid);
 
         } else { //create new file
             // myConsole.log('Create new file');
-            const newSvgData = createSvgData();
-            newSvgData.metaData.guid = Crypto.randomUUID();
-            setSvgData(newSvgData);
+            const newMyPathData = createMyPathData();
+            newMyPathData.metaData.guid = Crypto.randomUUID();
+            setMyPathData(newMyPathData);
         }
     }, [guid]);
 
@@ -74,27 +74,27 @@ const FileScreen = () => {
 
 
 
-    async function openSvgDataFile(guid: string) {
-        const svgDataFromFile = await getFile(guid);
-        if (svgDataFromFile && svgDataFromFile.metaData.guid === guid) {
+    async function openMyPathDataFile(guid: string) {
+        const myPathDataFromFile = await getFile(guid);
+        if (myPathDataFromFile && myPathDataFromFile.metaData.guid === guid) {
             myConsole.log('File found with GUID: ', guid);
-            setSvgData(svgDataFromFile);
+            setMyPathData(myPathDataFromFile);
         } else {
             myConsole.log('No file found with GUID: ', guid);
-            resetSvgData();
+            resetMyPathData();
         }
     }
 
-    const resetSvgData = () => {
-        setSvgData(createSvgData());
+    const resetMyPathData = () => {
+        setMyPathData(createMyPathData());
     };
 
     const handleNameChange = (name: string) => {
-        if (name === svgData.metaData.name) {
+        if (name === myPathData.metaData.name) {
             return;
         }
         myConsole.log('name changed to ', name);
-        setSvgData((prev) => ({ ...prev, metaData: { ...prev.metaData, name, updatedAt: "" } }));
+        setMyPathData((prev) => ({ ...prev, metaData: { ...prev.metaData, name, updatedAt: "" } }));
     }
 
 
@@ -104,13 +104,13 @@ const FileScreen = () => {
     const getCurrentScreen = React.useCallback(() => {
         switch (currentScreenMode.name) {
             case ScreenModes[1].name: // Preview
-            myConsole.log('svgData', svgData.metaData.animation);
-                return <PreviewScreen svgData={svgData} setSvgData={setSvgData} initControls={setControlButtons} />;
+            myConsole.log('myPathData', myPathData.metaData.animation);
+                return <PreviewScreen myPathData={myPathData} setMyPathData={setMyPathData} initControls={setControlButtons} />;
             case ScreenModes[2].name: // Export
-                return <ExportScreen initControls={setControlButtons} />
+                return <ExportScreen myPathData={myPathData} setMyPathData={setMyPathData} initControls={setControlButtons} />
             case ScreenModes[0].name: // Draw
             default:
-                return <DrawScreen initControls={setControlButtons} />
+                return <DrawScreen myPathData={myPathData} setMyPathData={setMyPathData} initControls={setControlButtons} />
                 break;
         }
     }, [currentScreenMode]);
@@ -169,7 +169,7 @@ const FileScreen = () => {
             <StatusBar style={"light"} translucent={true} />
             <Header
                 controlPanelButtons={controlButtons}
-                title={svgData?.metaData?.name || ""}
+                title={myPathData?.metaData?.name || ""}
                 onTitleChange={handleNameChange}
                 onScreenModeChanged={setCurrentScreenMode}
                 initialScreenMode={currentScreenMode}
@@ -198,7 +198,7 @@ const FileScreen = () => {
                         animationOut={"slideOutRight"}
 
                     >
-                        <PathsAsLayers svgData={svgData} setSvgData={(value) => setSvgData} />
+                        <PathsAsLayers myPathData={myPathData} setMyPathData={(value) => setMyPathData} />
                     </ContextMenu>
 
                 */}

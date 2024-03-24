@@ -5,7 +5,7 @@ import { Alert, View } from 'react-native';
 import { flipPoints, getPathFromPoints, getPointsFromPath, getViewBoxTrimmed } from "@u/helper";
 import { CANVAS_VIEWBOX, CANVAS_WIDTH, HEADER_HEIGHT } from "@u/types";
 import MyIcon from './my-icon';
-import { SvgDataContext } from '@x/svg-data';
+import { MyPathDataContext } from '@x/svg-data';
 import * as Crypto from "expo-crypto";
 import myConsole from './my-console-log';
 import { Divider } from './controls';
@@ -21,7 +21,7 @@ const BoundaryBoxIcons = ({
         return null;
     }
 
-    const { svgData, setSvgData } = useContext(SvgDataContext);
+    const { myPathData, setMyPathData } = useContext(MyPathDataContext);
     type PathStyleType = {
         strokeWidth: number,
         stroke: string,
@@ -32,7 +32,7 @@ const BoundaryBoxIcons = ({
 
 
     const applyFill = (fill: string) => {
-        setSvgData((prev) => {
+        setMyPathData((prev) => {
             prev.pathData.forEach((item) => {
                 if (item.selected === true) {
                     item.fill = fill;
@@ -45,7 +45,7 @@ const BoundaryBoxIcons = ({
     }
 
     const copyStyle = () => {
-        svgData.pathData.forEach((item) => {
+        myPathData.pathData.forEach((item) => {
             if (item.selected === true) {
                 const pathStyle = {
                     strokeWidth: item.strokeWidth,
@@ -61,7 +61,7 @@ const BoundaryBoxIcons = ({
 
     const pasteStyle = () => {
         if (styleClipBoard == null) return;
-        setSvgData((prev) => {
+        setMyPathData((prev) => {
             prev.pathData.forEach((item) => {
                 if (item.selected === true) {
                     item.strokeWidth = styleClipBoard.strokeWidth;
@@ -77,7 +77,7 @@ const BoundaryBoxIcons = ({
     }
 
     const duplicateSelected = () => {
-        setSvgData((prev) => {
+        setMyPathData((prev) => {
             prev.pathData.forEach((item) => {
                 if (item.selected === true) {
                     const duplicate = { ...item };
@@ -93,7 +93,7 @@ const BoundaryBoxIcons = ({
     }
 
     const flipPaths = (flipX = false, flipY = false) => {
-        setSvgData((prev) => {
+        setMyPathData((prev) => {
             prev.pathData.forEach((item) => {
                 if (item.selected === true) {
                     const points = getPointsFromPath(item.path);
@@ -114,7 +114,7 @@ const BoundaryBoxIcons = ({
                 text: "Delete",
                 onPress: async () => {
 
-                    setSvgData((prev) => {
+                    setMyPathData((prev) => {
                         prev.pathData = prev.pathData.filter((item) => item.selected !== true);
                         return { ...prev, metaData: { ...prev.metaData, updatedAt: "" } };
                     });
@@ -127,7 +127,7 @@ const BoundaryBoxIcons = ({
 
     const unselect = () => {
 
-        setSvgData((prev) => {
+        setMyPathData((prev) => {
             prev.pathData.forEach((item) => item.selected = false);
             return { ...prev, pathData:prev.pathData, metaData: { ...prev.metaData, updatedAt: "" }, updatedAt: new Date().toISOString() };
         });

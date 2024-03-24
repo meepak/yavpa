@@ -29,7 +29,7 @@ export const CANVAS_PADDING_VERTICAL = 25;
 
 // Thus,
 export const CANVAS_WIDTH = SCREEN_WIDTH - CANVAS_PADDING_HORIZONTAL * 2;
-export const CANVAS_HEIGHT = SCREEN_HEIGHT - HEADER_HEIGHT - CANVAS_PADDING_VERTICAL * 2 -  FOOTER_HEIGHT + (I_AM_ANDROID ? 30 : 0);
+export const CANVAS_HEIGHT = SCREEN_HEIGHT - HEADER_HEIGHT - CANVAS_PADDING_VERTICAL * 1.5 -  FOOTER_HEIGHT;// + (I_AM_ANDROID ? 20 : 0);
 export const CANVAS_VIEWBOX = `0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`;
 export const CANVAS_PATH = `M0,0 L${CANVAS_WIDTH},0 L${CANVAS_WIDTH},${CANVAS_HEIGHT} L0,${CANVAS_HEIGHT} Z`;
 
@@ -64,8 +64,8 @@ export const ScreenModes: ScreenModeType[] = [
 
 export type ScreenModeType = { name: string, icon: string };
 
-
 export type PathDataType = {
+    type: 'd';
     updatedAt?: string; // primarily used for rendering purpose a
     path: string; // svg path, e.g. "M0,0 L100,100" only contains M & L commands
     length: number; // length of the path calculated by summing distance between two consecutive points
@@ -92,6 +92,21 @@ export type PathDataType = {
     selected?: boolean; //TODO handle this with selected path context or anything else but path prop
 };
 
+export type ImageDataType = {
+    type: 'image',
+    data: string; // base64 encoded image data
+    width: number; // width of the image
+    height: number; // height of the image
+    x: number; // x position of the image
+    y: number; // y position of the image
+    guid: string; // unique identifier for each image
+    visible: boolean; // is image visible (allows to hide image without deleting them permanently)
+    rotation: number; // rotation of the image
+    scale: number; // scale of the image
+    opacity: number; // opacity of the image
+    selected?: boolean; //TODO handle this with selected image context or anything else but image prop
+}
+
 export type MetaDataType = {
     guid: string; // unique identifier for each svg
     created_at: string; // timestamp when svg was created
@@ -105,15 +120,16 @@ export type MetaDataType = {
 };
 
 
-export type SvgDataType = {
+export type MyPathDataType = {
     pathData: PathDataType[];
     metaData: MetaDataType;
+    imageData?: ImageDataType[];
     updatedAt?:string; // TODO THIS IS BETTER THAN UPDATED AT WITHIN METADATA TO SEND BLANK, CHANGE OF THIS VALUE WILL 100% TRIGGER RERENDER
 };
 
-export interface SvgDataContextType {
-    svgData: SvgDataType;
-    setSvgData: React.Dispatch<React.SetStateAction<SvgDataType>>;
+export interface MyPathDataContextType {
+    myPathData: MyPathDataType;
+    setMyPathData: React.Dispatch<React.SetStateAction<MyPathDataType>>;
 }
 
 export enum TransitionType {
@@ -121,7 +137,7 @@ export enum TransitionType {
     Fade,     //1
     Shrink,   //2
     Grow,     //3
-    Vibrate,  //4
+    Shake,  //4
 }
 
 export type AnimationParamsType = {
@@ -192,4 +208,6 @@ export const ModalAnimations: any = {
     zoomInLeft: "zoomInLeft", zoomInRight: "zoomInRight", zoomOut: "zoomOut", zoomOutDown: "zoomOutDown", zoomOutUp: "zoomOutUp",
     zoomOutLeft: "zoomOutLeft", zoomOutRight: "zoomOutRight"
 };
+
+
 

@@ -6,7 +6,7 @@ import { BLUE_BUTTON_WIDTH, FOOTER_HEIGHT, HEADER_HEIGHT, SCREEN_HEIGHT, ScreenM
 import MyIcon from "@c/my-icon";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MyPathLogo from "@c/logo/my-path-logo";
-import { SvgDataContext } from "@x/svg-data";
+import { MyPathDataContext } from "@x/svg-data";
 import MyList from "@c/my-list";
 import MyBlueButton from "@c/my-blue-button";
 import { ToastContext } from "@x/toast-context";
@@ -24,10 +24,10 @@ const Header = ({
     const insets = useSafeAreaInsets();
     const [name, setName] = useState(title);
     const [screenMode, setScreenMode] = useState(initialScreenMode || ScreenModes[0]);
-    const { svgData } = useContext(SvgDataContext);
+    const { myPathData } = useContext(MyPathDataContext);
     // const [buttonInstruction, setButtonInstruction] = useState("");
     const router = useRouter();
-    const showToast = useContext(ToastContext);
+    const { showToast } = useContext(ToastContext);
 
     useEffect(() => {
         setName(title);
@@ -42,7 +42,7 @@ const Header = ({
         const currentScreenModeIndex = ScreenModes.findIndex((mode) => mode.name === screenMode.name);
         if (currentScreenModeIndex >= 0 && ScreenModes[currentScreenModeIndex].name === "Draw") {
             // get count of visible paths
-            const pathsOnScreen = svgData.pathData.reduce((acc, path) => path.visible ? acc + 1 : acc, 0);
+            const pathsOnScreen = myPathData.pathData.reduce((acc, path) => path.visible ? acc + 1 : acc, 0);
             if (pathsOnScreen === 0) {
                 showToast("Please draw something first!");
                 return;

@@ -6,8 +6,14 @@ import { BrushType, PathDataType } from "@u/types";
 import { isValidPath } from "@u/helper";
 import myConsole from "./my-console-log";
 
-class MyPath extends React.PureComponent<{prop: PathDataType, keyProp: string}> {
-    render() {
+
+class MyPath extends React.PureComponent<{prop: PathDataType, keyProp: string}, MyState> {
+  render() {
+      // below region is for regular paths
+      if(this.props.prop.type !== 'd') {
+        return null;
+      }
+
       if(!isValidPath(this.props.prop.path)) {
         myConsole.log("MyPath was given invalid path data - ", this.props.prop.path, " -", this.props.prop.guid);
         return null;
@@ -29,7 +35,7 @@ class MyPath extends React.PureComponent<{prop: PathDataType, keyProp: string}> 
             strokeLinecap={this.props.prop.strokeCap}
             strokeLinejoin={this.props.prop.strokeJoin}
             opacity={this.props.prop.strokeOpacity}
-            fill= {this.props.prop.fill ?? "red"}
+            fill= {this.props.prop.fill ?? "none"}
             strokeDasharray={this.props.prop.strokeDasharray ?? undefined}
             strokeDashoffset={this.props.prop.strokeDashoffset ?? undefined}
           />

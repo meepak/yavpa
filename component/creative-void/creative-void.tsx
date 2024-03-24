@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import data from './creative-void.json'
 import MyPreview from '@c/my-preview';
-import { SvgDataType } from '@u/types';
+import { MyPathDataType } from '@u/types';
 import { getViewBoxTrimmed } from '@u/helper';
 
 interface CreativeVoidProps {
@@ -14,7 +14,7 @@ interface CreativeVoidProps {
 const CreativeVoid: React.FC<CreativeVoidProps> = ({ width, height, animate }) => {
     return (
         <View style={{ width: width, height: height }}>
-            <MyPreview data={data as SvgDataType} animate={animate} viewBox={data.metaData.viewBox} />
+            <MyPreview data={data as MyPathDataType} animate={animate} viewBox={data.metaData.viewBox} />
         </View>
     );
 }

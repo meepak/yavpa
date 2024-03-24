@@ -9,7 +9,7 @@ import {
 import {
   PathDataType,
   MetaDataType,
-  SvgDataType,
+  MyPathDataType,
   ShapeType,
   PointType,
   I_AM_IOS,
@@ -27,8 +27,8 @@ import myConsole from "@c/my-console-log";
 
 
 type MyGesturesProps = {
-  svgData: { pathData: PathDataType[]; metaData: MetaDataType; },
-  setSvgData: (value: SetStateAction<SvgDataType>) => void,
+  myPathData: { pathData: PathDataType[]; metaData: MetaDataType; },
+  setMyPathData: (value: SetStateAction<MyPathDataType>) => void,
   editMode: boolean,
   erasureMode: boolean
   currentPath: PathDataType,
@@ -48,8 +48,8 @@ type MyGesturesProps = {
 };
 
 export const MyGestures = ({
-  svgData,
-  setSvgData,
+  myPathData,
+  setMyPathData,
   editMode,
   erasureMode,
   currentPath,
@@ -84,8 +84,8 @@ export const MyGestures = ({
     handleDrawingEvent(
       event,
       state,
-      svgData,
-      setSvgData,
+      myPathData,
+      setMyPathData,
       editMode,
       erasureMode,
       currentPath,
@@ -114,7 +114,7 @@ export const MyGestures = ({
   // For paths selection on screen
   const doubleTapSelectGesture = Gesture.Tap()
   doubleTapSelectGesture.numberOfTaps(2).onEnd((event) => {
-      handleSelectEvent(event, activeBoundaryBoxPath, setSvgData);
+      handleSelectEvent(event, activeBoundaryBoxPath, setMyPathData);
   });
 
   // once select mode is activated by double tap, single tap can also select the path
@@ -122,20 +122,20 @@ export const MyGestures = ({
   // const tapSelectGesture = Gesture.Tap()
   // tapSelectGesture.numberOfTaps(1).onEnd((event) => {
   //   if(!activeBoundaryBoxPath) return;
-  //   // handleSelectEvent(event, activeBoundaryBoxPath, setSvgData);
+  //   // handleSelectEvent(event, activeBoundaryBoxPath, setMyPathData);
   //   console.log('tapped');
   // });
 
   //--------------------------------------
   const resetBoundaryBox = () => {
-    const selectedPaths = svgData.pathData.filter((item) => item.selected === true);
+    const selectedPaths = myPathData.pathData.filter((item) => item.selected === true);
     const bBoxPath = getBoundaryBox(selectedPaths);
     setActiveBoundaryBoxPath(bBoxPath);
   }
 
   // For moving paths on screen
   const panDragEvent = debounce((event, state) => {
-    handleDragEvent(event, state, editMode, setSvgData, activeBoundaryBoxPath, setActiveBoundaryBoxPath);
+    handleDragEvent(event, state, editMode, setMyPathData, activeBoundaryBoxPath, setActiveBoundaryBoxPath);
   }, 5, { leading: I_AM_ANDROID, trailing: I_AM_IOS});
 
   const panDragGesture = Gesture.Pan();
@@ -154,7 +154,7 @@ export const MyGestures = ({
 
   // For scaling of path
   const pinchZoomEvent = debounce((event, state) => {
-    handleScaleEvent(event, state, editMode, setSvgData, activeBoundaryBoxPath, setActiveBoundaryBoxPath, scaleMode, setScaleMode);
+    handleScaleEvent(event, state, editMode, setMyPathData, activeBoundaryBoxPath, setActiveBoundaryBoxPath, scaleMode, setScaleMode);
   }, 5, { leading: I_AM_ANDROID, trailing: I_AM_IOS });
 
   const pinchZoomGesture = Gesture.Pinch()
@@ -171,7 +171,7 @@ export const MyGestures = ({
 
   // For rotation of path
   const rotateEvent = debounce((event, state) => {
-    handleRotateEvent(event, state, editMode, setSvgData, activeBoundaryBoxPath, setActiveBoundaryBoxPath);
+    handleRotateEvent(event, state, editMode, setMyPathData, activeBoundaryBoxPath, setActiveBoundaryBoxPath);
   }, 5, { leading: I_AM_ANDROID, trailing: I_AM_IOS });
 
 

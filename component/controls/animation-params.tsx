@@ -11,7 +11,7 @@ const AnimationParams = ({ animationParams, onAnimationParamsChanged }) => {
   const [loopStatusValue, setLoopStatusValue] = useState(animationParams.loop ?? true)
   const [loopDelayValue, setLoopDelayValue] = useState(animationParams.delay ?? 0)
   const [loopTransitionValue, setLoopTransitionValue] = useState(animationParams.transition ?? 0)
-  const [loopTransitionTypeValue, setLoopTransitionTypeValue] = useState(animationParams.transitionType ?? TransitionType.Fade)
+  const [loopTransitionTypeValue, setLoopTransitionTypeValue] = useState(animationParams.transitionType ?? TransitionType.None)
 
   useEffect(() => {
     myConsole.log('animationParams', animationParams);
@@ -80,9 +80,10 @@ const AnimationParams = ({ animationParams, onAnimationParamsChanged }) => {
           <Text style={{ color: MY_BLACK, fontWeight: 'bold' }}>Transition Type:</Text>
         <RadioButtons
           iconStyle={{ color: 'transparent', fill: MY_BLACK, size: 22 }}
-          labels={['Fade', 'Shrink']} //'Vibrate',
-          values={[TransitionType.Fade as any, TransitionType.Shrink]} //TransitionType.Vibrate,
-          initialValue={animationParams.transitionType}
+          labels={['None', 'Fade', 'Shrink', 'Grow', 'Shake']} //'Vibrate',
+          values={[TransitionType.None, TransitionType.Fade, TransitionType.Shrink, TransitionType.Grow, TransitionType.Shake]} //TransitionType.Vibrate,
+          initialValue={loopTransitionTypeValue}
+          numOfColumns={3}
           onChange={(value) => {
               setLoopTransitionTypeValue(() => value);
               onAnimationParamsChanged({ ...animationParams, transitionType: value });

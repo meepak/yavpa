@@ -4,7 +4,7 @@ import MyRadioButtons from '@c/my-radio-buttons';
 import { BrushType, MY_BLACK } from "@u/types";
 import { Brushes } from "@c/my-brushes";
 import Svg, { Line, Defs } from "react-native-svg";
-import { SvgDataContext } from "@x/svg-data";
+import { MyPathDataContext } from "@x/svg-data";
 import { View } from "react-native";
 
 const SelectBrush = ({ value, onValueChanged }) => {
@@ -15,7 +15,7 @@ const SelectBrush = ({ value, onValueChanged }) => {
         onValueChanged(guid);
     };
 
-    // lets create brushes & if it's selected save it to the svgData.metadata
+    // lets create brushes & if it's selected save it to the myPathData.metadata
     const brushPreview = (brush: BrushType) =>
     <Svg height="50" width="80">
         <Defs>

@@ -3,7 +3,7 @@ import myConsole from "@c/my-console-log";
 import { applyErasure } from "./apply-erasure";
 import { getPathFromPoints, getPathLength, getPointsFromPath, isValidPath, precise } from "@u/helper";
 import { getD3CurveBasis, isValidShape, shapeData } from "@u/shapes";
-import { MY_BLACK, PathDataType, PointType, ShapeType, SvgDataType } from "@u/types";
+import { MY_BLACK, PathDataType, PointType, ShapeType, MyPathDataType } from "@u/types";
 import * as d3 from "d3-shape";
 import * as Crypto from "expo-crypto";
 import { SetStateAction } from "react";
@@ -16,8 +16,8 @@ ERASURE MODE IS NOT USED IN THIS VERSION, WILL REFINE IT LATER
 export const handleDrawingEvent = (
   event: GestureStateChangeEvent<PanGestureHandlerEventPayload> | GestureUpdateEvent<PanGestureHandlerEventPayload>,
   state: string,
-  svgData: SvgDataType,
-  setSvgData: { (value: SetStateAction<SvgDataType>): void; },
+  myPathData: MyPathDataType,
+  setMyPathData: { (value: SetStateAction<MyPathDataType>): void; },
   editMode: boolean,
   erasureMode: boolean,
   currentPath: PathDataType,
@@ -120,8 +120,8 @@ export const handleDrawingEvent = (
 
       if (erasureMode) {
         // use currentPath as erasure
-        const newCompletedPaths = applyErasure(currentPath, svgData.pathData);
-        setSvgData((prev: SvgDataType) => ({ metaData: { ...prev.metaData, updatedAt: "" }, pathData: newCompletedPaths }));
+        const newCompletedPaths = applyErasure(currentPath, myPathData.pathData);
+        setMyPathData((prev: MyPathDataType) => ({ ...prev, metaData: { ...prev.metaData, updatedAt: "" }, pathData: newCompletedPaths }));
         setCurrentPath(newPathData());
         setStartTime(0);
         return;
@@ -163,7 +163,8 @@ export const handleDrawingEvent = (
         currentPath.length = getPathLength(points);
         myConsole.log('setting completed path from drawing event');
         // setCompletedPaths((prev) => [...prev, currentPath]);
-        setSvgData((prev: SvgDataType) => ({
+        setMyPathData((prev: MyPathDataType) => ({
+          ...prev,
           metaData: { ...prev.metaData, updatedAt: "" },
           pathData: [...prev.pathData, currentPath]
         }));

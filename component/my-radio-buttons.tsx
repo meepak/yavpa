@@ -5,10 +5,10 @@ import MyCheckBox from "./my-check-box";
 import { MyIconStyle } from "./my-icon";
 
 interface RadioButtonsProps {
-  labels: any[];
-  values?: string[];
-  initialValue?: string;
-  onChange: (newValue: string) => void;
+  labels: string[];
+  values?: any[];
+  initialValue?: any;
+  onChange: (newValue: any) => void;
   textStyle?: StyleProp<TextStyle>;
   iconStyle?: MyIconStyle;
   numOfColumns?: number;
@@ -30,11 +30,11 @@ const RadioButtons: React.FC<RadioButtonsProps> = ({ labels, values, initialValu
     values = labels;
   }
 
-  const [selected, setSelected] = useState(initialValue || labels[0]);
+  const [selected, setSelected] = useState(initialValue || values[0] || labels[0]);
 
-  const handlePress = (label: string) => {
-    setSelected(label);
-    onChange(label);
+  const handlePress = (value: any) => {
+    setSelected(value);
+    onChange(value);
   };
 
   return (

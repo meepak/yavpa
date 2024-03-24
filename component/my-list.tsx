@@ -1,7 +1,7 @@
 
 import MyPreview from '@c/my-preview';
 import { getFiles } from '@u/storage';
-import { CANVAS_HEIGHT, CANVAS_WIDTH, HEADER_HEIGHT, ModalAnimations, SCREEN_WIDTH, SvgDataType } from '@u/types';
+import { CANVAS_HEIGHT, CANVAS_WIDTH, HEADER_HEIGHT, ModalAnimations, SCREEN_WIDTH, MyPathDataType } from '@u/types';
 import { router } from 'expo-router';
 import { useCallback, useLayoutEffect, useState } from 'react';
 import { Modal, TouchableHighlight } from 'react-native';
@@ -15,7 +15,7 @@ const FILE_PREVIEW_WIDTH = 100;
 
 const MyList = ({ anchor, width, height }) => {
     const [forceRerenderAt, setForceRerenderAt] = useState(Date.now());
-    const [files, setFiles] = useState<SvgDataType[]>([]);
+    const [files, setFiles] = useState<MyPathDataType[]>([]);
     const scrollY = useSharedValue(0);
     const insets = useSafeAreaInsets();
 
@@ -29,10 +29,10 @@ const MyList = ({ anchor, width, height }) => {
 
     const fetchFiles = useCallback(async () => {
         try {
-            let svgData = await getFiles(); // comes from cache so all good
+            let myPathData = await getFiles(); // comes from cache so all good
             // Sort the data here before setting it to the state
-            // svgData = svgData.sort((a, b) => Date.parse(a.metaData.updatedAt) - Date.parse(b.metaData.updatedAt));
-            setFiles(svgData);
+            // myPathData = myPathData.sort((a, b) => Date.parse(a.metaData.updatedAt) - Date.parse(b.metaData.updatedAt));
+            setFiles(myPathData);
         } catch (error) {
             myConsole.log('error fetching files', error)
         }
@@ -144,7 +144,7 @@ const MyList = ({ anchor, width, height }) => {
     };
 
 
-    const renderItem = ({ item, index }: { item: SvgDataType, index: number }) => (
+    const renderItem = ({ item, index }: { item: MyPathDataType, index: number }) => (
         <ListItem item={item} index={index} scrollY={scrollY} />
     );
 

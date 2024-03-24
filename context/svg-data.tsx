@@ -1,24 +1,24 @@
 import React, { useState } from 'react';
-import { createSvgData } from '@u/helper';
-import { SvgDataContextType, SvgDataType } from '@u/types';
+import { createMyPathData } from '@u/helper';
+import { MyPathDataContextType, MyPathDataType } from '@u/types';
 
 
-export const SvgDataContext = React.createContext<SvgDataContextType>({
-  svgData: createSvgData(),
-  setSvgData: (value: React.SetStateAction<SvgDataType>) => { },
+export const MyPathDataContext = React.createContext<MyPathDataContextType>({
+  myPathData: createMyPathData(),
+  setMyPathData: (value: React.SetStateAction<MyPathDataType>) => { },
 });
 
-interface SvgDataProviderProps {
+interface MyPathDataProviderProps {
   children: React.ReactNode;
 }
 
-export const SvgDataProvider: React.FC<SvgDataProviderProps> = ({ children }) => {
-  const [svgData, setSvgData] = useState(createSvgData());
+export const MyPathDataProvider: React.FC<MyPathDataProviderProps> = ({ children }) => {
+  const [myPathData, setMyPathData] = useState(createMyPathData());
 
   return (
-    <SvgDataContext.Provider value={{ svgData, setSvgData }}>
+    <MyPathDataContext.Provider value={{ myPathData, setMyPathData }}>
       {children}
-    </SvgDataContext.Provider>
+    </MyPathDataContext.Provider>
   );
 };
 

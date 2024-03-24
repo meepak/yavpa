@@ -7,7 +7,6 @@ import { SCREEN_WIDTH } from '@u/types';
 import MyGradientBackground from '@c/my-gradient-background';
 
 const banner = require('@a/banner.png');
-const alphaVersion = require('@a/alpha-version.png');
 
 
 interface HeaderProps {

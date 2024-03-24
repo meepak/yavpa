@@ -33,6 +33,7 @@ const createPreviewControls = ({
               loop: value.loop,
               delay: value.delay,
               transition: value.transition,
+              transitionType: value.transitionType,
             }));
           }}
         />

@@ -1,7 +1,7 @@
 import myConsole from "@c/my-console-log";
-import { createPathdata, createSvgData } from "@u/helper";
-import { PathDataType, ShapeType, SvgDataType } from "@u/types";
-import { SvgDataContext } from "@x/svg-data";
+import { createPathdata, createMyPathData } from "@u/helper";
+import { PathDataType, ShapeType, MyPathDataType } from "@u/types";
+import { MyPathDataContext } from "@x/svg-data";
 import { SetStateAction, useContext, useEffect } from "react";
 
 export const useCommandEffect = (
@@ -9,8 +9,8 @@ export const useCommandEffect = (
   editMode: boolean,
   // initialPathData: PathDataType[],
   newPathData: { (): PathDataType; (): any; },
-  svgData: SvgDataType,
-  setSvgData: { (value: SetStateAction<SvgDataType>): void; },
+  myPathData: MyPathDataType,
+  setMyPathData: { (value: SetStateAction<MyPathDataType>): void; },
   undonePaths: PathDataType[],
   setUndonePaths: { (value: SetStateAction<PathDataType[]>): void; },
   setCurrentPath: { (value: SetStateAction<PathDataType>): void; },
@@ -29,17 +29,18 @@ export const useCommandEffect = (
         break;
       case "reset":
         // setCompletedPaths(() => []);
-        setSvgData(createSvgData());
+        setMyPathData(createMyPathData());
         setCurrentPath(() => createPathdata()); //should we use newPathData instead?? NOPE
         setUndonePaths(() => []);
         break;
       case "undo":
-        if (svgData.pathData.length > 0) {
+        if (myPathData.pathData.length > 0) {
           setUndonePaths((prevUndonePaths) => [
             ...prevUndonePaths,
-            svgData.pathData[svgData.pathData.length - 1],
+            myPathData.pathData[myPathData.pathData.length - 1],
           ]);
-          setSvgData((prev) => ({
+          setMyPathData((prev) => ({
+            ...prev,
             metaData: { ...prev.metaData, updatedAt: "" },
             pathData: prev.pathData.slice(0, -1)
           }));
@@ -50,7 +51,8 @@ export const useCommandEffect = (
         myConsole.log("redooo")
         if (undonePaths.length > 0) {
           myConsole.log("redooo inside")
-          setSvgData((prev) => ({
+          setMyPathData((prev) => ({
+            ...prev,
             metaData: { ...prev.metaData, updatedAt: "" },
             pathData: [...prev.pathData, undonePaths[undonePaths.length - 1]],
           }));

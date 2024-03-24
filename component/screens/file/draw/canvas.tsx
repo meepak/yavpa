@@ -5,13 +5,14 @@ import { createPathdata } from "@u/helper";
 import { CANVAS_VIEWBOX, MY_BLACK, PathDataType, PointType, ShapeType } from "@u/types";
 import MyPath from "@c/my-path";
 import { useCommandEffect } from "./canvas/use-command-effect";
-import { SvgDataContext } from "@x/svg-data";
+import { MyPathDataContext } from "@x/svg-data";
 import { defaultShape } from "@u/shapes";
 import { useSelectEffect } from "./canvas/use-select-effect";
 import { MyGestures } from "./canvas/my-gestures";
 import ErrorBoundary from "@c/error-boundary";
 import MyBoundaryBoxPaths from "@c/my-boundary-box-paths";
 import BoundaryBoxIcons from "@c/my-boundary-box-icons";
+import MyPathImage from "@c/my-path-image";
 
 
 type SvgCanvasProps = {
@@ -41,7 +42,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     d3CurveBasis = null,
   } = props;
 
-  const { svgData, setSvgData } = useContext(SvgDataContext);
+  const { myPathData, setMyPathData } = useContext(MyPathDataContext);
   const newPathData = () => createPathdata(stroke, strokeWidth, strokeOpacity);
 
   const [undonePaths, setUndonePaths] = useState([] as PathDataType[]);
@@ -67,7 +68,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   useEffect(() => {
     setIsLoading(false);
     return () => {
-      setSvgData((prev) => {
+      setMyPathData((prev) => {
         prev.pathData.forEach(
           (item) => item.selected = false);
         return prev;
@@ -91,8 +92,8 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 
   // get bounding box of selected paths
   useSelectEffect({
-    svgData,
-    setSvgData,
+    myPathData,
+    setMyPathData,
     setEditMode,
     setActiveBoundaryBoxPath,
     stroke,
@@ -106,8 +107,8 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     command,
     editMode,
     newPathData,
-    svgData,
-    setSvgData,
+    myPathData,
+    setMyPathData,
     undonePaths,
     setUndonePaths,
     setCurrentPath,
@@ -117,8 +118,8 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 
 
   const myGestureProps = {
-    svgData,
-    setSvgData,
+    myPathData,
+    setMyPathData,
     editMode,
     erasureMode,
     currentPath,
@@ -163,8 +164,13 @@ we can save and play on whatever dimension we want, thus using fixed default vie
                     viewBox={CANVAS_VIEWBOX}
                     onLayout={() => setIsLoading(false)}
                   >
+                    {myPathData.imageData?.map((item) => (
+                      item.visible
+                        ? <MyPathImage prop={item} keyProp={"completed-" + item.guid} key={item.guid} />
+                        : null
+                    ))}
 
-                    {svgData.pathData.map((item, _index) => (
+                    {myPathData.pathData.map((item, _index) => (
                       item.visible
                         ? <MyPath prop={item} keyProp={"completed-" + item.updatedAt} key={item.guid} />
                         : null

@@ -2,11 +2,13 @@ import React, { useContext, useEffect, useState } from "react";
 import { View } from "react-native";
 import SvgCanvas from "./canvas";
 import createDrawControls from "./control";
-import { AvailableShapes, MY_BLACK, PathDataType } from "@u/types";
-import { SvgDataContext } from "@x/svg-data";
+import { AvailableShapes, MY_BLACK, MyPathDataType } from "@u/types";
+import { ToastContext } from "@x/toast-context";
+import { pickImageAsync } from "@u/image-picker";
+import { createImageData, createPathdata } from "@u/helper";
 
 
-const DrawScreen = ({ initControls }) => {
+const DrawScreen = ({ myPathData, setMyPathData, initControls }) => {
   const [stroke, setStroke] = useState(MY_BLACK);
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [strokeOpacity, setStrokeOpacity] = useState(1);
@@ -17,9 +19,8 @@ const DrawScreen = ({ initControls }) => {
   const [shape, setShape] = useState(AvailableShapes[0]);
   const [editMode, setEditMode] = useState(true);
   const [erasureMode, setErasureMode] = useState(false);
+  const { showToast } = useContext(ToastContext);
 
-
-  const { svgData, setSvgData } = useContext(SvgDataContext);
 
   const executeCommand = (cmd: string) => {
     if (command === cmd) {
@@ -36,11 +37,6 @@ const DrawScreen = ({ initControls }) => {
     return () => initControls([]);
   }, [])
 
-
-
-  useEffect(() => {
-    initControls(buttons)
-  }, [stroke, strokeOpacity, strokeWidth, simplifyTolerance, d3CurveBasis, shape, svgData])
 
 
 
@@ -63,14 +59,30 @@ const DrawScreen = ({ initControls }) => {
     executeCommand(shape);
   }
 
+  const pickImage = async () => {
+    const imageJson = await pickImageAsync(showToast);
+    if(!imageJson) return;
+    const newImageData = createImageData(imageJson.guid, imageJson.data, imageJson.width, imageJson.height);
+    newImageData.type = "image";
+    newImageData.visible = true;
+
+    // let's just allow one image as a background for now
+    setMyPathData((prev: MyPathDataType) => {
+      return {
+        ...prev,
+        imageData: [newImageData],  // prev.imageData ? [...prev.imageData, newImageData] : [newImageData],
+        metaData: { ...prev.metaData, updatedAt: "" },
+        updatedAt: new Date().toISOString()
+
+      };
+    });
+  }
 
   // const onSelectMode = () => executeCommand("select");
 
-
   const buttons = createDrawControls({
-    // onLock,
-    svgData,
-    setSvgData,
+    myPathData,
+    setMyPathData,
     onUndo,
     onRedo,
     strokeWidth,
@@ -86,22 +98,29 @@ const DrawScreen = ({ initControls }) => {
     shape,
     drawShape,
     toggleErasure,
+    pickImage
   });
+
+  useEffect(() => {
+    initControls(buttons)
+  }, [stroke, strokeOpacity, strokeWidth, simplifyTolerance, d3CurveBasis, shape, myPathData])
+
+
 
   return (
     <View style={{ flex: 1 }} onLayout={() => initControls(buttons)}>
-        <SvgCanvas
-          editable={editMode}
-          erasing={erasureMode}
-          command={command}
-          forceUpdate={commandEnforcer}
-          stroke={stroke}
-          strokeWidth={strokeWidth}
-          strokeOpacity={strokeOpacity}
-          simplifyTolerance={simplifyTolerance}
-          d3CurveBasis={d3CurveBasis}
-          />
-      </View>
+      <SvgCanvas
+        editable={editMode}
+        erasing={erasureMode}
+        command={command}
+        forceUpdate={commandEnforcer}
+        stroke={stroke}
+        strokeWidth={strokeWidth}
+        strokeOpacity={strokeOpacity}
+        simplifyTolerance={simplifyTolerance}
+        d3CurveBasis={d3CurveBasis}
+      />
+    </View>
   );
 };
 

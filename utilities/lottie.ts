@@ -7,7 +7,7 @@ import {
   MY_BLACK,
   PathDataType,
   PointType,
-  SvgDataType } from "./types";
+  MyPathDataType } from "./types";
 import { Linecap, Linejoin, Path } from "react-native-svg";
 
 
@@ -275,9 +275,9 @@ function createTrimPaths(path: PathDataType, pathStartFrame: number, pathEndFram
 
 // ------------ animation function end ------------
 
-function createLottie(svgData: SvgDataType) {
+function createLottie(myPathData: MyPathDataType) {
   // Extract width and height from viewBox
-  // const viewBox = svgData.metaData.viewBox.split(' ');
+  // const viewBox = myPathData.metaData.viewBox.split(' ');
   // const width = Math.round(parseFloat(viewBox[2]));
   // const height = Math.round(parseFloat(viewBox[3]));
   const width = parseInt(CANVAS_WIDTH.toFixed(0));
@@ -285,10 +285,10 @@ function createLottie(svgData: SvgDataType) {
 
   const layers: any[] = [];
 
-  // make deep copy of svgData.pathData and reverse it
-  const clonedPathData = JSON.parse(JSON.stringify(svgData.pathData));
+  // make deep copy of myPathData.pathData and reverse it
+  const clonedPathData = JSON.parse(JSON.stringify(myPathData.pathData));
 
-  const speed = svgData.metaData.animation?.speed || 1;
+  const speed = myPathData.metaData.animation?.speed || 1;
   const totalTime = clonedPathData.reduce((acc: number, path: PathDataType) => acc + path.time, 0);
   const totalFrames = FPS * precise(totalTime / (1000 * speed), 0);
 

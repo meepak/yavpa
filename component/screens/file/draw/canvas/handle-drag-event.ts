@@ -2,7 +2,7 @@
 import { getPathFromPoints, getPointsFromPath } from "@u/helper";
 import { GestureUpdateEvent, PanGestureHandlerEventPayload } from "react-native-gesture-handler";
 import { SetStateAction, useCallback } from "react";
-import { PathDataType, PointType, SvgDataType } from "@u/types";
+import { PathDataType, PointType, MyPathDataType } from "@u/types";
 import myConsole from "@c/my-console-log";
 
 const startPoint = {
@@ -13,7 +13,7 @@ export const handleDragEvent = (
   event: GestureUpdateEvent<PanGestureHandlerEventPayload>,
   state: string,
   editMode: boolean,
-  setSvgData: { (value: SetStateAction<SvgDataType>): void; },
+  setMyPathData: { (value: SetStateAction<MyPathDataType>): void; },
   activeBoundaryBoxPath: PathDataType | null,
   setActiveBoundaryBoxPath: { (value: SetStateAction<PathDataType | null>): void; },
 ) => {
@@ -50,7 +50,7 @@ export const handleDragEvent = (
       // const movedBoundaryBoxPath = getPathFromPoints(movedBoundaryBox);
       // move selected paths
 
-      setSvgData((prev) => {
+      setMyPathData((prev) => {
         let points: { [key: string]: PointType[] } = {};
 
         prev.pathData.forEach((item) => {
@@ -92,7 +92,7 @@ export const handleDragEvent = (
       startPoint.x = 0;
       startPoint.y = 0;
       myConsole.log("select ended");
-      setSvgData((prev) => {
+      setMyPathData((prev) => {
         prev.metaData.updatedAt = "";
         return prev;
       });

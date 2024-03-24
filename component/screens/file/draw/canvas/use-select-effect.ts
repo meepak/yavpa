@@ -1,10 +1,10 @@
 import { getBoundaryBox } from "@c/my-boundary-box-paths";
-import { PathDataType, SvgDataType } from "@u/types";
+import { PathDataType, MyPathDataType } from "@u/types";
 import { useEffect } from "react";
 
 export const useSelectEffect = ({
-  svgData,
-  setSvgData,
+  myPathData,
+  setMyPathData,
   setEditMode,
   setActiveBoundaryBoxPath,
   stroke,
@@ -14,7 +14,7 @@ export const useSelectEffect = ({
 
   useEffect(() => {
 
-    let selectedPaths = svgData.pathData.filter((item: PathDataType) => item.selected);
+    let selectedPaths = myPathData.pathData.filter((item: PathDataType) => item.selected);
 
     if (selectedPaths.length === 0) {
       setActiveBoundaryBoxPath(() => null);
@@ -28,12 +28,12 @@ export const useSelectEffect = ({
     const rectPathData = getBoundaryBox(selectedPaths);
     setActiveBoundaryBoxPath(rectPathData);
 
-  }, [svgData]);
+  }, [myPathData]);
 
 
   const updateSelectedPath = (property: string, value: any) => {
     if (!value) return;
-    setSvgData((prev: SvgDataType) => {
+    setMyPathData((prev: MyPathDataType) => {
       const newPathData = prev.pathData.map((item: PathDataType) => {
         if (item.selected) {
           return {

@@ -1,6 +1,6 @@
 import { PinchGestureHandlerEventPayload, GestureUpdateEvent } from "react-native-gesture-handler";
 import { SetStateAction } from "react";
-import { PathDataType, PointType, SvgDataType } from "@u/types";
+import { PathDataType, PointType, MyPathDataType } from "@u/types";
 import { getPointsFromPath, getPathFromPoints, scalePoints, getPathLength } from "@u/helper";
 import * as Crypto from "expo-crypto";
 
@@ -10,7 +10,7 @@ export const handleScaleEvent = (
     event: GestureUpdateEvent<PinchGestureHandlerEventPayload>,
     state: string,
     editMode: boolean,
-    setSvgData: (value: SetStateAction<SvgDataType>) => void,
+    setMyPathData: (value: SetStateAction<MyPathDataType>) => void,
     activeBoundaryBoxPath: PathDataType | null,
     setActiveBoundaryBoxPath: (value: SetStateAction<PathDataType | null>) => void,
     scaleMode: 'X' | 'Y' | 'XY',
@@ -36,7 +36,7 @@ export const handleScaleEvent = (
             // const scaledBoundaryBoxPath = getPathFromPoints(scaledBoundaryBox);
 
             // scale selected paths
-            setSvgData((prev) => {
+            setMyPathData((prev) => {
                 prev.pathData.forEach((item) => {
                     if (item.selected === true) {
                         const points = getPointsFromPath(item.path);
@@ -65,7 +65,7 @@ export const handleScaleEvent = (
         case "ended":
             startScale = 1;
             setScaleMode('XY');
-            setSvgData((prev) => {
+            setMyPathData((prev) => {
                 let points: { [key: string]: PointType[] } = {};
 
                 prev.pathData.forEach((item) => {

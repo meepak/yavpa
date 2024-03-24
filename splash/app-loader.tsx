@@ -28,7 +28,9 @@ const AnimatedSplashAppLoader = ({
     return null;
   }
 
-  return <AnimatedSplash bgColor={bgColor} image={image} onAnimationComplete={onAnimationComplete}>{children}</AnimatedSplash>;
+  return <AnimatedSplash bgColor={bgColor} image={image} onAnimationComplete={onAnimationComplete}>
+    {children}
+    </AnimatedSplash>;
 };
 
 export default AnimatedSplashAppLoader;

@@ -1,13 +1,13 @@
 // import Svg from "react-native-svg";
 // import React from "react";
 // import MyPath from "./my-path";
-// import { CANVAS_VIEWBOX, PathDataType, SvgDataType } from "@u/types";
+// import { CANVAS_VIEWBOX, PathDataType, MyPathDataType } from "@u/types";
 // import SvgAnimate from "./screens/file/preview/animate";
 // import ViewShot, { captureRef } from "react-native-view-shot";
 // import myConsole from "./my-console-log";
 
 // const MyGifExporter =
-//   ({ data, }: { data: SvgDataType }) => {
+//   ({ data, }: { data: MyPathDataType }) => {
 //     const viewShotRef = React.useRef<ViewShot>(null);
 //     const mypath = React.useRef<SvgAnimate>(null);
 
@@ -26,7 +26,7 @@
 
 //     return (
 //     <ViewShot ref={viewShotRef} options={{ format: "jpg", quality: 0.9 }}>
-//       < SvgAnimate ref={mypath} svgData={data} viewBox={CANVAS_VIEWBOX} />
+//       < SvgAnimate ref={mypath} myPathData={data} viewBox={CANVAS_VIEWBOX} />
 //     </ViewShot>
 //   )}
 

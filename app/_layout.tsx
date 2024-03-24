@@ -1,19 +1,19 @@
 import { Slot } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Background, BackgroundOptions } from '@c/background';
+import AnimatedColor  from '@c/background/animated-color';
 import { ToastProvider } from '@x/toast-context';
-import { SvgDataProvider } from '@x/svg-data';
+import { MyPathDataProvider } from '@x/svg-data';
 
 export default function RootLayout() {
   return (
-    <SvgDataProvider>
+    <MyPathDataProvider>
       <ToastProvider>
-        <Background option={BackgroundOptions.default}>
+        <AnimatedColor>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <Slot />
           </GestureHandlerRootView>
-        </Background>
+        </AnimatedColor>
       </ToastProvider>
-    </SvgDataProvider>
+    </MyPathDataProvider>
   );
 }

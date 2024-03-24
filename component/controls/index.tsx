@@ -2,7 +2,7 @@ import MyColorPicker from "./my-color-picker";
 import StrokeWidth from "./stroke-width";
 import StrokeOpacity from "./stroke-opacity";
 import SimplifySmooth from "./simplify-smooth";
-import PathsAsLayers from "./paths-as-layers";
+import PathsAsLayersDraw from "./paths-as-layers-draw";
 import SelectShape from "./select-shape";
 import MySlider from "../my-slider";
 import Divider from "./divider";
@@ -14,7 +14,7 @@ export {
     StrokeWidth,
     StrokeOpacity,
     SimplifySmooth,
-    PathsAsLayers,
+    PathsAsLayersDraw as PathsAsLayers,
     SelectShape,
     MySlider,
     Divider,

@@ -1,8 +1,5 @@
-
-import {Background, BackgroundOptions} from "@c/background";
 import MyPathLogo from "@c/logo/my-path-logo";
 import myConsole from "@c/my-console-log";
-import { HEADER_HEIGHT } from "@u/types";
 import { SplashScreen } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Animated, StyleSheet, View } from "react-native";
@@ -20,55 +17,49 @@ const AnimatedSplash = ({
   bgColor: string;
   onAnimationComplete?: (arg0: boolean) => void;
 }) => {
-  const animation = useMemo(() => new Animated.Value(1), []);
   const [isAppReady, setAppReady] = useState(false);
   const [isAnimationComplete, setAnimationComplete] = useState(false);
 
   const animationValue = new Animated.Value(0);
+  const animationValue1 = new Animated.Value(0);
 
-  const translateX = animationValue.interpolate({
+
+  const rotateY = animationValue.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, 100] // adjust this to change the horizontal movement
+    outputRange: ['0deg', '1800deg'], // adjust this to change the rotation angle
   });
 
-  const translateY = animationValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 100] // adjust this to change the vertical movement
-  });
 
-  const scale = animationValue.interpolate({
+  const size = animationValue1.interpolate({
     inputRange: [0, 0.5, 1],
-    outputRange: [1, 0.5, 1] // adjust this to change the scaling
+    outputRange: [115, 105, 120] // adjust this to change the scaling
   });
+
 
   useEffect(() => {
     if (isAppReady) {
-      myConsole.log('[ANIMATED SPLASH] app ready')
-      // Animated.timing(animation, {
-      //   toValue: 0,
-      //   duration: 1200,
-      //   useNativeDriver: true,
-      // }).start(() => {
-      //   setAnimationComplete(true)
-      //   if (onAnimationComplete) {
-      //     onAnimationComplete(true);
-      //   }
-      // });
+      myConsole.log('[ANIMATED SPLASH] app ready');
 
+      Animated.timing(animationValue1, {
+        toValue: 1,
+        duration: 1000, // adjust this to change the speed of the animation
+        easing: Easing.ease,
+        useNativeDriver: false,
+      }).start();
 
-        Animated.timing(animationValue, {
-          toValue: 1,
-          duration: 7000, // adjust this to change the speed of the animation
-          easing: Easing.linear,
-          useNativeDriver: true,
-        }).start(() => {
+      Animated.timing(animationValue, {
+        toValue: 1,
+        duration: 7000, // adjust this to change the speed of the animation
+        easing: Easing.circle,
+        useNativeDriver: false,
+      }).start(() => {
         setAnimationComplete(true)
         if (onAnimationComplete) {
           onAnimationComplete(true);
         }
       });
     }
-    },[isAppReady]);
+  }, [isAppReady]);
 
   const onImageLoaded = useCallback(async () => {
     try {
@@ -86,38 +77,32 @@ const AnimatedSplash = ({
 
   return (
     <View style={{ flex: 1 }}>
-      <></>
       {isAppReady && children}
-        {isAppReady && children}
-        {!isAnimationComplete && (
-        <Background option={BackgroundOptions.splash}>
-          <Animated.View
-            style={{
-              width: "100%",
-              height: HEADER_HEIGHT + 210,
-              transform: [
-                { translateX },
-                { translateY },
-                { scale : translateX},
-              ],
-            }}
-          >
+      {!isAnimationComplete && (
+        <View
+        style={{
+          ...StyleSheet.absoluteFillObject,
+          backgroundColor: '#020935',
+          justifyContent: 'center',
+          alignItems: 'center',
+          alignContent: 'center',
+          }} onLayout={onImageLoaded}>
+
+<Animated.View style={{
+  width: size,
+  height: size,
+  transform: [{rotateY}]
+}}
+  >
+          <MyPathLogo
+            animate={false}
+            width={'100%'}
+            height={'100%'}
+          />
           </Animated.View>
-          <Animated.View
-            style={{
-              width: "100%",
-              height: "100%",
-              transform: [
-                { translateX },
-                { translateY },
-                { scale },
-              ],
-            }}
-            onLayout={onImageLoaded}
-            >
-          <MyPathLogo animate={false} width={120} height={120} />
-            </Animated.View>
-      </Background>
+
+        </View>
+
       )}
     </View>
   );

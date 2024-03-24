@@ -10,7 +10,7 @@ import {
   ActivityIndicator
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { CANVAS_WIDTH, MY_BLACK, SCREEN_HEIGHT, SCREEN_WIDTH, SvgDataType } from "@u/types";
+import { CANVAS_WIDTH, MY_BLACK, SCREEN_HEIGHT, SCREEN_WIDTH, MyPathDataType } from "@u/types";
 import { deleteFile, getFiles } from "@u/storage";
 import { useRouter } from "expo-router";
 import { StickyHeaderFlatList, useStickyHeaderScrollProps } from 'react-native-sticky-parallax-header';
@@ -35,7 +35,7 @@ const FILE_PREVIEW_BOTTOM_MARGIN = 15;
 const BrowseScreen = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [files, setFiles] = useState<SvgDataType[]>([]);
+  const [files, setFiles] = useState<MyPathDataType[]>([]);
   // const [showPathPlay, setShowPathPlay] = useState(true);
   const [noSketch, setNoSketch] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -72,11 +72,11 @@ const BrowseScreen = () => {
   const fetchFiles = useCallback(async () => {
     try {
       setIsLoading(true);
-      let svgData = await getFiles();
+      let myPathData = await getFiles();
       // Sort the data here before setting it to the state
-      svgData = svgData.sort((a, b) => Date.parse(b.metaData.updatedAt) - Date.parse(a.metaData.updatedAt));
-      setFiles(svgData);
-      if (svgData.length === 0) {
+      myPathData = myPathData.sort((a, b) => Date.parse(b.metaData.updatedAt) - Date.parse(a.metaData.updatedAt));
+      setFiles(myPathData);
+      if (myPathData.length === 0) {
         setNoSketch(true);
       }
     } catch (error) {
@@ -107,7 +107,7 @@ const BrowseScreen = () => {
     ]);
   }
 
-  const renderItem: ListRenderItem<SvgDataType> = useCallback(({ item }: { item: SvgDataType }) => {
+  const renderItem: ListRenderItem<MyPathDataType> = useCallback(({ item }: { item: MyPathDataType }) => {
     return (
       <TouchableOpacity
         onPress={() => router.navigate(`/file?guid=${item.metaData.guid}`)}
@@ -149,16 +149,16 @@ const BrowseScreen = () => {
     )
   }, []);
 
-  // TODO put some animation here
-  const NoSketchFound = useMemo(() => (
-    noSketch && files.length === 0
-      ? <>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <CreativeVoid width={CANVAS_WIDTH} height={CANVAS_WIDTH} animate={true} />
-        </View>
-      </>
-      : null
-  ), [noSketch, files]);
+  // // TODO put some animation here
+  // const NoSketchFound = useMemo(() => (
+  //   noSketch && files.length === 0
+  //     ? <>
+  //       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+  //         <CreativeVoid width={CANVAS_WIDTH} height={CANVAS_WIDTH} animate={true} />
+  //       </View>
+  //     </>
+  //     : null
+  // ), [noSketch, files]);
 
   const renderHeader = useCallback(() => (
     <View pointerEvents="box-none" style={{ height: scrollHeight }}>
@@ -215,7 +215,7 @@ const BrowseScreen = () => {
           </View>
         )}
       </View>
-      {NoSketchFound}
+      {/* {NoSketchFound} */}
         <MyBlueButton
           icon={{ desc: '', name: 'new', size: 60, left: 0, top: 0 }}
           onPress={() => router.push('/file')}

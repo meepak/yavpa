@@ -1,21 +1,18 @@
-import React, { useContext, useEffect, useState } from "react";
-import { ActivityIndicator, Button, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 
 import * as Clipboard from "expo-clipboard";
 import LottieView, { AnimationObject } from "lottie-react-native";
-import { SvgDataContext } from "@x/svg-data";
 import MyPreview from "@c/my-preview";
-import { getViewBoxTrimmed } from "@u/helper";
-import { CANVAS_HEIGHT, CANVAS_VIEWBOX, CANVAS_WIDTH, FOOTER_HEIGHT, I_AM_IOS } from "@u/types";
+import { CANVAS_HEIGHT, CANVAS_VIEWBOX, CANVAS_WIDTH, I_AM_IOS } from "@u/types";
 import * as format from "@u/formatters";
 import createLottie from "@u/lottie";
 import ErrorBoundary from "@c/error-boundary";
 import myConsole from "@c/my-console-log";
 
-const ExportScreen = ({ initControls }) => {
-  const { svgData } = useContext(SvgDataContext);
+const ExportScreen = ({ myPathData, setMyPathData, initControls }) => {
   const [animate, setAnimate] = useState(false);
 
   const [nativeJson, setNativeJson] = useState("");
@@ -27,17 +24,17 @@ const ExportScreen = ({ initControls }) => {
   // This hook should only execute once this page component loads,
   // no need to update when svg Data is updating
   useEffect(() => {
-    if (svgData === undefined) return;
+    if (myPathData === undefined) return;
 
     try {
 
-      const lottieData = createLottie(svgData);
+      const lottieData = createLottie(myPathData);
       setLottieJson(JSON.parse(lottieData));
 
-      setNativeJson(JSON.stringify(svgData));
-      setStaticSvg(format.getStaticSvg(svgData));
-      setSmilSvg(format.getSmilSvg(svgData));
-      setCssSvg(format.getCssSvg(svgData));
+      setNativeJson(JSON.stringify(myPathData));
+      setStaticSvg(format.getStaticSvg(myPathData));
+      setSmilSvg(format.getSmilSvg(myPathData));
+      setCssSvg(format.getCssSvg(myPathData));
     } catch (e) {
       myConsole.log("error occcured, log properly - " + e);
     } finally {
@@ -76,31 +73,31 @@ const ExportScreen = ({ initControls }) => {
     {
       name: "My Path internal format JSON",
       description: "Very simple json representation of the path data so that it can be loaded/unloaded etc?",
-      downloadAction: () => download(svgData.metaData.name + ".json", nativeJson),
+      downloadAction: () => download(myPathData.metaData.name + ".json", nativeJson),
       copyAction: () => copyToClipboard(nativeJson),
     },
     {
       name: "Static SVG",
       description: "Ideal for simple, scalable graphics. Lightweight and versatile.",
-      downloadAction: () => download(svgData.metaData.name + ".svg", staticSvg),
+      downloadAction: () => download(myPathData.metaData.name + ".svg", staticSvg),
       copyAction: () => copyToClipboard(staticSvg),
     },
     {
       name: "SMIL SVG",
       description: "Enhances SVGs with simple animations using SMIL. Adds a dynamic touch.",
-      downloadAction: () => download(svgData.metaData.name + ".smil.svg", smilSvg),
+      downloadAction: () => download(myPathData.metaData.name + ".smil.svg", smilSvg),
       copyAction: () => copyToClipboard(smilSvg),
     },
     {
       name: "CSS SVG",
       description: "Uses CSS for styling and animating SVG elements. Perfect for web development integration.",
-      downloadAction: () => download(svgData.metaData.name + ".css.svg", cssSvg),
+      downloadAction: () => download(myPathData.metaData.name + ".css.svg", cssSvg),
       copyAction: () => copyToClipboard(cssSvg),
     },
     {
       name: "Lottie",
       description: "[Experimental Preview] A JSON-based format for complex animations across any platform.",
-      downloadAction: () => download(svgData.metaData.name + ".json", JSON.stringify(lottieJson)),
+      downloadAction: () => download(myPathData.metaData.name + ".json", JSON.stringify(lottieJson)),
       copyAction: () => copyToClipboard(JSON.stringify(lottieJson)),
     }
   ];
@@ -120,7 +117,7 @@ const ExportScreen = ({ initControls }) => {
               </View>
               <View style={{ width: 150 * CANVAS_WIDTH / CANVAS_HEIGHT, height: 150, marginRight: 15, alignSelf: 'flex-end', borderWidth: 1 }}>
                 <ErrorBoundary>
-                  <MyPreview data={svgData} animate={animate} viewBox={CANVAS_VIEWBOX} />
+                  <MyPreview data={myPathData} animate={animate} viewBox={CANVAS_VIEWBOX} />
                 </ErrorBoundary>
               </View>
             </View>

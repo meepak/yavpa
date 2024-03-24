@@ -27,8 +27,8 @@
 //     setActiveBoundaryBoxPath,
 //     menuPosition,
 //     setMenuPosition,
-//     svgData,
-//     setSvgData,
+//     myPathData,
+//     setMyPathData,
 // }) => {
 //     type PathStyleType = {
 //         strokeWidth: number,
@@ -41,7 +41,7 @@
 
 
 //     const applyFill = (fill: string) => {
-//         setSvgData((prev) => {
+//         setMyPathData((prev) => {
 //             prev.pathData.forEach((item) => {
 //                 if (item.selected === true) {
 //                     item.fill = fill;
@@ -54,7 +54,7 @@
 //     }
 
 //     const copyStyle = () => {
-//         svgData.pathData.forEach((item) => {
+//         myPathData.pathData.forEach((item) => {
 //             if (item.selected === true) {
 //                 const pathStyle = {
 //                     strokeWidth: item.strokeWidth,
@@ -70,7 +70,7 @@
 
 //     const pasteStyle = () => {
 //         if(styleClipBoard == null) return;
-//         setSvgData((prev) => {
+//         setMyPathData((prev) => {
 //             prev.pathData.forEach((item) => {
 //                 if (item.selected === true) {
 //                     item.strokeWidth = styleClipBoard.strokeWidth;
@@ -86,7 +86,7 @@
 //     }
 
 //     const duplicateSelected = () => {
-//         setSvgData((prev) => {
+//         setMyPathData((prev) => {
 //             prev.pathData.forEach((item) => {
 //                 if (item.selected === true) {
 //                     const duplicate = { ...item };
@@ -103,7 +103,7 @@
 //     }
 
 //     const deleteSelected = () => {
-//         setSvgData((prev) => {
+//         setMyPathData((prev) => {
 //             prev.pathData = prev.pathData.filter((item) => item.selected !== true);
 //             return {...prev, metaData: {...prev.metaData, updatedAt: ""}};
 //         });

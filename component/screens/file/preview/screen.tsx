@@ -5,17 +5,17 @@ import createPreviewControls from "./control";
 import { AnimationParamsType, SvgAnimateHandle } from "@u/types";
 import myConsole from "@c/my-console-log";
 
-const PreviewScreen = ({ svgData, setSvgData, initControls }) => {
+const PreviewScreen = ({ myPathData, setMyPathData, initControls }) => {
 
-  // const { svgData, setSvgData } = useContext(SvgDataContext);
-  myConsole.log('svgdata animation params', svgData.metaData.animation)
+  // const { myPathData, setMyPathData } = useContext(MyPathDataContext);
+  myConsole.log('myPathData animation params', myPathData.metaData.animation)
   const [animationParams, setAnimationParams] = useState<AnimationParamsType>({
-    speed: svgData.metaData.animation?.speed || 1,
-    loop: svgData.metaData.animation?.loop || true,
-    delay: svgData.metaData.animation?.delay || 0,
-    transition: svgData.metaData.animation?.transition || 0,
-    transitionType: svgData.metaData.animation?.transitionType || 1,
-    correction: svgData.metaData.animation?.correction || 0.05,
+    speed: myPathData.metaData.animation?.speed || 1,
+    loop: myPathData.metaData.animation?.loop || true,
+    delay: myPathData.metaData.animation?.delay || 0,
+    transition: myPathData.metaData.animation?.transition || 0,
+    transitionType: myPathData.metaData.animation?.transitionType || 0,
+    correction: myPathData.metaData.animation?.correction || 0.05,
   });
   myConsole.log('animationParams', animationParams);
 
@@ -38,9 +38,9 @@ const PreviewScreen = ({ svgData, setSvgData, initControls }) => {
     if (previewRef.current) {
       previewRef.current.setAnimationParams(animationParams);
     }
-    if (svgData.metaData.animation && svgData.metaData.animation !== animationParams) {
+    if (myPathData.metaData.animation && myPathData.metaData.animation !== animationParams) {
       myConsole.log('animation params updated, should trigger saving to file');
-      setSvgData((prev) => ({ ...prev, metaData: { ...prev.metaData, animation: animationParams, updatedAt: "" } }));
+      setMyPathData((prev) => ({ ...prev, metaData: { ...prev.metaData, animation: animationParams, updatedAt: "" } }));
     }
 
     initControls(buttons)
@@ -70,7 +70,7 @@ const PreviewScreen = ({ svgData, setSvgData, initControls }) => {
 
   return (
     <View style={{ flex: 1 }} onLayout={() => initControls(buttons)}>
-      <SvgAnimate ref={previewRef} svgData={svgData} />
+      <SvgAnimate ref={previewRef} myPathData={myPathData} />
     </View>
   );
 };

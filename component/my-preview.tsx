@@ -1,15 +1,23 @@
 import Svg from "react-native-svg";
 import React from "react";
 import MyPath from "./my-path";
-import { CANVAS_VIEWBOX, PathDataType, SvgDataType } from "@u/types";
+import { CANVAS_VIEWBOX, PathDataType, MyPathDataType } from "@u/types";
 import SvgAnimate from "./screens/file/preview/animate";
+import MyPathImage from "./my-path-image";
 
 const MyPreview =
   ({ data, animate, viewBox = CANVAS_VIEWBOX }:
-    { data: SvgDataType, animate: boolean | undefined, viewBox?: string }) => (
+    { data: MyPathDataType, animate: boolean | undefined, viewBox?: string }) => (
     animate
-      ? <SvgAnimate svgData={data} viewBox={viewBox} />
+      ? <SvgAnimate myPathData={data} viewBox={viewBox} />
       : <Svg width="100%" height="100%" viewBox={viewBox}>
+
+        {data.imageData?.map((item) => (
+          item.visible
+            ? <MyPathImage prop={item} keyProp={"completed-" + item.guid} key={item.guid} />
+            : null
+        ))}
+
         {data.pathData.map((path: PathDataType, index: number) => {
           if (!path.visible) {
             return null;

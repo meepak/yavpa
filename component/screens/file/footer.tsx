@@ -4,12 +4,12 @@ import MyGradientBackground from '@c/my-gradient-background';
 import { FOOTER_HEIGHT } from '@u/types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, interpolate, Easing } from 'react-native-reanimated';
-import { SvgDataContext } from '@x/svg-data';
+import { MyPathDataContext } from '@x/svg-data';
 import { precise } from '@u/helper';
 
 const Footer = () => {
     const insets = useSafeAreaInsets();
-    const { svgData } = useContext(SvgDataContext);
+    const { myPathData } = useContext(MyPathDataContext);
     const screenWidth = Dimensions.get('window').width;
 
     const defaultMessage = "This is a development preview. Tips: Long press to delete the sketch. Double tap to select the path. Scroll the menu items to explore options.";
@@ -33,11 +33,11 @@ const Footer = () => {
     }, [message]);
 
     useEffect(() => {
-        if(svgData.pathData.length === 0) {
+        if(myPathData.pathData.length === 0) {
             return;
         }
 
-        const totals = svgData.pathData.reduce((acc, path) => {
+        const totals = myPathData.pathData.reduce((acc, path) => {
             acc.totalPaths += 1;
             acc.totalVisiblePaths += path.visible ? 1 : 0;
             acc.totalSelectedPaths += path.selected ? 1 : 0;
@@ -78,7 +78,7 @@ const Footer = () => {
             // myConsole.log(msg);
             setMessage(defaultMessage + " | " + msg);
         }
-    },[svgData])
+    },[myPathData])
 
     const animatedStyle = useAnimatedStyle(() => {
         const x = interpolate(
