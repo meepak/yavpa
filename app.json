@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "mypath",
+    "name": "MyPath - Animate Every Stroke",
     "slug": "yavpa",
-    "scheme": "mypath",
+    "scheme": "mypath-aes",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,7 +16,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.meepak.mypath"
+      "bundleIdentifier": "au.mahat.mypath"
     },
     "android": {
       "adaptiveIcon": {
@@ -24,7 +24,7 @@
         "backgroundColor": "#020935"
       },
       "softwareKeyboardLayoutMode": "pan",
-      "package": "com.meepak.mypath"
+      "package": "au.mahat.mypath"
     },
     "extra": {
       "eas": {
