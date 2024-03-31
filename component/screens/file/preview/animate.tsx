@@ -8,6 +8,8 @@ import { Svg } from "react-native-svg";
 type Props = {
   myPathData: MyPathDataType;
   viewBox?: string;
+  onLoopBegin?: () => void;
+  onLoopEnd?: () => void;
 };
 
 const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnimate>) => {
@@ -32,18 +34,10 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
     transitionType: 0,
     correction: 0.05,
   });
-  // const [speed, setSpeed] = React.useState(1); // this is causing rerendering during value change
-  // const [loop, setLoop] = React.useState(true);
-  // const [loopDelay, setLoopDelay] = React.useState(0);
-  // const [correction, setCorrection] = React.useState(0.05);
 
   const opacity = useRef(new Animated.Value(1)).current;
   const scale = useRef(new Animated.Value(1)).current;
 
-  // const animationSpeed = (value: number) => setSpeed(value);
-  // const animationLoop = (value: boolean) => setLoop(value);
-  // const animationDelay = (value: number) => setLoopDelay(value);
-  // const animationCleanup = (value: number) => setCorrection(value);
 
 
   useEffect(() => {
@@ -133,11 +127,33 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
   // const animationSequence = Animated.sequence(animations);
 
   // play animation
-  const playAnimation = () => {
+  const playAnimation = (startIndex = 0) => {
     // myConsole.log('playing animation')
-    if (animations == undefined || !animations) {
+    if (!animations) {
       // Create an array of animations
       animations = getAnimations();
+    }
+
+
+    // Add a listener to the first animated value
+    if(props.onLoopBegin) {
+      animatedValues[startIndex].addListener(({ value }) => {
+        if (value === 0) {
+          // This function is called at the start of each loop
+          props.onLoopBegin && props.onLoopBegin();
+        }
+      });
+    }
+
+    // Add a listener to the last animated value
+    if(props.onLoopEnd) {
+      const lastAnimatedValue = animatedValues[animatedValues.length - 1];
+      lastAnimatedValue.addListener(({ value }) => {
+        if (value === 1) {
+          // This function is called at the end of each loop
+          props.onLoopEnd && props.onLoopEnd();
+        }
+      });
     }
 
     if (animationParams.loop) {
@@ -155,6 +171,14 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
   const stopAnimation = () => {
     // myConsole.log("stopping animation");
     animations.stop();
+
+    // Remove the listeners from the first and last animated values
+    if(props.onLoopBegin) {
+      animatedValues[0].removeAllListeners();
+    }
+    if(props.onLoopEnd) {
+      animatedValues[animatedValues.length - 1].removeAllListeners();
+    }
   };
 
   // Use the useImperativeHandle hook to expose the functions
@@ -165,7 +189,6 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
   }));
 
   useEffect(() => {
-    // myConsole.log('correction', correction);
     playAnimation();
   }, [animationParams]);
 

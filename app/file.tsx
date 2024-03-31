@@ -4,7 +4,6 @@ import { getFile, saveSvgToFile } from "@u/storage";
 import { MyPathDataContext } from "@x/svg-data";
 import { DrawScreen, ExportScreen, Header, PreviewScreen } from "@c/screens/file";
 import { useLocalSearchParams } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";
 import { View, Text } from "react-native";
 import * as Crypto from "expo-crypto";
@@ -13,12 +12,15 @@ import MyBlueButton from "@c/my-blue-button";
 // import Footer from "@c/screens/file/footer";
 import myConsole from "@c/my-console-log";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Footer from "@c/screens/file/footer";
+import { StatusBar } from "expo-status-bar";
 // import DrawingDynamicOptions from "@c/screens/file/draw/dynamic-options";
 
 
 const FileScreen = () => {
     // const insets = useSafeAreaInsets();
 
+    const [forceRerenderAt, setForceRerenderAt] = useState(Date.now());
     // const [canvasScale, setCanvasScale] = useState(1);
     const { myPathData, setMyPathData } = useContext(MyPathDataContext);
     const [controlButtons, setControlButtons] = useState([
@@ -104,10 +106,10 @@ const FileScreen = () => {
     const getCurrentScreen = React.useCallback(() => {
         switch (currentScreenMode.name) {
             case ScreenModes[1].name: // Preview
-            myConsole.log('myPathData', myPathData.metaData.animation);
+                myConsole.log('myPathData', myPathData.metaData.animation);
                 return <PreviewScreen myPathData={myPathData} setMyPathData={setMyPathData} initControls={setControlButtons} />;
             case ScreenModes[2].name: // Export
-                return <ExportScreen myPathData={myPathData} setMyPathData={setMyPathData} initControls={setControlButtons} />
+                return <ExportScreen myPathData={myPathData} initControls={setControlButtons} />
             case ScreenModes[0].name: // Draw
             default:
                 return <DrawScreen myPathData={myPathData} setMyPathData={setMyPathData} initControls={setControlButtons} />
@@ -122,26 +124,27 @@ const FileScreen = () => {
             { bottom: 10, right: 30 },
         ];
         return (
-        <>
-            {positions.map((position, index) => (
-                <Text
-                    key={index}
-                    style={{
-                        position: 'absolute',
-                        color: 'rgba(255,255,255,0.8)',
-                        fontSize: 64,
-                        fontWeight: 'bold',
-                        textTransform: 'uppercase',
-                        letterSpacing: 1,
-                        zIndex: -1,
-                        ...position,
-                    }}
-                >
-                    {currentScreenMode.name.toUpperCase()}
-                </Text>
-            ))}
-        </>
-    )};
+            <>
+                {positions.map((position, index) => (
+                    <Text
+                        key={index}
+                        style={{
+                            position: 'absolute',
+                            color: 'rgba(255,255,255,0.8)',
+                            fontSize: 64,
+                            fontWeight: 'bold',
+                            textTransform: 'uppercase',
+                            letterSpacing: 1,
+                            zIndex: -1,
+                            ...position,
+                        }}
+                    >
+                        {currentScreenMode.name.toUpperCase()}
+                    </Text>
+                ))}
+            </>
+        )
+    };
 
     // const ZoomScaleText = () => (
     //     canvasScale !== 1 &&
@@ -166,7 +169,7 @@ const FileScreen = () => {
 
     return (
         <>
-            <StatusBar style={"light"} translucent={true} />
+            <StatusBar hidden={false} style={"light"} backgroundColor='transparent' translucent={true} />
             <Header
                 controlPanelButtons={controlButtons}
                 title={myPathData?.metaData?.name || ""}
@@ -174,43 +177,15 @@ const FileScreen = () => {
                 onScreenModeChanged={setCurrentScreenMode}
                 initialScreenMode={currentScreenMode}
             />
-            <>
-            {/*
-            WILL INTRODUCE EDGE BUTTONS IN NEW VERSION!!
-                currentScreenMode.name === ScreenModes[0].name &&
-                <ContextMenu
-                anchor= {(<MyEdgeButton
-                    myIcon={{ name: 'layers', size: 24 }}
-                    text="Layers"
-                    leftOrRight="right"
-                    onPress={() => { }}
-                    top={HEADER_HEIGHT * 1.35}
-                    />)}
 
-                        width={180}
-                        height={400}
-                        showBackground={false}
-                        xPosition={SCREEN_WIDTH - 200}
-                        yPosition={HEADER_HEIGHT * 1.35}
-                        positionOverride={true}
-                        yOffsetFromAnchor={10}
-                        animationIn={"slideInRight"}
-                        animationOut={"slideOutRight"}
-
-                    >
-                        <PathsAsLayers myPathData={myPathData} setMyPathData={(value) => setMyPathData} />
-                    </ContextMenu>
-
-                */}
-            </>
             {
-               ( currentScreenMode.name === ScreenModes[0].name ||
+                (currentScreenMode.name === ScreenModes[0].name ||
                     currentScreenMode.name === ScreenModes[1].name)
                     ?
                     <ViewDecoration>
                         <View style={{ flex: 1 }}>
                             <>
-                        {/* <View style = {{
+                                {/* <View style = {{
                             position: 'absolute',
                             top: 0,
                             right: 0,
@@ -222,58 +197,58 @@ const FileScreen = () => {
                             <DrawingDynamicOptions screenMode={currentScreenMode} />
                         </View> */}
                             </>
-                        <View
-                            style={{
-                                flex: 1,
-                                    alignContent: "flex-start",
-                                    justifyContent: "flex-start",
-                                alignItems: "center",
-                                backgroundColor: 'transparent',
-                                paddingTop: CANVAS_PADDING_VERTICAL,
-                                // paddingHorizontal: CANVAS_PADDING_HORIZONTAL / 2,
-                                // paddingRight: CANVAS_PADDING_HORIZONTAL / 2, // TO CREATE ROOM FOR EDGE BUTTON
-                                overflow: 'hidden',
-                            }}
-                        >
-                            <DisplayScreenName />
                             <View
                                 style={{
-                                    width: CANVAS_WIDTH,
-                                    height: CANVAS_HEIGHT,
-                                    borderWidth: 2,
-                                    borderColor: 'rgba(0,0,0,0.5)',
-                                    // ...elevations[7],
-                                    // shadowColor: {MY_BLACK},
-                                    // backgroundColor: 'rgba(255,255,255,0.5)',
-                                    // shadowOffset: {
-                                    //   width: 0,
-                                    //   height: 7,
-                                    // },
-                                    // shadowOpacity: 0.44,
-                                    // shadowRadius: 6.27,
-                                    // elevation: 7,
+                                    flex: 1,
+                                    alignContent: "flex-start",
+                                    justifyContent: "flex-start",
+                                    alignItems: "center",
+                                    backgroundColor: 'transparent',
+                                    paddingTop: CANVAS_PADDING_VERTICAL,
+                                    // paddingHorizontal: CANVAS_PADDING_HORIZONTAL / 2,
+                                    // paddingRight: CANVAS_PADDING_HORIZONTAL / 2, // TO CREATE ROOM FOR EDGE BUTTON
+                                    overflow: 'hidden',
+                                }}
+                            >
+                                <DisplayScreenName />
+                                <View
+                                    style={{
+                                        width: CANVAS_WIDTH,
+                                        height: CANVAS_HEIGHT,
+                                        borderWidth: 2,
+                                        borderColor: 'rgba(0,0,0,0.5)',
+                                        // ...elevations[7],
+                                        // shadowColor: {MY_BLACK},
+                                        // backgroundColor: 'rgba(255,255,255,0.5)',
+                                        // shadowOffset: {
+                                        //   width: 0,
+                                        //   height: 7,
+                                        // },
+                                        // shadowOpacity: 0.44,
+                                        // shadowRadius: 6.27,
+                                        // elevation: 7,
 
-                                }}>
-                                {getCurrentScreen()}
+                                    }}>
+                                    {getCurrentScreen()}
+                                </View>
                             </View>
-                        </View>
                         </View>
                     </ViewDecoration>
                     :
-                    <>
-                        <View
-                            style={{
-                                flex: 1,
-                                alignContent: "center",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                backgroundColor: 'transparent',
-                            }}
-                        >
-                            {getCurrentScreen()}
-                        </View>
-                    </>
+                    <View
+                        style={{
+                            flex: 1,
+                            alignContent: "center",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            backgroundColor: 'transparent',
+                        }}
+                    >
+                        {getCurrentScreen()}
+                    </View>
             }
+
+
             {
                 currentScreenMode.name === ScreenModes[1].name ?
                     <MyBlueButton
@@ -284,7 +259,9 @@ const FileScreen = () => {
                     // {...elevations[10]}
                     /> : null
             }
-            {/* <Footer /> */}
+
+
+            <Footer />
         </>
     );
 };

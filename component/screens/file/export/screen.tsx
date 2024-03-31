@@ -11,9 +11,10 @@ import * as format from "@u/formatters";
 import createLottie from "@u/lottie";
 import ErrorBoundary from "@c/error-boundary";
 import myConsole from "@c/my-console-log";
+import SaveAsGif from "./save-as-gif";
 
-const ExportScreen = ({ myPathData, setMyPathData, initControls }) => {
-  const [animate, setAnimate] = useState(false);
+const ExportScreen = ({ myPathData, initControls }) => {
+  const [saveAsGif, setSaveAsGif] = useState(false);
 
   const [nativeJson, setNativeJson] = useState("");
   const [lottieJson, setLottieJson] = useState({} as AnimationObject);
@@ -65,9 +66,6 @@ const ExportScreen = ({ myPathData, setMyPathData, initControls }) => {
     await Sharing.shareAsync(I_AM_IOS ? cUri : uri);
   };
 
-  useEffect(() => {
-    setTimeout(() => { setAnimate(true) }, 200);
-  }, []);
 
   const exportOptions = [
     {
@@ -75,6 +73,13 @@ const ExportScreen = ({ myPathData, setMyPathData, initControls }) => {
       description: "Very simple json representation of the path data so that it can be loaded/unloaded etc?",
       downloadAction: () => download(myPathData.metaData.name + ".json", nativeJson),
       copyAction: () => copyToClipboard(nativeJson),
+    },
+    {
+      name: "GIF",
+      description: "Hopefully this will work fine.",
+      downloadAction: () => setSaveAsGif(true),
+      copyAction: null,
+      downloadActionText: "Export as GIF"
     },
     {
       name: "Static SVG",
@@ -104,51 +109,55 @@ const ExportScreen = ({ myPathData, setMyPathData, initControls }) => {
 
 
   return (
-    <ScrollView style={styles.container} onLayout={() => initControls &&  initControls([])}>
+    <>
+      <SaveAsGif isVisible={saveAsGif} onClose={() =>setSaveAsGif(false)} myPathData={myPathData} />
+    <ScrollView style={styles.container} onLayout={() => initControls && initControls([])}>
 
-          <View style={{ margin: 10 }}>
+      <View style={{ margin: 10 }}>
 
 
-            <View style={{ width: CANVAS_WIDTH, flexDirection: 'row', justifyContent: 'space-between', alignContent: 'space-between', alignItems: 'center' }}>
-              <View style={{ width: CANVAS_WIDTH - 130, alignSelf: 'flex-start' }}>
-                <Text style={{ marginBottom: 10, fontSize: 18, fontWeight: 'bold' }}>Export Your Paths!</Text>
-                <Text style={{ marginBottom: 5 }}>Disclaimer: "My Path" is in developmental preview.</Text>
-                <Text style={{ marginBottom: 20 }}>There are still lots of rough edges. Thank you for your understanding.</Text>
-              </View>
-              <View style={{ width: 150 * CANVAS_WIDTH / CANVAS_HEIGHT, height: 150, marginRight: 15, alignSelf: 'flex-end', borderWidth: 1 }}>
-                <ErrorBoundary>
-                  <MyPreview data={myPathData} animate={animate} viewBox={CANVAS_VIEWBOX} />
-                </ErrorBoundary>
-              </View>
-            </View>
-
-            {exportOptions.map((option, index) => (
-              <View key={index} style={{ marginBottom: 20 }}>
-                <Text style={{ fontSize: 16, marginBottom: 5, fontWeight: '900' }}>{option.name}</Text>
-                <Text style={{ fontSize: 14, marginBottom: 5, fontWeight: '300' }}>{option.description}</Text>
-                <View style={{ flexDirection: 'row' }}>
-                  <TouchableOpacity onPress={option.downloadAction}>
-                    <Text style={{ color: 'blue', marginBottom: 5 }}>Download file</Text>
-                  </TouchableOpacity>
-                  <View style={{ width: 1, height: 21, borderWidth: 1, borderColor: 'rgba(0,0,0,0.5)', marginHorizontal: 5 }} />
-                  <TouchableOpacity onPress={option.copyAction}>
-                    <Text style={{ color: 'blue' }}>Copy to clipboard</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ))}
-
-            <Text style={{ marginTop: 20, fontStyle: 'italic', marginBottom: 10 }}>Have fun!</Text>
-
-            <View style={{ width: 350 * CANVAS_WIDTH / CANVAS_HEIGHT, height: 350, right: -150, top: -50, borderWidth: 1, borderColor: 'rgba(0,0,0, 0.2)' }}>
-              <Text style={{ alignSelf: 'center' }}> Lottie Preview</Text>
-              <ErrorBoundary>
-                <LottieView style={{ flex: 1 }} resizeMode="contain" source={lottieJson} autoPlay={true} loop={true} />
-              </ErrorBoundary>
-            </View>
-
+        <View style={{ width: CANVAS_WIDTH, flexDirection: 'row', justifyContent: 'space-between', alignContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ width: CANVAS_WIDTH - 130, alignSelf: 'flex-start' }}>
+            <Text style={{ marginBottom: 10, fontSize: 18, fontWeight: 'bold' }}>Export Your Paths!</Text>
+            <Text style={{ marginBottom: 5 }}>Disclaimer: "My Path" is in developmental preview.</Text>
+            <Text style={{ marginBottom: 20 }}>There are still lots of rough edges. Thank you for your understanding.</Text>
           </View>
-        </ScrollView>
+          <View style={{ width: 140 * CANVAS_WIDTH / CANVAS_HEIGHT, height: 140, marginRight: 45, alignSelf: 'flex-end', }}>
+            <ErrorBoundary>
+              <MyPreview data={myPathData} animate={false} viewBox={CANVAS_VIEWBOX} />
+            </ErrorBoundary>
+          </View>
+        </View>
+
+        {exportOptions.map((option, index) => (
+          <View key={index} style={{ marginBottom: 20 }}>
+            <Text style={{ fontSize: 16, marginBottom: 5, fontWeight: '900' }}>{option.name}</Text>
+            <Text style={{ fontSize: 14, marginBottom: 5, fontWeight: '300' }}>{option.description}</Text>
+            <View style={{ flexDirection: 'row' }}>
+              {option.downloadAction && <TouchableOpacity onPress={option.downloadAction}>
+                <Text style={{ color: 'blue', marginBottom: 5 }}>{option.downloadActionText || "Download file"}</Text>
+              </TouchableOpacity>}
+              {option.copyAction &&
+                <><View style={{ width: 1, height: 21, borderWidth: 1, borderColor: 'rgba(0,0,0,0.5)', marginHorizontal: 5 }} /><TouchableOpacity onPress={option.copyAction}>
+                  <Text style={{ color: 'blue' }}>Copy to clipboard</Text>
+                </TouchableOpacity></>}
+            </View>
+          </View>
+        ))}
+
+        <Text style={{ marginTop: 20, fontStyle: 'italic', marginBottom: 10 }}>Have fun!</Text>
+
+        <View style={{ width: 350 * CANVAS_WIDTH / CANVAS_HEIGHT, height: 350, right: -150, top: -50, borderWidth: 1, borderColor: 'rgba(0,0,0, 0.2)' }}>
+          <Text style={{ alignSelf: 'center' }}> Lottie Preview</Text>
+          <ErrorBoundary>
+            <LottieView style={{ flex: 1 }} resizeMode="contain" source={lottieJson} autoPlay={true} loop={true} />
+          </ErrorBoundary>
+        </View>
+
+      </View>
+    </ScrollView>
+
+    </>
       )
 };
 

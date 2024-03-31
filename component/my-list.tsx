@@ -162,7 +162,7 @@ const MyList = ({ anchor, width, height }) => {
             yPosition={HEADER_HEIGHT - insets.top + 7}
             positionOverride={true}
             // yOffsetFromAnchor={10}
-            closeMenuAt={forceRerenderAt}
+            // closeMenuAt={forceRerenderAt}
             animationIn={ModalAnimations.slideInRight}
             animationOut={ModalAnimations.slideOutRight}
         >

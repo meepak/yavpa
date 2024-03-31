@@ -7,7 +7,7 @@ import { isValidPath } from "@u/helper";
 import myConsole from "./my-console-log";
 
 
-class MyPath extends React.PureComponent<{prop: PathDataType, keyProp: string}, MyState> {
+class MyPath extends React.PureComponent<{prop: PathDataType, keyProp: string}> {
   render() {
       // below region is for regular paths
       if(this.props.prop.type !== 'd') {

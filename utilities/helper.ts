@@ -452,10 +452,7 @@ export const getDeviceOrientation = () => {
 };
 
 
-// TODO make this user onfigurable for tiny finger people
-const penOffset = { x: 30, y: 30 };
-
-export const getPenOffset = async() => {
+export const getPenOffset = async () => {
   try {
     const orientation = await getDeviceOrientation();
     // myConsole.log('Device orientation', orientation);
@@ -483,10 +480,10 @@ export const getPenOffset = async() => {
     factorX = I_AM_ANDROID ? factorX : -1 * factorX;
     factorY = I_AM_ANDROID ? factorY : -1 * factorY;
 
-    penOffset.x = factorX * Math.abs(penOffset.x);
-    penOffset.y = factorY * Math.abs(penOffset.y);
+    // const adjX = factorX * Math.abs(penOffset.x);
+    // const adjY = factorY * Math.abs(penOffset.y);
     // myConsole.log(orientation, penOffset);
-    return penOffset;
+    return { x: factorX, y: factorY };
   } catch (error) {
     myConsole.log('Error getting device orientation', error);
   } finally {

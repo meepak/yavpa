@@ -74,7 +74,7 @@ const ControlPanel = ({ buttons, paddingLeft = 40, paddingRight = 40 }) => {
               }
               width={item.extraPanel?.width || 150}
               height={item.extraPanel?.height || 200}
-              closeMenuAt={forceRerenderAt}
+              // closeMenuAt={forceRerenderAt} // did i mess up by commenting??
               animationIn={item.key == 'layers' ? ModalAnimations.slideInRight : undefined}
               animationOut={item.key == 'layers' ? ModalAnimations.slideOutRight : undefined}
               >

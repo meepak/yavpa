@@ -1,6 +1,5 @@
 import myConsole from '@c/my-console-log';
 import { CANVAS_HEIGHT } from '@u/types';
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import {
   View,
@@ -14,7 +13,7 @@ import Modal from 'react-native-modal';
 interface ContextMenuProps {
   width?: number;
   height?: number;
-  closeMenuAt?: number;
+  // closeMenuAt?: number;
   anchor: React.ReactNode;
   children: React.ReactNode;
   showBackground?: boolean;
@@ -42,7 +41,7 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
   static defaultProps = {
     width: 150,
     height: 200,
-    closeMenuAt: initialRenderTime,
+    // closeMenuAt: initialRenderTime,
     showBackground: true,
     xPosition: 0,
     yPosition: 0,
@@ -65,29 +64,32 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
     };
   }
 
-  componentDidUpdate(prevProps: ContextMenuProps, prevState: ContextMenuState) {
-    if (prevState.menuVisible !== this.state.menuVisible) {
-      myConsole.log('menu close -- trigger unknown if no reason below?? ', this.state.menuVisible);
-    }
+  // we will only close if hideMenu is explicitly called
+  // componentDidUpdate(prevProps: ContextMenuProps, prevState: ContextMenuState) {
+    // if (prevState.menuVisible !== this.state.menuVisible ) {
+    //   myConsole.log('menu close -- trigger unknown if no reason below?? ', this.state.menuVisible);
+    //    this.hideMenu();
+    // }
 
-    if (prevProps.closeMenuAt !== this.props.closeMenuAt && this.state.menuVisible) {
-      // myConsole.log('REASON:: closeMenuAt trigger closure', this.props.closeMenuAt);
-      // this.hideMenu();
-    }
-  }
+    // if (prevProps.closeMenuAt !== this.props.closeMenuAt && !this.state.menuVisible) {
+    //   myConsole.log('REASON:: closeMenuAt trigger closure', this.props.closeMenuAt);
+    //   this.hideMenu();
+    // }
+  // }
 
   hideMenu = () => {
-    myConsole.log('REASON:: hideMenu trigger closure', this.props.closeMenuAt);
+    // myConsole.log('REASON:: hideMenu trigger closure', this.props.closeMenuAt);
     this.setState({ menuVisible: false });
   };
 
   showMenu = () => {
-    myConsole.log('opning..who\'d overridding this already??', Date.now() - (this.props.closeMenuAt || 0));
+
+    myConsole.log('opning..who\'d overridding this already??');
     // if the menu close time is within last 200 ms, do not open agian
-    if (this.props.closeMenuAt && (Date.now() - this.props.closeMenuAt < 200)) {
-      myConsole.log('CANC:: showMenu trigger closure', this.props.closeMenuAt);
-      return;
-    }
+    // if (this.props.closeMenuAt && (Date.now() - this.props.closeMenuAt < 200)) {
+    //   myConsole.log('CANC:: showMenu trigger closure', this.props.closeMenuAt);
+    //   return;
+    // }
     if (this.props.positionOverride && this.props.xPosition && this.props.yPosition) {
 
       this.setState({ xPosition: this.props.xPosition, yPosition: this.props.yPosition, menuVisible: true });
@@ -131,7 +133,6 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
   render() {
     return (
       <View>
-        <StatusBar style="light" translucent={true} />
         <View
           ref={this.anchorRef}
           onLayout={() => { }}
@@ -147,13 +148,14 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
           coverScreen={true}
           hasBackdrop={true}
           backdropColor='rgba(0,0,0,0.5)'
-          onBackdropPress={this.hideMenu}
+          onBackdropPress={() => this.hideMenu}
           statusBarTranslucent={false}
           animationIn={this.props.animationIn || "slideInUp"}
           animationOut={this.props.animationOut || "slideOutUp"}
           useNativeDriver
           useNativeDriverForBackdrop
-          >
+          hideModalContentWhileAnimating
+        >
           <GestureHandlerRootView style={{
             width: '100%',
             height: '100%',

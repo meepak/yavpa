@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useMemo, useState } from "react";
+import React, { useCallback, useLayoutEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -10,16 +10,18 @@ import {
   ActivityIndicator
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { CANVAS_WIDTH, MY_BLACK, SCREEN_HEIGHT, SCREEN_WIDTH, MyPathDataType } from "@u/types";
+import { MY_BLACK, SCREEN_HEIGHT, SCREEN_WIDTH, MyPathDataType } from "@u/types";
 import { deleteFile, getFiles } from "@u/storage";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { StickyHeaderFlatList, useStickyHeaderScrollProps } from 'react-native-sticky-parallax-header';
-import { StatusBar } from "expo-status-bar";
+import { StatusBar } from 'expo-status-bar';
 import Header from "@c/screens/browse/header";
 import MyPreview from "@c/my-preview";
-import CreativeVoid from "@c/creative-void/creative-void";
 import MyBlueButton from "@c/my-blue-button";
 import myConsole from "@c/my-console-log";
+import Animated, { FlipInYLeft, ReduceMotion } from "react-native-reanimated";
+import elevation from "@u/elevation";
+import elevations from "@u/elevation";
 
 const PARALLAX_HEIGHT = 238;
 const HEADER_BAR_HEIGHT = 92;
@@ -35,11 +37,21 @@ const FILE_PREVIEW_BOTTOM_MARGIN = 15;
 const BrowseScreen = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { heroEntry } = useLocalSearchParams<{ heroEntry: string; }>();
   const [files, setFiles] = useState<MyPathDataType[]>([]);
   // const [showPathPlay, setShowPathPlay] = useState(true);
   const [noSketch, setNoSketch] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+
+    const flip = FlipInYLeft
+    .reduceMotion(ReduceMotion.Never)
+    .withInitialValues({
+      transform: [{ perspective: 0 }, { rotateY: '-270deg' }, { translateX: 0}],
+    });
+
+  const enteringAnimation = heroEntry === 'yes' ? flip : undefined;
+  const exitingAnimation = undefined
 
   const {
     onMomentumScrollEnd,
@@ -112,10 +124,11 @@ const BrowseScreen = () => {
       <TouchableOpacity
         onPress={() => router.navigate(`/file?guid=${item.metaData.guid}`)}
         onLongPress={() => deleteSketchAlert(item.metaData.guid)}
+        activeOpacity={0.45}
       >
         <View
           style={{
-            width: FILE_PREVIEW_WIDTH,
+            width: FILE_PREVIEW_WIDTH+ 2,
             marginTop: FILE_PREVIEW_BOTTOM_MARGIN / 2,
             alignContent: 'center',
             alignItems: 'center',
@@ -127,19 +140,20 @@ const BrowseScreen = () => {
             style={{
               width: FILE_PREVIEW_WIDTH,
               height: filePreviewHeight,
-              borderWidth: 2,
-              borderRadius: 7,
               alignContent: 'center',
               alignItems: 'center',
               padding: 2,
               overflow: 'hidden',
+              borderRadius: 7,
+              borderWidth: 2,
+              backgroundColor: `rgba(150,150,250, 0.25)`,
             }}
           >
 
             <MyPreview animate={false} data={item} />
 
           </View>
-          <View style={{ alignItems: 'center' }}>
+          <View style={{ alignItems: 'center'}}>
             {item.metaData.name.split(' ').slice(0, 2).map((line, i) => (
               <Text key={i} style={{ top: 4, flexWrap: 'wrap', justifyContent: 'center' }}>{line}</Text>
             ))}
@@ -149,16 +163,7 @@ const BrowseScreen = () => {
     )
   }, []);
 
-  // // TODO put some animation here
-  // const NoSketchFound = useMemo(() => (
-  //   noSketch && files.length === 0
-  //     ? <>
-  //       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-  //         <CreativeVoid width={CANVAS_WIDTH} height={CANVAS_WIDTH} animate={true} />
-  //       </View>
-  //     </>
-  //     : null
-  // ), [noSketch, files]);
+
 
   const renderHeader = useCallback(() => (
     <View pointerEvents="box-none" style={{ height: scrollHeight }}>
@@ -167,64 +172,60 @@ const BrowseScreen = () => {
   ), [scrollValue]);
 
   return (
-    <View style={StyleSheet.absoluteFill}>
-      <View style={{ alignSelf: 'stretch', flex: 1 }}>
-        <StickyHeaderFlatList
-          key={numberOfColumns}
-          ref={scrollViewRef}
-          containerStyle={{
-            paddingTop: HEADER_BAR_HEIGHT,
-            alignSelf: 'stretch',
-            flex: 1,
-          }}
-          contentContainerStyle={{
-            paddingBottom: 30,
-          }}
-          style={{paddingTop: 25 }}
-          onScroll={onScroll}
-          onMomentumScrollEnd={onMomentumScrollEnd}
-          onScrollEndDrag={onScrollEndDrag}
-          renderHeader={renderHeader}
+    <>
+      <StatusBar hidden={false} style={"light"} backgroundColor='transparent' translucent={true} />
+      <Animated.View style={StyleSheet.absoluteFill} entering={enteringAnimation} exiting={exitingAnimation}>
+        <View style={{ alignSelf: 'stretch', flex: 1 }}>
+          <StickyHeaderFlatList
+            key={numberOfColumns}
+            ref={scrollViewRef}
+            containerStyle={{
+              paddingTop: HEADER_BAR_HEIGHT,
+              alignSelf: 'stretch',
+              flex: 1,
+            }}
+            contentContainerStyle={{
+              paddingBottom: 30,
+            }}
+            style={{ paddingTop: 25 }}
+            onScroll={onScroll}
+            onMomentumScrollEnd={onMomentumScrollEnd}
+            onScrollEndDrag={onScrollEndDrag}
+            renderHeader={renderHeader}
 
-          // initialNumToRender={6}
-          // maxToRenderPerBatch={20}
-          keyExtractor={item => numberOfColumns  + item.metaData.guid}
-          numColumns={numberOfColumns}
-          data={files}
-          initialNumToRender={3}
-          maxToRenderPerBatch={10}
-          windowSize={10}
-          renderItem={renderItem}
-          horizontal={false}
-          showsVerticalScrollIndicator={false}
-          onLayout={() => setIsLoading(false)}
-        // onContentSizeChange={() => setIsLoading(false)}
-        />
-        {isLoading && (
-          <View style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-            <ActivityIndicator
-              style={{ top: -HEADER_BAR_HEIGHT }}
-              animating
-              size={150}
-              color={MY_BLACK}
-            />
-          </View>
-        )}
-      </View>
-      {/* {NoSketchFound} */}
+            // initialNumToRender={6}
+            // maxToRenderPerBatch={20}
+            keyExtractor={item => numberOfColumns + item.metaData.guid}
+            numColumns={numberOfColumns}
+            data={files}
+            initialNumToRender={3}
+            maxToRenderPerBatch={10}
+            windowSize={10}
+            renderItem={renderItem}
+            horizontal={false}
+            showsVerticalScrollIndicator={false}
+            onLayout={() => setIsLoading(false)} />
+          {isLoading && (
+            <View style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+              <ActivityIndicator
+                style={{ top: -HEADER_BAR_HEIGHT }}
+                animating
+                size={150}
+                color={MY_BLACK} />
+            </View>
+          )}
+        </View>
         <MyBlueButton
           icon={{ desc: '', name: 'new', size: 60, left: 0, top: 0 }}
           onPress={() => router.push('/file')}
           bottom={insets.bottom + 16}
-          aligned="right"
-          // {...elevations[10]}
-          />
-      <StatusBar translucent style="light" />
-    </View>
+          aligned="right" />
+      </Animated.View>
+    </>
   );
 };
 

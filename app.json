@@ -5,7 +5,14 @@
     "scheme": "mypath-aes",
     "version": "1.0.0",
     "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "androidStatusBar": {
+      "translucent": true,
+      "barStyle": "light-content",
+      "backgroundColor": "#020935"
+    },
     "icon": "./assets/icon.png",
+    "backgroundColor": "#020935",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",

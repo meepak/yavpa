@@ -1,12 +1,15 @@
 import { ToastFunction } from '@x/toast-context';
 import * as ImagePicker from 'expo-image-picker';
 import { saveImageToCache } from './storage';
+import myConsole from '@c/my-console-log';
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from './types';
 
 export const pickImageAsync = async (showToast: ToastFunction): Promise<any | null> => {
     let result = await ImagePicker.launchImageLibraryAsync({
         allowsEditing: true,
         allowsMultipleSelection: false,
         quality: 0.75,
+        aspect: [CANVAS_WIDTH, CANVAS_HEIGHT],
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         // resize to less than 1MB
     });
@@ -15,7 +18,7 @@ export const pickImageAsync = async (showToast: ToastFunction): Promise<any | nu
         // let copy the file to our app's cache directory
         const asset = result.assets[0];
         const imageJson = await saveImageToCache(asset.uri, asset.height, asset.width);
-        console.log(imageJson);
+        // myConsole.log(imageJson);
         return imageJson;
     } else {
         showToast('You did not select any image.');

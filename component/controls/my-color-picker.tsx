@@ -29,7 +29,7 @@ const MyColorPicker = ({ initialColor = MY_BLACK, onColorSelected }) => {
         // }}
         thumbSize={30}
         gapSize={0}
-        noSnap={true}
+        noSnap={false}
         row={true}
         swatches={true}
         discrete={true}

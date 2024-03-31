@@ -75,37 +75,28 @@ export const getFiles = async (): Promise<MyPathDataType[]> => {
         const myPathFiles = filenames.filter(filename => filename.endsWith(myPathFileExt));
 
         const myPathDataFiles: MyPathDataType[] = [];
+        myConsole.log('we have files, /lets load them - ', myPathFiles);
+        for (const svgFile of myPathFiles) {
+            const info = await FileSystem.getInfoAsync(path.join(AppSaveDirectory, svgFile));
+            const json = await FileSystem.readAsStringAsync(info.uri);
+            const myPathData = parseMyPathData(JSON.parse(json));
+            myPathDataFiles.push(myPathData);
+        }
 
-        if (myPathFiles.length === 0) {
+
+        if (myPathDataFiles.length === 0) {
             myConsole.log('we have no file, lets load the demo file');
             const logoFile = require('@c/logo/my-path-demo.json');
 
-            // if (logoData && { ...logoData }.pathData.length > 0) {
-            //     // check a copy already exist or not
-            //     const index = myPathDataFiles.findIndex(file => file.metaData.guid === logoData.metaData.guid);
-            //     if (index === -1) {
-
-            //     }
-            // }
             const demoFile = JSON.parse(JSON.stringify(logoFile))
             const logoData = parseMyPathData(demoFile);
             myPathDataFiles.push(logoData);
+
             // const creativeVoidData = require('@c/creative-void/creative-void.json');
-            // if (creativeVoidData && {...creativeVoidData}.pathData.length > 0) {
-            //     const index = myPathDataFiles.findIndex(file => file.metaData.guid === logoData.metaData.guid);
-            //     if (index === -1) {
-            //         myPathDataFiles.push({ ...creativeVoidData, metaData: { ...creativeVoidData.metaData, updatedAt: new Date().toISOString() } });
-            //     }
-            // }
-        } else {
-            console.log('we have files, /lets load them - ', myPathFiles);
-            for (const svgFile of myPathFiles) {
-                const info = await FileSystem.getInfoAsync(path.join(AppSaveDirectory, svgFile));
-                const json = await FileSystem.readAsStringAsync(info.uri);
-                const myPathData = parseMyPathData(JSON.parse(json));
-                myPathDataFiles.push(myPathData);
-            }
+            // const cvData = parseMyPathData(creativeVoidData);
+            // myPathDataFiles.push(cvData);
         }
+
         myConsole.log('set the filecache again..')
         // myPathDataFiles.sort((a, b) => Date.parse(b.metaData.updatedAt) - Date.parse(a.metaData.updatedAt));
 
@@ -205,7 +196,7 @@ export const saveImageToCache = async (filePath: string, height: number, width: 
         guid: Crypto.randomUUID()
     }
 
-    // console.log('content', content);
+    // myConsole.log('content', content);
 
     // If no match was found, write a new file
     const imagePath = myPathImage(content.guid);

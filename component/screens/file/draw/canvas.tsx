@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { View, StyleSheet, ActivityIndicator } from "react-native";
 import Svg from "react-native-svg";
 import { createPathdata } from "@u/helper";
@@ -13,6 +13,7 @@ import ErrorBoundary from "@c/error-boundary";
 import MyBoundaryBoxPaths from "@c/my-boundary-box-paths";
 import BoundaryBoxIcons from "@c/my-boundary-box-icons";
 import MyPathImage from "@c/my-path-image";
+import MyPen from "@c/my-pen";
 
 
 type SvgCanvasProps = {
@@ -55,7 +56,10 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 
   const [activeBoundaryBoxPath, setActiveBoundaryBoxPath] = useState<PathDataType | null>(null)
 
-  const [scaleMode, setScaleMode] = useState<'X'|'Y'|'XY'>('XY');
+  // const [penTip, setPenTip] = useState<PointType | null>(null);
+  const penTipRef = useRef<PointType | null>(null);
+
+  const [scaleMode, setScaleMode] = useState<'X' | 'Y' | 'XY'>('XY');
 
   // This is be enabled in next version only
   // erasure mode - erasure shape can be square or circle
@@ -82,7 +86,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   useEffect(() => {
     setEditMode(editable);
     if (editable) {
-      if(activeBoundaryBoxPath !== null) {
+      if (activeBoundaryBoxPath !== null) {
         setActiveBoundaryBoxPath(null);
       }
     }
@@ -135,6 +139,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     setActiveBoundaryBoxPath,
     scaleMode,
     setScaleMode,
+    penTipRef,
   };
 
 
@@ -152,41 +157,46 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
             </View>
           )
           : (
-            <><MyGestures {...myGestureProps}>
-              <View style={styles.container}>
-                <ErrorBoundary>
-                  {/* All drawings were drawn in this canvas with this viewbox
+            <>
+              <MyGestures {...myGestureProps}>
+                <View style={styles.container}>
+                  <ErrorBoundary>
+                    {/* All drawings were drawn in this canvas with this viewbox
 They need to be edited in this dimension,
 we can save and play on whatever dimension we want, thus using fixed default viewbox*/}
-                  <Svg
-                    width='100%'
-                    height={'100%'}
-                    viewBox={CANVAS_VIEWBOX}
-                    onLayout={() => setIsLoading(false)}
-                  >
-                    {myPathData.imageData?.map((item) => (
-                      item.visible
-                        ? <MyPathImage prop={item} keyProp={"completed-" + item.guid} key={item.guid} />
-                        : null
-                    ))}
+                    <Svg
+                      width='100%'
+                      height={'100%'}
+                      viewBox={CANVAS_VIEWBOX}
+                      onLayout={() => setIsLoading(false)}
+                    >
+                      {/* current path is being drawn lets display pen */}
+                      {editMode && penTipRef.current && <MyPen tip={penTipRef.current} /> }
+                      
+                      {myPathData.imageData?.map((item) => (
+                        item.visible
+                          ? <MyPathImage prop={item} keyProp={"completed-" + item.guid} key={item.guid} />
+                          : null
+                      ))}
 
-                    {myPathData.pathData.map((item, _index) => (
-                      item.visible
-                        ? <MyPath prop={item} keyProp={"completed-" + item.updatedAt} key={item.guid} />
-                        : null
-                    ))}
-
-                    {currentPath.guid !== "" && (
-                      <MyPath prop={currentPath} keyProp={"current"} key={currentPath.guid} />
-                    )}
-
-                    <MyBoundaryBoxPaths activeBoundaryBoxPath={activeBoundaryBoxPath}  />
+                      {myPathData.pathData.map((item, _index) => (
+                        item.visible
+                          ? <MyPath prop={item} keyProp={"completed-" + item.updatedAt} key={item.guid} />
+                          : null
+                      ))}
 
 
-                  </Svg>
-                </ErrorBoundary>
-              </View>
-            </MyGestures>
+                      {currentPath.guid !== "" && (
+                        <MyPath prop={currentPath} keyProp={"current"} key={currentPath.guid} />
+                      )}
+
+                      <MyBoundaryBoxPaths activeBoundaryBoxPath={activeBoundaryBoxPath} />
+
+
+                    </Svg>
+                  </ErrorBoundary>
+                </View>
+              </MyGestures>
 
               <BoundaryBoxIcons activeBoundaryBoxPath={activeBoundaryBoxPath} scaleMode={scaleMode} onScaleModeChange={(value) => setScaleMode(value)} />
 

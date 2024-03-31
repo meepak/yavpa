@@ -1,5 +1,5 @@
 
-import { SetStateAction, useState } from "react";
+import { SetStateAction, useContext, useRef, useState } from "react";
 import {
   Gesture,
   GestureDetector,
@@ -20,10 +20,11 @@ import { handleSelectEvent } from "./handle-select-event";
 import { handleDragEvent } from "./handle-drag-event";
 import { handleScaleEvent } from "./handle-scale-event";
 import { handleRotateEvent } from "./handle-rotate-event";
-import { debounce, throttle } from "lodash";
+import { debounce } from "lodash";
 import { getBoundaryBox } from "@c/my-boundary-box-paths";
-import { getPenOffset } from "@u/helper";
+import { getPenOffset, precise } from "@u/helper";
 import myConsole from "@c/my-console-log";
+import { UserPreferencesContext } from "@x/user-preferences";
 
 
 type MyGesturesProps = {
@@ -44,6 +45,7 @@ type MyGesturesProps = {
   setActiveBoundaryBoxPath: (value: SetStateAction<PathDataType | null>) => void,
   scaleMode: 'X' | 'Y' | 'XY',
   setScaleMode: (value: SetStateAction<'X' | 'Y' | 'XY'>) => void,
+  penTipRef: React.MutableRefObject<PointType | null>,
   children: React.ReactNode,
 };
 
@@ -65,23 +67,40 @@ export const MyGestures = ({
   setActiveBoundaryBoxPath,
   scaleMode,
   setScaleMode,
+  penTipRef,
   children,
 }: MyGesturesProps): React.ReactNode => {
 
-
-  const [penOffset, setPenOffset] = useState<PointType>({ x: 0, y: 0 });
+  const { userPreferences } = useContext(UserPreferencesContext);
+  const penOffset = useRef({ x: 0, y: 0 });
 
   // For all things related to drawing a path
-  const handlePanDrawingEvent = (event: GestureUpdateEvent<PanGestureHandlerEventPayload>, state: string) => {
+  const handlePanDrawingEvent = async (event: GestureUpdateEvent<PanGestureHandlerEventPayload>, state: string) => {
 
-    // if(state === 'began') { // need to measure at begining of each writing event
-      // lets diable this fo rnow will look into it next version
-      // along with touch feedback animation and pen pointers
-      // let pp = await getPenOffset() || { x: 0, y: 0 };
-      // setPenOffset(pp);
-    // }
+    if (state === 'began') { // need to measure at begining of each writing event
+      const pp = await getPenOffset();
+
+      penOffset.current.x = (pp?.x || 0) * userPreferences.penOffset.x;
+      penOffset.current.y = (pp?.y || 0) * userPreferences.penOffset.y;
+    }
+
+      // myConsole.log('penOffset', penOffset.current);
+    const penTip = {
+      x: event.x + penOffset.current.x,
+      y: event.y + penOffset.current.y,
+    };
+
+
+    if (state === 'ended') {
+      penTipRef.current = null;
+      penOffset.current.x = 0;
+      penOffset.current.y = 0;
+    } else {
+      penTipRef.current = { ...penTip };
+    }
 
     handleDrawingEvent(
+      penTip,
       event,
       state,
       myPathData,
@@ -97,9 +116,8 @@ export const MyGestures = ({
       setCurrentShape,
       simplifyTolerance,
       d3CurveBasis,
-      penOffset
     );
-  };
+  }
 
   const panDrawGesture = Gesture.Pan();
   panDrawGesture.shouldCancelWhenOutside(false);
@@ -114,7 +132,7 @@ export const MyGestures = ({
   // For paths selection on screen
   const doubleTapSelectGesture = Gesture.Tap()
   doubleTapSelectGesture.numberOfTaps(2).onEnd((event) => {
-      handleSelectEvent(event, activeBoundaryBoxPath, setMyPathData);
+    handleSelectEvent(event, activeBoundaryBoxPath, setMyPathData);
   });
 
   // once select mode is activated by double tap, single tap can also select the path
@@ -123,7 +141,7 @@ export const MyGestures = ({
   // tapSelectGesture.numberOfTaps(1).onEnd((event) => {
   //   if(!activeBoundaryBoxPath) return;
   //   // handleSelectEvent(event, activeBoundaryBoxPath, setMyPathData);
-  //   console.log('tapped');
+  //   myConsole.log('tapped');
   // });
 
   //--------------------------------------
@@ -136,7 +154,7 @@ export const MyGestures = ({
   // For moving paths on screen
   const panDragEvent = debounce((event, state) => {
     handleDragEvent(event, state, editMode, setMyPathData, activeBoundaryBoxPath, setActiveBoundaryBoxPath);
-  }, 5, { leading: I_AM_ANDROID, trailing: I_AM_IOS});
+  }, 5, { leading: I_AM_ANDROID, trailing: I_AM_IOS });
 
   const panDragGesture = Gesture.Pan();
   panDragGesture.shouldCancelWhenOutside(false);
@@ -145,7 +163,7 @@ export const MyGestures = ({
   panDragGesture.onBegin((event) => {
     panDragEvent.cancel();
     panDragEvent(event, "began");
-})
+  })
     .onUpdate((event) => panDragEvent(event, "active"))
     .onEnd((event) => {
       panDragEvent(event, "ended");
@@ -179,7 +197,7 @@ export const MyGestures = ({
   rotateGesture.onBegin((event) => {
     rotateEvent.cancel();
     rotateEvent(event, "began");
-})
+  })
     .onUpdate((event) => rotateEvent(event, "active"))
     .onEnd((event) => {
       rotateEvent(event, "ended");

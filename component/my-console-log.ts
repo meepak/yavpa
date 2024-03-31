@@ -14,6 +14,7 @@ interface MyConsole {
 
 const myConsole: MyConsole = {
     log: (...args: any[]) => {
+        //return; // no logging
         const lastArg = args[args.length - 1];
         let logLevel: LogLevel = 'info';
 
@@ -26,10 +27,26 @@ const myConsole: MyConsole = {
         // Handle different log levels
         switch (logLevel) {
             case 'info':
-                console.log(...args);
+                args.forEach((arg) => {
+                    // Generate a random number between 0 and 2
+                    const randomColor = Math.floor(Math.random() * 3);
+
+                    // Choose a different color for each argument based on the random number
+                    switch (randomColor) {
+                        case 0:
+                            console.log('\x1b[31m', arg, '\x1b[0m'); // Red
+                            break;
+                        case 1:
+                            console.log('\x1b[32m', arg, '\x1b[0m'); // Green
+                            break;
+                        case 2:
+                            console.log('\x1b[34m', arg, '\x1b[0m'); // Blue
+                            break;
+                    }
+                });
                 break;
             case 'error':
-                console.error(...args);
+                console.error('\x1b[31m', ...args, '\x1b[0m'); // Red
                 break;
         }
     },

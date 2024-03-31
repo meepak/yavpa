@@ -24,8 +24,8 @@ export const HEADER_HEIGHT = 140;
 // We need to make footer optional through configuration, i can't adjust that if heigt is constant
 // TODO once user configuration is implemented, take footer height from context
 export const FOOTER_HEIGHT = 0; //40;
-export const CANVAS_PADDING_HORIZONTAL = 20;
-export const CANVAS_PADDING_VERTICAL = 25;
+export const CANVAS_PADDING_HORIZONTAL =15;
+export const CANVAS_PADDING_VERTICAL = 15;
 
 // Thus,
 export const CANVAS_WIDTH = SCREEN_WIDTH - CANVAS_PADDING_HORIZONTAL * 2;
@@ -152,7 +152,6 @@ export type AnimationParamsType = {
 export interface SvgAnimateHandle {
     playAnimation: () => void;
     loopAnimation: () => void;
-    replayAnimation: () => void;
     stopAnimation: () => void;
     setAnimationParams: (value: AnimationParamsType) => void;
 }

@@ -59,12 +59,13 @@ const Header = ({
 
     const handleBackButtonPress = () => {
         // myConsole.log('baack pressed')
-        if (router.canGoBack()) {
-            router.back()
-        }
-        else {
-            router.navigate("/browse")
-        }
+        // if (router.canGoBack()) {
+        //     router.back()
+        // }
+        // else {
+        //     router.navigate("/browse")
+        // }
+        router.navigate("/browse")
     }
 
     // to get the same top position iOS  has insets.top included within header size

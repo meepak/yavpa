@@ -10,10 +10,9 @@ import { SetStateAction } from "react";
 import { GestureStateChangeEvent, GestureUpdateEvent, PanGestureHandlerEventPayload } from "react-native-gesture-handler";
 import simplify from "simplify-js";
 
-/*
-ERASURE MODE IS NOT USED IN THIS VERSION, WILL REFINE IT LATER
-*/
+
 export const handleDrawingEvent = (
+  penTip: PointType,
   event: GestureStateChangeEvent<PanGestureHandlerEventPayload> | GestureUpdateEvent<PanGestureHandlerEventPayload>,
   state: string,
   myPathData: MyPathDataType,
@@ -31,7 +30,6 @@ export const handleDrawingEvent = (
   // setCompletedPaths: { (value: SetStateAction<PathDataType[]>): void; },
   simplifyTolerance: number,
   d3CurveBasis: string,
-  penOffset?: PointType,
 ) => {
 
   // const erasureMode = false; //disabling for safety in this version
@@ -39,14 +37,13 @@ export const handleDrawingEvent = (
 
   if (!editMode) return;
 
+  // const penTip = {
+  //   x: precise(event.x + (penOffset?.x ?? 0)),
+  //   y: precise(event.y+ (penOffset?.y ?? 0)),
+  // };
 
 
-  const pt = {
-    x: precise(event.x + (penOffset?.x ?? 0)),
-    y: precise(event.y+ (penOffset?.y ?? 0)),
-  };
-
-
+  // myConsole.log(pt);
 
   switch (state) {
     case "began":
@@ -56,7 +53,7 @@ export const handleDrawingEvent = (
       setCurrentPath({
         ...newPath,
         guid: Crypto.randomUUID(),
-        path: `M${pt.x},${pt.y}`,
+        path: `M${penTip.x},${penTip.y}`,
         ...(erasureMode
           ? {
             stroke: MY_BLACK,
@@ -74,7 +71,7 @@ export const handleDrawingEvent = (
       // shape takes precedance over path
       if (isValidShape(currentShape.name)) {
         setCurrentShape((prev) => {
-          prev.start = pt as PointType;
+          prev.start = penTip as PointType;
           return prev;
         });
       }
@@ -82,7 +79,7 @@ export const handleDrawingEvent = (
     case "active":
       if (isValidShape(currentShape.name)) {
         setCurrentShape((prev) => {
-          prev.end = pt as PointType;
+          prev.end = penTip as PointType;
           return prev;
         });
         const path = shapeData(currentShape);
@@ -102,7 +99,7 @@ export const handleDrawingEvent = (
           // remove last Z from path
           pathExtend = pathExtend.endsWith('Z') ? pathExtend.slice(0, -1) : pathExtend;
         }
-        pathExtend = `${pathExtend}L${pt.x},${pt.y}`;
+        pathExtend = `${pathExtend}L${penTip.x},${penTip.y}`;
         if (erasureMode) {
           // close the path
           pathExtend += `Z`;

@@ -2408,6 +2408,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-async-storage/async-storage@npm:^1.23.1":
+  version: 1.23.1
+  resolution: "@react-native-async-storage/async-storage@npm:1.23.1"
+  dependencies:
+    merge-options: "npm:^3.0.4"
+  peerDependencies:
+    react-native: ^0.0.0-0 || >=0.60 <1.0
+  checksum: 10c0/6cfdcab91f0e04f80f4aa91397eb4aedcd1124bf2a997cb730c7f2c70dad75d2aa0ca0f41576ed4e34544a1f79e090169f566366c32a89a41b74bf74bea1c1db
+  languageName: node
+  linkType: hard
+
 "@react-native-community/cli-clean@npm:12.3.6":
   version: 12.3.6
   resolution: "@react-native-community/cli-clean@npm:12.3.6"
@@ -6550,17 +6561,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"escape-string-regexp@npm:2.0.0, escape-string-regexp@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "escape-string-regexp@npm:2.0.0"
+  checksum: 10c0/2530479fe8db57eace5e8646c9c2a9c80fa279614986d16dcc6bcaceb63ae77f05a851ba6c43756d816c61d7f4534baf56e3c705e3e0d884818a46808811c507
+  languageName: node
+  linkType: hard
+
 "escape-string-regexp@npm:^1.0.5":
   version: 1.0.5
   resolution: "escape-string-regexp@npm:1.0.5"
   checksum: 10c0/a968ad453dd0c2724e14a4f20e177aaf32bb384ab41b674a8454afe9a41c5e6fe8903323e0a1052f56289d04bd600f81278edf140b0fcc02f5cac98d0f5b5371
-  languageName: node
-  linkType: hard
-
-"escape-string-regexp@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "escape-string-regexp@npm:2.0.0"
-  checksum: 10c0/2530479fe8db57eace5e8646c9c2a9c80fa279614986d16dcc6bcaceb63ae77f05a851ba6c43756d816c61d7f4534baf56e3c705e3e0d884818a46808811c507
   languageName: node
   linkType: hard
 
@@ -6902,6 +6913,18 @@ __metadata:
   version: 3.7.2
   resolution: "expo-structured-headers@npm:3.7.2"
   checksum: 10c0/9b6ca76ffbd92cc6a352807d5e6c87f7bff0b298821b6ca823fdaedaf88bd141f197d2fcbd1fe44123209686c124b43bacd30a5d763edc76c71d65585640a980
+  languageName: node
+  linkType: hard
+
+"expo-system-ui@npm:^2.9.3":
+  version: 2.9.3
+  resolution: "expo-system-ui@npm:2.9.3"
+  dependencies:
+    "@react-native/normalize-color": "npm:^2.0.0"
+    debug: "npm:^4.3.2"
+  peerDependencies:
+    expo: "*"
+  checksum: 10c0/145427e8c097db5d9735224eda9496aa1f9ac3d4ee081c44714272d4f29a27649c0dd3fccc0fc62063850b034e5dfcc0042a71ee4de0a3cebfacf68fbca567ae
   languageName: node
   linkType: hard
 
@@ -7794,7 +7817,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"invariant@npm:*, invariant@npm:^2.2.4":
+"invariant@npm:*, invariant@npm:2.2.4, invariant@npm:^2.2.4":
   version: 2.2.4
   resolution: "invariant@npm:2.2.4"
   dependencies:
@@ -7995,6 +8018,13 @@ __metadata:
   version: 3.0.3
   resolution: "is-path-inside@npm:3.0.3"
   checksum: 10c0/cf7d4ac35fb96bab6a1d2c3598fe5ebb29aafb52c0aaa482b5a3ed9d8ba3edc11631e3ec2637660c44b3ce0e61a08d54946e8af30dec0b60a7c27296c68ffd05
+  languageName: node
+  linkType: hard
+
+"is-plain-obj@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "is-plain-obj@npm:2.1.0"
+  checksum: 10c0/e5c9814cdaa627a9ad0a0964ded0e0491bfd9ace405c49a5d63c88b30a162f1512c069d5b80997893c4d0181eadc3fed02b4ab4b81059aba5620bfcdfdeb9c53
   languageName: node
   linkType: hard
 
@@ -8764,6 +8794,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"merge-options@npm:^3.0.4":
+  version: 3.0.4
+  resolution: "merge-options@npm:3.0.4"
+  dependencies:
+    is-plain-obj: "npm:^2.1.0"
+  checksum: 10c0/02b5891ceef09b0b497b5a0154c37a71784e68ed71b14748f6fd4258ffd3fe4ecd5cb0fd6f7cae3954fd11e7686c5cb64486daffa63c2793bbe8b614b61c7055
+  languageName: node
+  linkType: hard
+
 "merge-stream@npm:^2.0.0":
   version: 2.0.0
   resolution: "merge-stream@npm:2.0.0"
@@ -9242,6 +9281,7 @@ __metadata:
     "@babel/plugin-transform-shorthand-properties": "npm:^7.0.0-0"
     "@babel/plugin-transform-template-literals": "npm:^7.0.0-0"
     "@babel/preset-env": "npm:^7.23.9"
+    "@react-native-async-storage/async-storage": "npm:^1.23.1"
     "@react-native-community/slider": "npm:4.4.2"
     "@react-native/babel-preset": "npm:^0.73.20"
     "@turf/turf": "npm:^6.5.0"
@@ -9264,6 +9304,7 @@ __metadata:
     expo-sensors: "npm:^12.9.1"
     expo-sharing: "npm:^11.10.0"
     expo-status-bar: "npm:^1.11.1"
+    expo-system-ui: "npm:^2.9.3"
     expo-updates: "npm:^0.24.11"
     lodash: "npm:^4.17.21"
     lottie-react-native: "npm:6.5.1"
@@ -9281,6 +9322,7 @@ __metadata:
     react-native-sticky-parallax-header: "npm:^1.1.1"
     react-native-svg: "npm:14.1.0"
     react-native-view-shot: "npm:^3.8.0"
+    react-native-webview: "npm:13.6.4"
     react-native-wheel-color-picker: "https://github.com/meepak/react-native-wheel-color-picker.git"
     simplify-js: "npm:^1.2.4"
     typescript: "npm:^5.3.3"
@@ -10371,6 +10413,19 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 10c0/769f2a9e769d7feab94589f8818a87aaee7eff9934fa105c40965294feca79ec4462dd3b762a220ad959d14272077c2ab83521d953b20c652f22231a2008e465
+  languageName: node
+  linkType: hard
+
+"react-native-webview@npm:13.6.4":
+  version: 13.6.4
+  resolution: "react-native-webview@npm:13.6.4"
+  dependencies:
+    escape-string-regexp: "npm:2.0.0"
+    invariant: "npm:2.2.4"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/4d0a02d652438aa55d6326cbbcd739ad3b3d7e8485ec8e8b70277d5662cff90795d2c5bcf737e83660e9df6dac8ac87137929144df45fc6a5322817873630a4e
   languageName: node
   linkType: hard
 
