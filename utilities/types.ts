@@ -128,8 +128,11 @@ export type MyPathDataType = {
 };
 
 export interface MyPathDataContextType {
+    loadNewFile: (newMyPathData: MyPathDataType) => void;
     myPathData: MyPathDataType;
     setMyPathData: React.Dispatch<React.SetStateAction<MyPathDataType>>;
+    undo: () => void;
+    redo: () => void;
 }
 
 export enum TransitionType {

@@ -22,7 +22,7 @@ const FileScreen = () => {
 
     const [forceRerenderAt, setForceRerenderAt] = useState(Date.now());
     // const [canvasScale, setCanvasScale] = useState(1);
-    const { myPathData, setMyPathData } = useContext(MyPathDataContext);
+    const { loadNewFile, myPathData, setMyPathData } = useContext(MyPathDataContext);
     const [controlButtons, setControlButtons] = useState([
         {
             name: "Loading...",
@@ -80,7 +80,7 @@ const FileScreen = () => {
         const myPathDataFromFile = await getFile(guid);
         if (myPathDataFromFile && myPathDataFromFile.metaData.guid === guid) {
             myConsole.log('File found with GUID: ', guid);
-            setMyPathData(myPathDataFromFile);
+            loadNewFile(myPathDataFromFile);
         } else {
             myConsole.log('No file found with GUID: ', guid);
             resetMyPathData();

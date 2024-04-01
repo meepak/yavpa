@@ -118,7 +118,7 @@ const SaveAsGif: React.FC<SaveAsGifProps> = ({ isVisible, onClose, myPathData })
                 const img = await captureRef(screenRef, { snapshotContentContainer: false, format: 'png', quality: 1, result: 'base64' });
                 images.push(img);
                 // setBase64Images(prev => [...prev, img]);
-                console.log('got image in in base64, length: ', img.length, 'total images', images.length)
+                // console.log('got image in in base64, length: ', img.length, 'total images', images.length)
                 // console.log(img);
             }, 1000/25); //make this user adjustable
 
@@ -192,7 +192,7 @@ const SaveAsGif: React.FC<SaveAsGifProps> = ({ isVisible, onClose, myPathData })
                     </View>
 
                 </View>
-                <ViewShot ref={viewShotRef} options={{ format: "png", quality: 1, result: 'base64' }} />
+                <ViewShot ref={viewShotRef} options={{ format: "raw", quality: 1, result: 'base64' }} />
             </View>
 
             <View style={{

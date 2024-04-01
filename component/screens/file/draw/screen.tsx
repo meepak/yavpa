@@ -6,6 +6,7 @@ import { AvailableShapes, MY_BLACK, MyPathDataType } from "@u/types";
 import { ToastContext } from "@x/toast-context";
 import { pickImageAsync } from "@u/image-picker";
 import { createImageData, createPathdata } from "@u/helper";
+import { MyPathDataContext } from "@x/svg-data";
 
 
 const DrawScreen = ({ myPathData, setMyPathData, initControls }) => {
@@ -20,6 +21,7 @@ const DrawScreen = ({ myPathData, setMyPathData, initControls }) => {
   const [editMode, setEditMode] = useState(true);
   const [erasureMode, setErasureMode] = useState(false);
   const { showToast } = useContext(ToastContext);
+  const { undo, redo } = useContext(MyPathDataContext);
 
 
   const executeCommand = (cmd: string) => {
@@ -41,8 +43,8 @@ const DrawScreen = ({ myPathData, setMyPathData, initControls }) => {
 
 
 
-  const onUndo = () => executeCommand("undo");
-  const onRedo = () => executeCommand("redo");
+  const onUndo = () => {undo(); setCommandEnforcer((prev) => prev + 1);}
+  const onRedo = () => {redo(); setCommandEnforcer((prev) => prev + 1);}
   // const onLock = () => {
   //   const mode = editMode ? "lock" : "unlock";
   //   myConsole.log('mode', mode);

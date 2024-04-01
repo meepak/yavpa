@@ -6,6 +6,7 @@ import { gifJs, gifWorkerJs } from './gif';
 
 const GifjsWebview = ({ base64EncodedImages, onEncoded }) => {
 
+    // TODO how to handle super long string??
     const encodedImagesJson = JSON.stringify(base64EncodedImages);
     const html = htmlContent(encodedImagesJson, gifJs, gifWorkerJs)
 

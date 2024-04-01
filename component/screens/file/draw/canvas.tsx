@@ -46,7 +46,6 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   const { myPathData, setMyPathData } = useContext(MyPathDataContext);
   const newPathData = () => createPathdata(stroke, strokeWidth, strokeOpacity);
 
-  const [undonePaths, setUndonePaths] = useState([] as PathDataType[]);
   const [currentPath, setCurrentPath] = useState(newPathData());
   const [startTime, setStartTime] = useState(0);
   const [currentShape, setCurrentShape] = useState<ShapeType>(defaultShape);
@@ -113,8 +112,6 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     newPathData,
     myPathData,
     setMyPathData,
-    undonePaths,
-    setUndonePaths,
     setCurrentPath,
     setCurrentShape,
     forceUpdate
@@ -172,7 +169,7 @@ we can save and play on whatever dimension we want, thus using fixed default vie
                     >
                       {/* current path is being drawn lets display pen */}
                       {editMode && penTipRef.current && <MyPen tip={penTipRef.current} /> }
-                      
+
                       {myPathData.imageData?.map((item) => (
                         item.visible
                           ? <MyPathImage prop={item} keyProp={"completed-" + item.guid} key={item.guid} />

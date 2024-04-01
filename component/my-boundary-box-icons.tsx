@@ -3,7 +3,7 @@
 import React, { useContext, useState } from 'react';
 import { Alert, View } from 'react-native';
 import { flipPoints, getPathFromPoints, getPointsFromPath, getViewBoxTrimmed } from "@u/helper";
-import { CANVAS_VIEWBOX, CANVAS_WIDTH, HEADER_HEIGHT } from "@u/types";
+import { CANVAS_HEIGHT, CANVAS_VIEWBOX, CANVAS_WIDTH, HEADER_HEIGHT } from "@u/types";
 import MyIcon from './my-icon';
 import { MyPathDataContext } from '@x/svg-data';
 import * as Crypto from "expo-crypto";
@@ -140,11 +140,13 @@ const BoundaryBoxIcons = ({
     const canvasPoints = CANVAS_VIEWBOX.split(" "); // this is relative to screen
 
     const iconBoxWidth = 36;
+    const iconBoxHeight = 235;
     const start = {
         x: parseFloat(vbbPoints[0]) + parseFloat(vbbPoints[2]) + parseFloat(canvasPoints[0]),
         y: parseFloat(vbbPoints[1]) + parseFloat(canvasPoints[1])+25,
     }
     if (start.x + iconBoxWidth > CANVAS_WIDTH) start.x = CANVAS_WIDTH - iconBoxWidth;
+    if (start.y + iconBoxHeight > CANVAS_HEIGHT) start.y = CANVAS_HEIGHT - iconBoxHeight;
     const BbIcon = ({ name, onPress, strokeWidth = 1, size = 20, marginBottom = 0, marginLeft = 5, color = '#6b0772' }) => {
         return <MyIcon
             name={name}
@@ -162,10 +164,10 @@ const BoundaryBoxIcons = ({
 
         <View style={{
             width: 36, // auto/
-            height: 235,
+            height: iconBoxHeight,
             position: 'absolute',
-            top: start.y - 15 < 0 ? 0 : start.y - 15,
-            left: start.x < 0 ? 0 : start.x,
+            top: start.y - 15 < 0 ? 0 : start.y,
+            left: start.x < 0 ? 0 : start.x + 5,
             flexDirection: 'column',
             justifyContent: 'flex-start',
             alignItems: 'center',

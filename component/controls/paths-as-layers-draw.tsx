@@ -21,6 +21,7 @@ import myConsole from "@c/my-console-log";
 
 const PathsAsLayersDraw = () => {
     const { myPathData, setMyPathData } = React.useContext(MyPathDataContext);
+
     // remove the path permanently
     function deletePath(item: PathDataType) {
         Alert.alert("Delete Path", "Are you sure you want to delete this path permanently?", [
@@ -86,7 +87,7 @@ const PathsAsLayersDraw = () => {
                             // get new path length
                             let length = getPathLength(getPointsFromPath(combinedPath));
 
-                            unselectedPaths.push({ ...selectedPaths[0], path: combinedPath, length: length, time: totalTime});
+                            unselectedPaths.push({ ...selectedPaths[0], path: combinedPath, length: length, time: totalTime });
                         }
 
                         return { ...prevMyPathData, metaData: { ...prevMyPathData.metaData, updatedAt: "" }, pathData: unselectedPaths, updatedAt: new Date().toISOString() };
@@ -103,16 +104,32 @@ const PathsAsLayersDraw = () => {
         });
     }
 
+    function deleteImage() {
+        Alert.alert("Delete Image", "Are you sure you want to delete this image permanently?", [
+            { text: "Cancel", style: "cancel" },
+            {
+                text: "Delete",
+                onPress: () => {
+                    setMyPathData((prevMyPathData: MyPathDataType) => {
+                        return { ...prevMyPathData, metaData: { ...prevMyPathData.metaData, updatedAt: "" }, imageData: [] };
+                    });
+                },
+            },
+        ]);
+    }
+
+
+
     const handlePathUpdate = (path: PathDataType, prop: any, value: any) => {
         setMyPathData((prevMyPathData: MyPathDataType) => {
             const newLayers = [...(prevMyPathData.pathData)].map((p) => {
                 if (path.guid === p.guid) {
                     return { ...p, [prop]: value };
                 }
-                return {...p};
+                return { ...p };
             });
-            const newMeta = { ...prevMyPathData.metaData, updatedAt: prop === 'selected' ? new Date().toISOString() :  "" };
-            return { ...prevMyPathData, metaData: newMeta, pathData: newLayers, updatedAt: new Date().toISOString()};
+            const newMeta = { ...prevMyPathData.metaData, updatedAt: prop === 'selected' ? new Date().toISOString() : "" };
+            return { ...prevMyPathData, metaData: newMeta, pathData: newLayers, updatedAt: new Date().toISOString() };
         });
     }
 
@@ -133,7 +150,7 @@ const PathsAsLayersDraw = () => {
         <>
 
             <Text style={styles.cell1}>Total: {myPathData.pathData.length} paths</Text>
-            <View style={{...styles.row, width: '100%'}}>
+            <View style={{ ...styles.row, width: '100%' }}>
                 <MyCheckBox checked={allSelected} onChange={toggleAllSelection} label={""} checkBoxFirst iconStyle={{ color: 'transparent', size: 24, fill: '#000000' }} />
 
                 <TouchableOpacity onPress={deleteAllSelectedPath}>
@@ -141,14 +158,20 @@ const PathsAsLayersDraw = () => {
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={reversePaths}>
-                    <MyIcon name="sort" strokeWidth={2} size={28} color={MY_BLACK} style={{marginBottom: -2}} />
+                    <MyIcon name="sort" strokeWidth={2} size={28} color={MY_BLACK} style={{ marginBottom: -2 }} />
                 </TouchableOpacity>
 
 
                 <TouchableOpacity onPress={combineAllSelectedPaths}>
-                    <MyIcon name="combine" strokeWidth={0.7} size={22}  color={MY_BLACK} style={{ marginBottom: -2 }} />
+                    <MyIcon name="combine" strokeWidth={0.7} size={22} color={MY_BLACK} style={{ marginBottom: -2 }} />
                 </TouchableOpacity>
 
+                {
+                    myPathData.imageData && (myPathData.imageData.length > 0) &&
+                    <TouchableOpacity onPress={deleteImage}>
+                        <MyIcon name="del-image" size={20} strokeWidth={2} color={MY_BLACK} />
+                    </TouchableOpacity>
+                }
             </View>
             <Divider width="100%" color="rgba(1,1,1,0.7)" height={4} />
 
@@ -181,17 +204,17 @@ const PathsAsLayersDraw = () => {
                 <View
                     style={{ ...styles.cell, width: 180, padding: 5, backgroundColor: isActive ? 'rgba(0,0,255,0.2)' : 'transparent' }}>
 
-                    <View style={{...styles.row, height: 50}}>
+                    <View style={{ ...styles.row, height: 50 }}>
 
-                    <View style={{ ...styles.col, width: 120 }}>
+                        <View style={{ ...styles.col, width: 120 }}>
                             <View style={styles.row}>
 
 
                                 {/* <TouchableOpacity onPress={() => handlePathUpdate(item, "selected", !item.selected)}> */}
                                 <MyCheckBox checked={item.selected}
-                                onChange={(checked) => (item.selected !== checked) && handlePathUpdate(item, "selected", checked)}
-                                label="" iconStyle={{ color: 'transparent', size: 24, fill: '#000000'}}/>
-                                     {/* <MyIcon name={item.selected ? "checkbox-checked" : "checkbox-empty"} color={MY_BLACK} size={20} /> */}
+                                    onChange={(checked) => (item.selected !== checked) && handlePathUpdate(item, "selected", checked)}
+                                    label="" iconStyle={{ color: 'transparent', size: 24, fill: '#000000' }} />
+                                {/* <MyIcon name={item.selected ? "checkbox-checked" : "checkbox-empty"} color={MY_BLACK} size={20} /> */}
                                 {/* </TouchableOpacity> */}
 
                                 <TouchableOpacity style={{ ...styles.cell }}>
@@ -257,7 +280,7 @@ const PathsAsLayersDraw = () => {
                             </View>
                         </View>
 
-                    <View style={{ ...styles.col, width: 40, height: 50,}}>
+                        <View style={{ ...styles.col, width: 40, height: 50, }}>
 
                             <TouchableOpacity
                                 onPress={drag}>
@@ -265,23 +288,23 @@ const PathsAsLayersDraw = () => {
                                     width: 40,
                                     height: 50,
                                     backgroundColor:
-                                    'rgba(0,0,0,0.1)'
-                                    }}>
-                                <View style={{
-                                    width: previewSize.width,
-                                    height: previewSize.height,
-                                    zIndex: 0,
+                                        'rgba(0,0,0,0.1)'
                                 }}>
-                                    <MyPreview animate={false} data={pathAsMyPathData} />
-                                </View>
+                                    <View style={{
+                                        width: previewSize.width,
+                                        height: previewSize.height,
+                                        zIndex: 0,
+                                    }}>
+                                        <MyPreview animate={false} data={pathAsMyPathData} />
+                                    </View>
                                 </View>
 
                             </TouchableOpacity>
 
                         </View>
 
-                        </View>
                     </View>
+                </View>
             </ScaleDecorator>
         )
     };
@@ -308,7 +331,7 @@ const PathsAsLayersDraw = () => {
                     ItemSeparatorComponent={ItemSeparator}
                     // ListHeaderComponent={HeaderComponent}
                     // stickyHeaderIndices={[0]}
-                    contentContainerStyle={{ paddingVertical: 10}}
+                    contentContainerStyle={{ paddingVertical: 10 }}
                 />
 
             </View>
