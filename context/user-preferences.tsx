@@ -1,10 +1,11 @@
 import { PointType } from '@u/types';
 import React, { useState, useContext, useEffect, createContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import myConsole from '@c/my-console-log';
 
 interface UserPreferencesType {
     penOffset: PointType;
-    adjustedPenOffset?: PointType;
+    defaultStorageDirectory: string;
     // theme: 'light' | 'dark';
     // language: 'en' | 'es' | 'fr';
     // Add more preferences as needed
@@ -17,6 +18,7 @@ interface UserPreferencesContextType {
 
 const defaultPreferences: UserPreferencesType = {
     penOffset: { x: 40, y: 40 },
+    defaultStorageDirectory: 'mypath.mahat.au',
     // theme: 'light',
     // language: 'en',
 };
@@ -37,7 +39,7 @@ export const UserPreferencesProvider: React.FC<{ children: React.ReactNode }> = 
                 await AsyncStorage.setItem('@userPreferences', jsonValue);
             } catch (e) {
                 // saving error
-                console.log(e);
+                myConsole.log(e);
             }
         };
 
@@ -54,7 +56,7 @@ export const UserPreferencesProvider: React.FC<{ children: React.ReactNode }> = 
                 }
             } catch (e) {
                 // loading error
-                console.log(e);
+                myConsole.log(e);
             }
         };
 
@@ -68,10 +70,12 @@ export const UserPreferencesProvider: React.FC<{ children: React.ReactNode }> = 
     );
 };
 
-export const useUserPreferences = (): UserPreferencesContextType => {
+export function useUserPreferences() {
     const context = useContext(UserPreferencesContext);
+
     if (!context) {
         throw new Error('useUserPreferences must be used within a UserPreferencesProvider');
     }
+
     return context;
-};
+}

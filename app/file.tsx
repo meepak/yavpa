@@ -14,14 +14,17 @@ import myConsole from "@c/my-console-log";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Footer from "@c/screens/file/footer";
 import { StatusBar } from "expo-status-bar";
+import { useUserPreferences } from "@x/user-preferences";
 // import DrawingDynamicOptions from "@c/screens/file/draw/dynamic-options";
 
 
 const FileScreen = () => {
     // const insets = useSafeAreaInsets();
 
-    const [forceRerenderAt, setForceRerenderAt] = useState(Date.now());
+    // const [forceRerenderAt, setForceRerenderAt] = useState(Date.now());
     // const [canvasScale, setCanvasScale] = useState(1);
+
+    const {userPreferences} = useUserPreferences();
     const { loadNewFile, myPathData, setMyPathData } = useContext(MyPathDataContext);
     const [controlButtons, setControlButtons] = useState([
         {
@@ -39,7 +42,7 @@ const FileScreen = () => {
     // set the updatedAt date to blank, so that it will be saved to file
     useEffect(() => {
         const saveData = async () => {
-            await saveSvgToFile(myPathData);
+            await saveSvgToFile(userPreferences.defaultStorageDirectory, myPathData);
             // setMyPathData({ ...myPathData, metaData: { ...myPathData.metaData, updatedAt: Date.now().toString() } });
         };
 
@@ -77,7 +80,7 @@ const FileScreen = () => {
 
 
     async function openMyPathDataFile(guid: string) {
-        const myPathDataFromFile = await getFile(guid);
+        const myPathDataFromFile = await getFile(userPreferences.defaultStorageDirectory, guid);
         if (myPathDataFromFile && myPathDataFromFile.metaData.guid === guid) {
             myConsole.log('File found with GUID: ', guid);
             loadNewFile(myPathDataFromFile);
@@ -88,7 +91,7 @@ const FileScreen = () => {
     }
 
     const resetMyPathData = () => {
-        setMyPathData(createMyPathData());
+        loadNewFile(createMyPathData());
     };
 
     const handleNameChange = (name: string) => {

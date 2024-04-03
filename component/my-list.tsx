@@ -9,6 +9,7 @@ import Animated, { useSharedValue, useAnimatedScrollHandler } from 'react-native
 import { ContextMenu } from './controls';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import myConsole from './my-console-log';
+import { useUserPreferences } from '@x/user-preferences';
 
 const FILE_PREVIEW_WIDTH = 100;
 
@@ -18,6 +19,7 @@ const MyList = ({ anchor, width, height }) => {
     const [files, setFiles] = useState<MyPathDataType[]>([]);
     const scrollY = useSharedValue(0);
     const insets = useSafeAreaInsets();
+    const {userPreferences} = useUserPreferences();
 
 
     const scrollHandler = useAnimatedScrollHandler({
@@ -29,7 +31,7 @@ const MyList = ({ anchor, width, height }) => {
 
     const fetchFiles = useCallback(async () => {
         try {
-            let myPathData = await getFiles(); // comes from cache so all good
+            let myPathData = await getFiles(userPreferences.defaultStorageDirectory); // comes from cache so all good
             // Sort the data here before setting it to the state
             // myPathData = myPathData.sort((a, b) => Date.parse(a.metaData.updatedAt) - Date.parse(b.metaData.updatedAt));
             setFiles(myPathData);

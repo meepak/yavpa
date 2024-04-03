@@ -9,6 +9,7 @@ import { getViewBoxTrimmed, precise } from "@u/helper";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from 'expo-file-system';
 import GifjsWebview from "./GifjsWebview";
+import myConsole from "@c/my-console-log";
 
 interface SaveAsGifProps {
     isVisible: boolean;
@@ -89,9 +90,9 @@ const SaveAsGif: React.FC<SaveAsGifProps> = ({ isVisible, onClose, myPathData })
 
     const download = async (base64Img, ext) => {
         const uri = FileSystem.cacheDirectory + 'output.' + ext;
-        // console.log(uri);
+        // myConsole.log(uri);
         base64Img = base64Img.replace('data:image/'+ext+';base64,', '');
-        console.log(base64Img);
+        // myConsole.log(base64Img);
         await FileSystem.writeAsStringAsync(uri, base64Img, { encoding: FileSystem.EncodingType.Base64 });
         const cUri = await FileSystem.getContentUriAsync(uri);
         await Sharing.shareAsync(I_AM_IOS ? cUri : uri);
@@ -105,41 +106,41 @@ const SaveAsGif: React.FC<SaveAsGifProps> = ({ isVisible, onClose, myPathData })
 
     const takeScreenshot = async () => {
         const img = await captureRef(screenRef, { snapshotContentContainer: false, format: 'png', quality: 1, result: 'base64' });
-        // console.log("Base64 Image: ", img);
+        // myConsole.log("Base64 Image: ", img);
         await download(img, 'png');
     };
 
     let interval;
     let images: string[] = [];
     const onAnimationBegin = () => {
-        console.log('begin..')
+        // myConsole.log('begin..')
         if (recording) {
             interval = setInterval(async () => {
                 const img = await captureRef(screenRef, { snapshotContentContainer: false, format: 'png', quality: 1, result: 'base64' });
                 images.push(img);
                 // setBase64Images(prev => [...prev, img]);
-                // console.log('got image in in base64, length: ', img.length, 'total images', images.length)
-                // console.log(img);
+                // myConsole.log('got image in in base64, length: ', img.length, 'total images', images.length)
+                // myConsole.log(img);
             }, 1000/25); //make this user adjustable
 
         }
     };
 
     const onAnimationEnd = () => {
-        console.log('end..')
+        // myConsole.log('end..')
         if (recording) {
             clearInterval(interval);
             setRecording(false);
             // setBase64Images(images); // this takes forever to write into state??
             base64ImagesRef.current = images;
             setReadyToGifEncoding(true);
-            console.log('all done sending for gif encoding images ', base64ImagesRef.current.length)
+            // myConsole.log('all done sending for gif encoding images ', base64ImagesRef.current.length)
 
         }
     };
 
     const onGifEncoded = async (base64GifData) => {
-        console.log('on gif downloaded..');
+        // myConsole.log('on gif downloaded..');
         // save and download gif file
         setReadyToGifEncoding(false);
         await download(base64GifData, 'gif');
@@ -148,7 +149,7 @@ const SaveAsGif: React.FC<SaveAsGifProps> = ({ isVisible, onClose, myPathData })
     const onRecord = () => {
         setRecording(true);
         setTimeout(() => {
-            console.log('starting in 1 s');
+            // myConsole.log('starting in 1 s');
             previewRef.current?.playAnimation();
         }, 1000);
 

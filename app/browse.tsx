@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -22,6 +22,7 @@ import myConsole from "@c/my-console-log";
 import Animated, { FlipInYLeft, ReduceMotion } from "react-native-reanimated";
 import elevation from "@u/elevation";
 import elevations from "@u/elevation";
+import { useUserPreferences } from "@x/user-preferences";
 
 const PARALLAX_HEIGHT = 238;
 const HEADER_BAR_HEIGHT = 92;
@@ -42,6 +43,7 @@ const BrowseScreen = () => {
   // const [showPathPlay, setShowPathPlay] = useState(true);
   const [noSketch, setNoSketch] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const {userPreferences} = useUserPreferences();
 
 
     const flip = FlipInYLeft
@@ -81,10 +83,11 @@ const BrowseScreen = () => {
     gap = (actualWindowsWidth - numberOfColumns * FILE_PREVIEW_WIDTH) / (numberOfColumns + 1)
   }
 
-  const fetchFiles = useCallback(async () => {
+  const fetchFiles = useCallback(async (allowCache = true) => {
     try {
+      myConsole.log('fetching files from default storage', userPreferences.defaultStorageDirectory)
       setIsLoading(true);
-      let myPathData = await getFiles();
+      let myPathData = await getFiles(userPreferences.defaultStorageDirectory, allowCache);
       // Sort the data here before setting it to the state
       myPathData = myPathData.sort((a, b) => Date.parse(b.metaData.updatedAt) - Date.parse(a.metaData.updatedAt));
       setFiles(myPathData);
@@ -94,11 +97,17 @@ const BrowseScreen = () => {
     } catch (error) {
       myConsole.log('error fetching files', error)
     }
-  }, []);
+  }, [userPreferences]);
 
   useLayoutEffect(() => {
     fetchFiles();
   }, [fetchFiles]);
+
+  // refresh all files if default storage directory changed
+  useEffect(() => {
+    myConsole.log('again fetching files..', userPreferences.defaultStorageDirectory)
+    fetchFiles(false);
+  }, [userPreferences])
 
   const deleteSketchAlert = (guid: string) => {
     // myConsole.log('confirm delete ' + guid);
@@ -109,7 +118,7 @@ const BrowseScreen = () => {
         onPress: async () => {
 
           // myConsole.log('delete', guid)
-          const result = await deleteFile(guid)
+          const result = await deleteFile(userPreferences.defaultStorageDirectory, guid)
           if (result) {
             await fetchFiles();
             scrollViewRef.current?.forceUpdate();
@@ -167,7 +176,7 @@ const BrowseScreen = () => {
 
   const renderHeader = useCallback(() => (
     <View pointerEvents="box-none" style={{ height: scrollHeight }}>
-      <Header scrollValue={scrollValue} />
+      <Header scrollValue={scrollValue}/>
     </View>
   ), [scrollValue]);
 

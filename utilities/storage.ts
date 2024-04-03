@@ -1,25 +1,38 @@
 import * as FileSystem from "expo-file-system";
 import { parseMyPathData } from "./helper";
-import { MyPathDataType, CANVAS_WIDTH, CANVAS_HEIGHT } from "./types";
+import { MyPathDataType, CANVAS_HEIGHT } from "./types";
 import path from 'path';
 import myConsole from "@c/my-console-log";
 import * as Crypto from 'expo-crypto';
 import * as ImageManipulator from "expo-image-manipulator";
 
 // const AppName = I_AM_IOS ? "mypath.mahat.au" : "draw-replay-svg-path";
-const AppName = 'mypath1.mahat.au'; //isIOS ? "mypath.mahat.au" : "draw-replay-svg-path";
-const AppSaveDirectory = FileSystem.documentDirectory + AppName + "/";
+//const DefaultDirName = 'mypath1.mahat.au'; //isIOS ? "mypath.mahat.au" : "draw-replay-svg-path";
+// const AppSaveDirectory = FileSystem.documentDirectory;// + DefaultDirName + "/";
+
+
 
 let fileCache: MyPathDataType[] = [];
 let saveTimeout: NodeJS.Timeout;
 
 // This are all json files
-const myPathFileExt = '.mp';
-const myPathImageExt = '.mpi';
-const myPathFile = (guid: string) => path.join(AppSaveDirectory, `${guid}` + myPathFileExt);
-const myPathImage = (guid: string) => path.join(AppSaveDirectory, `${guid}` + myPathImageExt);
+export const myPathFileExt = '.mp';
+export const myPathImageExt = '.mpi';
+const myPathFile = (appSaveDir: string, guid: string) => path.join(appSaveDir, `${guid}` + myPathFileExt);
+const myPathImage = (appSaveDir: string, guid: string) => path.join(appSaveDir, `${guid}` + myPathImageExt);
 
-export const saveSvgToFile = async (myPathData: MyPathDataType, name = "") => {
+export const getAppSavePath = (document: string) => {
+    const rootDir = FileSystem.documentDirectory;
+    if(!rootDir) {
+        throw new Error('No root directory found, probably permission required'); // TODO HANDLE THIS PROPERLY
+    }
+    const appSaveDir = rootDir + document;
+    return appSaveDir;
+}
+
+export const saveSvgToFile = async (documentDir: string, myPathData: MyPathDataType, name = "") => {
+    const appSaveDir = getAppSavePath(documentDir);
+
     myPathData = parseMyPathData(myPathData, true);
     const index = fileCache.findIndex(file => file.metaData.guid === myPathData.metaData.guid);
     if (index !== -1) {
@@ -40,11 +53,11 @@ export const saveSvgToFile = async (myPathData: MyPathDataType, name = "") => {
         try {
             const json = JSON.stringify(myPathData);
             // const filename = path.join(AppSaveDirectory, `${myPathData.metaData.guid}.json`);
-            const filename = myPathFile(myPathData.metaData.guid);
+            const filename = myPathFile(appSaveDir, myPathData.metaData.guid);
 
-            const dirInfo = await FileSystem.getInfoAsync(AppSaveDirectory);
+            const dirInfo = await FileSystem.getInfoAsync(appSaveDir);
             if (!dirInfo.exists) {
-                await FileSystem.makeDirectoryAsync(AppSaveDirectory, { intermediates: true });
+                await FileSystem.makeDirectoryAsync(appSaveDir, { intermediates: true });
             }
 
             await FileSystem.writeAsStringAsync(filename, json);
@@ -54,22 +67,35 @@ export const saveSvgToFile = async (myPathData: MyPathDataType, name = "") => {
         }
     }, 2000); // Delay of 1 second
 };
-// lets include defaults first time and then it becomes part of user files that they are free to do whatever
-// can be brought back from settings if user wants it
-export const getFiles = async (): Promise<MyPathDataType[]> => {
+
+
+export const getFiles = async (documentDir, allowCache = true): Promise<MyPathDataType[]> => {
     try {
-        if (fileCache.length > 0) {
+        const appSaveDir = getAppSavePath(documentDir);
+
+        if (fileCache.length > 0 && allowCache) {
             myConsole.log('file cache get files')
             return fileCache;
         }
         myConsole.log('I should never be reached after first time.');
-        const dirInfo = await FileSystem.getInfoAsync(AppSaveDirectory);
+        const dirInfo = await FileSystem.getInfoAsync(appSaveDir);
         if (!dirInfo.exists) {
-            await FileSystem.makeDirectoryAsync(AppSaveDirectory, { intermediates: true });
+            await FileSystem.makeDirectoryAsync(appSaveDir, { intermediates: true });
             return [];
         }
 
-        const filenames = await FileSystem.readDirectoryAsync(AppSaveDirectory);
+        const filenames = await FileSystem.readDirectoryAsync(appSaveDir);
+
+        //TODO REMOVE THIS CODE!!!
+        // if there are .json file rename to .mp
+        for (const filename of filenames) {
+            if (filename.endsWith('.json')) {
+                const oldPath = path.join(appSaveDir, filename);
+                const newPath = path.join(appSaveDir, filename.replace('.json', '.mp'));
+                await FileSystem.moveAsync({ from: oldPath, to: newPath });
+            }
+        } //temporary code, will remove later
+
 
         // Get json files only
         const myPathFiles = filenames.filter(filename => filename.endsWith(myPathFileExt));
@@ -77,7 +103,7 @@ export const getFiles = async (): Promise<MyPathDataType[]> => {
         const myPathDataFiles: MyPathDataType[] = [];
         myConsole.log('we have files, /lets load them - ', myPathFiles);
         for (const svgFile of myPathFiles) {
-            const info = await FileSystem.getInfoAsync(path.join(AppSaveDirectory, svgFile));
+            const info = await FileSystem.getInfoAsync(path.join(appSaveDir, svgFile));
             const json = await FileSystem.readAsStringAsync(info.uri);
             const myPathData = parseMyPathData(JSON.parse(json));
             myPathDataFiles.push(myPathData);
@@ -85,7 +111,7 @@ export const getFiles = async (): Promise<MyPathDataType[]> => {
 
 
         if (myPathDataFiles.length === 0) {
-            myConsole.log('we have no file, lets load the demo file');
+            myConsole.log('we have no file,', appSaveDir , ' lets load the demo file');
             const logoFile = require('@c/logo/my-path-demo.json');
 
             const demoFile = JSON.parse(JSON.stringify(logoFile))
@@ -111,8 +137,9 @@ export const getFiles = async (): Promise<MyPathDataType[]> => {
 }
 
 
-export const getFile = async (guid: string): Promise<MyPathDataType | null> => {
+export const getFile = async (documentDir: string, guid: string): Promise<MyPathDataType | null> => {
     try {
+        const appSaveDir = getAppSavePath(documentDir);
         const file = fileCache.find(file => file.metaData.guid === guid);
         if (file) {
             // reset selected path to false, find betteer way
@@ -122,7 +149,7 @@ export const getFile = async (guid: string): Promise<MyPathDataType | null> => {
         }
         myConsole.log('file not found in cache');
 
-        const filename = myPathFile(guid);
+        const filename = myPathFile(appSaveDir, guid);
         const info = await FileSystem.getInfoAsync(filename);
 
         if (!info.exists) {
@@ -140,9 +167,10 @@ export const getFile = async (guid: string): Promise<MyPathDataType | null> => {
 }
 
 
-export const deleteFile = async (guid: string): Promise<boolean> => {
+export const deleteFile = async (documentDir: string, guid: string): Promise<boolean> => {
     try {
-        const filename = myPathFile(guid);
+        const appSaveDir = getAppSavePath(documentDir);
+        const filename = myPathFile(appSaveDir, guid);
         await FileSystem.deleteAsync(filename);
         fileCache = fileCache.filter(file => file.metaData.guid !== guid);
         return true;
@@ -153,8 +181,9 @@ export const deleteFile = async (guid: string): Promise<boolean> => {
 };
 
 // deal with images, for now only 1 image as background can be used
-export const saveImageToCache = async (filePath: string, height: number, width: number): Promise<any | null>  => {
-    const lookupTablePath = path.join(AppSaveDirectory, 'lookupTable.txt');
+export const saveImageToCache = async (documentDir: string, filePath: string, height: number, width: number): Promise<any | null>  => {
+    const appSaveDir = getAppSavePath(documentDir);
+    const lookupTablePath = path.join(appSaveDir, 'lookupTable.txt');
     const filename = path.join(filePath);
     const extension = path.extname(filePath);
 
@@ -199,7 +228,7 @@ export const saveImageToCache = async (filePath: string, height: number, width: 
     // myConsole.log('content', content);
 
     // If no match was found, write a new file
-    const imagePath = myPathImage(content.guid);
+    const imagePath = myPathImage(appSaveDir, content.guid);
     await FileSystem.writeAsStringAsync(imagePath, JSON.stringify(content));
 
     // Add the new hash and GUID to the lookup table

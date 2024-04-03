@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { WebView } from 'react-native-webview';
 import * as Clipboard from "expo-clipboard";
 import { gifJs, gifWorkerJs } from './gif';
+import myConsole from '@c/my-console-log';
 
 
 const GifjsWebview = ({ base64EncodedImages, onEncoded }) => {
@@ -21,8 +22,8 @@ const GifjsWebview = ({ base64EncodedImages, onEncoded }) => {
         }
         // This event will receive the base64 encoded GIF data
         const base64GifData = message.data;
-        // console.log('got data from webview', base64GifData.length)
-        // console.log(base64GifData);
+        // myConsole.log('got data from webview', base64GifData.length)
+        // myConsole.log(base64GifData);
         if (onEncoded) {
             onEncoded(base64GifData);
         }
@@ -33,7 +34,7 @@ const GifjsWebview = ({ base64EncodedImages, onEncoded }) => {
         source={{ html: html || '' }}
         onMessage={handleWebViewMessage}
         style={{ width: 0, height: 0 }}
-        onLayout={(event) => { console.log('webview is loaded..') }}
+        // onLayout={(event) => { myConsole.log('webview is loaded..') }}
         onError={(syntheticEvent) => {
             const { nativeEvent } = syntheticEvent;
             console.error('WebView error: ', nativeEvent);

@@ -7,6 +7,7 @@ import { ToastContext } from "@x/toast-context";
 import { pickImageAsync } from "@u/image-picker";
 import { createImageData, createPathdata } from "@u/helper";
 import { MyPathDataContext } from "@x/svg-data";
+import { useUserPreferences } from "@x/user-preferences";
 
 
 const DrawScreen = ({ myPathData, setMyPathData, initControls }) => {
@@ -22,6 +23,7 @@ const DrawScreen = ({ myPathData, setMyPathData, initControls }) => {
   const [erasureMode, setErasureMode] = useState(false);
   const { showToast } = useContext(ToastContext);
   const { undo, redo } = useContext(MyPathDataContext);
+  const {userPreferences} = useUserPreferences();
 
 
   const executeCommand = (cmd: string) => {
@@ -62,7 +64,7 @@ const DrawScreen = ({ myPathData, setMyPathData, initControls }) => {
   }
 
   const pickImage = async () => {
-    const imageJson = await pickImageAsync(showToast);
+    const imageJson = await pickImageAsync(userPreferences.defaultStorageDirectory, showToast);
     if(!imageJson) return;
     const newImageData = createImageData(imageJson.guid, imageJson.data, imageJson.width, imageJson.height);
     newImageData.type = "image";

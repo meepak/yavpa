@@ -5,6 +5,9 @@ import Animated, { Extrapolation, SharedValue, interpolate, useAnimatedStyle } f
 import MyPathLogo from '@c/logo/my-path-logo';
 import { SCREEN_WIDTH } from '@u/types';
 import MyGradientBackground from '@c/my-gradient-background';
+import MyIcon from '@c/my-icon';
+import MyPreferences from '@c/preferences/my-preferences';
+import myConsole from '@c/my-console-log';
 
 const banner = require('@a/banner.png');
 
@@ -15,6 +18,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ scrollValue }) => {
   const [animateLogo, setAnimateLogo] = React.useState(false);
+  const [preferencesVisible, setPreferencesVisible] = React.useState(false);
 
   const imageAnimatedStyle = useAnimatedStyle(() => {
     return {
@@ -36,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({ scrollValue }) => {
     return {
       transform: [
         { translateY: interpolate(scrollValue.value, [0, 180, 205, 220], [0, 0, 65, 65], Extrapolation.CLAMP) },
-        { translateX: interpolate(scrollValue.value, [0, 180, 205, 220], [0, 0, 0, (SCREEN_WIDTH - 240)], Extrapolation.CLAMP) }
+        { translateX: interpolate(scrollValue.value, [0, 180, 205, 220], [0, 0, 0, (SCREEN_WIDTH - 275)], Extrapolation.CLAMP) }
       ]
     }
   }, [scrollValue]);
@@ -47,6 +51,15 @@ const Header: React.FC<HeaderProps> = ({ scrollValue }) => {
       transform: [
         { translateY: interpolate(scrollValue.value, [0, 180, 205, 220], [0, 0, 50, 50], Extrapolation.CLAMP) },
         { translateX: interpolate(scrollValue.value, [0, 180, 205, 220], [0, 0, 0, (SCREEN_WIDTH - 360)], Extrapolation.CLAMP) }
+      ]
+    }
+  }, [scrollValue]);
+
+  const preferencesIconAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateY: interpolate(scrollValue.value, [0, 180, 205, 220], [0, 0, 65, 65], Extrapolation.CLAMP) },
+        { translateX: interpolate(scrollValue.value, [0, 180, 205, 220], [10, 10, 10, 25], Extrapolation.CLAMP) }
       ]
     }
   }, [scrollValue]);
@@ -62,13 +75,12 @@ const Header: React.FC<HeaderProps> = ({ scrollValue }) => {
   }, []);
 
   return (
-    <View style={styles.headerWrapper}>
+    <><View style={styles.headerWrapper}>
       <MyGradientBackground>
         <Animated.View style={imageAnimatedStyle}>
           <Image
             source={banner}
-            style={styles.image}
-          />
+            style={styles.image} />
         </Animated.View>
         <View style={styles.container}>
           <Animated.View style={logoAnimatedStyle}>
@@ -87,9 +99,14 @@ const Header: React.FC<HeaderProps> = ({ scrollValue }) => {
             </Animated.View>
 
           </View>
+          <Animated.View style={preferencesIconAnimatedStyle}>
+            <MyIcon name='user-preferences' color='#FFFFFF' strokeWidth={1} fill='#FFFFFF' size={28} onPress={() => setPreferencesVisible(true)} />
+          </Animated.View>
         </View>
       </MyGradientBackground>
     </View>
+    <MyPreferences isVisible={preferencesVisible} onClose={() => {myConsole.log('closing'); setPreferencesVisible(false);}} />
+    </>
   );
 };
 

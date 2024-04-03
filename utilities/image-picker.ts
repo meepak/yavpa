@@ -4,7 +4,7 @@ import { saveImageToCache } from './storage';
 import myConsole from '@c/my-console-log';
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from './types';
 
-export const pickImageAsync = async (showToast: ToastFunction): Promise<any | null> => {
+export const pickImageAsync = async (documentDir: string, showToast: ToastFunction): Promise<any | null> => {
     let result = await ImagePicker.launchImageLibraryAsync({
         allowsEditing: true,
         allowsMultipleSelection: false,
@@ -17,7 +17,7 @@ export const pickImageAsync = async (showToast: ToastFunction): Promise<any | nu
     if (!result.canceled && result.assets.length > 0) {
         // let copy the file to our app's cache directory
         const asset = result.assets[0];
-        const imageJson = await saveImageToCache(asset.uri, asset.height, asset.width);
+        const imageJson = await saveImageToCache(documentDir, asset.uri, asset.height, asset.width);
         // myConsole.log(imageJson);
         return imageJson;
     } else {
