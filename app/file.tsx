@@ -1,4 +1,4 @@
-import { BLUE_BUTTON_WIDTH, CANVAS_HEIGHT, CANVAS_PADDING_HORIZONTAL, CANVAS_PADDING_VERTICAL, CANVAS_WIDTH, FOOTER_HEIGHT, HEADER_HEIGHT, SCREEN_WIDTH, ScreenModes } from "@u/types";
+import { BLUE_BUTTON_WIDTH, CANVAS_HEIGHT, CANVAS_PADDING_HORIZONTAL, CANVAS_PADDING_VERTICAL, CANVAS_WIDTH, FOOTER_HEIGHT, HEADER_HEIGHT, MY_BLACK, SCREEN_WIDTH, ScreenModes } from "@u/types";
 import { createMyPathData } from "@u/helper";
 import { getFile, saveSvgToFile } from "@u/storage";
 import { MyPathDataContext } from "@x/svg-data";
@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Footer from "@c/screens/file/footer";
 import { StatusBar } from "expo-status-bar";
 import { useUserPreferences } from "@x/user-preferences";
+import elevations from "@u/elevation";
 // import DrawingDynamicOptions from "@c/screens/file/draw/dynamic-options";
 
 
@@ -24,7 +25,7 @@ const FileScreen = () => {
     // const [forceRerenderAt, setForceRerenderAt] = useState(Date.now());
     // const [canvasScale, setCanvasScale] = useState(1);
 
-    const {userPreferences} = useUserPreferences();
+    const {defaultStorageDirectory} = useUserPreferences();
     const { loadNewFile, myPathData, setMyPathData } = useContext(MyPathDataContext);
     const [controlButtons, setControlButtons] = useState([
         {
@@ -42,7 +43,7 @@ const FileScreen = () => {
     // set the updatedAt date to blank, so that it will be saved to file
     useEffect(() => {
         const saveData = async () => {
-            await saveSvgToFile(userPreferences.defaultStorageDirectory, myPathData);
+            await saveSvgToFile(defaultStorageDirectory, myPathData);
             // setMyPathData({ ...myPathData, metaData: { ...myPathData.metaData, updatedAt: Date.now().toString() } });
         };
 
@@ -80,7 +81,7 @@ const FileScreen = () => {
 
 
     async function openMyPathDataFile(guid: string) {
-        const myPathDataFromFile = await getFile(userPreferences.defaultStorageDirectory, guid);
+        const myPathDataFromFile = await getFile(defaultStorageDirectory, guid);
         if (myPathDataFromFile && myPathDataFromFile.metaData.guid === guid) {
             myConsole.log('File found with GUID: ', guid);
             loadNewFile(myPathDataFromFile);
@@ -123,8 +124,8 @@ const FileScreen = () => {
 
     const DisplayScreenName = () => {
         const positions = [
-            { top: 30, left: 30 },
-            { bottom: 10, right: 30 },
+            // { top: 30, left: 30 },
+            { bottom: 30, left: 30 },
         ];
         return (
             <>
@@ -134,7 +135,7 @@ const FileScreen = () => {
                         style={{
                             position: 'absolute',
                             color: 'rgba(255,255,255,0.8)',
-                            fontSize: 64,
+                            fontSize: 42,
                             fontWeight: 'bold',
                             textTransform: 'uppercase',
                             letterSpacing: 1,
@@ -187,19 +188,6 @@ const FileScreen = () => {
                     ?
                     <ViewDecoration>
                         <View style={{ flex: 1 }}>
-                            <>
-                                {/* <View style = {{
-                            position: 'absolute',
-                            top: 0,
-                            right: 0,
-                            backgroundColor: 'red',
-                            maxWidth: SCREEN_WIDTH - BLUE_BUTTON_WIDTH - 10,
-                            maxHeight: CANVAS_PADDING_VERTICAL - 5,
-                            overflow: 'hidden',
-                        }}>
-                            <DrawingDynamicOptions screenMode={currentScreenMode} />
-                        </View> */}
-                            </>
                             <View
                                 style={{
                                     flex: 1,
@@ -211,6 +199,7 @@ const FileScreen = () => {
                                     // paddingHorizontal: CANVAS_PADDING_HORIZONTAL / 2,
                                     // paddingRight: CANVAS_PADDING_HORIZONTAL / 2, // TO CREATE ROOM FOR EDGE BUTTON
                                     overflow: 'hidden',
+                                    margin: 5,
                                 }}
                             >
                                 <DisplayScreenName />
@@ -218,10 +207,9 @@ const FileScreen = () => {
                                     style={{
                                         width: CANVAS_WIDTH,
                                         height: CANVAS_HEIGHT,
-                                        borderWidth: 2,
-                                        borderColor: 'rgba(0,0,0,0.5)',
-                                        // ...elevations[7],
-                                        // shadowColor: {MY_BLACK},
+                                        borderWidth: 1,
+                                        borderColor: 'rgba(0,0,0,0.1)',
+                                        ...elevations[2],
                                         // backgroundColor: 'rgba(255,255,255,0.5)',
                                         // shadowOffset: {
                                         //   width: 0,

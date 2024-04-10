@@ -5,6 +5,7 @@ import React, { useState, useContext, createContext } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 
+const AnimatedMyIcon = Animated.createAnimatedComponent(MyIcon);
 interface CollapsibleContextType {
     openSection?: string;
     setOpenSection?: (openSection: string) => void;
@@ -15,12 +16,13 @@ interface CollapsibleContextType {
 const CollapsibleContext = createContext<CollapsibleContextType>({});
 
 type MyCollapsibleSectionType = {
+    icon?: React.ReactNode;
     title: string;
     contentHeight: number;
     children: React.ReactNode;
 };
 
-const MyCollapsibleSection: React.FC<MyCollapsibleSectionType> = ({ title, contentHeight = 250, children }) => {
+const MyCollapsibleSection: React.FC<MyCollapsibleSectionType> = ({ icon = null, title, contentHeight = 250, children }) => {
     const context = useContext(CollapsibleContext);
     const [localIsOpen, setLocalIsOpen] = useState(false); // Local open state for non-exclusive mode
     const isOpen = context.exclusive ? context.openSection === title : localIsOpen;
@@ -33,7 +35,7 @@ const MyCollapsibleSection: React.FC<MyCollapsibleSectionType> = ({ title, conte
     // Animated styles for the collapsible part
     const animatedStyles = useAnimatedStyle(() => {
         return {
-            height: withTiming(isOpen ? maxHeight.value  : 0, {
+            height: withTiming(isOpen ? maxHeight.value : 0, {
                 duration: 320
             }),
             overflow: 'hidden',
@@ -50,7 +52,17 @@ const MyCollapsibleSection: React.FC<MyCollapsibleSectionType> = ({ title, conte
                 duration: 300,
             }),
         };
-    });
+    }, [isOpen]);
+
+    // Animated icon style to rotate while the content is opening or closing
+    const animatedIconStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{
+                    rotate: withTiming(isOpen ? '0deg' : '180deg', { duration: 420 })
+                }]
+        }
+    }, [isOpen]);
+
 
     // Function to toggle section open/close
     const toggleSection = () => {
@@ -64,27 +76,39 @@ const MyCollapsibleSection: React.FC<MyCollapsibleSectionType> = ({ title, conte
         }
     };
 
-    return (<View style={{ marginBottom: 10 }}>
-        <View style={{ backgroundColor: '#512FDC'}}>
-        <MyGradientBackground reverse style={{opacity: 0.8}}>
-            <Pressable
-                onPress={toggleSection}
-                style={({ pressed }) => [
-                    styles.titleBar,
-                    { opacity: pressed ? 0.5 : 1 },
-                ]}
-            >
-                <Text style={styles.titleText}>{title}</Text>
-                <MyIcon name={isOpen ? "expand-less" : "expand-more"} size={24} color="white" />
-            </Pressable>
-        </MyGradientBackground>
+    const Header = () => (
+        <View style={{ backgroundColor: '#512FDC' }}>
+            <MyGradientBackground style={{ opacity: 0.8 }}>
+                <Pressable
+                    onPress={toggleSection}
+                    style={({ pressed }) => [
+                        styles.titleBar,
+                        { opacity: pressed ? 0.5 : 1 },
+                    ]}
+                >
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 5 }}>
+                            <View style={{ width: 24 }}>{icon}</View>
+                            <Text style={styles.titleText}>{title}</Text>
+                        </View>
+                        <Animated.View style={animatedIconStyle} >
+                            <AnimatedMyIcon name={"expand-more"} size={24} color="#FFFFFF" fill="transparent" strokeWidth={1} />
+                        </Animated.View>
+                    </View>
+                </Pressable>
+            </MyGradientBackground>
         </View>
-        <Animated.View style={[animatedStyles, styles.contentContainer]}>
-            <Animated.View style={{marginBottom: 5, ...animatedContentStyles}}>
-                {children}
+    );
+
+    return (
+        <View style={{ flex: 1, marginBottom: 10 }}>
+            <Header />
+            <Animated.View style={[animatedStyles, styles.contentContainer]}>
+                <Animated.View style={{ marginBottom: 5, ...animatedContentStyles }}>
+                    {children}
+                </Animated.View>
             </Animated.View>
-        </Animated.View>
-    </View>
+        </View>
     );
 };
 
@@ -101,6 +125,7 @@ const styles = StyleSheet.create({
     titleText: {
         color: 'white',
         fontWeight: 'bold',
+        marginLeft: 13,
     },
     contentContainer: {
         backgroundColor: 'white',
@@ -113,6 +138,7 @@ const styles = StyleSheet.create({
 interface MyCollapsibleProp {
     exclusive?: boolean;
     data: {
+        icon?: React.ReactNode;
         title: string;
         contentHeight: number;
         content: React.ReactNode;
@@ -124,7 +150,7 @@ const MyCollapsible = (prop: MyCollapsibleProp) => {
     return (
         <CollapsibleContext.Provider value={{ openSection, setOpenSection, exclusive: prop.exclusive || true }}>
             {prop.data.map((item, index) => (
-                <MyCollapsibleSection key={index} title={item.title} contentHeight={item.contentHeight}>
+                <MyCollapsibleSection key={index} icon={item.icon} title={item.title} contentHeight={item.contentHeight}>
                     {item.content}
                 </MyCollapsibleSection>
             ))}

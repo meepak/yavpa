@@ -9,6 +9,13 @@ export const I_AM_IOS = Platform.OS === "ios";
 
 export const MY_BLACK = '#120e31'
 
+
+export type OrientationType =
+    | Orientation.LANDSCAPE_DOWN
+    | Orientation.LANDSCAPE_UP
+    | Orientation.PORTRAIT_DOWN
+    | Orientation.PORTRAIT_UP;
+
 export enum Orientation {
     PORTRAIT_UP = "PORTRAIT_UP",
     PORTRAIT_DOWN = "PORTRAIT_DOWN",
@@ -30,7 +37,7 @@ export const CANVAS_PADDING_VERTICAL = 15;
 // Thus,
 export const CANVAS_WIDTH = SCREEN_WIDTH - CANVAS_PADDING_HORIZONTAL * 2;
 export const CANVAS_HEIGHT = SCREEN_HEIGHT - HEADER_HEIGHT - CANVAS_PADDING_VERTICAL * 1.5 -  FOOTER_HEIGHT;// + (I_AM_ANDROID ? 20 : 0);
-export const CANVAS_VIEWBOX = `0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`;
+export const CANVAS_VIEWBOX = `0 0 ${CANVAS_WIDTH*1.25} ${CANVAS_HEIGHT*1.25}`;
 export const CANVAS_PATH = `M0,0 L${CANVAS_WIDTH},0 L${CANVAS_WIDTH},${CANVAS_HEIGHT} L0,${CANVAS_HEIGHT} Z`;
 
 export const BLUE_BUTTON_WIDTH = 100;
@@ -156,7 +163,7 @@ export interface SvgAnimateHandle {
     playAnimation: () => void;
     loopAnimation: () => void;
     stopAnimation: () => void;
-    setAnimationParams: (value: AnimationParamsType) => void;
+    saveAnimationParams: (value: AnimationParamsType) => void;
 }
 
 export type BrushType = {

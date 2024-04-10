@@ -17,9 +17,8 @@ const AnimatedSplash = ({
   children: React.ReactNode;
   onAnimationComplete?: (arg0: boolean) => void;
 }) => {
-
-  const logoRef = useRef<any>(null);
   const [isAppReady, setAppReady] = useState(false);
+  const [logoLoaded, setLogoLoaded] = useState(false);
   const [isAnimationComplete, setAnimationComplete] = useState(false);
 
   const animationValueRotateY = new Animated.Value(0);
@@ -40,7 +39,7 @@ const AnimatedSplash = ({
 
   useEffect(() => {
     if (isAppReady) {
-      myConsole.log('ANIMATED SPLASH - app ready');
+      // myConsole.log('ANIMATED SPLASH - app ready');
 
       Animated.parallel([
         Animated.timing(animationValueSize, {
@@ -65,23 +64,19 @@ const AnimatedSplash = ({
   }, [isAppReady]);
 
   useEffect(() => {
-    const checkIfLogoIsLoaded = async () => {
-      if (logoRef.current?.isLoaded()) {
-        try {
-          setTimeout(async () => await SplashScreen.hideAsync(), 300);
-          // Load stuff, like read files from the file system, custom fonts, etc.
-          // await Promise.all([]);
-          // await new Promise((resolve) => setTimeout(resolve, 2000));
-        } catch (e) {
-          // handle errors
-        } finally {
-          setAppReady(true);
-        }
+    if (logoLoaded) {
+      try {
+        setTimeout(async () => await SplashScreen.hideAsync(), 300);
+        // Load stuff, like read files from the file system, custom fonts, etc.
+        // await Promise.all([]);
+        // await new Promise((resolve) => setTimeout(resolve, 2000));
+      } catch (e) {
+        // handle errors
+      } finally {
+        setAppReady(true);
       }
-    };
-
-    checkIfLogoIsLoaded();
-  }, []);
+    }
+  }, [logoLoaded]);
 
 
   return (
@@ -105,10 +100,11 @@ const AnimatedSplash = ({
             }}
             >
               <MyPathLogo
-                ref={logoRef}
                 animate={false}
                 width={'100%'}
-                height={'100%'} />
+                height={'100%'}
+                isLoaded={(val) => setLogoLoaded(val) }
+              />
             </Animated.View>
 
           </View>

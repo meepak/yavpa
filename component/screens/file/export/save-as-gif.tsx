@@ -39,7 +39,6 @@ const SaveAsGif: React.FC<SaveAsGifProps> = ({ isVisible, onClose, myPathData })
     const [left, setLeft] = useState(0);
     const [width, setWidth] = useState(adjustedWidth);
     const [height, setHeight] = useState(adjustedHeight);
-    const [freezeAnimation, setFreezeAnimation] = useState(false);
     const [recording, setRecording] = useState(false);
 
     const [readyToGifEncoding, setReadyToGifEncoding] = useState(false);
@@ -48,11 +47,10 @@ const SaveAsGif: React.FC<SaveAsGifProps> = ({ isVisible, onClose, myPathData })
 
 
     useEffect(() => {
-        setFreezeAnimation(false);
         if (previewRef.current) {
             previewRef.current.playAnimation();
         }
-    }, [left, top, width, height, freezeAnimation]);
+    }, [left, top, width, height]);
 
     const moveViewShotWindow = (direction: 'up' | 'down' | 'left' | 'right') => {
         const offset = 5 * ((direction === 'up' || direction === 'left') ? - 1 : 1);
@@ -60,7 +58,6 @@ const SaveAsGif: React.FC<SaveAsGifProps> = ({ isVisible, onClose, myPathData })
         const previewDimension = direction === 'up' || direction === 'down' ? previewHeight : previewWidth;
         const viewShotDimension = direction === 'up' || direction === 'down' ? height : width;
 
-        setFreezeAnimation(true);
         setFunction(
             (prev) =>
                 (prev + offset) > (previewDimension - viewShotDimension)
@@ -77,7 +74,6 @@ const SaveAsGif: React.FC<SaveAsGifProps> = ({ isVisible, onClose, myPathData })
         const previewDimension = isX ? previewWidth : previewHeight;
         const offset = 5 * (scale === '+x' || scale === '+y' ? 1 : -1);
 
-        setFreezeAnimation(true);
         scaleFunction(
             (prev) =>
                 (prev + offset) > previewDimension
@@ -178,17 +174,13 @@ const SaveAsGif: React.FC<SaveAsGifProps> = ({ isVisible, onClose, myPathData })
                         }}
                         collapsable={false}
                     >
-                        {
-                            freezeAnimation
-                                ? <MyPreview data={myPathData} animate={false} viewBox={CANVAS_VIEWBOX} />
-                                : <SvgAnimate
-                                    myPathData={myPathData}
-                                    viewBox={CANVAS_VIEWBOX}
-                                    ref={previewRef}
-                                    onLoopBegin={onAnimationBegin}
-                                    onLoopEnd={onAnimationEnd}
-                                />
-                        }
+                        <SvgAnimate
+                            myPathData={myPathData}
+                            viewBox={CANVAS_VIEWBOX}
+                            ref={previewRef}
+                            onLoopBegin={onAnimationBegin}
+                            onLoopEnd={onAnimationEnd}
+                        />
 
                     </View>
 

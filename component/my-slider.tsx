@@ -20,7 +20,7 @@ const MySlider = (props: MySliderProps) => {
 
   useEffect(() => {
     valueRef.current = value;
-    myConsole.log('value is et', value)
+    // myConsole.log('value is et', value)
   }, [value]);
 
   const showIconButton = props.plusMinusButtons !== false;

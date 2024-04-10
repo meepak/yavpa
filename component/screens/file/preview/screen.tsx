@@ -17,7 +17,6 @@ const PreviewScreen = ({ myPathData, setMyPathData, initControls }) => {
     transitionType: myPathData.metaData.animation?.transitionType || 0,
     correction: myPathData.metaData.animation?.correction || 0.05,
   });
-  myConsole.log('animationParams', animationParams);
 
 
 
@@ -26,9 +25,9 @@ const PreviewScreen = ({ myPathData, setMyPathData, initControls }) => {
 
 
   useEffect(() => {
-    setTimeout(
-      onPreviewPlay, 500
-      );
+    // setTimeout( // it will play automatically
+    //   onPreviewPlay, 500
+    //   );
 
     // on leaving clear the controls
     return () => initControls([]);
@@ -36,9 +35,9 @@ const PreviewScreen = ({ myPathData, setMyPathData, initControls }) => {
 
   useEffect(() => {
     if (previewRef.current) {
-      previewRef.current.setAnimationParams(animationParams);
+      previewRef.current.saveAnimationParams(animationParams);
     }
-    if (myPathData.metaData.animation && myPathData.metaData.animation !== animationParams) {
+    if (myPathData.metaData.animation && (JSON.stringify(myPathData.metaData.animation) !== JSON.stringify(animationParams))) {
       myConsole.log('animation params updated, should trigger saving to file');
       setMyPathData((prev) => ({ ...prev, metaData: { ...prev.metaData, animation: animationParams, updatedAt: "" } }));
     }

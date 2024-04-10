@@ -23,7 +23,7 @@ const DrawScreen = ({ myPathData, setMyPathData, initControls }) => {
   const [erasureMode, setErasureMode] = useState(false);
   const { showToast } = useContext(ToastContext);
   const { undo, redo } = useContext(MyPathDataContext);
-  const {userPreferences} = useUserPreferences();
+  const { defaultStorageDirectory } = useUserPreferences();
 
 
   const executeCommand = (cmd: string) => {
@@ -64,7 +64,7 @@ const DrawScreen = ({ myPathData, setMyPathData, initControls }) => {
   }
 
   const pickImage = async () => {
-    const imageJson = await pickImageAsync(userPreferences.defaultStorageDirectory, showToast);
+    const imageJson = await pickImageAsync(defaultStorageDirectory, showToast);
     if(!imageJson) return;
     const newImageData = createImageData(imageJson.guid, imageJson.data, imageJson.width, imageJson.height);
     newImageData.type = "image";

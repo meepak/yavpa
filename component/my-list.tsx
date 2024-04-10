@@ -19,7 +19,7 @@ const MyList = ({ anchor, width, height }) => {
     const [files, setFiles] = useState<MyPathDataType[]>([]);
     const scrollY = useSharedValue(0);
     const insets = useSafeAreaInsets();
-    const {userPreferences} = useUserPreferences();
+    const { defaultStorageDirectory } = useUserPreferences();
 
 
     const scrollHandler = useAnimatedScrollHandler({
@@ -31,7 +31,7 @@ const MyList = ({ anchor, width, height }) => {
 
     const fetchFiles = useCallback(async () => {
         try {
-            let myPathData = await getFiles(userPreferences.defaultStorageDirectory); // comes from cache so all good
+            let myPathData = await getFiles(defaultStorageDirectory); // comes from cache so all good
             // Sort the data here before setting it to the state
             // myPathData = myPathData.sort((a, b) => Date.parse(a.metaData.updatedAt) - Date.parse(b.metaData.updatedAt));
             setFiles(myPathData);
@@ -161,7 +161,7 @@ const MyList = ({ anchor, width, height }) => {
             height={height}
             showBackground={false}
             xPosition={SCREEN_WIDTH - width}
-            yPosition={HEADER_HEIGHT - insets.top + 7}
+            yPosition={HEADER_HEIGHT - insets.top}
             positionOverride={true}
             // yOffsetFromAnchor={10}
             // closeMenuAt={forceRerenderAt}

@@ -16,28 +16,28 @@
     "baseUrl": ".",
     "paths": {
       "@c/*": [
-        "component/*"
+        "./component/*"
       ],
       "@a/*": [
-        "assets/*"
+        "./assets/*"
       ],
       "@u/*": [
-        "utilities/*"
+        "./utilities/*"
       ],
       "@s/*": [
-        "splash/*"
+        "./splash/*"
       ],
       "@x/*": [
-        "context/*"
+        "./context/*"
       ]
     }
   },
   "include": [
-    "app/**/*",
-    "assets/**/*",
-    "component/**/*",
-    "utilities/**/*",
-    "context/**/*",
-    "splash/**/*",
+    "./app/**/*",
+    "./assets/**/*",
+    "./component/**/*",
+    "./utilities/**/*",
+    "./context/**/*",
+    "./splash/**/*",
   ]
 }

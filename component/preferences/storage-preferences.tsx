@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import { View, Text, TextInput, Button, Alert, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Alert, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import { UserPreferencesContext } from '@x/user-preferences';
 import { getAppSavePath, myPathFileExt, myPathImageExt } from '@u/storage';
@@ -7,13 +7,12 @@ import * as Sharing from 'expo-sharing';
 import JSZip from 'jszip';
 import { Divider } from '@c/controls';
 import { MY_BLACK, SCREEN_WIDTH } from '@u/types';
-import { precise } from '@u/helper';
 import myConsole from '@c/my-console-log';
 import MyIcon from '@c/my-icon';
 
 
-const StoragePreference = () => {
-    const { userPreferences, setUserPreferences } = useContext(UserPreferencesContext);
+const StoragePreference: React.FC<{ disableParentScroll: (val: boolean) => void }> = ({disableParentScroll}) => {
+    const { defaultStorageDirectory, setUserPreferences } = useContext(UserPreferencesContext);
     const [newDirName, setNewDirName] = useState('');
     // const [directories, setDirectories] = useState<string[]>([]);
     // const [fileCount, setFileCounts] = useState<number[]>([]);
@@ -30,6 +29,7 @@ const StoragePreference = () => {
 
 
     useEffect(() => {
+        console.log('storage preferences mounted');
         initialize();
     }, []);
 
@@ -66,8 +66,8 @@ const StoragePreference = () => {
     }
 
     const handleDirectoryChange = (dirName) => {
-        // console.log('saving directory changes to ', dirName);
-        setUserPreferences((prev) => ({ ...prev, defaultStorageDirectory: dirName }));
+        myConsole.log('saving directory changes to ', dirName);
+        setUserPreferences({defaultStorageDirectory: dirName });
     };
 
     const handleNewDirSubmit = async () => {
@@ -106,10 +106,10 @@ const StoragePreference = () => {
         const deleteDirectory = async (appSaveDir) => {
             try {
                 await FileSystem.deleteAsync(appSaveDir, { idempotent: true });
-                if (dir === userPreferences.defaultStorageDirectory) {
+                if (dir === defaultStorageDirectory) {
                     const maxFiles = Math.max(...filesCount.current);
                     const maxIndex = filesCount.current.indexOf(maxFiles); // WHAT IF WE HAVE SAME MAX FILES, WE WILL JUST PICK FIRST ONE
-                    setUserPreferences((prev) => ({ ...prev, defaultStorageDirectory: directories[maxIndex] }));
+                    setUserPreferences({defaultStorageDirectory: directories[maxIndex]});
                 }
                 // Refresh the list of directories
                 initialize();
@@ -120,7 +120,7 @@ const StoragePreference = () => {
     }
 
     // TODO fix later
-    const handleBackupDir = async (dir) => {
+    const handleBackupDir = async (dir: string) => {
         const appSaveDir = getAppSavePath(dir);
         // // get number of files
         const files = await FileSystem.readDirectoryAsync(appSaveDir);
@@ -165,27 +165,27 @@ const StoragePreference = () => {
         const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
         if (bytes === 0) return '0 Byte';
         const i = parseInt(String(Math.floor(Math.log(bytes) / Math.log(1024))), 10);
-        return `${Math.round(bytes / Math.pow(1024, i), 2)} ${sizes[i]}`;
+        return `${Math.round(bytes / Math.pow(1024, i))} ${sizes[i]}`;
     }
 
     return (loading
         ? <ActivityIndicator size="small" color="#0000ff" />
         : (
         <View style={{ marginHorizontal: 15 }}>
-            <Text>Root: {rootDirPath.current.replace('file://', '')} </Text>
+            <Text style={{fontWeight: 'bold', color: MY_BLACK}}>Root: {rootDirPath.current.replace('file://', '')} </Text>
 
             {
-                userPreferences.defaultStorageDirectory
-                    ? <Text>Current directory: {userPreferences.defaultStorageDirectory} </Text>
+                defaultStorageDirectory
+                    ? <Text>Current directory: {defaultStorageDirectory} </Text>
                     : <Text style={{ color: 'red' }}>Error:: select a working directory.</Text>
             }
             <Text>
-                Total Sketches: {filesCount.current[directories.current.indexOf(userPreferences.defaultStorageDirectory)]}
+                Total Sketches: {filesCount.current[directories.current.indexOf(defaultStorageDirectory)]}
             </Text>
             <Text>
-                Total Images: {imagesCount.current[(directories.current.indexOf(userPreferences.defaultStorageDirectory))]}
+                Total Images: {imagesCount.current[(directories.current.indexOf(defaultStorageDirectory))]}
             </Text>
-            <Text>Total size: {hrFormat(filesSize.current[(directories.current.indexOf(userPreferences.defaultStorageDirectory))])}
+            <Text>Total size: {hrFormat(filesSize.current[(directories.current.indexOf(defaultStorageDirectory))])}
             </Text>
             <Text>
                 Total free space: {hrFormat(freeSpace.current)} out of {hrFormat(totalSpace.current)}.</Text>
@@ -196,42 +196,50 @@ const StoragePreference = () => {
                 <Text>mypath.</Text>
                 <TextInput
                     value={newDirName}
-                    onChangeText={(text) => setNewDirName(text)}
                     placeholder="Enter new directory name"
                     enablesReturnKeyAutomatically={true}
+                    onChangeText={(text) => {
+                        const cleanedText = text.replace(/\?/g, '');
+                        setNewDirName(cleanedText);
+                    }}
                     onSubmitEditing={handleNewDirSubmit}
+                    maxLength={20}
+                    autoCapitalize='none'
+
+
 
                 />
             </View>
             <ScrollView
-            contentContainerStyle={{ paddingVertical: 10}}
+                contentContainerStyle={{ paddingVertical: 10}}
                 nestedScrollEnabled={true}
+                onScrollBeginDrag={() => disableParentScroll(true)}
+                onScrollEndDrag={() => {console.log('ed'); disableParentScroll(false)}}
                 style={{
                     height: 250, backgroundColor: '#F0F0F0'
                 }}>
                 {directories.current.map((dirName, index) => (
                     <View key={dirName}>
                         <View style={{
-                            backgroundColor: dirName === userPreferences.defaultStorageDirectory ? '#4E2DBA77' : undefined,
+                            backgroundColor: dirName === defaultStorageDirectory ? '#4E2DBA77' : undefined,
                             flexDirection: 'row',
                             justifyContent: 'space-between',
                             alignItems: 'center',
                             padding: 5
                         }}>
-                            <Text style={{ padding: 10, fontWeight: '700', }}>
-                                [{filesCount.current[index]}] {dirName}
-                            </Text>
-                            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
-                                <TouchableOpacity onPress={() => handleDirectoryChange(dirName)}>
-                                    <MyIcon size={24} name='checkbox-checked' fill='#000000' color='#00000033' strokeWidth={0.75} />
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => handleBackupDir(dirName)}>
-                                <MyIcon size={20} name='export' color='#000000' style={{ marginLeft: 15 }} />
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => handleDeleteDir(dirName)}>
-                                <MyIcon size={22} name='trash' color='#000000' style={{ marginLeft: 15 }} />
-                                </TouchableOpacity>
-
+                                <Text style={{ flex: 5, padding: 10, fontWeight: '700', }}>
+                                    [{filesCount.current[index]}] {dirName}
+                                </Text>
+                                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                    <TouchableOpacity onPress={() => handleDirectoryChange(dirName)}>
+                                    <MyIcon size={24} name={'checkbox-' + ((dirName === defaultStorageDirectory )? 'checked' : 'empty')} fill='#000000' color='#00000033' strokeWidth={0.75} />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => handleBackupDir(dirName)}>
+                                        <MyIcon size={20} name='export' color='#000000' style={{ marginLeft: 15 }} />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => handleDeleteDir(dirName)}>
+                                        <MyIcon size={22} name='trash' color='#000000' style={{ marginLeft: 15 }} />
+                                    </TouchableOpacity>
                             </View>
                         </View>
                         <Divider width={'100%'} color={'#CFCFCF'} height={1.5} />

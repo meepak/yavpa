@@ -1,6 +1,5 @@
-import React, { useImperativeHandle } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DimensionValue, View, ViewStyle } from 'react-native';
-import * as SystemUI from "expo-system-ui";
 import logoData from './my-path.json'
 import MyPreview from '@c/my-preview';
 import { parseMyPathData } from '@u/helper';
@@ -10,25 +9,31 @@ interface MyPathLogoProps {
     height: DimensionValue;
     animate: boolean;
     style?: ViewStyle;
+    isLoaded?: (val: boolean) => void;
 }
 
-interface MyPathLogoHandle {
-    isLoaded: () => boolean;
-}
-
-const MyPathLogo: React.ForwardRefRenderFunction<MyPathLogoHandle, MyPathLogoProps> = ({ width, height, animate, style }, ref) => {
-    const logo = parseMyPathData(logoData);
-
-    useImperativeHandle(ref, () => ({
-        isLoaded: () => !!logo,
-    }));
-
+const MyPathLogo = ({ width, height, animate, style = {}, isLoaded = (val: boolean) => { } }: MyPathLogoProps) => {
+    const lg = parseMyPathData(logoData);
+    const [logo, setLogo] = useState(lg);
     if (!logo) return null;
+
+    // const onInit = () => { //if i do this all hell go loose, react goes mad and starts warning
+    //     setTimeout(() => isLoaded && isLoaded(true), 200);
+    // }
+    useEffect(() => {
+        isLoaded && isLoaded(true)
+    }, []);
+
+
     return (
         <View style={[{ width: width, height: height }, style]}>
-            <MyPreview data={logo} animate={animate} viewBox={logoData.metaData.viewBox} />
+            <MyPreview
+                animate={animate}
+                viewBox={logoData.metaData.viewBox}
+                data={logo}
+            />
         </View>
     );
 };
 
-export default React.forwardRef(MyPathLogo);
+export default MyPathLogo;

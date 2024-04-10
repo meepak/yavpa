@@ -44,3 +44,5 @@ temp/*
 .yarn/*
 .yarn/*.gz
 
+.yarn/install-state.gz
+.yarn/install-state.gz

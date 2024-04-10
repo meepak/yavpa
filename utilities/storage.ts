@@ -210,7 +210,7 @@ export const saveImageToCache = async (documentDir: string, filePath: string, he
         for (const line of lines) {
             const [existingHash, existingGuid] = line.split(',');
             if (existingHash === dataHash) {
-                const existingImage = await FileSystem.readAsStringAsync(myPathImage(existingGuid))
+                const existingImage = await FileSystem.readAsStringAsync(myPathImage(appSaveDir, existingGuid))
                 return JSON.parse(existingImage) as any;
             }
         }

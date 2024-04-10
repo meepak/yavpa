@@ -27,7 +27,7 @@ export const getBoundaryBox = (selectedPaths: PathDataType[]): PathDataType | nu
     });
 
     let path = rectPath;
-    const rectPathData = createPathdata("#fdf9b4", 2, 1); //stroke, width, opacity
+    const rectPathData = createPathdata("#fdf9b4", 2); //stroke, width, opacity
     rectPathData.visible = true;
     rectPathData.path = path;
     rectPathData.strokeDasharray = "7,7";
@@ -35,12 +35,12 @@ export const getBoundaryBox = (selectedPaths: PathDataType[]): PathDataType | nu
     return rectPathData;
 }
 
-const boundaryBoxCornors = (activeBoundaryBoxPath: PathDataType | null) => {
+const boundaryBoxCornors = (activeBoundaryBoxPath: PathDataType | null, scaleFactor = 1) => {
     if (!activeBoundaryBoxPath || !activeBoundaryBoxPath.path) return null;
     const vbbox = getViewBoxTrimmed([activeBoundaryBoxPath], 0);
     const vbbPoints = vbbox.split(" ");
     // Create corner paths
-    const cornerStrokeWidth = 5;
+    const cornerStrokeWidth = 5 * scaleFactor;
     // make cornerLength proportional to the size of the boundary box
     const cornerLength = Math.min(parseFloat(vbbPoints[2]), parseFloat(vbbPoints[3])) / 10;
     const corners = ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'];
@@ -115,10 +115,11 @@ const boundaryBoxCornors = (activeBoundaryBoxPath: PathDataType | null) => {
 const AnimatedBboxPath = Animated.createAnimatedComponent(MyPath);
 
 type MyBoundaryBoxPathsProps = {
-    activeBoundaryBoxPath: PathDataType | null;
+    activeBoundaryBoxPath: PathDataType | null,
+    scaleFactor: number
 };
 
-const MyBoundaryBoxPaths: React.FC<MyBoundaryBoxPathsProps> = ({ activeBoundaryBoxPath }) => {
+const MyBoundaryBoxPaths: React.FC<MyBoundaryBoxPathsProps> = ({ activeBoundaryBoxPath, scaleFactor = 1 }) => {
 
     if (!activeBoundaryBoxPath || !activeBoundaryBoxPath.visible) {
         return null;
@@ -152,7 +153,7 @@ const MyBoundaryBoxPaths: React.FC<MyBoundaryBoxPathsProps> = ({ activeBoundaryB
 
     // get accessories like 4 cornors & relevant icons
 
-    const cornerPaths = boundaryBoxCornors(activeBoundaryBoxPath);
+    const cornerPaths = boundaryBoxCornors(activeBoundaryBoxPath, scaleFactor);
     return (
             <>
                 <AnimatedBboxPath
@@ -161,6 +162,7 @@ const MyBoundaryBoxPaths: React.FC<MyBoundaryBoxPathsProps> = ({ activeBoundaryB
                     prop={{
                         ...activeBoundaryBoxPath,
                         stroke: strokeColor,
+                        strokeWidth: (activeBoundaryBoxPath.strokeWidth || 2) * scaleFactor,
                         strokeDashoffset: animatedBboxValue.interpolate({
                             inputRange: [0, 1],
                             outputRange: [7, -7],

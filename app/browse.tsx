@@ -20,9 +20,8 @@ import MyPreview from "@c/my-preview";
 import MyBlueButton from "@c/my-blue-button";
 import myConsole from "@c/my-console-log";
 import Animated, { FlipInYLeft, ReduceMotion } from "react-native-reanimated";
-import elevation from "@u/elevation";
-import elevations from "@u/elevation";
 import { useUserPreferences } from "@x/user-preferences";
+import elevations from '@u/elevation';
 
 const PARALLAX_HEIGHT = 238;
 const HEADER_BAR_HEIGHT = 92;
@@ -43,7 +42,7 @@ const BrowseScreen = () => {
   // const [showPathPlay, setShowPathPlay] = useState(true);
   const [noSketch, setNoSketch] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const {userPreferences} = useUserPreferences();
+  const { defaultStorageDirectory } = useUserPreferences();
 
 
     const flip = FlipInYLeft
@@ -85,9 +84,9 @@ const BrowseScreen = () => {
 
   const fetchFiles = useCallback(async (allowCache = true) => {
     try {
-      myConsole.log('fetching files from default storage', userPreferences.defaultStorageDirectory)
+      myConsole.log('fetching files from default storage', defaultStorageDirectory)
       setIsLoading(true);
-      let myPathData = await getFiles(userPreferences.defaultStorageDirectory, allowCache);
+      let myPathData = await getFiles(defaultStorageDirectory, allowCache);
       // Sort the data here before setting it to the state
       myPathData = myPathData.sort((a, b) => Date.parse(b.metaData.updatedAt) - Date.parse(a.metaData.updatedAt));
       setFiles(myPathData);
@@ -97,17 +96,17 @@ const BrowseScreen = () => {
     } catch (error) {
       myConsole.log('error fetching files', error)
     }
-  }, [userPreferences]);
+  }, [defaultStorageDirectory]);
 
-  useLayoutEffect(() => {
-    fetchFiles();
-  }, [fetchFiles]);
+  // useLayoutEffect(() => {
+  //   fetchFiles();
+  // }, [fetchFiles]);
 
   // refresh all files if default storage directory changed
   useEffect(() => {
-    myConsole.log('again fetching files..', userPreferences.defaultStorageDirectory)
-    fetchFiles(false);
-  }, [userPreferences])
+    myConsole.log('again fetching files..', defaultStorageDirectory)
+    fetchFiles(true).then(() => setIsLoading(false));
+  }, [defaultStorageDirectory])
 
   const deleteSketchAlert = (guid: string) => {
     // myConsole.log('confirm delete ' + guid);
@@ -118,7 +117,7 @@ const BrowseScreen = () => {
         onPress: async () => {
 
           // myConsole.log('delete', guid)
-          const result = await deleteFile(userPreferences.defaultStorageDirectory, guid)
+          const result = await deleteFile(defaultStorageDirectory, guid)
           if (result) {
             await fetchFiles();
             scrollViewRef.current?.forceUpdate();
@@ -151,10 +150,10 @@ const BrowseScreen = () => {
               height: filePreviewHeight,
               alignContent: 'center',
               alignItems: 'center',
-              padding: 2,
+              // padding: 2,
               overflow: 'hidden',
               borderRadius: 7,
-              borderWidth: 2,
+              borderWidth: 1.4,
               backgroundColor: `rgba(150,150,250, 0.25)`,
             }}
           >
@@ -213,7 +212,8 @@ const BrowseScreen = () => {
             renderItem={renderItem}
             horizontal={false}
             showsVerticalScrollIndicator={false}
-            onLayout={() => setIsLoading(false)} />
+            // onLayout={() => setIsLoading(false)}
+          />
           {isLoading && (
             <View style={{
               flex: 1,

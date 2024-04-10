@@ -158,12 +158,12 @@ import { I_AM_ANDROID, I_AM_IOS } from './types'
      .map((x, index) => generateElevationStyle(index))
 
  elevations.interpolate = (anim, {inputRange,outputRange,...opts}) => {
-     let style = {}
-     // let style = {
-     // 	backgroundColor:'#f00',
-     // 	opacity:"var(--elev)",
-     // 	"--elev":anim.interpolate({inputRange,outputRange:outputRange.map(v=>(v/24)+''),...opts}),
-     // }
+    //  let style = {}
+    //  let style = {
+    //  	backgroundColor:'#f00',
+    //  	opacity:"var(--elev)",
+    //  	"--elev":anim.interpolate({inputRange,outputRange:outputRange.map(v=>(v/24)+''),...opts}),
+    //  }
      // return {elevation:anim.interpolate({inputRange,outputRange,...opts})}
      // return {elevation:24}
      if (I_AM_ANDROID) {

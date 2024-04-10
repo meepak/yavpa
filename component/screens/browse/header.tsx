@@ -8,6 +8,7 @@ import MyGradientBackground from '@c/my-gradient-background';
 import MyIcon from '@c/my-icon';
 import MyPreferences from '@c/preferences/my-preferences';
 import myConsole from '@c/my-console-log';
+import SvgAnimate from '../file/preview/animate';
 
 const banner = require('@a/banner.png');
 
@@ -17,8 +18,9 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ scrollValue }) => {
-  const [animateLogo, setAnimateLogo] = React.useState(false);
+  // const [animateLogo, setAnimateLogo] = React.useState(false);
   const [preferencesVisible, setPreferencesVisible] = React.useState(false);
+
 
   const imageAnimatedStyle = useAnimatedStyle(() => {
     return {
@@ -59,20 +61,12 @@ const Header: React.FC<HeaderProps> = ({ scrollValue }) => {
     return {
       transform: [
         { translateY: interpolate(scrollValue.value, [0, 180, 205, 220], [0, 0, 65, 65], Extrapolation.CLAMP) },
-        { translateX: interpolate(scrollValue.value, [0, 180, 205, 220], [10, 10, 10, 25], Extrapolation.CLAMP) }
+        { translateX: interpolate(scrollValue.value, [0, 180, 205, 220], [15, 15, 15, 25], Extrapolation.CLAMP) }
       ]
     }
   }, [scrollValue]);
 
 
-  React.useEffect(() => {
-    const intervalId = setInterval(() => {
-      setAnimateLogo(prev => !prev);
-    }, 4000);
-
-    // Clear interval on component unmount
-    return () => clearInterval(intervalId);
-  }, []);
 
   return (
     <><View style={styles.headerWrapper}>
@@ -84,7 +78,7 @@ const Header: React.FC<HeaderProps> = ({ scrollValue }) => {
         </Animated.View>
         <View style={styles.container}>
           <Animated.View style={logoAnimatedStyle}>
-            <MyPathLogo animate={animateLogo} width={97} height={97} />
+            <MyPathLogo animate={true} width={97} height={97} />
           </Animated.View>
           <View style={styles.details}>
             <Animated.View style={nameAnimatedStyle}>

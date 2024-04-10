@@ -1,7 +1,7 @@
 import { Linecap, Linejoin } from "react-native-svg";
 import * as Crypto from "expo-crypto";
 import { CANVAS_HEIGHT, CANVAS_WIDTH, CANVAS_VIEWBOX, PRECISION, PointType, ScreenModes, TransitionType, SCREEN_WIDTH, SCREEN_HEIGHT, Orientation, I_AM_ANDROID, ImageDataType } from "./types";
-import { PathDataType, MyPathDataType } from "./types";
+import { PathDataType, MyPathDataType, OrientationType } from "./types";
 import { polygonContains, polygonLength } from "d3-polygon";
 import path from "path";
 import { Accelerometer } from "expo-sensors";
@@ -358,7 +358,7 @@ export const jsonDeepCompare = (json1: any, json2: any, log = false) => {
 }
 
 
-export function parseMyPathData(myPathData: any, update_updatedAt = false): MyPathDataType {
+export function parseMyPathData(myPathData: any, update_updatedAt = false) {
   const isValid = (val: any) => (val !== null && val !== undefined && (val || val === false));
 
   ///check if myPathData has pathData and if not set default values
@@ -424,8 +424,13 @@ export function parseMyPathData(myPathData: any, update_updatedAt = false): MyPa
     myPathData.metaData.updatedAt = new Date().toISOString();
   }
   if (!isValid(myPathData.metaData.name) || myPathData.metaData.name === myPathData.metaData.guid) {
-    myPathData.metaData.name = myPathData.metaData.updatedAt.split('.')[0].split('T').join(' ');
+
+   // Assuming myPathData.metaData.updatedAt is already set to the UTC timestamp
+    const utcDate = new Date(myPathData.metaData.updatedAt);
+    const localDate = new Date(utcDate.getTime() - utcDate.getTimezoneOffset() * 60000).toISOString().split('.')[0].replace('T', ' ');
+    myPathData.metaData.name = localDate;
   }
+
   if (!isValid(myPathData.metaData.viewBox)) {
     myPathData.metaData.viewBox = CANVAS_VIEWBOX;
   }
@@ -442,19 +447,19 @@ export const getDeviceOrientation = () => {
       subscription.remove();
       if (Math.abs(x) > Math.abs(y)) {
         // Landscape mode
-        resolve(x > 0 ? Orientation.LANDSCAPE_UP : Orientation.LANDSCAPE_DOWN);
+        resolve(x >= 0 ? Orientation.LANDSCAPE_UP : Orientation.LANDSCAPE_DOWN);
       } else {
         // Portrait mode
-        resolve(y > 0 ? Orientation.PORTRAIT_UP : Orientation.PORTRAIT_DOWN);
+        resolve(y >= 0 ? Orientation.PORTRAIT_UP : Orientation.PORTRAIT_DOWN);
       }
     });
   });
 };
 
 
-export const getPenOffset = async () => {
+export const getPenOffsetFactor = async (deviceOrientation?: OrientationType|undefined) => {
   try {
-    const orientation = await getDeviceOrientation();
+    const orientation = deviceOrientation ?? await getDeviceOrientation();
     // myConsole.log('Device orientation', orientation);
     let factorX = 1;
     let factorY = 1;

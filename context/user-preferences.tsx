@@ -1,9 +1,10 @@
 import { PointType } from '@u/types';
-import React, { useState, useContext, useEffect, createContext } from 'react';
+import React, { useState, useContext, useEffect, createContext, useMemo, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import myConsole from '@c/my-console-log';
 
-interface UserPreferencesType {
+export interface UserPreferencesType {
+    usePenOffset: boolean;
     penOffset: PointType;
     defaultStorageDirectory: string;
     // theme: 'light' | 'dark';
@@ -11,25 +12,51 @@ interface UserPreferencesType {
     // Add more preferences as needed
 }
 
-interface UserPreferencesContextType {
-    userPreferences: UserPreferencesType;
-    setUserPreferences: React.Dispatch<React.SetStateAction<UserPreferencesType>>;
-}
-
 const defaultPreferences: UserPreferencesType = {
-    penOffset: { x: 40, y: 40 },
+    usePenOffset: false,
+    penOffset: { x: 0, y: 0 },
     defaultStorageDirectory: 'mypath.mahat.au',
     // theme: 'light',
     // language: 'en',
 };
 
-export const UserPreferencesContext = createContext<UserPreferencesContextType>({
-    userPreferences: defaultPreferences,
-    setUserPreferences: (value: React.SetStateAction<UserPreferencesType>) => { },
-});
+interface UserPreferencesContextType extends UserPreferencesType {
+    setUserPreferences: (value: Partial<UserPreferencesType>) => void;
+}
+
+const defaultUserPreferencesContext: UserPreferencesContextType = {
+    ...defaultPreferences,
+    setUserPreferences: () => { },
+};
+
+export const UserPreferencesContext = createContext<UserPreferencesContextType>(defaultUserPreferencesContext);
+
+export function useUserPreferences() {
+    const context = useContext(UserPreferencesContext);
+
+    if (!context) {
+        throw new Error('useUserPreferences must be used within a UserPreferencesProvider');
+    }
+
+    return context;
+};
 
 export const UserPreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [userPreferences, setUserPreferences] = useState<UserPreferencesType>(defaultPreferences);
+    const [usePenOffset, setUsePenOffset] = useState(defaultPreferences.usePenOffset);
+    const [penOffset, setPenOffset] = useState(defaultPreferences.penOffset);
+    const [defaultStorageDirectory, setDefaultStorageDirectory] = useState(defaultPreferences.defaultStorageDirectory);
+
+    const userPreferences = useMemo(() => ({
+        usePenOffset,
+        penOffset,
+        defaultStorageDirectory,
+    }), [usePenOffset, penOffset, defaultStorageDirectory]);
+
+    const setUserPreferences = useCallback((newPreferences: Partial<UserPreferencesType>) => {
+        setUsePenOffset(prev => newPreferences.usePenOffset ?? prev);
+        setPenOffset(prev => newPreferences.penOffset ?? prev);
+        setDefaultStorageDirectory(prev => newPreferences.defaultStorageDirectory ?? prev);
+    }, []);
 
     // Store user preferences in AsyncStorage whenever they change
     useEffect(() => {
@@ -46,36 +73,9 @@ export const UserPreferencesProvider: React.FC<{ children: React.ReactNode }> = 
         storeData();
     }, [userPreferences]);
 
-    // Load user preferences from AsyncStorage when the component is first mounted
-    useEffect(() => {
-        const loadData = async () => {
-            try {
-                const jsonValue = await AsyncStorage.getItem('@userPreferences');
-                if (jsonValue != null) {
-                    setUserPreferences(JSON.parse(jsonValue));
-                }
-            } catch (e) {
-                // loading error
-                myConsole.log(e);
-            }
-        };
-
-        loadData();
-    }, []);
-
     return (
-        <UserPreferencesContext.Provider value={{ userPreferences, setUserPreferences }}>
+        <UserPreferencesContext.Provider value={{ ...userPreferences, setUserPreferences }}>
             {children}
         </UserPreferencesContext.Provider>
     );
 };
-
-export function useUserPreferences() {
-    const context = useContext(UserPreferencesContext);
-
-    if (!context) {
-        throw new Error('useUserPreferences must be used within a UserPreferencesProvider');
-    }
-
-    return context;
-}
