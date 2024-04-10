@@ -1,6 +1,7 @@
+import myConsole from "@c/my-console-log";
 import MyPath from "@c/my-path";
 import MyPathImage from "@c/my-path-image";
-import { CANVAS_VIEWBOX, MyPathDataType, TransitionType } from "@u/types";
+import { AnimationParamsType, CANVAS_VIEWBOX, MyPathDataType, TransitionType } from "@u/types";
 import React, { useEffect, useRef } from "react";
 import { Animated, Easing, StyleSheet } from "react-native";
 import { Svg } from "react-native-svg";
@@ -8,11 +9,12 @@ import { Svg } from "react-native-svg";
 type Props = {
   myPathData: MyPathDataType;
   viewBox?: string;
-  onLoopBegin?: () => void;
-  onLoopEnd?: () => void;
+  onLoopBegin?: () => void; // started playing
+  onLoopEnd?: () => void; // finished playing
+  onLoopStopped?: () => void; // stopped for any reason including finished playing
 };
 
-const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnimate>) => {
+const SvgAnimate = React.forwardRef((props: Props, ref) => {
   const AnimatedPath = Animated.createAnimatedComponent(MyPath);
 
   // make a shallow copy of pathData, so any animation changes don't affect the original data
@@ -23,9 +25,9 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
   // get the one from meta data, if using trimmed view box is what needed
   // update at commented place
   // const viewBox = getViewBox(pathData);
-  const viewBox = props.viewBox || CANVAS_VIEWBOX; // props.myPathData.metaData.viewBox;
+  const viewBox = props.myPathData.metaData.viewBox || CANVAS_VIEWBOX; // props.myPathData.metaData.viewBox;
 
-  // TODO: combine to one state
+
   const [animationParams, setAnimationParams] = React.useState({
     speed: 1,
     loop: true,
@@ -38,7 +40,11 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
   const opacity = useRef(new Animated.Value(1)).current;
   const scale = useRef(new Animated.Value(1)).current;
 
-
+  const saveAnimationParams = (animationValues: AnimationParamsType) => {
+  if(JSON.stringify(animationValues) !== JSON.stringify(animationParams)) {
+    setAnimationParams(animationValues);
+  }
+}
 
   useEffect(() => {
     const animationData = props.myPathData.metaData.animation;
@@ -48,12 +54,13 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
   }, [props.myPathData])
 
   // Create an array of animated values
-  const animatedValues = pathData.map(() => new Animated.Value(0));
-
+  // const animatedValues = pathData.map(() => new Animated.Value(0));
+  const animatedValuesRef = useRef(pathData.map(() => new Animated.Value(0)));
+  const isAnimationPlaying = useRef(false);
 
   // Create an array of animations
   const getAnimations = () => Animated.sequence([
-    ...animatedValues.map((animatedValue, index) => {
+    ...(animatedValuesRef.current).map((animatedValue, index) => {
       const delay = index === 0 ? 0 : 0; // Adjust the delay as needed
       const duration =
         pathData[index] && pathData[index].time
@@ -95,7 +102,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
               const toValue = i % 3 === 0 ? 0.95 : i % 3 === 1 ? 1.05 : 1.15;
               return Animated.timing(scale, {
                 toValue,
-                duration: (animationParams.transition ?? 0) * 1000 / 15,
+                duration: (animationParams.transition ?? 0) * 1000,
                 useNativeDriver: true,
               });
             })
@@ -111,7 +118,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
       ),
 
       // Reset animatedValues here to truly reset loop animation
-      ...animatedValues.map((animatedValue) => {
+      ...(animatedValuesRef.current).map((animatedValue) => {
         return Animated.timing(animatedValue, {
           toValue: 0,
           duration: 0,
@@ -134,10 +141,9 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
       animations = getAnimations();
     }
 
-
     // Add a listener to the first animated value
-    if(props.onLoopBegin) {
-      animatedValues[startIndex].addListener(({ value }) => {
+    if (props.onLoopBegin) {
+      animatedValuesRef.current[startIndex].addListener(({ value }) => {
         if (value === 0) {
           // This function is called at the start of each loop
           props.onLoopBegin && props.onLoopBegin();
@@ -146,8 +152,8 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
     }
 
     // Add a listener to the last animated value
-    if(props.onLoopEnd) {
-      const lastAnimatedValue = animatedValues[animatedValues.length - 1];
+    if (props.onLoopEnd) {
+      const lastAnimatedValue = animatedValuesRef.current[animatedValuesRef.current.length - 1];
       lastAnimatedValue.addListener(({ value }) => {
         if (value === 1) {
           // This function is called at the end of each loop
@@ -157,27 +163,36 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
     }
 
     if (animationParams.loop) {
-      // myConsole.log('looping', loopDelay)
-      animatedValues.forEach((animatedValue) => animatedValue.setValue(0));
-      animations.reset();
-      Animated.loop(animations).start();
+      // myConsole.log('looping', animationParams)
+      animatedValuesRef.current.forEach((animatedValue) => animatedValue.setValue(0));
+
+      if (!isAnimationPlaying.current) {
+        // myConsole.log('resettig')
+        animations.reset();
+      }
+
+      Animated.loop(animations).start(() => { props.onLoopStopped && props.onLoopStopped() });
     } else {
       // myConsole.log('not looping')
       animations.start();
     }
+
+    // myConsole.log('play animation playing')
+    isAnimationPlaying.current = true;
   };
 
   // stop animation
   const stopAnimation = () => {
     // myConsole.log("stopping animation");
     animations.stop();
+    isAnimationPlaying.current = false;
 
     // Remove the listeners from the first and last animated values
-    if(props.onLoopBegin) {
-      animatedValues[0].removeAllListeners();
+    if (props.onLoopBegin) {
+      animatedValuesRef.current[0].removeAllListeners();
     }
-    if(props.onLoopEnd) {
-      animatedValues[animatedValues.length - 1].removeAllListeners();
+    if (props.onLoopEnd) {
+      animatedValuesRef.current[animatedValuesRef.current.length - 1].removeAllListeners();
     }
   };
 
@@ -185,12 +200,23 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
   React.useImperativeHandle(ref, () => ({
     playAnimation,
     stopAnimation,
-    setAnimationParams,
+    saveAnimationParams,
   }));
+
+  // useEffect(() => {
+  //   playAnimation();
+  // }, [animationParams]);
+
+  useEffect(() => {
+    if (isAnimationPlaying.current) {
+      playAnimation();
+    }
+  });
 
   useEffect(() => {
     playAnimation();
-  }, [animationParams]);
+    isAnimationPlaying.current = true;
+  }, []);
 
   return (
     <Animated.View style={{
@@ -219,7 +245,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref: React.Ref<typeof SvgAnim
 
         {pathData.map((path, index) => {
           const strokeDasharray = path.length * (1 + animationParams.correction);
-          const strokeDashoffset = animatedValues[index].interpolate({
+          const strokeDashoffset = animatedValuesRef.current[index].interpolate({
             inputRange: [0, 1],
             outputRange: [strokeDasharray, 0],
           });
