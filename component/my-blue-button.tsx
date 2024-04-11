@@ -1,160 +1,106 @@
-import { Text, View, StyleSheet, Pressable } from "react-native";
-import MyIcon from "./my-icon";
-import { useState } from "react";
-import { BLUE_BUTTON_WIDTH, MY_BLACK } from "@u/types";
+import React, { useState } from 'react';
+import { Text, View, StyleSheet, Pressable } from 'react-native';
+import MyIcon from './my-icon';
+import { BLUE_BUTTON_WIDTH } from '@u/types';
+
+const SIZE = BLUE_BUTTON_WIDTH / 2;
 
 type MyBlueButtonProps = {
-    icon?: { desc: string; name: string; size?: number, left?: number, top?: number };
+    icon?: { desc: string; name: string; size: number };
     text?: () => React.ReactNode;
     onPress: () => void;
-    // left?: number;
-    // right?: number;
     top?: number;
     bottom?: number;
     aligned?: 'left' | 'right';
 };
-const SIZE = BLUE_BUTTON_WIDTH / 2;
-const MyBlueButton = (props: MyBlueButtonProps) => {
-    const styles = StyleSheet.create({
-        position: {
-            position: 'absolute',
-            // left: props.left || undefined,
-            // right: props.right || undefined,
-            top: props.top || undefined,
-            bottom: props.bottom || undefined,
-            justifyContent: 'center',
-            alignItems: 'center',
-            alignContent: 'center',
-            zIndex: 999,
-            ...(
-                props.aligned === 'left'
-                    ? { left: 0 }
-                    : { right: 0 }
-            )
-        },
-        container: {
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#020935',
-            opacity: 1,
-            width: SIZE * 2,
-            height: SIZE,
-            borderWidth: 1,
-            borderColor: '#4f236d',
-            ...(
-                props.aligned === 'left'
-                    ? {
-                        borderTopRightRadius: SIZE / 2,
-                        borderBottomRightRadius: SIZE / 2,
-                        borderTopWidth: 1,
-                        borderRightWidth: 2,
-                        borderLeftWidth: 0,
-                        borderBottomWidth: 0,
 
-                    }
-                    : {
-                        borderTopLeftRadius: SIZE / 2,
-                        borderBottomLeftRadius: SIZE / 2,
-                        borderTopWidth: 1,
-                        borderLeftWidth: 2,
-                        borderRightWidth: 0,
-                        borderBottomWidth: 0,
-                    }
-            ),
-        }
+const MyBlueButton = ({ icon, text, onPress, top, bottom, aligned }:MyBlueButtonProps) => {
+    const [isPressed, setIsPressed] = useState(false);
+
+    const buttonRadiusStyle = {
+        borderTopRightRadius: aligned === 'left' ? SIZE / 2 : 0,
+        borderBottomRightRadius: aligned === 'left' ? SIZE / 2 : 0,
+        borderTopLeftRadius: aligned === 'right' ? SIZE / 2 : 0,
+        borderBottomLeftRadius: aligned === 'right' ? SIZE / 2 : 0,
+    };
+
+    const styles = StyleSheet.create({
+        buttonWrapper: {
+            position: 'absolute',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 999,
+        },
+        buttonContent: {
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingLeft: aligned === 'right' ? (isPressed ? 27 : 20) : 20,
+            paddingRight: aligned === 'left' ? (isPressed ? 27 : 20) : 20,
+            opacity: isPressed ? 0.5 : 1,
+        },
+        text: {
+            color: '#FFFFFF',
+            fontSize: 10,
+            fontWeight: '300',
+            textAlign: 'right',
+            paddingRight: 5,
+        },
+        buttonBase: {
+            backgroundColor: isPressed ? '#030d47' : '#030f54', // Solid background color
+            width: isPressed ? SIZE * 2 -  2 : SIZE * 2,
+            height: SIZE-4,
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderWidth: 0,
+            ...buttonRadiusStyle,
+        },
     });
 
-    const [containerStyle, setContainerStyle] = useState(styles.container);
+    // Adjustments for alignment and pressed effect
+    const dynamicStyles = {
+        ...(aligned === 'left' ? { left: 0 } : { right: 0 }),
+        top,
+        bottom,
+        borderColor: isPressed ? '#00145a' :'#030d47'  , // Darker border when pressed
 
+        ...buttonRadiusStyle,
+        borderRightWidth: aligned === 'left' ? (isPressed ? 1 :2) : 0,
+        borderLeftWidth: aligned === 'right' ? (isPressed ? 1 : 2) : 0,
+        borderTopWidth: (isPressed ? 0 : 1),
+        borderBottomWidth: (isPressed ? 0 : 1),
 
-    const setPressedDesign = (pressed: boolean) => {
-        setContainerStyle({
-            ...containerStyle,
-            opacity: 1,
-            borderColor: pressed ? "#4f236d" : "#4f236d",
-            ...(
-                props.aligned === 'left'
-                    ? {
-                        borderTopRightRadius: SIZE / 2,
-                        borderBottomRightRadius: SIZE / 2,
-                        borderTopWidth: pressed ? 3 : 1,
-                        borderRightWidth: pressed ? 4 : 2,
-                        borderLeftWidth: 0,
-                        borderBottomWidth: 0,
-
-                    }
-                    : {
-                        borderTopLeftRadius: SIZE / 2,
-                        borderBottomLeftRadius: SIZE / 2,
-                        borderTopWidth: pressed ? 3 : 1,
-                        borderLeftWidth: pressed ? 4 : 2,
-                        borderRightWidth: 0,
-                        borderBottomWidth: 0,
-                    }
-            ),
-        });
-    }
+    };
 
     return (
-        <View style={styles.position} >
-            <View style={{
-                ...containerStyle
-            }}>
-            </View>
+        <View style={[styles.buttonWrapper, dynamicStyles]}>
             <Pressable
-                style={{ ...containerStyle, position: 'absolute' }}
-                onPress={props.onPress}
-                onPressIn={() => setPressedDesign(true)}
-                onPressOut={() => setPressedDesign(false)}
+                onPress={onPress}
+                onPressIn={() => setIsPressed(true)}
+                onPressOut={() => setIsPressed(false)}
+                style={styles.buttonBase}
             >
-                <View style={props.icon?.desc ? {
-                    flex: 1,
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    alignContent: 'space-between',
-                    paddingHorizontal: 20,
-                    opacity: 1,
-                } : {}}>
-                    {
-                        props.icon?.desc &&
-                        <View style={{ width: SIZE }}>
-                            <Text
-                                style={{
-                                    color: '#FFFFFF',
-                                    fontSize: 10,
-                                    fontWeight: '300',
-                                    textAlign: 'right',
-                                    paddingRight: 5,
-                                }}
-                                numberOfLines={2}
-                                // ellipsizeMode='middle'
-                            >
-                                {props.icon?.desc ||''}
-                            </Text>
-                        </View>
-                    }
-                    <View
-                        pointerEvents="auto">
-                        <View style={{
-                            opacity: 1,
-                            top: props.icon?.top || undefined,
-                            left: props.icon?.left || undefined
-                        }}>{
-                                props.icon
-                                    ? <MyIcon
-                                        // onPress={props.onPress} // do not pass onPress to MyIcon
-                                        name={props.icon.name}
-                                        color="#FFFFFF"
-                                        style={{ size: props.icon.size || undefined }}
-                                    />
-                                    : props.text ? <props.text /> : null}
-                        </View>
-                    </View>
+                <View style={styles.buttonContent}>
+                    {icon?.desc && (
+                        <Text style={styles.text} numberOfLines={2}>
+                            {icon.desc}
+                        </Text>
+                    )}
+                    {icon && (
+                        <MyIcon
+                            name={icon.name}
+                            color="#FFFFFF"
+                            size={icon.size}
+                            activeOpacity={1}
+                            strokeWidth={0.8}
+                            style={{ paddingRight: icon.desc ? 5 : 0 }}
+                        />
+                    )}
+                    {text && text()}
                 </View>
-            </Pressable >
-        </View >
-    )
-}
+            </Pressable>
+        </View>
+    );
+};
 
-export default MyBlueButton
+export default MyBlueButton;

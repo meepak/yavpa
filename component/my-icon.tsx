@@ -11,6 +11,7 @@ export interface MyIconStyle {
   strokeWidth?: number;
   marginBottom?: number;
   marginLeft?: number;
+  paddingRight?: number;
   transform?: string;
 }
 
@@ -24,11 +25,12 @@ export interface MyIconProps {
   fill?: string;
   strokeWidth?: number;
   style?: MyIconStyle;
+  activeOpacity?: number;
   hitSlop?: { top: number, left: number, bottom: number, right: number };
 }
 
 const MyIcon = forwardRef((props: MyIconProps, ref: React.Ref<any>) => {
-  const { name, onPress, onPressIn, onPressOut, size, color, fill, strokeWidth, style, hitSlop } = props;
+  const { name, onPress, onPressIn, onPressOut, size, color, fill, strokeWidth, style, activeOpacity, hitSlop } = props;
   const { paths, transform, viewBox } = getIcon(name);
   let width = parseFloat(viewBox.split(' ')[2]);
   let height = parseFloat(viewBox.split(' ')[3]);
@@ -42,6 +44,7 @@ const MyIcon = forwardRef((props: MyIconProps, ref: React.Ref<any>) => {
       onPressIn={onPressIn}
       onPressOut={onPressOut}
       hitSlop={hitSlop}
+      activeOpacity={activeOpacity || 0.55}
     >
       <Svg
         width={iconWidth}
@@ -49,7 +52,8 @@ const MyIcon = forwardRef((props: MyIconProps, ref: React.Ref<any>) => {
         viewBox={viewBox}
         style={{
           marginBottom: style?.marginBottom || 0,
-          marginLeft: style?.marginLeft || 0
+          marginLeft: style?.marginLeft || 0,
+          paddingRight: style?.paddingRight || 0
         }}
       >
         {paths.map((path, index) => (

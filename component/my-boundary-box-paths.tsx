@@ -116,7 +116,7 @@ const AnimatedBboxPath = Animated.createAnimatedComponent(MyPath);
 
 type MyBoundaryBoxPathsProps = {
     activeBoundaryBoxPath: PathDataType | null,
-    scaleFactor: number
+    scaleFactor?: number
 };
 
 const MyBoundaryBoxPaths: React.FC<MyBoundaryBoxPathsProps> = ({ activeBoundaryBoxPath, scaleFactor = 1 }) => {

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { View, StyleSheet, ActivityIndicator } from "react-native";
 import Svg from "react-native-svg";
 import { createPathdata } from "@u/helper";
-import { CANVAS_VIEWBOX, MY_BLACK, PathDataType, PointType, ShapeType } from "@u/types";
+import { CANVAS_VIEWBOX, MY_BLACK, PathDataType, PointType, SCREEN_HEIGHT, SCREEN_WIDTH, ShapeType } from "@u/types";
 import MyPath from "@c/my-path";
 import { useCommandEffect } from "./canvas/use-command-effect";
 import { MyPathDataContext } from "@x/svg-data";
@@ -162,8 +162,8 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 They need to be edited in this dimension,
 we can save and play on whatever dimension we want, thus using fixed default viewbox*/}
                     <Svg
-                      width='100%'
-                      height={'100%'}
+                      width={SCREEN_WIDTH}
+                      height={SCREEN_HEIGHT}
                       viewBox={CANVAS_VIEWBOX}
                       onLayout={() => setIsLoading(false)}
                     >

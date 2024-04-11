@@ -219,17 +219,18 @@ const BrowseScreen = () => {
               flex: 1,
               justifyContent: 'center',
               alignItems: 'center',
+              backgroundColor: 'transparent'
             }}>
               <ActivityIndicator
                 style={{ top: -HEADER_BAR_HEIGHT }}
                 animating
-                size={150}
+                size={100}
                 color={MY_BLACK} />
             </View>
           )}
         </View>
         <MyBlueButton
-          icon={{ desc: '', name: 'new', size: 60, left: 0, top: 0 }}
+          icon={{ desc: '', name: 'new', size: 60 }}
           onPress={() => router.push('/file')}
           bottom={insets.bottom + 16}
           aligned="right" />

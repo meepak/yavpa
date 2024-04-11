@@ -14,6 +14,8 @@ import {
   PointType,
   I_AM_IOS,
   I_AM_ANDROID,
+  SCREEN_WIDTH,
+  SCREEN_HEIGHT,
 } from "@u/types";
 import { handleDrawingEvent } from "./handle-drawing-event";
 import { handleSelectEvent } from "./handle-select-event";
@@ -22,9 +24,11 @@ import { handleScaleEvent } from "./handle-scale-event";
 import { handleRotateEvent } from "./handle-rotate-event";
 import { debounce } from "lodash";
 import { getBoundaryBox } from "@c/my-boundary-box-paths";
-import { getPenOffset, precise } from "@u/helper";
-import myConsole from "@c/my-console-log";
 import { UserPreferencesContext } from "@x/user-preferences";
+import { getPenOffsetFactor } from '@u/helper';
+import myConsole from "@c/my-console-log";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import { getSvgPoint } from "@u/coordinates";
 
 
 type MyGesturesProps = {
@@ -71,30 +75,32 @@ export const MyGestures = ({
   children,
 }: MyGesturesProps): React.ReactNode => {
 
-  const { userPreferences } = useContext(UserPreferencesContext);
-  const penOffset = useRef({ x: 0, y: 0 });
+  const { penOffset } = useContext(UserPreferencesContext);
+  const penOffsetRef = useRef({ x: 0, y: 0 });
 
   // For all things related to drawing a path
   const handlePanDrawingEvent = async (event: GestureUpdateEvent<PanGestureHandlerEventPayload>, state: string) => {
 
     if (state === 'began') { // need to measure at begining of each writing event
-      const pp = await getPenOffset();
+      const pp = await getPenOffsetFactor();
 
-      penOffset.current.x = (pp?.x || 0) * userPreferences.penOffset.x;
-      penOffset.current.y = (pp?.y || 0) * userPreferences.penOffset.y;
+      penOffsetRef.current.x = (pp?.x || 0) * penOffset.x;
+      penOffsetRef.current.y = (pp?.y || 0) * penOffset.y;
     }
 
-      // myConsole.log('penOffset', penOffset.current);
+    myConsole.log('penOffset', penOffsetRef.current);
+
+    const svgPoint = getSvgPoint(event.x / SCREEN_WIDTH, event.y / SCREEN_HEIGHT,1, 0,0);
     const penTip = {
-      x: event.x + penOffset.current.x,
-      y: event.y + penOffset.current.y,
+      x: svgPoint.x * SCREEN_WIDTH,  //+ penOffsetRef.current.x,
+      y: svgPoint.y * SCREEN_HEIGHT, // + penOffsetRef.current.y,
     };
 
 
     if (state === 'ended') {
       penTipRef.current = null;
-      penOffset.current.x = 0;
-      penOffset.current.y = 0;
+      penOffsetRef.current.x = 0;
+      penOffsetRef.current.y = 0;
     } else {
       penTipRef.current = { ...penTip };
     }

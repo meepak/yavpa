@@ -243,11 +243,10 @@ const FileScreen = () => {
             {
                 currentScreenMode.name === ScreenModes[1].name ?
                     <MyBlueButton
-                        icon={{ desc: 'EXPORT', name: 'export', size: 24, left: 0, top: 0 }}
+                        icon={{ desc: 'EXPORT', name: 'export', size: 24 }}
                         onPress={() => setCurrentScreenMode(ScreenModes[2])}
                         bottom={insets.bottom + 16}
                         aligned="right"
-                    // {...elevations[10]}
                     /> : null
             }
 
