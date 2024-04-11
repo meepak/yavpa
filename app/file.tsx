@@ -1,5 +1,5 @@
 import { BLUE_BUTTON_WIDTH, CANVAS_HEIGHT, CANVAS_PADDING_HORIZONTAL, CANVAS_PADDING_VERTICAL, CANVAS_WIDTH, FOOTER_HEIGHT, HEADER_HEIGHT, MY_BLACK, SCREEN_WIDTH, ScreenModes } from "@u/types";
-import { createMyPathData } from "@u/helper";
+import { createMyPathData, hrFormatTime } from "@u/helper";
 import { getFile, saveSvgToFile } from "@u/storage";
 import { MyPathDataContext } from "@x/svg-data";
 import { DrawScreen, ExportScreen, Header, PreviewScreen } from "@c/screens/file";
@@ -134,7 +134,7 @@ const FileScreen = () => {
                         key={index}
                         style={{
                             position: 'absolute',
-                            color: 'rgba(255,255,255,0.8)',
+                            color: 'rgba(255,255,255,0.6)',
                             fontSize: 42,
                             fontWeight: 'bold',
                             textTransform: 'uppercase',
@@ -147,6 +147,28 @@ const FileScreen = () => {
                     </Text>
                 ))}
             </>
+        )
+    };
+
+    const DisplayPathStat = () => {
+        const numPath = myPathData?.pathData.length;
+        const animTime = (myPathData?.pathData.reduce((acc, item) => acc + item.time, 0))
+        return (
+            <Text
+                style={{
+                    position: 'absolute',
+                    color: 'rgba(0,0,255,0.6)',
+                    fontSize: 9,
+                    fontWeight: 'bold',
+                    textTransform: 'uppercase',
+                    letterSpacing: 1,
+                    zIndex: -1,
+                    bottom: 5,
+                    left: 20,
+                }}
+            >
+                { numPath + ' path' + (numPath > 1 ? 's' : '') + ', ' +  hrFormatTime(animTime)}
+            </Text>
         )
     };
 
@@ -196,12 +218,11 @@ const FileScreen = () => {
                                     alignItems: "center",
                                     backgroundColor: 'transparent',
                                     paddingTop: CANVAS_PADDING_VERTICAL,
-                                    // paddingHorizontal: CANVAS_PADDING_HORIZONTAL / 2,
-                                    // paddingRight: CANVAS_PADDING_HORIZONTAL / 2, // TO CREATE ROOM FOR EDGE BUTTON
                                     overflow: 'hidden',
                                     margin: 5,
                                 }}
                             >
+                                <DisplayPathStat />
                                 <DisplayScreenName />
                                 <View
                                     style={{
@@ -210,15 +231,6 @@ const FileScreen = () => {
                                         borderWidth: 1,
                                         borderColor: 'rgba(0,0,0,0.1)',
                                         ...elevations[2],
-                                        // backgroundColor: 'rgba(255,255,255,0.5)',
-                                        // shadowOffset: {
-                                        //   width: 0,
-                                        //   height: 7,
-                                        // },
-                                        // shadowOpacity: 0.44,
-                                        // shadowRadius: 6.27,
-                                        // elevation: 7,
-
                                     }}>
                                     {getCurrentScreen()}
                                 </View>

@@ -9,9 +9,10 @@ import { Divider } from '@c/controls';
 import { MY_BLACK, SCREEN_WIDTH } from '@u/types';
 import myConsole from '@c/my-console-log';
 import MyIcon from '@c/my-icon';
+import { hrFormatSize } from '@u/helper';
 
 
-const StoragePreference: React.FC<{ disableParentScroll: (val: boolean) => void }> = ({disableParentScroll}) => {
+const StoragePreference: React.FC<{ disableParentScroll: (val: boolean) => void }> = ({ disableParentScroll }) => {
     const { defaultStorageDirectory, setUserPreferences } = useContext(UserPreferencesContext);
     const [newDirName, setNewDirName] = useState('');
     // const [directories, setDirectories] = useState<string[]>([]);
@@ -67,12 +68,12 @@ const StoragePreference: React.FC<{ disableParentScroll: (val: boolean) => void 
 
     const handleDirectoryChange = (dirName) => {
         myConsole.log('saving directory changes to ', dirName);
-        setUserPreferences({defaultStorageDirectory: dirName });
+        setUserPreferences({ defaultStorageDirectory: dirName });
     };
 
     const handleNewDirSubmit = async () => {
         let newDir = newDirName.trim();
-        if(newDir === '') return;
+        if (newDir === '') return;
         const prefix = 'mypath.'
         const appSaveDir = getAppSavePath(prefix + newDir);
         try {
@@ -109,7 +110,7 @@ const StoragePreference: React.FC<{ disableParentScroll: (val: boolean) => void 
                 if (dir === defaultStorageDirectory) {
                     const maxFiles = Math.max(...filesCount.current);
                     const maxIndex = filesCount.current.indexOf(maxFiles); // WHAT IF WE HAVE SAME MAX FILES, WE WILL JUST PICK FIRST ONE
-                    setUserPreferences({defaultStorageDirectory: directories[maxIndex]});
+                    setUserPreferences({ defaultStorageDirectory: directories[maxIndex] });
                 }
                 // Refresh the list of directories
                 initialize();
@@ -161,78 +162,72 @@ const StoragePreference: React.FC<{ disableParentScroll: (val: boolean) => void 
         //         // let it download using expo sharing
     };
 
-    const hrFormat = (bytes: number) => {
-        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-        if (bytes === 0) return '0 Byte';
-        const i = parseInt(String(Math.floor(Math.log(bytes) / Math.log(1024))), 10);
-        return `${Math.round(bytes / Math.pow(1024, i))} ${sizes[i]}`;
-    }
 
     return (loading
         ? <ActivityIndicator size="small" color="#0000ff" />
         : (
-        <View style={{ marginHorizontal: 15 }}>
-            <Text style={{fontWeight: 'bold', color: MY_BLACK}}>Root: {rootDirPath.current.replace('file://', '')} </Text>
+            <View style={{ marginHorizontal: 15 }}>
+                <Text style={{ fontWeight: 'bold', color: MY_BLACK }}>Root: {rootDirPath.current.replace('file://', '')} </Text>
 
-            {
-                defaultStorageDirectory
-                    ? <Text>Current directory: {defaultStorageDirectory} </Text>
-                    : <Text style={{ color: 'red' }}>Error:: select a working directory.</Text>
-            }
-            <Text>
-                Total Sketches: {filesCount.current[directories.current.indexOf(defaultStorageDirectory)]}
-            </Text>
-            <Text>
-                Total Images: {imagesCount.current[(directories.current.indexOf(defaultStorageDirectory))]}
-            </Text>
-            <Text>Total size: {hrFormat(filesSize.current[(directories.current.indexOf(defaultStorageDirectory))])}
-            </Text>
-            <Text>
-                Total free space: {hrFormat(freeSpace.current)} out of {hrFormat(totalSpace.current)}.</Text>
-            <Divider width={SCREEN_WIDTH - 50} height={2} color={MY_BLACK} />
-            <Text>Select current storage directory or create new one.</Text>
+                {
+                    defaultStorageDirectory
+                        ? <Text>Current directory: {defaultStorageDirectory} </Text>
+                        : <Text style={{ color: 'red' }}>Error:: select a working directory.</Text>
+                }
+                <Text>
+                    Total Sketches: {filesCount.current[directories.current.indexOf(defaultStorageDirectory)]}
+                </Text>
+                <Text>
+                    Total Images: {imagesCount.current[(directories.current.indexOf(defaultStorageDirectory))]}
+                </Text>
+                <Text>Total size: {hrFormatSize(filesSize.current[(directories.current.indexOf(defaultStorageDirectory))])}
+                </Text>
+                <Text>
+                    Total free space: {hrFormatSize(freeSpace.current)} out of {hrFormatSize(totalSpace.current)}.</Text>
+                <Divider width={SCREEN_WIDTH - 50} height={2} color={MY_BLACK} />
+                <Text>Select current storage directory or create new one.</Text>
 
-            <View style={{ flexDirection: 'row', alignItems: 'center', borderBottomWidth: 0.75, width: '80%', marginVertical: 15 }}>
-                <Text>mypath.</Text>
-                <TextInput
-                    value={newDirName}
-                    placeholder="Enter new directory name"
-                    enablesReturnKeyAutomatically={true}
-                    onChangeText={(text) => {
-                        const cleanedText = text.replace(/\?/g, '');
-                        setNewDirName(cleanedText);
-                    }}
-                    onSubmitEditing={handleNewDirSubmit}
-                    maxLength={20}
-                    autoCapitalize='none'
+                <View style={{ flexDirection: 'row', alignItems: 'center', borderBottomWidth: 0.75, width: '80%', marginVertical: 15 }}>
+                    <Text>mypath.</Text>
+                    <TextInput
+                        value={newDirName}
+                        placeholder="Enter new directory name"
+                        enablesReturnKeyAutomatically={true}
+                        onChangeText={(text) => {
+                            const cleanedText = text.replace(/\?/g, '');
+                            setNewDirName(cleanedText);
+                        }}
+                        onSubmitEditing={handleNewDirSubmit}
+                        maxLength={20}
+                        autoCapitalize='none'
 
 
 
-                />
-            </View>
-            <ScrollView
-                contentContainerStyle={{ paddingVertical: 10}}
-                nestedScrollEnabled={true}
-                onScrollBeginDrag={() => disableParentScroll(true)}
-                onScrollEndDrag={() => {console.log('ed'); disableParentScroll(false)}}
-                style={{
-                    height: 250, backgroundColor: '#F0F0F0'
-                }}>
-                {directories.current.map((dirName, index) => (
-                    <View key={dirName}>
-                        <View style={{
-                            backgroundColor: dirName === defaultStorageDirectory ? '#4E2DBA77' : undefined,
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: 5
-                        }}>
+                    />
+                </View>
+                <ScrollView
+                    contentContainerStyle={{ paddingVertical: 10 }}
+                    nestedScrollEnabled={true}
+                    onScrollBeginDrag={() => disableParentScroll(true)}
+                    onScrollEndDrag={() => { console.log('ed'); disableParentScroll(false) }}
+                    style={{
+                        height: 250, backgroundColor: '#F0F0F0'
+                    }}>
+                    {directories.current.map((dirName, index) => (
+                        <View key={dirName}>
+                            <View style={{
+                                backgroundColor: dirName === defaultStorageDirectory ? '#4E2DBA77' : undefined,
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                padding: 5
+                            }}>
                                 <Text style={{ flex: 5, padding: 10, fontWeight: '700', }}>
                                     [{filesCount.current[index]}] {dirName}
                                 </Text>
                                 <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
                                     <TouchableOpacity onPress={() => handleDirectoryChange(dirName)}>
-                                    <MyIcon size={24} name={'checkbox-' + ((dirName === defaultStorageDirectory )? 'checked' : 'empty')} fill='#000000' color='#00000033' strokeWidth={0.75} />
+                                        <MyIcon size={24} name={'checkbox-' + ((dirName === defaultStorageDirectory) ? 'checked' : 'empty')} fill='#000000' color='#00000033' strokeWidth={0.75} />
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => handleBackupDir(dirName)}>
                                         <MyIcon size={20} name='export' color='#000000' style={{ marginLeft: 15 }} />
@@ -240,14 +235,14 @@ const StoragePreference: React.FC<{ disableParentScroll: (val: boolean) => void 
                                     <TouchableOpacity onPress={() => handleDeleteDir(dirName)}>
                                         <MyIcon size={22} name='trash' color='#000000' style={{ marginLeft: 15 }} />
                                     </TouchableOpacity>
+                                </View>
                             </View>
+                            <Divider width={'100%'} color={'#CFCFCF'} height={1.5} />
                         </View>
-                        <Divider width={'100%'} color={'#CFCFCF'} height={1.5} />
-                    </View>
-                ))}
-            </ScrollView>
-        </View>
-    ));
+                    ))}
+                </ScrollView>
+            </View>
+        ));
 };
 
 export default StoragePreference;
