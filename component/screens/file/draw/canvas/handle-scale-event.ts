@@ -3,6 +3,7 @@ import { SetStateAction } from "react";
 import { PathDataType, PointType, MyPathDataType } from "@u/types";
 import { getPointsFromPath, getPathFromPoints, scalePoints, getPathLength } from "@u/helper";
 import * as Crypto from "expo-crypto";
+import myConsole from "@c/my-console-log";
 
 let startScale = 1;
 
@@ -63,8 +64,7 @@ export const handleScaleEvent = (
             startScale = event.scale;
             break;
         case "ended":
-            startScale = 1;
-            setScaleMode('XY');
+            myConsole.log("scale ended");
             setMyPathData((prev) => {
                 let points: { [key: string]: PointType[] } = {};
 
@@ -84,9 +84,11 @@ export const handleScaleEvent = (
                     }
                 });
 
-                prev.metaData.updatedAt = new Date().toISOString();
+                prev.metaData.updatedAt = "";
                 return prev;
             });
+            startScale = 1;
+            setScaleMode("XY");
             break;
     }
 }

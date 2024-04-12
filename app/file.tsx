@@ -4,7 +4,7 @@ import { getFile, saveSvgToFile } from "@u/storage";
 import { MyPathDataContext } from "@x/svg-data";
 import { DrawScreen, ExportScreen, Header, PreviewScreen } from "@c/screens/file";
 import { useLocalSearchParams } from "expo-router";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { View, Text } from "react-native";
 import * as Crypto from "expo-crypto";
 import MyFilmStripView from "@c/my-film-strip-view";
@@ -110,7 +110,6 @@ const FileScreen = () => {
     const getCurrentScreen = React.useCallback(() => {
         switch (currentScreenMode.name) {
             case ScreenModes[1].name: // Preview
-                myConsole.log('myPathData', myPathData.metaData.animation);
                 return <PreviewScreen myPathData={myPathData} setMyPathData={setMyPathData} initControls={setControlButtons} />;
             case ScreenModes[2].name: // Export
                 return <ExportScreen myPathData={myPathData} initControls={setControlButtons} />
@@ -150,27 +149,30 @@ const FileScreen = () => {
         )
     };
 
-    const DisplayPathStat = () => {
+    const DisplayPathStat = useMemo(() => {
         const numPath = myPathData?.pathData.length;
-        const animTime = (myPathData?.pathData.reduce((acc, item) => acc + item.time, 0))
-        return (
-            <Text
+        const animTime = (myPathData?.pathData.reduce((acc, item) => acc + item.time, 0)) / (myPathData?.metaData.animation?.speed || 1);
+        return () => {
+            if(numPath > 0)
+            return  <Text
                 style={{
                     position: 'absolute',
-                    color: 'rgba(0,0,255,0.6)',
+                    opacity: 0.7,
+                    color: MY_BLACK,
                     fontSize: 9,
                     fontWeight: 'bold',
                     textTransform: 'uppercase',
                     letterSpacing: 1,
                     zIndex: -1,
-                    bottom: 5,
-                    left: 20,
+                    top: 0,
+                    right: 20,
                 }}
             >
                 { numPath + ' path' + (numPath > 1 ? 's' : '') + ', ' +  hrFormatTime(animTime)}
             </Text>
-        )
-    };
+        }
+        return <></>;
+    },[myPathData]);
 
     // const ZoomScaleText = () => (
     //     canvasScale !== 1 &&

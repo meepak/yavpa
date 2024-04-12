@@ -88,9 +88,9 @@ export const MyGestures = ({
       penOffsetRef.current.y = (pp?.y || 0) * penOffset.y;
     }
 
-    myConsole.log('penOffset', penOffsetRef.current);
+    // myConsole.log('penOffset', penOffsetRef.current);
 
-    const svgPoint = getSvgPoint(event.x / SCREEN_WIDTH, event.y / SCREEN_HEIGHT,1, 0,0);
+    const svgPoint = getSvgPoint(event.x / SCREEN_WIDTH, event.y / SCREEN_HEIGHT, 1, 0, 0);
     const penTip = {
       x: svgPoint.x * SCREEN_WIDTH,  //+ penOffsetRef.current.x,
       y: svgPoint.y * SCREEN_HEIGHT, // + penOffsetRef.current.y,
@@ -169,12 +169,13 @@ export const MyGestures = ({
   panDragGesture.onBegin((event) => {
     panDragEvent.cancel();
     panDragEvent(event, "began");
-  })
-    .onUpdate((event) => panDragEvent(event, "active"))
-    .onEnd((event) => {
-      panDragEvent(event, "ended");
-      resetBoundaryBox();
-    });
+  });
+  panDragGesture.onUpdate((event) => panDragEvent(event, "active"));
+  panDragGesture.onEnd((event) => {
+    panDragEvent.flush();
+    panDragEvent(event, "ended");
+    resetBoundaryBox();
+  });
 
   // For scaling of path
   const pinchZoomEvent = debounce((event, state) => {
@@ -185,9 +186,10 @@ export const MyGestures = ({
   pinchZoomGesture.onBegin((event) => {
     pinchZoomEvent.cancel();
     pinchZoomEvent(event, "began");
-  })
-    .onUpdate((event) => pinchZoomEvent(event, "active"))
-    .onEnd((event) => {
+  });
+  pinchZoomGesture.onUpdate((event) => pinchZoomEvent(event, "active"))
+  pinchZoomGesture.onEnd((event) => {
+      pinchZoomEvent.flush();
       pinchZoomEvent(event, "ended");
       resetBoundaryBox();
       setScaleMode('XY');

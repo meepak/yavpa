@@ -588,7 +588,7 @@ export const hrFormatTime = (milliseconds: number) => {
   let result = '';
   if (min > 0) result += `${min} min `;
   if (s > 0) result += `${s} sec `;
-  if (ms > 0) result += `${ms} ms`;
+  if (ms > 0) result += `${precise(ms,0)} ms`;
 
   return result.trim();
 };

@@ -52,7 +52,6 @@ const Header = ({
         const newScreenModeIndex = currentScreenModeIndex === 0 ? 1 : 0;
         const newScreenMode = ScreenModes[newScreenModeIndex];
         setScreenMode(newScreenMode);
-        myConsole.log('new screen mode', newScreenMode.name);
         // setButtonInstruction(ScreenModeInstruction[newScreenMode.name]);
         onScreenModeChanged && onScreenModeChanged(newScreenMode);
     };
@@ -87,7 +86,7 @@ const Header = ({
         } else if (screenMode.name === "locked") {
             desc = "Press to UNLOCK";
         }
-        return { desc, name };
+        return { desc, name, size: 24};
     }
     const textInputHeight = 40;
     const blueButtonTop = HEADER_HEIGHT - BLUE_BUTTON_WIDTH / 3;
