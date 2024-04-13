@@ -47,6 +47,7 @@ export const handleDrawingEvent = (
 
   switch (state) {
     case "began":
+      // console.log("began")
       setStartTime(Date.now());
 
       const newPath = newPathData();
@@ -77,6 +78,7 @@ export const handleDrawingEvent = (
       }
       break;
     case "active":
+      // console.log("active")
       if (isValidShape(currentShape.name)) {
         setCurrentShape((prev) => {
           prev.end = penTip as PointType;
@@ -112,6 +114,7 @@ export const handleDrawingEvent = (
       }
       break;
     case "ended":
+      // console.log("ended")
       currentPath.time = Date.now() - startTime;
       // myConsole.log("time", currentPath.time)
 
@@ -126,9 +129,9 @@ export const handleDrawingEvent = (
 
       let points = getPointsFromPath(currentPath.path);
       currentPath.path = "";
-
+      // console.log("points.length", points.length);
       if (simplifyTolerance > 0) {
-        if (points.length >= 2) {
+        if (points.length >= 20) {
           points = simplify(points, simplifyTolerance);
         }
       }

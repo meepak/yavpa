@@ -181,7 +181,7 @@ we can save and play on whatever dimension we want, thus using fixed default vie
                     onLayout={() => setIsLoading(false)}
                   >
                     {/* current path is being drawn lets display pen */}
-                    {editMode && penTipRef.current && <MyPen tip={penTipRef.current} />}
+                    {/* {editMode && penTipRef.current && <MyPen tip={penTipRef.current} />} */}
 
                     {myPathData.imageData?.map((item) => (
                       item.visible

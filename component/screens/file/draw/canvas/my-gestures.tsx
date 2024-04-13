@@ -169,6 +169,12 @@ export const MyGestures = ({
   // For moving paths on screen
   const panDragEvent = debounce((event, state) => {
     if(!activeBoundaryBoxPath || editMode) return;
+    const tapPoint = {
+      x: event.x * canvasScale + canvasTranslate.x,
+      y: event.y * canvasScale + canvasTranslate.y,
+    }
+    // if tapPoint is within the boundary box, move the boundary box
+    // else allow to draw the free path which will select the paths on the way
     const panTranslatePoint = {
       x: event.translationX * canvasScale,
       y: event.translationY * canvasScale,
@@ -181,6 +187,7 @@ export const MyGestures = ({
   panDragGesture.minPointers(1);
   panDragGesture.maxPointers(1);
   panDragGesture.onBegin((event) => {
+    // console.log('panDrag began');
     panDragEvent.cancel();
     panDragEvent(event, "began");
   });
@@ -206,7 +213,7 @@ export const MyGestures = ({
   });
 
 
-  panDrag2Gesture.onUpdate(debounce((event) => {
+  const debouncedUpdate = debounce((event: { x: number; y: number; }) => {
     if (activeBoundaryBoxPath) return;
     const xTranslate = (event.x - startPoint.current.x) * canvasScale;
     const yTranslate = (event.y - startPoint.current.y) * canvasScale;
@@ -218,10 +225,14 @@ export const MyGestures = ({
     });
 
     startPoint.current = { x: event.x, y: event.y };
-  }, 5, { leading: I_AM_ANDROID, trailing: I_AM_IOS }));
+  }, 5, { leading: I_AM_ANDROID, trailing: I_AM_IOS });
+
+  panDrag2Gesture.onUpdate(debouncedUpdate);
 
   panDrag2Gesture.onEnd(() => {
+    debouncedUpdate.cancel();
     // setTimeout(() => { // snap prevention
+    startPoint.current = { x: 0, y: 0 };
       // save the sketch
       setMyPathData((prev) => ({
         ...prev,
@@ -252,8 +263,8 @@ export const MyGestures = ({
         // myConsole.log('scaling update', event.scale);
         // let do this for canvas scale
         let scale = precise(canvasScale * pinch2CanvasScale.current / event.scale, 2);
-        if (scale < 0.75) scale = 0.75;
-        if (scale > 1.5) scale = 1.5;
+        if (scale < 0.25) scale = 0.25;
+        if (scale > 2.5) scale = 2.5;
         setCanvasScale(scale);
         pinch2CanvasScale.current = event.scale;
       }
