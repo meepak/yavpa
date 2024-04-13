@@ -3,7 +3,7 @@ import * as Crypto from "expo-crypto";
 import {
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
-  CANVAS_VIEWBOX,
+  CANVAS_VIEWBOX_DEFAULT,
   PRECISION,
   PointType,
   ScreenModes,
@@ -508,7 +508,7 @@ export function parseMyPathData(myPathData: any, update_updatedAt = false) {
   }
 
   if (!isValid(myPathData.metaData.viewBox)) {
-    myPathData.metaData.viewBox = CANVAS_VIEWBOX;
+    myPathData.metaData.viewBox = CANVAS_VIEWBOX_DEFAULT;
   }
   if (!isValid(myPathData.metaData.viewBoxTrimmed)) {
     myPathData.metaData.viewBoxTrimmed = getViewBoxTrimmed(myPathData.pathData);

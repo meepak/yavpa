@@ -1,7 +1,7 @@
 import myConsole from "@c/my-console-log";
 import MyPath from "@c/my-path";
 import MyPathImage from "@c/my-path-image";
-import { AnimationParamsType, CANVAS_VIEWBOX, MyPathDataType, TransitionType } from "@u/types";
+import { AnimationParamsType, CANVAS_VIEWBOX_DEFAULT, MyPathDataType, TransitionType } from "@u/types";
 import React, { useEffect, useRef } from "react";
 import { Animated, Easing, StyleSheet } from "react-native";
 import { Svg } from "react-native-svg";
@@ -25,7 +25,7 @@ const SvgAnimate = React.forwardRef((props: Props, ref) => {
   // get the one from meta data, if using trimmed view box is what needed
   // update at commented place
   // const viewBox = getViewBox(pathData);
-  const viewBox = props.myPathData.metaData.viewBox || CANVAS_VIEWBOX; // props.myPathData.metaData.viewBox;
+  const viewBox = props.myPathData.metaData.viewBox || CANVAS_VIEWBOX_DEFAULT; // props.myPathData.metaData.viewBox;
 
 
   const [animationParams, setAnimationParams] = React.useState({

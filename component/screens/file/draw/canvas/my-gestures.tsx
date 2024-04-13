@@ -25,10 +25,7 @@ import { handleRotateEvent } from "./handle-rotate-event";
 import { debounce } from "lodash";
 import { getBoundaryBox } from "@c/my-boundary-box-paths";
 import { UserPreferencesContext } from "@x/user-preferences";
-import { getPenOffsetFactor } from '@u/helper';
-import myConsole from "@c/my-console-log";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
-import { getSvgPoint } from "@u/coordinates";
+import { getPenOffsetFactor, precise } from '@u/helper';
 
 
 type MyGesturesProps = {
@@ -49,6 +46,10 @@ type MyGesturesProps = {
   setActiveBoundaryBoxPath: (value: SetStateAction<PathDataType | null>) => void,
   scaleMode: 'X' | 'Y' | 'XY',
   setScaleMode: (value: SetStateAction<'X' | 'Y' | 'XY'>) => void,
+  canvasScale: number,
+  setCanvasScale: (value: SetStateAction<number>) => void,
+  canvasTranslate: PointType,
+  setCanvasTranslate: (value: SetStateAction<PointType>) => void,
   penTipRef: React.MutableRefObject<PointType | null>,
   children: React.ReactNode,
 };
@@ -71,6 +72,10 @@ export const MyGestures = ({
   setActiveBoundaryBoxPath,
   scaleMode,
   setScaleMode,
+  canvasScale,
+  setCanvasScale,
+  canvasTranslate,
+  setCanvasTranslate,
   penTipRef,
   children,
 }: MyGesturesProps): React.ReactNode => {
@@ -90,10 +95,10 @@ export const MyGestures = ({
 
     // myConsole.log('penOffset', penOffsetRef.current);
 
-    const svgPoint = getSvgPoint(event.x / SCREEN_WIDTH, event.y / SCREEN_HEIGHT, 1, 0, 0);
+    // const svgPoint = getSvgPoint(event.x / SCREEN_WIDTH, event.y / SCREEN_HEIGHT, canvasScale, canvasTranslate.x, canvasTranslate.y);
     const penTip = {
-      x: svgPoint.x * SCREEN_WIDTH,  //+ penOffsetRef.current.x,
-      y: svgPoint.y * SCREEN_HEIGHT, // + penOffsetRef.current.y,
+      x: (event.x * canvasScale + penOffsetRef.current.x + canvasTranslate.x), // * SCREEN_WIDTH,
+      y: (event.y * canvasScale + penOffsetRef.current.y + canvasTranslate.y), // * SCREEN_HEIGHT,
     };
 
 
@@ -106,7 +111,7 @@ export const MyGestures = ({
     }
 
     handleDrawingEvent(
-      penTip,
+      {...penTip},
       event,
       state,
       myPathData,
@@ -138,7 +143,11 @@ export const MyGestures = ({
   // For paths selection on screen
   const doubleTapSelectGesture = Gesture.Tap()
   doubleTapSelectGesture.numberOfTaps(2).onEnd((event) => {
-    handleSelectEvent(event, activeBoundaryBoxPath, setMyPathData);
+    const tapPoint = {
+      x: event.x * canvasScale + canvasTranslate.x,
+      y: event.y * canvasScale + canvasTranslate.y,
+    }
+    handleSelectEvent({...tapPoint}, activeBoundaryBoxPath, setMyPathData);
   });
 
   // once select mode is activated by double tap, single tap can also select the path
@@ -159,7 +168,12 @@ export const MyGestures = ({
 
   // For moving paths on screen
   const panDragEvent = debounce((event, state) => {
-    handleDragEvent(event, state, editMode, setMyPathData, activeBoundaryBoxPath, setActiveBoundaryBoxPath);
+    if(!activeBoundaryBoxPath || editMode) return;
+    const panTranslatePoint = {
+      x: event.translationX * canvasScale,
+      y: event.translationY * canvasScale,
+    };
+    handleDragEvent({...panTranslatePoint}, state, editMode, setMyPathData, activeBoundaryBoxPath, setActiveBoundaryBoxPath);
   }, 5, { leading: I_AM_ANDROID, trailing: I_AM_IOS });
 
   const panDragGesture = Gesture.Pan();
@@ -177,9 +191,73 @@ export const MyGestures = ({
     resetBoundaryBox();
   });
 
+  // two finger canvas pan
+  const startPoint = useRef({ x: 0, y: 0 });
+  const panDrag2CanvasTranslate = useRef({ x: 0, y: 0 });
+  const panDrag2Gesture = Gesture.Pan();
+  panDrag2Gesture.shouldCancelWhenOutside(false);
+  // panDrag2Gesture.enableTrackpadTwoFingerGesture(true);
+  panDrag2Gesture.minPointers(2);
+  panDrag2Gesture.maxPointers(2);
+  panDrag2Gesture.onBegin((event) => {
+    if(activeBoundaryBoxPath) return;
+    // actually it may as well be two finger tap
+    startPoint.current = { x: event.x, y: event.y };
+  });
+
+
+  panDrag2Gesture.onUpdate(debounce((event) => {
+    if (activeBoundaryBoxPath) return;
+    const xTranslate = (event.x - startPoint.current.x) * canvasScale;
+    const yTranslate = (event.y - startPoint.current.y) * canvasScale;
+
+    setCanvasTranslate((prev) => {
+      panDrag2CanvasTranslate.current.x = prev.x - xTranslate;
+      panDrag2CanvasTranslate.current.y = prev.y - yTranslate;
+      return { ...panDrag2CanvasTranslate.current };
+    });
+
+    startPoint.current = { x: event.x, y: event.y };
+  }, 5, { leading: I_AM_ANDROID, trailing: I_AM_IOS }));
+
+  panDrag2Gesture.onEnd(() => {
+    // setTimeout(() => { // snap prevention
+      // save the sketch
+      setMyPathData((prev) => ({
+        ...prev,
+        metaData: {
+          ...prev.metaData,
+          viewBox: `${panDrag2CanvasTranslate.current.x} ${panDrag2CanvasTranslate.current.y} ${SCREEN_WIDTH * canvasScale} ${SCREEN_HEIGHT * canvasScale}`,
+          updatedAt: "",
+        },
+        updatedAt: new Date().toISOString(),
+      }));
+    // }, 200);
+  });
+
+
+
+  const pinch2CanvasScale = useRef(canvasScale);
   // For scaling of path
   const pinchZoomEvent = debounce((event, state) => {
-    handleScaleEvent(event, state, editMode, setMyPathData, activeBoundaryBoxPath, setActiveBoundaryBoxPath, scaleMode, setScaleMode);
+    if (activeBoundaryBoxPath && !editMode) {
+      handleScaleEvent(event, state, editMode, setMyPathData, activeBoundaryBoxPath, setActiveBoundaryBoxPath, scaleMode, setScaleMode);
+    } else { // there was no boundary box, so no path was selected
+      if (state === 'began') {
+        pinch2CanvasScale.current = event.scale;
+        // myConsole.log('scaling started', event.scale);
+      } else if (state === 'end') {
+        pinch2CanvasScale.current = 1;
+      } else {
+        // myConsole.log('scaling update', event.scale);
+        // let do this for canvas scale
+        let scale = precise(canvasScale * pinch2CanvasScale.current / event.scale, 2);
+        if (scale < 0.75) scale = 0.75;
+        if (scale > 1.5) scale = 1.5;
+        setCanvasScale(scale);
+        pinch2CanvasScale.current = event.scale;
+      }
+    }
   }, 5, { leading: I_AM_ANDROID, trailing: I_AM_IOS });
 
   const pinchZoomGesture = Gesture.Pinch()
@@ -216,7 +294,7 @@ export const MyGestures = ({
   // combine all gestures and initialize
   // const composedPanTap = Gesture.Simultaneous(doubleTapSelectGesture);
   const composedPanDrag = Gesture.Simultaneous(panDrawGesture, panDragGesture);
-  const composedPinch = Gesture.Race(pinchZoomGesture, rotateGesture);
+  const composedPinch = Gesture.Simultaneous(Gesture.Race(pinchZoomGesture, rotateGesture), panDrag2Gesture);
   const composedGesture = Gesture.Race(composedPinch, composedPanDrag, doubleTapSelectGesture);
   composedGesture.initialize();
 

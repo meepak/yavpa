@@ -1,4 +1,4 @@
-import { PathDataType, MyPathDataType } from "@u/types";
+import { PathDataType, MyPathDataType, PointType } from "@u/types";
 import { SetStateAction } from "react";
 import { GestureStateChangeEvent, GestureUpdateEvent, TapGestureHandlerEventPayload } from "react-native-gesture-handler";
 import { getPointsFromPath, getViewBoxTrimmed } from "@u/helper";
@@ -6,14 +6,10 @@ import { polygonContains } from 'd3-polygon';
 import { getBoundaryBox } from "@c/my-boundary-box-paths";
 
 export const handleSelectEvent = (
-  event: GestureStateChangeEvent<TapGestureHandlerEventPayload>,
+  tapPoint: PointType,
   activeBoundaryBoxPath: PathDataType | null,
   setMyPathData: { (value: SetStateAction<MyPathDataType>): void; },
 ) => {
-  const tapPoint = {
-    x: event.x,
-    y: event.y,
-  }
     const tappedInsidePathData = (pathData: PathDataType, isPathBbox = false) => {
 
       const pathBoundaryBox = isPathBbox

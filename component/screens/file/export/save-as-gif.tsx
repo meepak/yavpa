@@ -1,5 +1,5 @@
 import MySheetModal from "@c/controls/my-sheet-modal";
-import { CANVAS_HEIGHT, CANVAS_VIEWBOX, CANVAS_WIDTH, HEADER_HEIGHT, I_AM_IOS, MY_BLACK, MyPathDataType, SCREEN_HEIGHT, SCREEN_WIDTH, SvgAnimateHandle } from "@u/types";
+import { CANVAS_HEIGHT, CANVAS_VIEWBOX_DEFAULT, CANVAS_WIDTH, HEADER_HEIGHT, I_AM_IOS, MY_BLACK, MyPathDataType, SCREEN_HEIGHT, SCREEN_WIDTH, SvgAnimateHandle } from "@u/types";
 import SvgAnimate from "../preview/animate";
 import { Button, View } from "react-native";
 import ViewShot, { captureRef, CaptureOptions } from "react-native-view-shot";
@@ -176,7 +176,7 @@ const SaveAsGif: React.FC<SaveAsGifProps> = ({ isVisible, onClose, myPathData })
                     >
                         <SvgAnimate
                             myPathData={myPathData}
-                            viewBox={CANVAS_VIEWBOX}
+                            viewBox={CANVAS_VIEWBOX_DEFAULT}
                             ref={previewRef}
                             onLoopBegin={onAnimationBegin}
                             onLoopEnd={onAnimationEnd}

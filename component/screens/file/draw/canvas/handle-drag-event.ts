@@ -10,35 +10,33 @@ const startPoint = {
   y: 0,
 };
 export const handleDragEvent = (
-  event: GestureUpdateEvent<PanGestureHandlerEventPayload>,
+  panTranslatePoint: PointType,
   state: string,
   editMode: boolean,
-  setMyPathData: { (value: SetStateAction<MyPathDataType>): void; },
+  setMyPathData: { (value: SetStateAction<MyPathDataType>): void },
   activeBoundaryBoxPath: PathDataType | null,
-  setActiveBoundaryBoxPath: { (value: SetStateAction<PathDataType | null>): void; },
+  setActiveBoundaryBoxPath: {
+    (value: SetStateAction<PathDataType | null>): void;
+  },
 ) => {
-
-
   if (!activeBoundaryBoxPath || editMode) return;
   switch (state) {
     case "began":
       // myConsole.log("start pan began in", Platform.OS);
       // track starting point
-      startPoint.x = event.translationX;
-      startPoint.y = event.translationY;
+      startPoint.x = panTranslatePoint.x;
+      startPoint.y = panTranslatePoint.y;
       break;
     case "active":
       // myConsole.log("select pan active in", Platform.OS);
       // track how x offset and y offset
       // apply to selected paths and boudary box
-      const xOffset = event.translationX - startPoint.x;
-      const yOffset = event.translationY - startPoint.y;
-
-
+      const xOffset = panTranslatePoint.x - startPoint.x;
+      const yOffset = panTranslatePoint.y - startPoint.y;
 
       // update starting point for the next frame
-      startPoint.x = event.translationX;
-      startPoint.y = event.translationY;
+      startPoint.x = panTranslatePoint.x;
+      startPoint.y = panTranslatePoint.y;
 
       // const boundaryBoxPoints = getPointsFromPath(activeBoundaryBoxPath.path);
       // const movedBoundaryBox = boundaryBoxPoints.map((point) => {
@@ -96,7 +94,6 @@ export const handleDragEvent = (
         prev.metaData.updatedAt = "";
         return prev;
       });
-
 
       break;
   }

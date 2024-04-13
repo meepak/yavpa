@@ -1,9 +1,9 @@
 import { getViewBoxTrimmed } from "@u/helper";
-import { MyPathDataType, BrushType, CANVAS_VIEWBOX } from "@u/types";
+import { MyPathDataType, BrushType, CANVAS_VIEWBOX_DEFAULT } from "@u/types";
 import { Brushes, getBrushSvg } from '../component/my-brushes';
 
 export const getStaticSvg = (myPathData: MyPathDataType, trimViewBox = true) => {
-  const viewBox = trimViewBox ? getViewBoxTrimmed(myPathData.pathData) : CANVAS_VIEWBOX;
+  const viewBox = trimViewBox ? getViewBoxTrimmed(myPathData.pathData) : CANVAS_VIEWBOX_DEFAULT;
   let text = `<svg viewBox="${viewBox}">`;
 
   myPathData.pathData.forEach((path) => {
@@ -42,7 +42,7 @@ export const getStaticSvg = (myPathData: MyPathDataType, trimViewBox = true) => 
 
 
 export const getSmilSvg = (myPathData: MyPathDataType, trimViewBox = true) => {
-  const viewBox = trimViewBox ? getViewBoxTrimmed(myPathData.pathData) : CANVAS_VIEWBOX;
+  const viewBox = trimViewBox ? getViewBoxTrimmed(myPathData.pathData) : CANVAS_VIEWBOX_DEFAULT;
   const speed = myPathData.metaData.animation?.speed || 1;
   const loop = myPathData.metaData.animation?.loop ? 'indefinite' : '1';
   const delay = myPathData.metaData.animation?.delay || 0;
@@ -86,7 +86,7 @@ export const getSmilSvg = (myPathData: MyPathDataType, trimViewBox = true) => {
 
 
 export const getCssSvg = (myPathData: MyPathDataType, trimViewBox = true) => {
-  const viewBox = trimViewBox ? getViewBoxTrimmed(myPathData.pathData) : CANVAS_VIEWBOX;
+  const viewBox = trimViewBox ? getViewBoxTrimmed(myPathData.pathData) : CANVAS_VIEWBOX_DEFAULT;
   let text =
     `<svg viewBox="${viewBox}" id="animated-svg">` +
     '" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">';

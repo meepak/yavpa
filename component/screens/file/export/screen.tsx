@@ -6,7 +6,7 @@ import * as Sharing from 'expo-sharing';
 import * as Clipboard from "expo-clipboard";
 import LottieView, { AnimationObject } from "lottie-react-native";
 import MyPreview from "@c/my-preview";
-import { CANVAS_HEIGHT, CANVAS_VIEWBOX, CANVAS_WIDTH, I_AM_IOS } from "@u/types";
+import { CANVAS_HEIGHT, CANVAS_VIEWBOX_DEFAULT, CANVAS_WIDTH, I_AM_IOS } from "@u/types";
 import * as format from "@u/formatters";
 import createLottie from "@u/lottie";
 import ErrorBoundary from "@c/error-boundary";
@@ -124,7 +124,7 @@ const ExportScreen = ({ myPathData, initControls }) => {
           </View>
           <View style={{ width: 140 * CANVAS_WIDTH / CANVAS_HEIGHT, height: 140, marginRight: 45, alignSelf: 'flex-end', }}>
             <ErrorBoundary>
-              <MyPreview data={myPathData} animate={false} viewBox={CANVAS_VIEWBOX} />
+              <MyPreview data={myPathData} animate={false} viewBox={CANVAS_VIEWBOX_DEFAULT} />
             </ErrorBoundary>
           </View>
         </View>

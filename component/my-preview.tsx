@@ -1,7 +1,7 @@
 import Svg from "react-native-svg";
 import React, { useEffect, useRef } from "react";
 import MyPath from "./my-path";
-import { CANVAS_VIEWBOX, PathDataType, MyPathDataType } from "@u/types";
+import { CANVAS_VIEWBOX_DEFAULT, PathDataType, MyPathDataType } from "@u/types";
 import SvgAnimate from "./screens/file/preview/animate";
 import MyPathImage from "./my-path-image";
 

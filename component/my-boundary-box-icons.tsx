@@ -3,7 +3,7 @@
 import React, { useContext, useState } from 'react';
 import { Alert, View } from 'react-native';
 import { flipPoints, getPathFromPoints, getPointsFromPath, getViewBoxTrimmed } from "@u/helper";
-import { CANVAS_HEIGHT, CANVAS_VIEWBOX, CANVAS_WIDTH, HEADER_HEIGHT } from "@u/types";
+import { CANVAS_HEIGHT, CANVAS_VIEWBOX_DEFAULT, CANVAS_WIDTH, HEADER_HEIGHT } from "@u/types";
 import MyIcon from './my-icon';
 import { MyPathDataContext } from '@x/svg-data';
 import * as Crypto from "expo-crypto";
@@ -137,7 +137,7 @@ const BoundaryBoxIcons = ({
 
     const vbbox = getViewBoxTrimmed([activeBoundaryBoxPath], 0);
     const vbbPoints = vbbox.split(" "); // this is relative to canvas
-    const canvasPoints = CANVAS_VIEWBOX.split(" "); // this is relative to screen
+    const canvasPoints = CANVAS_VIEWBOX_DEFAULT.split(" "); // this is relative to screen
 
     const iconBoxWidth = 36;
     const iconBoxHeight = 235;

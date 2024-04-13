@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { View, StyleSheet, ActivityIndicator } from "react-native";
 import Svg from "react-native-svg";
 import { createPathdata } from "@u/helper";
-import { CANVAS_VIEWBOX, MY_BLACK, PathDataType, PointType, SCREEN_HEIGHT, SCREEN_WIDTH, ShapeType } from "@u/types";
+import { CANVAS_HEIGHT, CANVAS_VIEWBOX_DEFAULT, CANVAS_WIDTH, MY_BLACK, PathDataType, PointType, SCREEN_HEIGHT, SCREEN_WIDTH, ShapeType } from "@u/types";
 import MyPath from "@c/my-path";
 import { useCommandEffect } from "./canvas/use-command-effect";
 import { MyPathDataContext } from "@x/svg-data";
@@ -60,6 +60,10 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 
   const [scaleMode, setScaleMode] = useState<'X' | 'Y' | 'XY'>('XY');
 
+  const [canvasScale, setCanvasScale] = useState(1);
+  const [canvasTranslate, setCanvasTranslate] = useState({ x: 0, y: 0 });
+  const [canvasViewBox, setCanvasViewBox] = useState(myPathData.metaData.viewBox || CANVAS_VIEWBOX_DEFAULT);
+
   // This is be enabled in next version only
   // erasure mode - erasure shape can be square or circle
   const [erasureMode, setErasureMode] = useState(false);
@@ -92,6 +96,12 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   }, [editable]);
 
 
+  // TODO DO NOT STORE VIEWBOX IN METADATA, INSTEAD STORE
+  // TOOD CANVAS WIDTH, CANVAS HEIGHT, CANVAS SCALE, CANVAS TRANSLATE
+  // TODO AND JUST RECALCULATE VIEWBOX ON THE FLY
+  useEffect(() => {
+    setCanvasViewBox(`${canvasTranslate.x} ${canvasTranslate.y} ${CANVAS_WIDTH * canvasScale} ${CANVAS_HEIGHT * canvasScale}`);
+  }, [canvasTranslate, canvasScale]);
 
   // get bounding box of selected paths
   useSelectEffect({
@@ -136,6 +146,10 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     setActiveBoundaryBoxPath,
     scaleMode,
     setScaleMode,
+    canvasScale,
+    setCanvasScale,
+    canvasTranslate,
+    setCanvasTranslate,
     penTipRef,
   };
 
@@ -163,9 +177,8 @@ we can save and play on whatever dimension we want, thus using fixed default vie
                   <Svg
                     width={'100%'}
                     height={'100%'}
-                    viewBox={CANVAS_VIEWBOX}
+                    viewBox={canvasViewBox}
                     onLayout={() => setIsLoading(false)}
-                    style={{ borderWidth: 1, borderColor: 'green' }}
                   >
                     {/* current path is being drawn lets display pen */}
                     {editMode && penTipRef.current && <MyPen tip={penTipRef.current} />}
