@@ -2,36 +2,126 @@ import React, { useEffect, useRef, useState } from "react";
 import { Animated, View } from "react-native";
 import SvgAnimate from "./animate";
 import createPreviewControls from "./control";
-import { AnimationParamsType, CANVAS_WIDTH, MY_BLACK, SvgAnimateHandle } from "@u/types";
+import { AnimationParamsType, CANVAS_WIDTH, MY_BLACK, MyPathDataType, SvgAnimateHandle } from "@u/types";
 import Svg, { Line } from "react-native-svg";
-import myConsole from "@c/my-console-log";
-// import myConsole from "@c/my-console-log";
 
 const AnimatedLine = Animated.createAnimatedComponent(Line);
-interface AnimationTrackBarProps {
-  currentWidth: Animated.Value;
+
+type AnimationTrackBarType = {
+  myPathData: MyPathDataType;
+  animationParams: AnimationParamsType;
+};
+
+
+interface AnimationTrackBarInterface extends AnimationTrackBarType {
+  play: () => void;
+  stop: () => void;
+  reset: () => void;
 }
-const AnimationTrackBar = React.forwardRef<any, AnimationTrackBarProps>(({ currentWidth }, ref) => {
+
+
+const AnimationTrackBar = React.forwardRef(({ myPathData, animationParams }: AnimationTrackBarType , ref) => {
+  // Calculate the total animation time
+  const totalAnimTime = myPathData?.pathData.reduce((acc, item) => acc + item.time, 0) ;
+
+  // Create an array to store the animations
+  const animationsX2:any[] = [];
+
+  // Create a reference to store the animation
+  const animationX2Ref = useRef<Animated.CompositeAnimation | undefined>();
+  const [animatedX2Values, setAnimatedX2Values] = useState<Animated.Value[]>([]);
+  const [allLines, setAllLines] = useState<{index: number, x1: number, color: string }[]>([]);
+
+  const createAnimation = () => {
+    let startX = 0;
+    const newAnimatedValues:any[] = [];
+    const newAllLines:any[] = [];
+    myPathData?.pathData.map((path, index) => {
+      // Calculate the length of the line based on the animation time of the path
+      const lineLength = (path.time / totalAnimTime) * CANVAS_WIDTH;
+      const x2 = new Animated.Value(startX);
+      // Create the animation for the line
+      const animation = Animated.timing(x2, {
+        toValue: startX + lineLength,
+        duration: path.time / animationParams.speed, // later path should have its own speed value
+        useNativeDriver: true,
+      });
+
+      // Add the animation to the array
+      animationsX2.push(animation);
+      newAllLines.push({index, x1: startX, color: path.stroke || MY_BLACK});
+      // Update the starting point for the next line
+      startX += lineLength;
+      newAnimatedValues.push(x2);
+    });
+
+    setAllLines(newAllLines);
+    setAnimatedX2Values(newAnimatedValues);
+    animationX2Ref.current = Animated.sequence(animationsX2);
+  };
+
+  useEffect(() => {
+    // console.log('animation track bar updated')
+    reset();
+    createAnimation();
+  },[myPathData, animationParams]);
+
+
+  const play = () => {
+    if (!animationX2Ref.current) {
+      createAnimation();
+    }
+    if(animationX2Ref.current) {
+      animationX2Ref?.current?.start();
+    }
+  };
+
+  const reset = () => {
+    if (animationX2Ref.current) {
+      animationX2Ref?.current?.stop();
+      animationX2Ref?.current?.reset();
+    }
+  }
+
+  const stop = () => {
+    if (animationX2Ref.current) {
+      animationX2Ref?.current?.stop();
+    }
+  };
+
+  React.useImperativeHandle(ref, () => ({
+    play,
+    stop,
+    reset,
+  }
+  ));
+
   return (
     <Svg height="5" width={CANVAS_WIDTH}>
-      <AnimatedLine
-        x1="0"
-        y1="0"
-        x2={currentWidth}
-        y2="0"
-        stroke="#5d747e"
-        strokeWidth="2"
-      /><AnimatedLine
-        x1="0"
-        y1="2"
-        x2={currentWidth}
-        y2="2"
-        stroke={MY_BLACK}
-        strokeWidth="1"
-      />
+      {animatedX2Values.map((animatedValue, index) => {
+        const currentLine = allLines[index];
+
+        if(currentLine) {
+        // Create the line
+        const line = (
+          <AnimatedLine
+            key={currentLine.index}
+            x1={currentLine.x1.toString()}
+            y1="0"
+            x2={animatedValue}
+            y2="0"
+            stroke={currentLine.color}
+            strokeWidth="4"
+          />
+        );
+        return line;
+      }
+      return null;
+      })}
     </Svg>
-  )
+  );
 });
+
 
 const PreviewScreen = ({ myPathData, setMyPathData, initControls }) => {
 
@@ -44,14 +134,12 @@ const PreviewScreen = ({ myPathData, setMyPathData, initControls }) => {
     correction: myPathData.metaData.animation?.correction || 0.05,
   });
 
-  const totalPlayTime = useRef(0);
-  const currentProgress = useRef(new Animated.Value(0));
-  const [trackAnimation, setTrackAnimation] = useState<Animated.CompositeAnimation>();
+
   const previewRef = useRef<SvgAnimateHandle | null>(null);
+  const trackRef = useRef<AnimationTrackBarInterface | null>(null);
 
 
   useEffect(() => {
-    trackAnimation && trackAnimation.start();
     // on leaving clear the controls
     return () => initControls([]);
   }, []);
@@ -68,18 +156,6 @@ const PreviewScreen = ({ myPathData, setMyPathData, initControls }) => {
     initControls(buttons)
   }, [animationParams]);
 
-  useEffect(() => {
-    totalPlayTime.current = myPathData.pathData.reduce((acc, path) => acc + path.time, 0);
-    // check if  animation is speeded up or down
-    totalPlayTime.current = totalPlayTime.current / animationParams.speed;
-    console.log('totalPlayTime', totalPlayTime.current, "canvas width", CANVAS_WIDTH);
-    // currentProgress.current.addListener(({ value }) => console.log("VALUE", value));
-    setTrackAnimation(Animated.timing(currentProgress.current, {
-      toValue: CANVAS_WIDTH,
-      duration: totalPlayTime.current,
-      useNativeDriver: false,
-    }));
-  }, [myPathData, animationParams]);
 
   const onPreviewPlay = () => {
     if (previewRef.current) {
@@ -102,30 +178,28 @@ const PreviewScreen = ({ myPathData, setMyPathData, initControls }) => {
 
   return (
     <View style={{ flex: 1 }} onLayout={() => initControls(buttons)}>
-      <View style={{ width: CANVAS_WIDTH, height: 10, zIndex: 999}}>
-      {
-          (totalPlayTime.current >= 0) && <AnimationTrackBar currentWidth={currentProgress.current} />
-      }
+      <View style={{ width: CANVAS_WIDTH, height: 5, zIndex: 999}}>
+      <AnimationTrackBar ref={trackRef} myPathData={myPathData} animationParams={animationParams} />
       </View>
       <SvgAnimate
         ref={previewRef}
         myPathData={myPathData}
         onLoopBegin={() => {
           // myConsole.log('loop begin');
-          trackAnimation?.start(() => myConsole.log('tracker loop end'));
+          trackRef?.current?.play();
 
         }}
 
         onLoopEnd={() => {
           // myConsole.log('loop end');
-          trackAnimation?.reset();
+          trackRef?.current?.reset();
         }}
 
 
         // how to distinguish stopped or paused??
         onLoopStopped={() => {
           // myConsole.log('loop stopped');
-          trackAnimation?.reset();
+          trackRef?.current?.reset();
         }}
 
         />

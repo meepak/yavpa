@@ -154,50 +154,49 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
             </View>
           )
           : (
-            <>
+            <ErrorBoundary>
               <MyGestures {...myGestureProps}>
                 <View style={styles.container}>
-                  <ErrorBoundary>
-                    {/* All drawings were drawn in this canvas with this viewbox
+                  {/* All drawings were drawn in this canvas with this viewbox
 They need to be edited in this dimension,
 we can save and play on whatever dimension we want, thus using fixed default viewbox*/}
-                    <Svg
-                      width={SCREEN_WIDTH}
-                      height={SCREEN_HEIGHT}
-                      viewBox={CANVAS_VIEWBOX}
-                      onLayout={() => setIsLoading(false)}
-                    >
-                      {/* current path is being drawn lets display pen */}
-                      {editMode && penTipRef.current && <MyPen tip={penTipRef.current} /> }
+                  <Svg
+                    width={'100%'}
+                    height={'100%'}
+                    viewBox={CANVAS_VIEWBOX}
+                    onLayout={() => setIsLoading(false)}
+                    style={{ borderWidth: 1, borderColor: 'green' }}
+                  >
+                    {/* current path is being drawn lets display pen */}
+                    {editMode && penTipRef.current && <MyPen tip={penTipRef.current} />}
 
-                      {myPathData.imageData?.map((item) => (
-                        item.visible
-                          ? <MyPathImage prop={item} keyProp={"completed-" + item.guid} key={item.guid} />
-                          : null
-                      ))}
+                    {myPathData.imageData?.map((item) => (
+                      item.visible
+                        ? <MyPathImage prop={item} keyProp={"completed-" + item.guid} key={item.guid} />
+                        : null
+                    ))}
 
-                      {myPathData.pathData.map((item, _index) => (
-                        item.visible
-                          ? <MyPath prop={item} keyProp={"completed-" + item.updatedAt} key={item.guid} />
-                          : null
-                      ))}
-
-
-                      {currentPath.guid !== "" && (
-                        <MyPath prop={currentPath} keyProp={"current"} key={currentPath.guid} />
-                      )}
-
-                      <MyBoundaryBoxPaths activeBoundaryBoxPath={activeBoundaryBoxPath} />
+                    {myPathData.pathData.map((item, _index) => (
+                      item.visible
+                        ? <MyPath prop={item} keyProp={"completed-" + item.updatedAt} key={item.guid} />
+                        : null
+                    ))}
 
 
-                    </Svg>
-                  </ErrorBoundary>
+                    {currentPath.guid !== "" && (
+                      <MyPath prop={currentPath} keyProp={"current"} key={currentPath.guid} />
+                    )}
+
+                    <MyBoundaryBoxPaths activeBoundaryBoxPath={activeBoundaryBoxPath} />
+
+
+                  </Svg>
                 </View>
               </MyGestures>
 
               <BoundaryBoxIcons activeBoundaryBoxPath={activeBoundaryBoxPath} scaleMode={scaleMode} onScaleModeChange={(value) => setScaleMode(value)} />
 
-            </>
+            </ErrorBoundary>
           )
       }
     </View >
@@ -206,8 +205,8 @@ we can save and play on whatever dimension we want, thus using fixed default vie
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    overflow: 'hidden',
+    // flex: 1,
+    // overflow: 'hidden',
   },
   flex1: {
     flex: 1,

@@ -172,7 +172,7 @@ const FileScreen = () => {
             </Text>
         }
         return <></>;
-    },[myPathData]);
+    },[myPathData]) as React.JSXElementConstructor<{}>;
 
     // const ZoomScaleText = () => (
     //     canvasScale !== 1 &&
@@ -215,11 +215,10 @@ const FileScreen = () => {
                             <View
                                 style={{
                                     flex: 1,
-                                    alignContent: "flex-start",
-                                    justifyContent: "flex-start",
+                                    alignContent: "center",
+                                    justifyContent: "center",
                                     alignItems: "center",
                                     backgroundColor: 'transparent',
-                                    paddingTop: CANVAS_PADDING_VERTICAL,
                                     overflow: 'hidden',
                                     margin: 5,
                                 }}

@@ -47,6 +47,12 @@ const createDrawControls = ({
       onPress: onRedo,
     },
     {
+      key: "erasure",
+      icon: "erasure-off",
+      toggleIcons: ["erasure", "erasure-off"],
+      onPress: toggleErasure,
+    },
+    {
       key: "palette",
       icon: "palette",
       title: "Select Stroke Color",
@@ -133,12 +139,6 @@ const createDrawControls = ({
       icon: "add-image",
       title: "Add Image",
       onPress: () => pickImage()
-    },
-    {
-      key: "erasure",
-      icon: "erasure-off",
-      toggleIcons: ["erasure", "erasure-off"],
-      onPress: toggleErasure,
     },
     {
       key: "layers",
