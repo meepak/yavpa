@@ -1,6 +1,5 @@
 import { PathDataType, MyPathDataType, PointType } from "@u/types";
 import { SetStateAction } from "react";
-import { GestureStateChangeEvent, GestureUpdateEvent, TapGestureHandlerEventPayload } from "react-native-gesture-handler";
 import { getPointsFromPath, getViewBoxTrimmed } from "@u/helper";
 import { polygonContains } from 'd3-polygon';
 import { getBoundaryBox } from "@c/my-boundary-box-paths";
@@ -9,6 +8,8 @@ export const handleSelectEvent = (
   tapPoint: PointType,
   activeBoundaryBoxPath: PathDataType | null,
   setMyPathData: { (value: SetStateAction<MyPathDataType>): void; },
+  newSelect: boolean,
+
 ) => {
     const tappedInsidePathData = (pathData: PathDataType, isPathBbox = false) => {
 
@@ -25,20 +26,26 @@ export const handleSelectEvent = (
     let newPathData = [...prev.pathData];
     newPathData = newPathData.reverse(); // reverse the path data to start from the latest
     // get current selected path index
-    const activePathIndex = newPathData.findIndex(path => path.selected); // even if there are multiple active, we take first one as active
+    const activePathIndex = newPathData.findIndex((path) => path.selected);
+    // newPathData.filter((path) => path.selected).map((path, index) => index);
+    // even if there are multiple active, we take first one as active
+    // const activePathIndex = activePathIndices.length > 0 ? activePathIndices[0] : -1;
     // unselect all path
-    newPathData.forEach((path) => { path.selected = false; }); // unselect  current active paths
-
+    if(newSelect) {
+      newPathData.forEach((path) => { path.selected = false; }); // unselect  current active paths
+    }
 
     // If there is active bounding box and if tap is insded it, try to select next path
     if (activePathIndex !== -1 && activeBoundaryBoxPath && tappedInsidePathData(activeBoundaryBoxPath, true)) {
       for (let i = activePathIndex + 1; i < newPathData.length; i++) {
+        if(!newSelect && newPathData[i].selected) continue;
         if (tappedInsidePathData(newPathData[i])) {
           newPathData[i].selected = true;
           return { ...prev, pathData: newPathData.reverse() };
         }
       }
       for (let i = 0; i < activePathIndex; i++) {
+         if (!newSelect && newPathData[i].selected) continue;
         if (tappedInsidePathData(newPathData[i])) {
           newPathData[i].selected = true;
           return { ...prev, pathData: newPathData.reverse() };
@@ -46,6 +53,7 @@ export const handleSelectEvent = (
       }
     } else {// if outside current boundary box or no boundary box
       for (let i = 0; i < newPathData.length; i++) {
+         if (!newSelect && newPathData[i].selected) continue; 
         if (tappedInsidePathData(newPathData[i]) && i !== activePathIndex) {
           newPathData[i].selected = true;
           return { ...prev, pathData: newPathData.reverse() };

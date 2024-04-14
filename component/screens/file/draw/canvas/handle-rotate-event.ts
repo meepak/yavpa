@@ -13,6 +13,7 @@ export const handleRotateEvent = (
     setMyPathData: (value: SetStateAction<MyPathDataType>) => void,
     activeBoundaryBoxPath: PathDataType | null,
     setActiveBoundaryBoxPath: (value: SetStateAction<PathDataType | null>) => void,
+    pivot: PointType,
 ) => {
     if (!activeBoundaryBoxPath || editMode) return;
 
@@ -25,7 +26,7 @@ export const handleRotateEvent = (
             // calculate rotation angle
             const rotationAngle = event.rotation - startAngle;
 
-            const pivot = {x: event.anchorX, y: event.anchorY};
+            // const pivot = {x: event.anchorX, y: event.anchorY};
 
             // rotate boundary box
             // const boundaryBoxPoints = getPointsFromPath(activeBoundaryBoxPath.path);

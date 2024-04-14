@@ -5,7 +5,7 @@ import MyCheckBox from "./my-check-box";
 import { MyIconStyle } from "./my-icon";
 
 interface RadioButtonsProps {
-  labels: string[];
+  labels: any[];
   values?: any[];
   initialValue?: any;
   onChange: (newValue: any) => void;

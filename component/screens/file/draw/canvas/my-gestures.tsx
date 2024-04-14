@@ -92,7 +92,6 @@ export const MyGestures = ({
       penOffsetRef.current.x = (pp?.x || 0) * penOffset.x;
       penOffsetRef.current.y = (pp?.y || 0) * penOffset.y;
     }
-
     // myConsole.log('penOffset', penOffsetRef.current);
 
     // const svgPoint = getSvgPoint(event.x / SCREEN_WIDTH, event.y / SCREEN_HEIGHT, canvasScale, canvasTranslate.x, canvasTranslate.y);
@@ -102,13 +101,8 @@ export const MyGestures = ({
     };
 
 
-    if (state === 'ended') {
-      penTipRef.current = null;
-      penOffsetRef.current.x = 0;
-      penOffsetRef.current.y = 0;
-    } else {
       penTipRef.current = { ...penTip };
-    }
+
 
     handleDrawingEvent(
       {...penTip},
@@ -128,6 +122,13 @@ export const MyGestures = ({
       simplifyTolerance,
       d3CurveBasis,
     );
+
+
+    if (state === 'ended') {
+      penTipRef.current = null;
+      penOffsetRef.current.x = 0;
+      penOffsetRef.current.y = 0;
+    }
   }
 
   const panDrawGesture = Gesture.Pan();
@@ -147,17 +148,20 @@ export const MyGestures = ({
       x: event.x * canvasScale + canvasTranslate.x,
       y: event.y * canvasScale + canvasTranslate.y,
     }
-    handleSelectEvent({...tapPoint}, activeBoundaryBoxPath, setMyPathData);
+    handleSelectEvent({...tapPoint}, activeBoundaryBoxPath, setMyPathData, true);
   });
 
   // once select mode is activated by double tap, single tap can also select the path
   // handy but creating confusion
-  // const tapSelectGesture = Gesture.Tap()
-  // tapSelectGesture.numberOfTaps(1).onEnd((event) => {
-  //   if(!activeBoundaryBoxPath) return;
-  //   // handleSelectEvent(event, activeBoundaryBoxPath, setMyPathData);
-  //   myConsole.log('tapped');
-  // });
+  const tapSelectGesture = Gesture.Tap()
+  tapSelectGesture.numberOfTaps(1).onEnd((event) => {
+    if (!activeBoundaryBoxPath) return;
+    const tapPoint = {
+      x: event.x * canvasScale + canvasTranslate.x,
+      y: event.y * canvasScale + canvasTranslate.y,
+    }
+    handleSelectEvent({ ...tapPoint }, activeBoundaryBoxPath, setMyPathData, false);
+  });
 
   //--------------------------------------
   const resetBoundaryBox = () => {
@@ -252,7 +256,11 @@ export const MyGestures = ({
   // For scaling of path
   const pinchZoomEvent = debounce((event, state) => {
     if (activeBoundaryBoxPath && !editMode) {
-      handleScaleEvent(event, state, editMode, setMyPathData, activeBoundaryBoxPath, setActiveBoundaryBoxPath, scaleMode, setScaleMode);
+      const focalPoint = {
+        x: event.focalX * canvasScale + canvasTranslate.x,
+        y: event.focalY * canvasScale + canvasTranslate.y,
+      }
+      handleScaleEvent(event, state, editMode, setMyPathData, activeBoundaryBoxPath, setActiveBoundaryBoxPath, scaleMode, setScaleMode, focalPoint);
     } else { // there was no boundary box, so no path was selected
       if (state === 'began') {
         pinch2CanvasScale.current = event.scale;
@@ -286,7 +294,11 @@ export const MyGestures = ({
 
   // For rotation of path
   const rotateEvent = debounce((event, state) => {
-    handleRotateEvent(event, state, editMode, setMyPathData, activeBoundaryBoxPath, setActiveBoundaryBoxPath);
+    const pivot = {
+      x: event.anchorX * canvasScale + canvasTranslate.x,
+      y: event.anchorY * canvasScale + canvasTranslate.y,
+    }
+    handleRotateEvent(event, state, editMode, setMyPathData, activeBoundaryBoxPath, setActiveBoundaryBoxPath, pivot);
   }, 5, { leading: I_AM_ANDROID, trailing: I_AM_IOS });
 
 
@@ -306,7 +318,8 @@ export const MyGestures = ({
   // const composedPanTap = Gesture.Simultaneous(doubleTapSelectGesture);
   const composedPanDrag = Gesture.Simultaneous(panDrawGesture, panDragGesture);
   const composedPinch = Gesture.Simultaneous(Gesture.Race(pinchZoomGesture, rotateGesture), panDrag2Gesture);
-  const composedGesture = Gesture.Race(composedPinch, composedPanDrag, doubleTapSelectGesture);
+  const composedSelect = Gesture.Exclusive(doubleTapSelectGesture, tapSelectGesture);
+  const composedGesture = Gesture.Race(composedPinch, composedPanDrag, composedSelect);
   composedGesture.initialize();
 
   return (

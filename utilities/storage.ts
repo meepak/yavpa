@@ -101,7 +101,7 @@ export const getFiles = async (documentDir, allowCache = true): Promise<MyPathDa
         const myPathFiles = filenames.filter(filename => filename.endsWith(myPathFileExt));
 
         const myPathDataFiles: MyPathDataType[] = [];
-        myConsole.log('we have files, /lets load them - ', myPathFiles);
+        // myConsole.log('we have files, /lets load them - ', myPathFiles);
         for (const svgFile of myPathFiles) {
             const info = await FileSystem.getInfoAsync(path.join(appSaveDir, svgFile));
             const json = await FileSystem.readAsStringAsync(info.uri);

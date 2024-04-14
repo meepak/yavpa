@@ -1,10 +1,9 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import * as AvailableBrushes from "@c/my-brushes";
 import MyRadioButtons from '@c/my-radio-buttons';
 import { BrushType, MY_BLACK } from "@u/types";
 import { Brushes } from "@c/my-brushes";
 import Svg, { Line, Defs } from "react-native-svg";
-import { MyPathDataContext } from "@x/svg-data";
 import { View } from "react-native";
 
 const SelectBrush = ({ value, onValueChanged }) => {

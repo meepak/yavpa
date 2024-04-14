@@ -6,7 +6,6 @@ import { StatusBar } from "expo-status-bar";
 import AnimatedSplash from "@s/animated-splash";
 // import * as Updates from 'expo-updates';
 
-setBackgroundColorAsync("#020935");
 
 // Instruct SplashScreen not to hide yet, we want to do this manually
 SplashScreen.preventAutoHideAsync().catch(() => {
@@ -14,6 +13,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 });
 
 
+// setBackgroundColorAsync("#020935");
 
 const App = () => {
   const [isAnimationComplete, setAnimationComplete] = useState(false);
@@ -24,7 +24,7 @@ const App = () => {
 
   return (
     <>
-    <StatusBar hidden={false} style={"light"} translucent={true} backgroundColor='transparent' />
+      <StatusBar hidden={false} style={"light"} translucent={true} backgroundColor='#00000000' />
       <AnimatedSplash
         onAnimationComplete={(value) => setAnimationComplete(value)}
       >

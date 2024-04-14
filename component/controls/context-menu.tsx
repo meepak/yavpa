@@ -149,7 +149,7 @@ class ContextMenu extends React.PureComponent<ContextMenuProps, ContextMenuState
           hasBackdrop={true}
           backdropColor='rgba(0,0,0,0.5)'
           onBackdropPress={() => this.hideMenu}
-          statusBarTranslucent={false}
+          statusBarTranslucent={true}
           animationIn={this.props.animationIn || "slideInUp"}
           animationOut={this.props.animationOut || "slideOutUp"}
           useNativeDriver

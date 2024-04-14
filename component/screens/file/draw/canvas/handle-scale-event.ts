@@ -15,7 +15,8 @@ export const handleScaleEvent = (
     activeBoundaryBoxPath: PathDataType | null,
     setActiveBoundaryBoxPath: (value: SetStateAction<PathDataType | null>) => void,
     scaleMode: 'X' | 'Y' | 'XY',
-    setScaleMode: (value: SetStateAction<'X' | 'Y' | 'XY'>) => void
+    setScaleMode: (value: SetStateAction<'X' | 'Y' | 'XY'>) => void,
+    focalPoint: PointType,
 ) => {
     if (!activeBoundaryBoxPath || editMode) return;
 
@@ -30,7 +31,6 @@ export const handleScaleEvent = (
             const scaleFactorX = scaleMode === 'X' || scaleMode === 'XY' ? scaleFactor : 1;
             const scaleFactorY = scaleMode === 'Y' || scaleMode === 'XY' ? scaleFactor : 1;
 
-            const focalPoint = {x: event.focalX, y: event.focalY};
             // scale boundary box
             // const boundaryBoxPoints = getPointsFromPath(activeBoundaryBoxPath.path);
             // const scaledBoundaryBox = scalePoints(boundaryBoxPoints, scaleFactorX, scaleFactorY, focalPoint);

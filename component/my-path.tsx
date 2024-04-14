@@ -1,13 +1,54 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Brushes, getBrush } from "@c/my-brushes";
-import { Path } from "react-native-svg";
+import { Circle, Path } from "react-native-svg";
 import { BrushType, PathDataType } from "@u/types";
-import { isValidPath } from "@u/helper";
+import { getPointsFromPath, isValidPath } from "@u/helper";
 import myConsole from "./my-console-log";
+import { View } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
 
-class MyPath extends React.PureComponent<{prop: PathDataType, keyProp: string}> {
+const DraggableMarker = ({ initialPosition, onMove }) => {
+  const [position, setPosition] = useState(initialPosition);
+
+  const startPoint = { x: 0, y: 0 };
+  const panMarker = Gesture.Pan();
+  panMarker.onBegin((event) => {
+    startPoint.x = event.x;
+    startPoint.y = event.y;
+  });
+  panMarker.onUpdate((event) => {
+    setPosition({
+      x: initialPosition.x + event.x - startPoint.x,
+      y: initialPosition.y + event.y - startPoint.y
+    });
+    startPoint.x = event.x;
+    startPoint.y = event.y;
+    onMove(position);
+  });
+  panMarker.onEnd(() => {
+    startPoint.x = 0;
+    startPoint.y = 0;
+
+  });
+
+  return (
+    // <View {...panResponder.panHandlers} style={{ position: 'absolute', left: position.x, top: position.y }}>
+      // <Svg height="20" width="20">
+      <GestureDetector gesture={panMarker}>
+        <Circle cx={position.x} cy={position.y} r="10" fill="blue" />
+        </GestureDetector>
+      // </Svg>
+    // </View>
+  );
+};
+
+class MyPath extends React.PureComponent<{prop: PathDataType, keyProp: string, showMarker?: boolean}> {
+  static defaultProps = {
+    showMarker: false,
+  };
+  
   render() {
       // below region is for regular paths
       if(this.props.prop.type !== 'd') {
@@ -18,6 +59,8 @@ class MyPath extends React.PureComponent<{prop: PathDataType, keyProp: string}> 
         myConsole.log("MyPath was given invalid path data - ", this.props.prop.path, " -", this.props.prop.guid);
         return null;
       }
+
+      const points = this.props.showMarker ? getPointsFromPath(this.props.prop.path) : [];
 
       let brush: BrushType | undefined;
       if (this.props.prop.stroke.startsWith("url(#")) {
@@ -39,6 +82,15 @@ class MyPath extends React.PureComponent<{prop: PathDataType, keyProp: string}> 
             strokeDasharray={this.props.prop.strokeDasharray ?? undefined}
             strokeDashoffset={this.props.prop.strokeDashoffset ?? undefined}
           />
+          {
+            this.props.showMarker && (
+              points.map((point, index) => (
+                <DraggableMarker initialPosition={point} onMove={(position) => {
+                  myConsole.log("position", position);
+                }} />
+              ))
+            )
+          }
         </React.Fragment>
       )
     }

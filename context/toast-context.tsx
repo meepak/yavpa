@@ -33,9 +33,9 @@ function ToastProvider({ children }) {
     const showToast:ToastFunction = useCallback((message: string, options: ToastOptions = {}) => {
         // provide my toast options
         let defaultOptions = {
-            duration: Toast.durations.LONG,
-            position: Toast.positions.CENTER,
-            shadow: true,
+            duration: Toast.durations.SHORT,
+            position: Toast.positions.BOTTOM,
+            shadow: false,
             animation: true,
             hideOnPress: true,
             delay: 0,
@@ -43,7 +43,7 @@ function ToastProvider({ children }) {
             backgroundColor: '#041969',
             shadowColor: '#0782d0',
             opacity: 1,
-            textStyle: { fontSize: 20 },
+            textStyle: { fontSize: 18 },
         };
 
         options = { ...defaultOptions, ...options };

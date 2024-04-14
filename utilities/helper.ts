@@ -16,7 +16,6 @@ import {
 } from "./types";
 import { PathDataType, MyPathDataType, OrientationType } from "./types";
 import { polygonContains, polygonLength } from "d3-polygon";
-import path from "path";
 import { Accelerometer } from "expo-sensors";
 import simplify from "simplify-js";
 import { line, curveBasis } from "d3-shape";
@@ -257,7 +256,7 @@ export const isShapeInsideCanvas = (path: string) => {
   return count >= d3Points.length * 0.25;
 };
 
-export const isPath1InsidePath2 = (path1: string, path2: string) => {
+const countOfPointsOfPath1InsidePath2 = (path1: string, path2: string, maximumPoints = -1) => {
   const points = getPointsFromPath(path1);
   const d3Points = points.map(
     (point) => [point.x, point.y] as [number, number],
@@ -266,14 +265,32 @@ export const isPath1InsidePath2 = (path1: string, path2: string) => {
   const d3Path2Points = path2Points.map(
     (point) => [point.x, point.y] as [number, number],
   );
-  let count = 0;
+  let insidePoints:any[] = [];
   d3Points.forEach((point) => {
     if (polygonContains(d3Path2Points, point)) {
-      count++;
+      insidePoints.push(point);
+      if(maximumPoints > 0 && insidePoints.length >= maximumPoints) {
+        return {
+          path1AllD3Points: d3Points,
+          path1InsideD3Points: insidePoints,
+        };
+      }
     }
   });
-  return count >= d3Points.length * 0.25;
+  return {path1AllD3Points: d3Points, path1InsideD3Points: insidePoints};
+}
+
+export const isPath1InsidePath2 = (path1: string, path2: string) => {
+  const {path1AllD3Points, path1InsideD3Points} =
+    countOfPointsOfPath1InsidePath2(path1, path2);
+  return path1InsideD3Points.length >= path1AllD3Points.length * 0.25;
 };
+
+export const doPathIntersect = (path1: string, path2: string) => {
+  const { path1InsideD3Points } =
+    countOfPointsOfPath1InsidePath2(path1, path2, 1);
+  return path1InsideD3Points.length > 0;
+}
 
 export const getLastPoint = (path: string) => {
   // split function to use a regular expression that splits the string
@@ -288,9 +305,9 @@ export const getLastPoint = (path: string) => {
   return { commandType, x: precise(x), y: precise(y) };
 };
 
-export const getViewBoxTrimmed = (pathData: PathDataType[], offset = 20) => {
-  let minX = CANVAS_WIDTH ?? SCREEN_WIDTH;
-  let minY = CANVAS_HEIGHT ?? SCREEN_HEIGHT;
+export const getViewBoxTrimmed = (pathData: PathDataType[], offset = 0) => {
+  let minX = CANVAS_WIDTH;
+  let minY = CANVAS_HEIGHT;
   let maxX = 0;
   let maxY = 0;
   // let offset = 20;

@@ -1,5 +1,5 @@
 import path from 'path';
-import { getPathFromPoints, getPathLength, getPointsFromPath, isPath1InsidePath2, precise } from '../../../../../utilities/helper';
+import { getPathFromPoints, getPathLength, getPointsFromPath, precise } from '../../../../../utilities/helper';
 import { PathDataType, PointType } from '../../../../../utilities/types';
 import * as turf from '@turf/turf';
 import * as Crypto from "expo-crypto";

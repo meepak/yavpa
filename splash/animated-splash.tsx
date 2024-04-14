@@ -8,7 +8,7 @@ import myConsole from "@c/my-console-log";
 import MyPathLogo from "@c/logo/my-path-logo";
 import { StatusBar } from "expo-status-bar";
 
-SystemUI.setBackgroundColorAsync("#020935");
+// SystemUI.setBackgroundColorAsync("#020935");
 
 const AnimatedSplash = ({
   children,
@@ -81,7 +81,8 @@ const AnimatedSplash = ({
 
   return (
     <>
-      <StatusBar hidden={false} style={"light"} backgroundColor='transparent' translucent={true} /><View style={{ flex: 1 }}>
+      <StatusBar hidden={false} style={"light"} backgroundColor='transparent' translucent={true} />
+      <View style={{ flex: 1 }}>
         {isAppReady && children}
         {!isAnimationComplete && (
           <View

@@ -197,7 +197,7 @@ we can save and play on whatever dimension we want, thus using fixed default vie
 
 
                     {currentPath.guid !== "" && (
-                      <MyPath prop={currentPath} keyProp={"current"} key={currentPath.guid} />
+                      <MyPath prop={currentPath} keyProp={"current"} key={currentPath.guid}/>
                     )}
 
                     <MyBoundaryBoxPaths activeBoundaryBoxPath={activeBoundaryBoxPath} />
