@@ -47,6 +47,19 @@ const BoundaryBoxIcons = ({
         close();
     }
 
+    const closePath = () => {
+        setMyPathData((prev) => {
+            prev.pathData.forEach((item) => {
+                if (item.selected === true) {
+                    item.path += 'Z';
+                    item.updatedAt = new Date().toISOString();
+                }
+            });
+            return { ...prev, metaData: { ...prev.metaData, updatedAt: "" }, updatedAt: new Date().toISOString() };
+        });
+        showToast('Path Closed!');
+    }
+
     const copyStyle = () => {
         myPathData.pathData.forEach((item) => {
             if (item.selected === true) {
@@ -163,6 +176,8 @@ const BoundaryBoxIcons = ({
             showToast('Select two paths to perform intersection operation');
             return;
         }
+        // sort by updatedAt date
+        selectedPaths.sort((a, b) => new Date(b.updatedAt as any).getTime() - new Date(a.updatedAt as any).getTime());
         const path1 = selectedPaths[1];
         const path2 = selectedPaths[0];
 
@@ -233,7 +248,7 @@ const BoundaryBoxIcons = ({
         x: parseFloat(vbbPoints[0]) + parseFloat(vbbPoints[2]) + parseFloat(canvasPoints[0]),
         y: parseFloat(vbbPoints[1]) + parseFloat(canvasPoints[1]) + 25,
     }
-    if ((start.x + iconBoxWidth*2) > CANVAS_WIDTH) start.x = CANVAS_WIDTH - iconBoxWidth*2;
+    if ((start.x + iconBoxWidth * 2) > CANVAS_WIDTH) start.x = CANVAS_WIDTH - iconBoxWidth * 2;
     if ((start.y + iconBoxHeight) > CANVAS_HEIGHT) start.y = CANVAS_HEIGHT - iconBoxHeight;
     const BbIcon = ({ name, onPress, strokeWidth = 1, size = 20, marginBottom = 0, marginLeft = 5, color = '#6b0772', fill = 'none' }) => {
         return <MyIcon
@@ -304,8 +319,11 @@ const BoundaryBoxIcons = ({
                 paddingBottom: 7
             }}>
 
-                <BbIcon size={18} marginBottom={1} strokeWidth={1.4} name={'copy'} onPress={copyStyle} />
+                {selectedPaths.length === 1 && !selectedPaths[0].path.endsWith('Z') &&
+   <><BbIcon size={18} marginBottom={1} strokeWidth={3} name={'close-path'} onPress={closePath} /><MyDivider /></>
+                }
 
+                <BbIcon size={18} marginBottom={1} strokeWidth={1.4} name={'copy'} onPress={copyStyle} />
                 <MyDivider />
                 <BbIcon size={18} marginLeft={0} marginBottom={1} strokeWidth={2} name={'paste'} onPress={pasteStyle} />
                 {selectedPaths.length === 2 && doPathIntersect(selectedPaths[0].path, selectedPaths[1].path) &&
