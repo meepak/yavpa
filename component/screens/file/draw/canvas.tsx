@@ -49,24 +49,27 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
   const [currentPath, setCurrentPath] = useState(newPathData());
   const [startTime, setStartTime] = useState(0);
   const [currentShape, setCurrentShape] = useState<ShapeType>(defaultShape);
-  const [editMode, setEditMode] = useState(editable);
 
   const [isLoading, setIsLoading] = useState(true);
+  const [editMode, setEditMode] = useState(editable);
+  // erasure mode - erasure shape can be square or circle
+  const [erasureMode, setErasureMode] = useState(false);
+  // scaleMode is not a realmode, its just an indiactor on how scaling should be done
+  const [scaleMode, setScaleMode] = useState<'X' | 'Y' | 'XY'>('XY');
 
+
+  // holds guid of the path that will be edited with fancy marker
+  const [activePathToEdit, setActivePathToEdit] = useState<PathDataType>();
   const [activeBoundaryBoxPath, setActiveBoundaryBoxPath] = useState<PathDataType | null>(null)
 
   // const [penTip, setPenTip] = useState<PointType | null>(null);
   const penTipRef = useRef<PointType | null>(null);
 
-  const [scaleMode, setScaleMode] = useState<'X' | 'Y' | 'XY'>('XY');
 
   const [canvasScale, setCanvasScale] = useState(1);
   const [canvasTranslate, setCanvasTranslate] = useState({ x: 0, y: 0 });
   const [canvasViewBox, setCanvasViewBox] = useState(myPathData.metaData.viewBox || CANVAS_VIEWBOX_DEFAULT);
 
-  // This is be enabled in next version only
-  // erasure mode - erasure shape can be square or circle
-  const [erasureMode, setErasureMode] = useState(false);
   useEffect(() => {
     setErasureMode(erasing);
   }, [erasing])
@@ -112,6 +115,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
     stroke,
     strokeWidth,
     strokeOpacity,
+    activePathToEdit,
   });
 
 
@@ -129,6 +133,7 @@ const SvgCanvas: React.FC<SvgCanvasProps> = (props) => {
 
 
   const myGestureProps = {
+    activePathToEdit,
     myPathData,
     setMyPathData,
     editMode,
@@ -190,24 +195,54 @@ we can save and play on whatever dimension we want, thus using fixed default vie
                     ))}
 
                     {myPathData.pathData.map((item, _index) => (
-                      item.visible
+                      item.visible && item.guid !== activePathToEdit?.guid
                         ? <MyPath prop={item} keyProp={"completed-" + item.updatedAt} key={item.guid} />
                         : null
                     ))}
 
 
-                    {currentPath.guid !== "" && (
-                      <MyPath prop={currentPath} keyProp={"current"} key={currentPath.guid}/>
+                    {currentPath.guid !== "" && currentPath.guid !== activePathToEdit?.guid &&(
+                      <MyPath
+                        prop={currentPath}
+                        keyProp={"current"}
+                        key={currentPath.guid}
+                      />
                     )}
 
-                    <MyBoundaryBoxPaths activeBoundaryBoxPath={activeBoundaryBoxPath} />
+                    {
+                      activePathToEdit &&
+                      <MyPath
+                        prop={activePathToEdit}
+                        keyProp={"current"}
+                        key={activePathToEdit.guid}
+                        edit={true}
+                      />
+                    }
 
+                    {
+                      activeBoundaryBoxPath  &&
+                      <MyBoundaryBoxPaths
+                        activeBoundaryBoxPath={activeBoundaryBoxPath}
+                      />
+                    }
 
                   </Svg>
                 </View>
               </MyGestures>
 
-              <BoundaryBoxIcons activeBoundaryBoxPath={activeBoundaryBoxPath} scaleMode={scaleMode} onScaleModeChange={(value) => setScaleMode(value)} />
+              {
+              activeBoundaryBoxPath  &&
+              <BoundaryBoxIcons
+                activeBoundaryBoxPath={activeBoundaryBoxPath}
+                scaleMode={scaleMode}
+                onScaleModeChange={(value:any) => setScaleMode(value)}
+                onPathEdit={(p:PathDataType) => {
+                  setActivePathToEdit(p);
+                  setEditMode(false);
+                  setActiveBoundaryBoxPath(null);
+                }}
+                />
+              }
 
             </ErrorBoundary>
           )

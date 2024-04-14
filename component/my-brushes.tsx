@@ -9,7 +9,7 @@ export const LinearGradientBrush =
       <LinearGradient gradientUnits="objectBoundingBox" id={guid} x1="0%" y1="0%" x2="100%" y2="0%">
         {colors.map((color, index) => (
           <Stop
-            key={index}
+            key={`${color}${index}`}
             offset={`${(index / (colors.length - 1)) * 100}%`}
             stopColor={color}
             stopOpacity="1"

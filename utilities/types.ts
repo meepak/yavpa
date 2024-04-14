@@ -54,6 +54,13 @@ export const NUM_FILM_STRIP_HOLES = parseInt(((SCREEN_HEIGHT - HEADER_HEIGHT) / 
 
 // -----------------------------------------------
 
+// export enum CanvasMode = {
+//     NONE: "None",
+//     EDIT: "Edit",
+//     ERASE: "Erase",
+
+
+// }
 
 export const ScreenModeInstruction = {
     Draw: "Press to preview your drawing and edit animation.",
@@ -74,8 +81,8 @@ export type ScreenModeType = { name: string, icon: string };
 export type PathDataType = {
     type: 'd';
     updatedAt?: string; // primarily used for rendering purpose a
-    path: string; // svg path, e.g. "M0,0 L100,100" only contains M & L commands
-    length: number; // length of the path calculated by summing distance between two consecutive points
+    path: string; // svg path,
+    length: number; // length of the path
     time: number; // total time in ms taken to draw the path
     stroke: string; // stroke color or brush name
     strokeWidth: number; // stroke width

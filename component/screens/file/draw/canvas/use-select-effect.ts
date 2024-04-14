@@ -10,9 +10,14 @@ export const useSelectEffect = ({
   stroke,
   strokeWidth,
   strokeOpacity,
+  activePathToEdit,
 }) => {
 
   useEffect(() => {
+
+    if(activePathToEdit) {
+      return;
+    }
 
     let selectedPaths = myPathData.pathData.filter((item: PathDataType) => item.selected);
 

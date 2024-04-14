@@ -29,6 +29,7 @@ import { getPenOffsetFactor, precise } from '@u/helper';
 
 
 type MyGesturesProps = {
+  activePathToEdit: PathDataType | undefined,
   myPathData: { pathData: PathDataType[]; metaData: MetaDataType; },
   setMyPathData: (value: SetStateAction<MyPathDataType>) => void,
   editMode: boolean,
@@ -55,6 +56,7 @@ type MyGesturesProps = {
 };
 
 export const MyGestures = ({
+  activePathToEdit,
   myPathData,
   setMyPathData,
   editMode,
@@ -144,6 +146,7 @@ export const MyGestures = ({
   // For paths selection on screen
   const doubleTapSelectGesture = Gesture.Tap()
   doubleTapSelectGesture.numberOfTaps(2).onEnd((event) => {
+    if(activePathToEdit) return;
     const tapPoint = {
       x: event.x * canvasScale + canvasTranslate.x,
       y: event.y * canvasScale + canvasTranslate.y,
@@ -172,6 +175,7 @@ export const MyGestures = ({
 
   // For moving paths on screen
   const panDragEvent = debounce((event, state) => {
+    if (activePathToEdit) return;
     if(!activeBoundaryBoxPath || editMode) return;
     const tapPoint = {
       x: event.x * canvasScale + canvasTranslate.x,

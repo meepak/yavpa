@@ -2,21 +2,20 @@
 // BoundaryBox.tsx
 import React, { useContext, useState } from 'react';
 import { Alert, View } from 'react-native';
-import { doPathIntersect, flipPoints, getPathFromPoints, getPathLength, getPointsFromPath, getViewBoxTrimmed, isPath1InsidePath2 } from "@u/helper";
-import { CANVAS_HEIGHT, CANVAS_VIEWBOX_DEFAULT, CANVAS_WIDTH, HEADER_HEIGHT, PointType } from "@u/types";
+import { doPathIntersect, flipPoints, getPathFromPoints, getPathLength, getPointsFromPath, getViewBoxTrimmed } from "@u/helper";
+import { CANVAS_HEIGHT, CANVAS_VIEWBOX_DEFAULT, CANVAS_WIDTH } from "@u/types";
 import MyIcon from './my-icon';
 import { MyPathDataContext } from '@x/svg-data';
 import * as Crypto from "expo-crypto";
-import myConsole from './my-console-log';
 import { Divider } from './controls';
 import { ToastContext } from '@x/toast-context';
-import { polygon, union, difference, intersect, multiPolygon, Position, booleanDisjoint } from '@turf/turf'
-import { polygonContains, polygonHull } from 'd3-polygon';
+import { polygon, union, difference, intersect, booleanDisjoint } from '@turf/turf'
 
 const BoundaryBoxIcons = ({
     activeBoundaryBoxPath,
     scaleMode,
     onScaleModeChange,
+    onPathEdit,
 }) => {
 
     if (!activeBoundaryBoxPath || !activeBoundaryBoxPath.visible) {
@@ -45,6 +44,15 @@ const BoundaryBoxIcons = ({
         });
         // setActiveBoundaryBoxPath(null);
         close();
+    }
+
+    const editPath = () => {
+        const selectedPaths = myPathData.pathData.filter((item) => item.selected === true);
+        if(selectedPaths.length !== 1) {
+            showToast('Select one path to edit');
+            return;
+        }
+        onPathEdit(selectedPaths[0]);
     }
 
     const copyStyle = () => {
@@ -304,8 +312,9 @@ const BoundaryBoxIcons = ({
                 paddingBottom: 7
             }}>
 
+                <BbIcon size={18} marginBottom={1} strokeWidth={1.4} name={'edit'} onPress={editPath} />
+                <MyDivider />
                 <BbIcon size={18} marginBottom={1} strokeWidth={1.4} name={'copy'} onPress={copyStyle} />
-
                 <MyDivider />
                 <BbIcon size={18} marginLeft={0} marginBottom={1} strokeWidth={2} name={'paste'} onPress={pasteStyle} />
                 {selectedPaths.length === 2 && doPathIntersect(selectedPaths[0].path, selectedPaths[1].path) &&
