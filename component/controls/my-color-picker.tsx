@@ -1,12 +1,12 @@
-import { MY_BLACK } from '@u/types';
-import React, { useState } from 'react';
-import { TextInput, View, Text, StyleSheet } from 'react-native';
-import ColorPicker from 'react-native-wheel-color-picker';
+import { MY_BLACK } from "@u/types";
+import React, { useState } from "react";
+import { TextInput, View, Text, StyleSheet } from "react-native";
+import ColorPicker from "react-native-wheel-color-picker";
 
 const MyColorPicker = ({ initialColor = MY_BLACK, onColorSelected }) => {
   const [inputColor, setInputColor] = useState(initialColor);
 
-  const isValidHex = (text) => /^#([A-Fa-f0-9]{6})?$/.test(text);
+  const isValidHex = (text) => /^#([A-Fa-f\d]{6})?$/.test(text);
 
   return (
     <View style={{ width: 90, height: 400 }}>
@@ -14,13 +14,13 @@ const MyColorPicker = ({ initialColor = MY_BLACK, onColorSelected }) => {
         color={isValidHex(inputColor) ? inputColor : initialColor}
         swatchesOnly={false}
         onColorChange={(color) => {
-          // myConsole.log('color changed', color);
+          // MyConsole.log('color changed', color);
           setInputColor(color);
           if (isValidHex(color)) {
             onColorSelected(color);
           }
         }}
-        // onColorChangeComplete={(color) => {
+        // OnColorChangeComplete={(color) => {
         //   myConsole.log('color changed complete', color);
         //   setInputColor(color);
         //   if (isValidHex(color)) {
@@ -46,7 +46,7 @@ const MyColorPicker = ({ initialColor = MY_BLACK, onColorSelected }) => {
         <TextInput
           style={styles.input}
           onChangeText={(text) => {
-            setInputColor('#' + text);
+            setInputColor("#" + text);
           }}
           onBlur={() => {
             if (!isValidHex(inputColor)) {
@@ -54,22 +54,22 @@ const MyColorPicker = ({ initialColor = MY_BLACK, onColorSelected }) => {
             }
           }}
           selectTextOnFocus={true}
-          value={inputColor.substring(1)}
+          value={inputColor.slice(1)}
         />
       </View>
-    </View >
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     width: 100,
     height: 30,
     borderWidth: 0,
-    backgroundColor: 'transparent',
-    position: 'absolute',
+    backgroundColor: "transparent",
+    position: "absolute",
     marginTop: 65,
     marginLeft: -5,
   },
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    // borderBottomWidth: 0,
+    // BorderBottomWidth: 0,
   },
 });
 

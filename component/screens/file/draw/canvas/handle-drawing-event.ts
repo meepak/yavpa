@@ -1,94 +1,105 @@
-// import { applyErasure } from "@u/erasure";
+// Import { applyErasure } from "@u/erasure";
 import myConsole from "@c/my-console-log";
-import { applyErasure } from "./apply-erasure";
-import { getPathFromPoints, getPathLength, getPointsFromPath, isValidPath, precise } from "@u/helper";
+import {
+  getPathFromPoints,
+  getPathLength,
+  getPointsFromPath,
+  isValidPath,
+  precise,
+} from "@u/helper";
 import { getD3CurveBasis, isValidShape, shapeData } from "@u/shapes";
-import { MY_BLACK, PathDataType, PointType, ShapeType, MyPathDataType } from "@u/types";
+import {
+  MY_BLACK,
+  type PathDataType,
+  type PointType,
+  type ShapeType,
+  type MyPathDataType,
+} from "@u/types";
 import * as d3 from "d3-shape";
 import * as Crypto from "expo-crypto";
-import { SetStateAction } from "react";
-import { GestureStateChangeEvent, GestureUpdateEvent, PanGestureHandlerEventPayload } from "react-native-gesture-handler";
+import { type SetStateAction } from "react";
+import {
+  type GestureStateChangeEvent,
+  type GestureUpdateEvent,
+  type PanGestureHandlerEventPayload,
+} from "react-native-gesture-handler";
 import simplify from "simplify-js";
-
+import { applyErasure } from "./apply-erasure";
 
 export const handleDrawingEvent = (
-  penTip: PointType,
-  event: GestureStateChangeEvent<PanGestureHandlerEventPayload> | GestureUpdateEvent<PanGestureHandlerEventPayload>,
+  penTipRef: React.MutableRefObject<PointType>,
+  event:
+    | GestureStateChangeEvent<PanGestureHandlerEventPayload>
+    | GestureUpdateEvent<PanGestureHandlerEventPayload>,
   state: string,
   myPathData: MyPathDataType,
-  setMyPathData: { (value: SetStateAction<MyPathDataType>): void; },
+  setMyPathData: (value: SetStateAction<MyPathDataType>) => void,
   editMode: boolean,
   erasureMode: boolean,
   currentPath: PathDataType,
-  setCurrentPath: { (value: SetStateAction<PathDataType>): void; },
+  setCurrentPath: (value: SetStateAction<PathDataType>) => void,
   startTime: number,
-  setStartTime: { (value: SetStateAction<number>): void; },
-  newPathData: { (): PathDataType; (): any; },
+  setStartTime: (value: SetStateAction<number>) => void,
+  newPathData: { (): PathDataType; (): any },
   currentShape: ShapeType,
-  setCurrentShape: { (value: SetStateAction<ShapeType>): void; },
-  // completedPaths: PathDataType[],
-  // setCompletedPaths: { (value: SetStateAction<PathDataType[]>): void; },
+  setCurrentShape: (value: SetStateAction<ShapeType>) => void,
   simplifyTolerance: number,
   d3CurveBasis: string,
 ) => {
+  if (!editMode || !penTipRef.current) {
+	console.log('editing not allowed....');
+    return;
+  }
 
-  // const erasureMode = false; //disabling for safety in this version
-
-
-  if (!editMode) return;
-
-  // const penTip = {
-  //   x: precise(event.x + (penOffset?.x ?? 0)),
-  //   y: precise(event.y+ (penOffset?.y ?? 0)),
-  // };
-
-
-  // myConsole.log(pt);
+  myConsole.log(penTipRef.current);
 
   switch (state) {
-    case "began":
-      // console.log("began")
+    case "began": {
+      // Console.log("began")
       setStartTime(Date.now());
 
       const newPath = newPathData();
       setCurrentPath({
         ...newPath,
         guid: Crypto.randomUUID(),
-        path: `M${penTip.x},${penTip.y}`,
+        path: `M${penTipRef.current.x},${penTipRef.current.y}`,
         ...(erasureMode
           ? {
-            stroke: MY_BLACK,
-            strokeWidth: 2,
-            strokeOpacity: 0.5,
-            strokeLinecap: "round",
-            strokeLinejoin: "round",
-            fill: "#FF0000",
-            strokeDasharray: "5,5",
-            strokeDashoffset: 0
-          }
-          : {})
+              stroke: MY_BLACK,
+              strokeWidth: 2,
+              strokeOpacity: 0.5,
+              strokeLinecap: "round",
+              strokeLinejoin: "round",
+              fill: "#FF0000",
+              strokeDasharray: "5,5",
+              strokeDashoffset: 0,
+            }
+          : {}),
       });
 
-      // shape takes precedance over path
+      // Shape takes precedance over path
       if (isValidShape(currentShape.name)) {
-        setCurrentShape((prev) => {
-          prev.start = penTip as PointType;
-          return prev;
-        });
+        setCurrentShape((previous) => ({
+			...previous,
+              start: penTipRef.current,
+        }));
       }
+
       break;
-    case "active":
-      // console.log("active")
+    }
+
+    case "active": {
+      console.log("active")
       if (isValidShape(currentShape.name)) {
-        setCurrentShape((prev) => {
-          prev.end = penTip as PointType;
-          return prev;
+        setCurrentShape((previous) => {
+          previous.end = penTipRef.current;
+          return previous;
         });
         const path = shapeData(currentShape);
 
         setCurrentPath({
           ...currentPath,
-          path: path,
+          path,
         });
         break;
       }
@@ -96,15 +107,19 @@ export const handleDrawingEvent = (
       if (currentPath.path !== "") {
         let pathExtend = currentPath.path;
 
-        // erasure paths are always closed
+        // Erasure paths are always closed
         if (erasureMode) {
-          // remove last Z from path
-          pathExtend = pathExtend.endsWith('Z') ? pathExtend.slice(0, -1) : pathExtend;
+          // Remove last Z from path
+          pathExtend = pathExtend.endsWith("Z")
+            ? pathExtend.slice(0, -1)
+            : pathExtend;
         }
-        pathExtend = `${pathExtend}L${penTip.x},${penTip.y}`;
-        if (erasureMode) {
-          // close the path
-          pathExtend += `Z`;
+
+        pathExtend = `${pathExtend}L${penTipRef.current.x},${penTipRef.current.y}`;
+
+		if (erasureMode) {
+          // Close the path
+          pathExtend += "Z";
         }
 
         setCurrentPath({
@@ -112,42 +127,47 @@ export const handleDrawingEvent = (
           path: pathExtend,
         });
       }
+
       break;
-    case "ended":
-      // console.log("ended")
-      currentPath.time = Date.now() - startTime;
-      // myConsole.log("time", currentPath.time)
+    }
+
+    case "ended": {
+      console.log("ended");
+      // MyConsole.log("time", currentPath.time)
 
       if (erasureMode) {
-        // use currentPath as erasure
-        const newCompletedPaths = applyErasure(currentPath, myPathData.pathData);
-        setMyPathData((prev: MyPathDataType) => ({ ...prev, metaData: { ...prev.metaData, updatedAt: "" }, pathData: newCompletedPaths }));
+        // Use currentPath as erasure
+        const newCompletedPaths = applyErasure(
+          currentPath,
+          myPathData.pathData,
+        );
+        setMyPathData((previous: MyPathDataType) => ({
+          ...previous,
+          metaData: { ...previous.metaData, updatedAt: "" },
+          pathData: newCompletedPaths,
+        }));
         setCurrentPath(newPathData());
         setStartTime(0);
         return;
       }
 
-      let points = getPointsFromPath(currentPath.path);
+      currentPath.time = Date.now() - startTime;
+      const points = getPointsFromPath(currentPath.path);
       currentPath.path = "";
-      // console.log("points.length", points.length);
-      if (simplifyTolerance > 0) {
-        if (points.length >= 20) {
-          points = simplify(points, simplifyTolerance);
-        }
-      }
 
-      let curveBasis: d3.CurveFactoryLineOnly = getD3CurveBasis(d3CurveBasis, isValidShape(currentShape.name));
-      if (curveBasis && points.length >= 2) {
-        const pointsXY = points.map((point) => [
-          point.x,
-          point.y,
-        ]);
+
+      const curveBasis: d3.CurveFactoryLineOnly = getD3CurveBasis(
+        d3CurveBasis,
+        isValidShape(currentShape.name),
+      );
+      if (curveBasis && points.length >= 7) {
+        const pointsXY = points.map((point) => [point.x, point.y]);
         // Create a line generator
         if (curveBasis) {
           const line = d3.line().curve(curveBasis);
           // Generate the path data
-          currentPath.path = line(pointsXY as [number, number][]) || "";
-          // myConsole.log(currentPath);
+          currentPath.path = line(pointsXY as Array<[number, number]>) || "";
+          // MyConsole.log(currentPath);
         }
       }
 
@@ -155,25 +175,59 @@ export const handleDrawingEvent = (
         currentPath.path = getPathFromPoints(points);
       }
 
-
-
       if (isValidPath(currentPath.path)) {
         currentPath.visible = true;
         currentPath.selected = false;
         currentPath.length = getPathLength(points);
-        myConsole.log('setting completed path from drawing event');
-        // setCompletedPaths((prev) => [...prev, currentPath]);
-        setMyPathData((prev: MyPathDataType) => ({
-          ...prev,
-          metaData: { ...prev.metaData, updatedAt: "" },
-          pathData: [...prev.pathData, currentPath]
+        setMyPathData((previous: MyPathDataType) => ({
+          ...previous,
+          metaData: { ...previous.metaData, updatedAt: "" },
+          pathData: [...previous.pathData, currentPath],
         }));
       }
 
       setCurrentPath(newPathData());
       setStartTime(0);
       break;
-    default:
+    }
+
+    default: {
       break;
+    }
   }
 };
+
+
+
+/*
+
+
+// TODO ONCE THIS WORKS, EITHER MOVE THIS TO HANDLE DRAWING EVENT OR MAKE IT GENERIC FOR ALL EVENTS
+      // if smart mode is on, lets find the nearest point to snap to
+      // the target point is the one drawn most recently and is within finger tip range
+    //   if (enhancedDrawingMode && existingPaths.current.length > 0) {
+    //     // If paths seems out of order, this could have caused it
+    //     // get paths ordered by updatedAt
+    //     // console.log('using snapping point')
+    //     penTipRef.current = getSnappingPoint(
+    //       existingPaths.current,
+    //       { x: event.x, y: event.y },
+    //       canvasScale,
+    //       canvasTranslate,
+    //     );
+    //     // console.log('BEGAN penTipRef.current', penTipRef.current);
+    //   } else {
+    //     penTipRef.current = {
+    //       x:
+    //         event.x * canvasScale +
+    //         penOffsetReference.current.x +
+    //         canvasTranslate.x, // * SCREEN_WIDTH,
+    //       y:
+    //         event.y * canvasScale +
+    //         penOffsetReference.current.y +
+    //         canvasTranslate.y, // * SCREEN_HEIGHT,
+    //     };
+        // console.log('BEGAN penTipRef.current', penTipRef.current);
+    //   }
+
+	*/

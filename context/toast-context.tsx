@@ -1,75 +1,75 @@
-import React, { createContext, useCallback, useEffect, useRef } from 'react';
+import React, {
+	createContext, useCallback, useEffect, useRef,
+} from 'react';
 import Toast from 'react-native-root-toast';
-import { RootSiblingParent } from 'react-native-root-siblings';
-import { MY_BLACK } from '@u/types';
+import {RootSiblingParent} from 'react-native-root-siblings';
+import {MY_BLACK} from '@u/types';
 
-export interface ToastOptions {
-    duration?: number;
-    position?: number;
-    shadow?: boolean;
-    animation?: boolean;
-    hideOnPress?: boolean;
-    delay?: number;
-    textColor?: string;
-    backgroundColor?: string;
-    shadowColor?: string;
-    opacity?: number;
-    textStyle?: object;
-}
+export type ToastOptions = {
+	duration?: number;
+	position?: number;
+	shadow?: boolean;
+	animation?: boolean;
+	hideOnPress?: boolean;
+	delay?: number;
+	textColor?: string;
+	backgroundColor?: string;
+	shadowColor?: string;
+	opacity?: number;
+	textStyle?: Record<string, unknown>;
+};
 
 export type ToastFunction = (message: string, options?: ToastOptions) => void;
 
-export interface ToastContextType {
-    showToast: ToastFunction;
-}
+export type ToastContextType = {
+	showToast: ToastFunction;
+};
 
 const ToastContext = createContext<ToastContextType>({
-  showToast: (message: string, options?: object) => {}
+	showToast(message: string, options?: Record<string, unknown>) {},
 });
 
-function ToastProvider({ children }) {
-    const toastRef = useRef();
+function ToastProvider({children}) {
+	const toastReference = useRef();
 
-    const showToast:ToastFunction = useCallback((message: string, options: ToastOptions = {}) => {
-        // provide my toast options
-        let defaultOptions = {
-            duration: Toast.durations.SHORT,
-            position: Toast.positions.BOTTOM,
-            shadow: false,
-            animation: true,
-            hideOnPress: true,
-            delay: 0,
-            textColor: '#fff',
-            backgroundColor: '#041969',
-            shadowColor: '#0782d0',
-            opacity: 1,
-            textStyle: { fontSize: 18 },
-        };
+	const showToast: ToastFunction = useCallback((message: string, options: ToastOptions = {}) => {
+		// Provide my toast options
+		const defaultOptions = {
+			duration: Toast.durations.SHORT,
+			position: Toast.positions.BOTTOM,
+			shadow: false,
+			animation: true,
+			hideOnPress: true,
+			delay: 0,
+			textColor: '#fff',
+			backgroundColor: '#041969',
+			shadowColor: '#0782d0',
+			opacity: 1,
+			textStyle: {fontSize: 18},
+		};
 
-        options = { ...defaultOptions, ...options };
+		options = {...defaultOptions, ...options};
 
-        if (toastRef.current) {
-            Toast.hide(toastRef.current);
-        }
+		if (toastReference.current) {
+			Toast.hide(toastReference.current);
+		}
 
-        toastRef.current = Toast.show(message, options);
-    }, []);
+		toastReference.current = Toast.show(message, options);
+	}, []);
 
-    useEffect(() => {
-        return () => {
-            if (toastRef.current) {
-                Toast.hide(toastRef.current);
-            }
-        };
-    }, []);
+	useEffect(() => () => {
+		if (toastReference.current) {
+			Toast.hide(toastReference.current);
+		}
+	}, []);
 
-    return (
-        <RootSiblingParent>
-            <ToastContext.Provider value={{showToast}}>
-                {children}
-            </ToastContext.Provider>
-        </RootSiblingParent>
-    );
+	return (
+		<RootSiblingParent>
+			<ToastContext.Provider value={{showToast}}>
+				{children}
+			</ToastContext.Provider>
+		</RootSiblingParent>
+	);
 }
 
-export { ToastContext, ToastProvider };
+export {ToastContext, ToastProvider};

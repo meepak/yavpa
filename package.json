@@ -7,7 +7,9 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "lint": "npx eslint",
+    "xo": "npx xo --ignore 'node_modules/**'"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.23.1",
@@ -63,11 +65,19 @@
     "@babel/plugin-transform-shorthand-properties": "^7.0.0-0",
     "@babel/plugin-transform-template-literals": "^7.0.0-0",
     "@babel/preset-env": "^7.23.9",
+    "@eslint/js": "^8.57.0",
     "@react-native/babel-preset": "^0.73.20",
     "@types/d3-interpolate-path": "^2",
+    "@types/xo": "^0",
     "babel-preset-expo": "^10.0.1",
+    "eslint": "^8.57.0",
+    "eslint-config-xo": "^0.44.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-react": "^7.34.1",
     "metro-transform-plugins": "^0.80.6",
-    "prettier": "^3.2.5"
+    "prettier": "^3.2.5",
+    "typescript-eslint": "^7.7.0",
+    "xo": "^0.58.0"
   },
   "private": true
 }

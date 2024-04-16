@@ -1,8 +1,8 @@
 type LogLevel = 'info' | 'error';
 
-interface MyConsole {
-    log: (...args: any[]) => void;
-}
+type MyConsole = {
+	log: (...arguments_: any[]) => void;
+};
 
 /**
  * Custom console log that can log with different log levels
@@ -13,42 +13,51 @@ interface MyConsole {
  */
 
 const myConsole: MyConsole = {
-    log: (...args: any[]) => {
-        //return; // no logging
-        const lastArg = args[args.length - 1];
-        let logLevel: LogLevel = 'info';
+	log(...arguments_: any[]) {
+		// Return; // no logging
+		const lastArgument = arguments_.at(-1);
+		let logLevel: LogLevel = 'info';
 
-        // If the last argument is a log level, remove it from args
-        if (typeof lastArg === 'string' && (lastArg === 'info' || lastArg === 'error')) {
-            logLevel = lastArg;
-            args = args.slice(0, -1);
-        }
+		// If the last argument is a log level, remove it from args
+		if (typeof lastArgument === 'string' && (lastArgument === 'info' || lastArgument === 'error')) {
+			logLevel = lastArgument;
+			arguments_ = arguments_.slice(0, -1);
+		}
 
-        // Handle different log levels
-        switch (logLevel) {
-          case "info":
-            args = args.map((arg) =>
-              typeof arg === "object" ? JSON.stringify(arg) : arg,
-            );
-            args.forEach((arg, index) => {
-              switch (index % 3) {
-                case 0:
-                  console.log("\x1b[31m", args.join(" "), "\x1b[0m"); // Red
-                  break;
-                case 1:
-                  console.log("\x1b[32m", args.join(" "), "\x1b[0m"); // Green
-                  break;
-                case 2:
-                  console.log("\x1b[34m", args.join(" "), "\x1b[0m"); // Blue
-                  break;
-              }
-            });
-            break;
-          case "error":
-            console.error("\x1b[31m", ...args, "\x1b[0m"); // Red
-            break;
-        }
-    },
+		// Handle different log levels
+		switch (logLevel) {
+			case 'info': {
+				arguments_ = arguments_.map(argument =>
+					typeof argument === 'object' ? JSON.stringify(argument) : argument,
+				);
+				for (const [index, argument] of arguments_.entries()) {
+					switch (index % 3) {
+						case 0: {
+							console.log('\u001B[31m', arguments_.join(' '), '\u001B[0m'); // Red
+							break;
+						}
+
+						case 1: {
+							console.log('\u001B[32m', arguments_.join(' '), '\u001B[0m'); // Green
+							break;
+						}
+
+						case 2: {
+							console.log('\u001B[34m', arguments_.join(' '), '\u001B[0m'); // Blue
+							break;
+						}
+					}
+				}
+
+				break;
+			}
+
+			case 'error': {
+				console.error('\u001B[31m', ...arguments_, '\u001B[0m'); // Red
+				break;
+			}
+		}
+	},
 };
 
 export default myConsole;

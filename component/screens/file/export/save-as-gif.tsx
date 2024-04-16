@@ -1,236 +1,257 @@
-import MySheetModal from "@c/controls/my-sheet-modal";
-import { CANVAS_HEIGHT, CANVAS_VIEWBOX_DEFAULT, CANVAS_WIDTH, HEADER_HEIGHT, I_AM_IOS, MY_BLACK, MyPathDataType, SCREEN_HEIGHT, SCREEN_WIDTH, SvgAnimateHandle } from "@u/types";
-import SvgAnimate from "../preview/animate";
-import { Button, View } from "react-native";
-import ViewShot, { captureRef, CaptureOptions } from "react-native-view-shot";
-import { useEffect, useRef, useState } from "react";
-import MyPreview from "@c/my-preview";
-import { getViewBoxTrimmed, precise } from "@u/helper";
-import * as Sharing from "expo-sharing";
+import MySheetModal from '@c/controls/my-sheet-modal';
+import {
+	CANVAS_HEIGHT, CANVAS_VIEWBOX_DEFAULT, CANVAS_WIDTH, HEADER_HEIGHT, I_AM_IOS, MY_BLACK, type MyPathDataType, SCREEN_HEIGHT, SCREEN_WIDTH, type SvgAnimateHandle,
+} from '@u/types';
+import {Button, View} from 'react-native';
+import ViewShot, {captureRef, CaptureOptions} from 'react-native-view-shot';
+import {useEffect, useRef, useState} from 'react';
+import MyPreview from '@c/my-preview';
+import {getViewBoxTrimmed, precise} from '@u/helper';
+import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
-import GifjsWebview from "./GifjsWebview";
-import myConsole from "@c/my-console-log";
+import myConsole from '@c/my-console-log';
+import SvgAnimate from '../preview/animate';
+import GifjsWebview from './GifjsWebview';
 
-interface SaveAsGifProps {
-    isVisible: boolean;
-    onClose?: () => void;
-    myPathData: MyPathDataType;
-}
-const SaveAsGif: React.FC<SaveAsGifProps> = ({ isVisible, onClose, myPathData }) => {
-    const modalHeight = SCREEN_HEIGHT - HEADER_HEIGHT - 15;
-    const controlsHeight = 150;
-    const previewHeight = modalHeight - controlsHeight - (controlsHeight / 2);
-    const previewWidth = CANVAS_WIDTH * previewHeight / CANVAS_HEIGHT;
+type SaveAsGifProperties = {
+	isVisible: boolean;
+	onClose?: () => void;
+	myPathData: MyPathDataType;
+};
+const SaveAsGif: React.FC<SaveAsGifProperties> = ({isVisible, onClose, myPathData}) => {
+	const modalHeight = SCREEN_HEIGHT - HEADER_HEIGHT - 15;
+	const controlsHeight = 150;
+	const previewHeight = modalHeight - controlsHeight - (controlsHeight / 2);
+	const previewWidth = CANVAS_WIDTH * previewHeight / CANVAS_HEIGHT;
 
-    const previewRef = useRef<SvgAnimateHandle | null>(null);
+	const previewReference = useRef<SvgAnimateHandle | undefined>(null);
 
+	const boundaryBox = getViewBoxTrimmed(myPathData.pathData);
+	const trimmedWidth = precise(boundaryBox.split(' ')[2]);
+	const trimmedHeight = precise(boundaryBox.split(' ')[3]);
+	const adjustedWidth = previewWidth * trimmedWidth / CANVAS_WIDTH;
+	const adjustedHeight = previewHeight * trimmedHeight / CANVAS_HEIGHT;
 
-    const boundaryBox = getViewBoxTrimmed(myPathData.pathData);
-    const trimmedWidth = precise(boundaryBox.split(' ')[2]);
-    const trimmedHeight = precise(boundaryBox.split(' ')[3]);
-    const adjustedWidth = previewWidth * trimmedWidth / CANVAS_WIDTH;
-    const adjustedHeight = previewHeight * trimmedHeight / CANVAS_HEIGHT;
+	const minimumSize = 100;
+	const viewShotReference = useRef<ViewShot>(null);
+	const screenReference = useRef<View>(null);
 
-    const minimumSize = 100;
-    const viewShotRef = useRef<ViewShot>(null);
-    const screenRef = useRef<View>(null);
+	const [top, setTop] = useState(0);
+	const [left, setLeft] = useState(0);
+	const [width, setWidth] = useState(adjustedWidth);
+	const [height, setHeight] = useState(adjustedHeight);
+	const [recording, setRecording] = useState(false);
 
-    const [top, setTop] = useState(0);
-    const [left, setLeft] = useState(0);
-    const [width, setWidth] = useState(adjustedWidth);
-    const [height, setHeight] = useState(adjustedHeight);
-    const [recording, setRecording] = useState(false);
+	const [readyToGifEncoding, setReadyToGifEncoding] = useState(false);
+	// Const [base64Images, setBase64Images] = useState<string[]>([]);
+	const base64ImagesReference = useRef<string[]>([]);
 
-    const [readyToGifEncoding, setReadyToGifEncoding] = useState(false);
-    // const [base64Images, setBase64Images] = useState<string[]>([]);
-    const base64ImagesRef = useRef<string[]>([]);
+	useEffect(() => {
+		if (previewReference.current) {
+			previewReference.current.playAnimation();
+		}
+	}, [left, top, width, height]);
 
+	const moveViewShotWindow = (direction: 'up' | 'down' | 'left' | 'right') => {
+		const offset = 5 * ((direction === 'up' || direction === 'left') ? -1 : 1);
+		const setFunction = direction === 'up' || direction === 'down' ? setTop : setLeft;
+		const previewDimension = direction === 'up' || direction === 'down' ? previewHeight : previewWidth;
+		const viewShotDimension = direction === 'up' || direction === 'down' ? height : width;
 
-    useEffect(() => {
-        if (previewRef.current) {
-            previewRef.current.playAnimation();
-        }
-    }, [left, top, width, height]);
+		setFunction(
+			previous =>
+				(previous + offset) > (previewDimension - viewShotDimension)
+					? previewWidth - viewShotDimension
+					: ((previous + offset) < 0
+						? 0
+						: previous + offset),
+		);
+	};
 
-    const moveViewShotWindow = (direction: 'up' | 'down' | 'left' | 'right') => {
-        const offset = 5 * ((direction === 'up' || direction === 'left') ? - 1 : 1);
-        const setFunction = direction === 'up' || direction === 'down' ? setTop : setLeft;
-        const previewDimension = direction === 'up' || direction === 'down' ? previewHeight : previewWidth;
-        const viewShotDimension = direction === 'up' || direction === 'down' ? height : width;
+	const resizeViewShotWindow = (scale: '+x' | '-x' | '+y' | '-y') => {
+		const isX = scale === '+x' || scale === '-x';
+		const scaleFunction = isX ? setWidth : setHeight;
+		const previewDimension = isX ? previewWidth : previewHeight;
+		const offset = 5 * (scale === '+x' || scale === '+y' ? 1 : -1);
 
-        setFunction(
-            (prev) =>
-                (prev + offset) > (previewDimension - viewShotDimension)
-                    ? previewWidth - viewShotDimension
-                    : (prev + offset) < 0
-                        ? 0
-                        : prev + offset
-        );
-    }
+		scaleFunction(
+			previous =>
+				(previous + offset) > previewDimension
+					? previewDimension
+					: ((previous + offset) < minimumSize
+						? minimumSize
+						: previous + offset),
+		);
+	};
 
-    const resizeViewShotWindow = (scale: '+x' | '-x' | '+y' | '-y') => {
-        const isX = scale === '+x' || scale === '-x';
-        const scaleFunction = isX ? setWidth : setHeight;
-        const previewDimension = isX ? previewWidth : previewHeight;
-        const offset = 5 * (scale === '+x' || scale === '+y' ? 1 : -1);
+	const download = async (base64Img, extension) => {
+		const uri = FileSystem.cacheDirectory + 'output.' + extension;
+		// MyConsole.log(uri);
+		base64Img = base64Img.replace('data:image/' + extension + ';base64,', '');
+		// MyConsole.log(base64Img);
+		await FileSystem.writeAsStringAsync(uri, base64Img, {encoding: FileSystem.EncodingType.Base64});
+		const cUri = await FileSystem.getContentUriAsync(uri);
+		await Sharing.shareAsync(I_AM_IOS ? cUri : uri);
+		if (!(await Sharing.isAvailableAsync())) {
+			alert('Uh oh, sharing isn\'t available on your platform');
+			return;
+		}
 
-        scaleFunction(
-            (prev) =>
-                (prev + offset) > previewDimension
-                    ? previewDimension
-                    : (prev + offset) < minimumSize
-                        ? minimumSize
-                        : prev + offset
-        );
-    }
+		await Sharing.shareAsync(uri);
+	};
 
-    const download = async (base64Img, ext) => {
-        const uri = FileSystem.cacheDirectory + 'output.' + ext;
-        // myConsole.log(uri);
-        base64Img = base64Img.replace('data:image/'+ext+';base64,', '');
-        // myConsole.log(base64Img);
-        await FileSystem.writeAsStringAsync(uri, base64Img, { encoding: FileSystem.EncodingType.Base64 });
-        const cUri = await FileSystem.getContentUriAsync(uri);
-        await Sharing.shareAsync(I_AM_IOS ? cUri : uri);
-        if (!(await Sharing.isAvailableAsync())) {
-            alert(`Uh oh, sharing isn't available on your platform`);
-            return;
-        }
-        await Sharing.shareAsync(uri);
-    };
+	const takeScreenshot = async () => {
+		const img = await captureRef(screenReference, {
+			snapshotContentContainer: false, format: 'png', quality: 1, result: 'base64',
+		});
+		// MyConsole.log("Base64 Image: ", img);
+		await download(img, 'png');
+	};
 
+	let interval;
+	const images: string[] = [];
+	const onAnimationBegin = () => {
+		// MyConsole.log('begin..')
+		if (recording) {
+			interval = setInterval(async () => {
+				const img = await captureRef(screenReference, {
+					snapshotContentContainer: false, format: 'png', quality: 1, result: 'base64',
+				});
+				images.push(img);
+				// SetBase64Images(prev => [...prev, img]);
+				// myConsole.log('got image in in base64, length: ', img.length, 'total images', images.length)
+				// myConsole.log(img);
+			}, 1000 / 25); // Make this user adjustable
+		}
+	};
 
-    const takeScreenshot = async () => {
-        const img = await captureRef(screenRef, { snapshotContentContainer: false, format: 'png', quality: 1, result: 'base64' });
-        // myConsole.log("Base64 Image: ", img);
-        await download(img, 'png');
-    };
+	const onAnimationEnd = () => {
+		// MyConsole.log('end..')
+		if (recording) {
+			clearInterval(interval);
+			setRecording(false);
+			// SetBase64Images(images); // this takes forever to write into state??
+			base64ImagesReference.current = images;
+			setReadyToGifEncoding(true);
+			// MyConsole.log('all done sending for gif encoding images ', base64ImagesRef.current.length)
+		}
+	};
 
-    let interval;
-    let images: string[] = [];
-    const onAnimationBegin = () => {
-        // myConsole.log('begin..')
-        if (recording) {
-            interval = setInterval(async () => {
-                const img = await captureRef(screenRef, { snapshotContentContainer: false, format: 'png', quality: 1, result: 'base64' });
-                images.push(img);
-                // setBase64Images(prev => [...prev, img]);
-                // myConsole.log('got image in in base64, length: ', img.length, 'total images', images.length)
-                // myConsole.log(img);
-            }, 1000/25); //make this user adjustable
+	const onGifEncoded = async base64GifData => {
+		// MyConsole.log('on gif downloaded..');
+		// save and download gif file
+		setReadyToGifEncoding(false);
+		await download(base64GifData, 'gif');
+	};
 
-        }
-    };
+	const onRecord = () => {
+		setRecording(true);
+		setTimeout(() => {
+			// MyConsole.log('starting in 1 s');
+			previewReference.current?.playAnimation();
+		}, 1000);
+	};
 
-    const onAnimationEnd = () => {
-        // myConsole.log('end..')
-        if (recording) {
-            clearInterval(interval);
-            setRecording(false);
-            // setBase64Images(images); // this takes forever to write into state??
-            base64ImagesRef.current = images;
-            setReadyToGifEncoding(true);
-            // myConsole.log('all done sending for gif encoding images ', base64ImagesRef.current.length)
+	return (
+		<MySheetModal
+			isVisible={isVisible}
+			height={modalHeight}
+			onClose={() => {
+				onClose && onClose();
+			}}
+			title='Export as GIF'
+		>
 
-        }
-    };
+			<View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+				<View style={{
+					position: 'absolute', width, height, left, top, borderWidth: 1, borderColor: 'blue',
+				}} ref={screenReference} >
 
-    const onGifEncoded = async (base64GifData) => {
-        // myConsole.log('on gif downloaded..');
-        // save and download gif file
-        setReadyToGifEncoding(false);
-        await download(base64GifData, 'gif');
-    }
+					<View
+						style={{
+							position: 'absolute',
+							left: -left,
+							top: -top,
+							width: previewWidth,
+							height: previewHeight,
+							borderWidth: 1,
+							borderColor: 'green',
+						}}
+						collapsable={false}
+					>
+						<SvgAnimate
+							myPathData={myPathData}
+							viewBox={CANVAS_VIEWBOX_DEFAULT}
+							ref={previewReference}
+							onLoopBegin={onAnimationBegin}
+							onLoopEnd={onAnimationEnd}
+						/>
 
-    const onRecord = () => {
-        setRecording(true);
-        setTimeout(() => {
-            // myConsole.log('starting in 1 s');
-            previewRef.current?.playAnimation();
-        }, 1000);
+					</View>
 
-    }
+				</View>
+				<ViewShot ref={viewShotReference} options={{format: 'raw', quality: 1, result: 'base64'}} />
+			</View>
 
-    return (
-        <MySheetModal
-            isVisible={isVisible}
-            height={modalHeight}
-            onClose={() => { onClose && onClose() }}
-            title="Export as GIF"
-        >
+			<View style={{
+				marginTop: 5,
+				width: SCREEN_WIDTH - 40,
+				height: controlsHeight,
+				backgroundColor: MY_BLACK,
+				pointerEvents: recording ? 'none' : undefined,
+			}}>
+				<Button title='Take Screenshot' onPress={takeScreenshot} />
 
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <View style={{ position: 'absolute', width: width, height: height, left: left, top: top, borderWidth: 1, borderColor: 'blue' }} ref={screenRef} >
+				<View style={{flexDirection: 'row'}}>
+					<View style={{width: '50%', flexDirection: 'row'}}>
+						<View style={{width: '50%', flexDirection: 'column'}}>
+							<Button title='L' onPress={() => {
+								moveViewShotWindow('left');
+							}} />
+							<Button title='U' onPress={() => {
+								moveViewShotWindow('up');
+							}} />
+						</View>
 
-                    <View
-                        style={{
-                            position: 'absolute',
-                            left: -left,
-                            top: -top,
-                            width: previewWidth,
-                            height: previewHeight,
-                            borderWidth: 1,
-                            borderColor: 'green',
-                        }}
-                        collapsable={false}
-                    >
-                        <SvgAnimate
-                            myPathData={myPathData}
-                            viewBox={CANVAS_VIEWBOX_DEFAULT}
-                            ref={previewRef}
-                            onLoopBegin={onAnimationBegin}
-                            onLoopEnd={onAnimationEnd}
-                        />
+						<View style={{width: '50%', flexDirection: 'column'}}>
+							<Button title='R' onPress={() => {
+								moveViewShotWindow('right');
+							}} />
+							<Button title='D' onPress={() => {
+								moveViewShotWindow('down');
+							}} />
+						</View>
+					</View>
+					<View style={{width: '50%', flexDirection: 'row'}}>
+						<View style={{width: '50%', flexDirection: 'column'}}>
+							<Button title='W+' onPress={() => {
+								resizeViewShotWindow('+x');
+							}} />
+							<Button title='W-' onPress={() => {
+								resizeViewShotWindow('-x');
+							}} />
+						</View>
 
-                    </View>
+						<View style={{width: '50%', flexDirection: 'column'}}>
+							<Button title='H+' onPress={() => {
+								resizeViewShotWindow('+y');
+							}} />
+							<Button title='H-' onPress={() => {
+								resizeViewShotWindow('-y');
+							}} />
+						</View>
+					</View>
 
-                </View>
-                <ViewShot ref={viewShotRef} options={{ format: "raw", quality: 1, result: 'base64' }} />
-            </View>
+				</View>
 
-            <View style={{
-                marginTop: 5,
-                width: SCREEN_WIDTH - 40,
-                height: controlsHeight,
-                backgroundColor: MY_BLACK,
-                pointerEvents: recording ? 'none' : undefined
-            }}>
-                <Button title="Take Screenshot" onPress={takeScreenshot} />
+				<Button title='Record' onPress={onRecord} />
+			</View>
+			{
+				readyToGifEncoding && <GifjsWebview base64EncodedImages={base64ImagesReference.current} onEncoded={onGifEncoded} />
 
-                <View style={{ flexDirection: "row" }}>
-                    <View style={{ width: '50%', flexDirection: "row" }}>
-                        <View style={{ width: '50%', flexDirection: "column" }}>
-                            <Button title="L" onPress={() => { moveViewShotWindow('left') }} />
-                            <Button title="U" onPress={() => { moveViewShotWindow('up') }} />
-                        </View>
-
-                        <View style={{ width: '50%', flexDirection: "column" }}>
-                            <Button title="R" onPress={() => { moveViewShotWindow('right') }} />
-                            <Button title="D" onPress={() => { moveViewShotWindow('down') }} />
-                        </View>
-                    </View>
-                    <View style={{ width: '50%', flexDirection: "row" }}>
-                        <View style={{ width: '50%', flexDirection: "column" }}>
-                            <Button title="W+" onPress={() => { resizeViewShotWindow('+x') }} />
-                            <Button title="W-" onPress={() => { resizeViewShotWindow('-x') }} />
-                        </View>
-
-                        <View style={{ width: '50%', flexDirection: "column" }}>
-                            <Button title="H+" onPress={() => { resizeViewShotWindow('+y') }} />
-                            <Button title="H-" onPress={() => { resizeViewShotWindow('-y') }} />
-                        </View>
-                    </View>
-
-                </View>
-
-                <Button title="Record" onPress={onRecord} />
-            </View>
-            {
-                readyToGifEncoding && <GifjsWebview base64EncodedImages={base64ImagesRef.current} onEncoded={onGifEncoded} />
-
-            }
-        </MySheetModal>
-    );
-}
+			}
+		</MySheetModal>
+	);
+};
 
 export default SaveAsGif;

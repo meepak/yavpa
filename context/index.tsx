@@ -1,2 +1,2 @@
-import { MyPathDataContext, MyPathDataProvider } from "@x/svg-data";
-export { MyPathDataContext, MyPathDataProvider };
+
+export {MyPathDataProvider, MyPathDataContext} from '@x/svg-data';

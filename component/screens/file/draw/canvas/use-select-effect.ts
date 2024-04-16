@@ -1,71 +1,68 @@
-import { getBoundaryBox } from "@c/my-boundary-box-paths";
-import { PathDataType, MyPathDataType } from "@u/types";
-import { useEffect } from "react";
+import {getBoundaryBox} from '@c/my-boundary-box-paths';
+import {type PathDataType, type MyPathDataType} from '@u/types';
+import {useEffect} from 'react';
 
 export const useSelectEffect = ({
-  myPathData,
-  setMyPathData,
-  setEditMode,
-  setActiveBoundaryBoxPath,
-  stroke,
-  strokeWidth,
-  strokeOpacity,
+	myPathData,
+	setMyPathData,
+	setEditMode,
+	setActiveBoundaryBoxPath,
+	stroke,
+	strokeWidth,
+	strokeOpacity,
 }) => {
+	useEffect(() => {
+		const selectedPaths = myPathData.pathData.filter((item: PathDataType) => item.selected);
 
-  useEffect(() => {
+		if (selectedPaths.length === 0) {
+			setActiveBoundaryBoxPath(() => null);
+			setEditMode(true);
+			return;
+		}
 
-    let selectedPaths = myPathData.pathData.filter((item: PathDataType) => item.selected);
+		setEditMode(false);
 
-    if (selectedPaths.length === 0) {
-      setActiveBoundaryBoxPath(() => null);
-      setEditMode(true);
-      return;
-    }
+		// MyConsole.log("selectedPaths", selectedPaths.length);
+		const rectPathData = getBoundaryBox(selectedPaths);
+		setActiveBoundaryBoxPath(rectPathData);
+	}, [myPathData]);
 
-    setEditMode(false);
+	const updateSelectedPath = (property: string, value: any) => {
+		if (!value) {
+			return;
+		}
 
-    // myConsole.log("selectedPaths", selectedPaths.length);
-    const rectPathData = getBoundaryBox(selectedPaths);
-    setActiveBoundaryBoxPath(rectPathData);
+		setMyPathData((previous: MyPathDataType) => {
+			const newPathData = previous.pathData.map((item: PathDataType) => {
+				if (item.selected) {
+					return {
+						...item,
+						[property]: value,
+					};
+				}
 
-  }, [myPathData]);
+				return item;
+			});
+			return {
+				...previous,
+				pathData: newPathData,
+				metaData: {
+					...previous.metaData,
+					updatedAt: '',
+				},
+			};
+		});
+	};
 
+	useEffect(() => {
+		updateSelectedPath('stroke', stroke);
+	}, [stroke]);
 
-  const updateSelectedPath = (property: string, value: any) => {
-    if (!value) return;
-    setMyPathData((prev: MyPathDataType) => {
-      const newPathData = prev.pathData.map((item: PathDataType) => {
-        if (item.selected) {
-          return {
-            ...item,
-            [property]: value,
-          };
-        } else {
-          return item;
-        }
-      });
-      return {
-        ...prev,
-        pathData: newPathData,
-        metaData: {
-          ...prev.metaData,
-          updatedAt: "",
-        },
-      };
-    });
-  };
+	useEffect(() => {
+		updateSelectedPath('strokeWidth', strokeWidth);
+	}, [strokeWidth]);
 
-  useEffect(() => {
-    updateSelectedPath('stroke', stroke);
-  }, [stroke]);
-
-  useEffect(() => {
-    updateSelectedPath('strokeWidth', strokeWidth);
-  }, [strokeWidth]);
-
-  useEffect(() => {
-    updateSelectedPath('strokeOpacity', strokeOpacity);
-  }, [strokeOpacity]);
-
-
-}
+	useEffect(() => {
+		updateSelectedPath('strokeOpacity', strokeOpacity);
+	}, [strokeOpacity]);
+};

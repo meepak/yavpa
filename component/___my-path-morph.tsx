@@ -1,10 +1,9 @@
-// import React, { useEffect } from 'react';
+// Import React, { useEffect } from 'react';
 // import { Button, View } from 'react-native';
 // import Svg, { Path } from 'react-native-svg';
 // import { interpolatePath } from 'd3-interpolate-path'
 // import Animated, { useSharedValue, useAnimatedProps, withTiming, runOnJS } from 'react-native-reanimated';
 // import myConsole from './my-console-log';
-
 
 // export default function MyPathMorph() {
 //     const animationProgress = useSharedValue(0);
@@ -24,7 +23,6 @@
 //     useEffect(() => {
 //         animationProgress.value = withTiming(1, { duration: 7000 });
 //     }, []);
-
 
 //     return (
 //         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

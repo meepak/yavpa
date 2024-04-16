@@ -1,4 +1,4 @@
-// import { Divider } from "@c/controls";
+// Import { Divider } from "@c/controls";
 // import { View, Text, Pressable } from "react-native"
 // import Modal from "react-native-modal"
 // import * as Crypto from "expo-crypto"
@@ -39,7 +39,6 @@
 //     const close = () => setMenuPosition({ x: -999, y: -999 });
 //     const [styleClipBoard, setStyleClipBoard] = useState<PathStyleType|null>(null);
 
-
 //     const applyFill = (fill: string) => {
 //         setMyPathData((prev) => {
 //             prev.pathData.forEach((item) => {
@@ -49,7 +48,7 @@
 //             });
 //             return {...prev, metaData: {...prev.metaData, updatedAt: ""}};
 //         });
-//         setActiveBoundaryBoxPath(null);
+//         setActiveBoundaryBoxPath(undefined);
 //         close();
 //     }
 
@@ -81,7 +80,7 @@
 //             });
 //             return {...prev, metaData: {...prev.metaData, updatedAt: ""}};
 //         });
-//         setActiveBoundaryBoxPath(null);
+//         setActiveBoundaryBoxPath(undefined);
 //         close();
 //     }
 
@@ -97,7 +96,7 @@
 //             });
 //             return {...prev, metaData: {...prev.metaData, updatedAt: ""}};
 //         });
-//         setActiveBoundaryBoxPath(null);
+//         setActiveBoundaryBoxPath(undefined);
 //         close();
 //         myConsole.log("duplicateSelected")
 //     }
@@ -107,11 +106,10 @@
 //             prev.pathData = prev.pathData.filter((item) => item.selected !== true);
 //             return {...prev, metaData: {...prev.metaData, updatedAt: ""}};
 //         });
-//         setActiveBoundaryBoxPath(null);
+//         setActiveBoundaryBoxPath(undefined);
 //         close();
 //         myConsole.log("deleteSelected")
 //     }
-
 
 //     const MenuItem = ({ height, text, onPress }) => (
 //         <><Pressable

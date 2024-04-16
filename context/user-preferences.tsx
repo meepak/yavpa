@@ -1,81 +1,108 @@
-import { PointType } from '@u/types';
-import React, { useState, useContext, useEffect, createContext, useMemo, useCallback } from 'react';
+import {type PointType} from '@u/types';
+import React, {
+	useState,
+	useContext,
+	useEffect,
+	createContext,
+	useMemo,
+	useCallback,
+} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import myConsole from '@c/my-console-log';
 
-export interface UserPreferencesType {
-    usePenOffset: boolean;
-    penOffset: PointType;
-    defaultStorageDirectory: string;
-    // theme: 'light' | 'dark';
-    // language: 'en' | 'es' | 'fr';
-    // Add more preferences as needed
-}
+export type UserPreferencesType = {
+	usePenOffset: boolean;
+	penOffset: PointType;
+	defaultStorageDirectory: string;
+	// Theme: 'light' | 'dark';
+	// language: 'en' | 'es' | 'fr';
+	// Add more preferences as needed
+};
 
 const defaultPreferences: UserPreferencesType = {
-    usePenOffset: false,
-    penOffset: { x: 0, y: 0 },
-    defaultStorageDirectory: 'mypath.mahat.au',
-    // theme: 'light',
-    // language: 'en',
+	usePenOffset: false,
+	penOffset: {x: 0, y: 0},
+	defaultStorageDirectory: 'mypath.mahat.au',
+	// Theme: 'light',
+	// language: 'en',
 };
 
-interface UserPreferencesContextType extends UserPreferencesType {
-    setUserPreferences: (value: Partial<UserPreferencesType>) => void;
-}
+type UserPreferencesContextType = {
+	setUserPreferences: (value: Partial<UserPreferencesType>) => void;
+} & UserPreferencesType;
 
 const defaultUserPreferencesContext: UserPreferencesContextType = {
-    ...defaultPreferences,
-    setUserPreferences: () => { },
+	...defaultPreferences,
+	setUserPreferences() {},
 };
 
-export const UserPreferencesContext = createContext<UserPreferencesContextType>(defaultUserPreferencesContext);
+export const UserPreferencesContext = createContext<UserPreferencesContextType>(
+	defaultUserPreferencesContext,
+);
 
 export function useUserPreferences() {
-    const context = useContext(UserPreferencesContext);
+	const context = useContext(UserPreferencesContext);
 
-    if (!context) {
-        throw new Error('useUserPreferences must be used within a UserPreferencesProvider');
-    }
+	if (!context) {
+		throw new Error(
+			'useUserPreferences must be used within a UserPreferencesProvider',
+		);
+	}
 
-    return context;
-};
+	return context;
+}
 
-export const UserPreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [usePenOffset, setUsePenOffset] = useState(defaultPreferences.usePenOffset);
-    const [penOffset, setPenOffset] = useState(defaultPreferences.penOffset);
-    const [defaultStorageDirectory, setDefaultStorageDirectory] = useState(defaultPreferences.defaultStorageDirectory);
+export const UserPreferencesProvider: React.FC<{
+	children: React.ReactNode;
+}> = ({children}) => {
+	const [usePenOffset, setUsePenOffset] = useState(
+		defaultPreferences.usePenOffset,
+	);
+	const [penOffset, setPenOffset] = useState(defaultPreferences.penOffset);
+	const [defaultStorageDirectory, setDefaultStorageDirectory] = useState(
+		defaultPreferences.defaultStorageDirectory,
+	);
 
-    const userPreferences = useMemo(() => ({
-        usePenOffset,
-        penOffset,
-        defaultStorageDirectory,
-    }), [usePenOffset, penOffset, defaultStorageDirectory]);
+	const userPreferences = useMemo(
+		() => ({
+			usePenOffset,
+			penOffset,
+			defaultStorageDirectory,
+		}),
+		[usePenOffset, penOffset, defaultStorageDirectory],
+	);
 
-    const setUserPreferences = useCallback((newPreferences: Partial<UserPreferencesType>) => {
-        setUsePenOffset(prev => newPreferences.usePenOffset ?? prev);
-        setPenOffset(prev => newPreferences.penOffset ?? prev);
-        setDefaultStorageDirectory(prev => newPreferences.defaultStorageDirectory ?? prev);
-    }, []);
+	const setUserPreferences = useCallback(
+		(newPreferences: Partial<UserPreferencesType>) => {
+			setUsePenOffset(previous => newPreferences.usePenOffset ?? previous);
+			setPenOffset(previous => newPreferences.penOffset ?? previous);
+			setDefaultStorageDirectory(
+				previous => newPreferences.defaultStorageDirectory ?? previous,
+			);
+		},
+		[],
+	);
 
-    // Store user preferences in AsyncStorage whenever they change
-    useEffect(() => {
-        const storeData = async () => {
-            try {
-                const jsonValue = JSON.stringify(userPreferences);
-                await AsyncStorage.setItem('@userPreferences', jsonValue);
-            } catch (e) {
-                // saving error
-                myConsole.log(e);
-            }
-        };
+	// Store user preferences in AsyncStorage whenever they change
+	useEffect(() => {
+		const storeData = async () => {
+			try {
+				const jsonValue = JSON.stringify(userPreferences);
+				await AsyncStorage.setItem('@userPreferences', jsonValue);
+			} catch (error) {
+				// Saving error
+				myConsole.log(error);
+			}
+		};
 
-        storeData();
-    }, [userPreferences]);
+		storeData();
+	}, [userPreferences]);
 
-    return (
-        <UserPreferencesContext.Provider value={{ ...userPreferences, setUserPreferences }}>
-            {children}
-        </UserPreferencesContext.Provider>
-    );
+	return (
+		<UserPreferencesContext.Provider
+			value={{...userPreferences, setUserPreferences}}
+		>
+			{children}
+		</UserPreferencesContext.Provider>
+	);
 };

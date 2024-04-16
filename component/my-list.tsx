@@ -1,185 +1,176 @@
 
 import MyPreview from '@c/my-preview';
-import { getFiles } from '@u/storage';
-import { CANVAS_HEIGHT, CANVAS_WIDTH, HEADER_HEIGHT, ModalAnimations, SCREEN_WIDTH, MyPathDataType } from '@u/types';
-import { router } from 'expo-router';
-import { useCallback, useLayoutEffect, useState } from 'react';
-import { Modal, TouchableHighlight } from 'react-native';
-import Animated, { useSharedValue, useAnimatedScrollHandler } from 'react-native-reanimated';
-import { ContextMenu } from './controls';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {getFiles} from '@u/storage';
+import {
+	CANVAS_HEIGHT, CANVAS_WIDTH, HEADER_HEIGHT, ModalAnimations, SCREEN_WIDTH, type MyPathDataType,
+} from '@u/types';
+import {router} from 'expo-router';
+import {useCallback, useLayoutEffect, useState} from 'react';
+import {Modal, TouchableHighlight} from 'react-native';
+import Animated, {useSharedValue, useAnimatedScrollHandler} from 'react-native-reanimated';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useUserPreferences} from '@x/user-preferences';
+import {ContextMenu} from './controls';
 import myConsole from './my-console-log';
-import { useUserPreferences } from '@x/user-preferences';
 
 const FILE_PREVIEW_WIDTH = 100;
 
+const MyList = ({anchor, width, height}) => {
+	const [forceRerenderAt, setForceRerenderAt] = useState(Date.now());
+	const [files, setFiles] = useState<MyPathDataType[]>([]);
+	const scrollY = useSharedValue(0);
+	const insets = useSafeAreaInsets();
+	const {defaultStorageDirectory} = useUserPreferences();
 
-const MyList = ({ anchor, width, height }) => {
-    const [forceRerenderAt, setForceRerenderAt] = useState(Date.now());
-    const [files, setFiles] = useState<MyPathDataType[]>([]);
-    const scrollY = useSharedValue(0);
-    const insets = useSafeAreaInsets();
-    const { defaultStorageDirectory } = useUserPreferences();
+	const scrollHandler = useAnimatedScrollHandler({
+		onScroll(event) {
+			scrollY.value = event.contentOffset.y;
+		},
+	});
 
+	const fetchFiles = useCallback(async () => {
+		try {
+			const myPathData = await getFiles(defaultStorageDirectory); // Comes from cache so all good
+			// Sort the data here before setting it to the state
+			// myPathData = myPathData.sort((a, b) => Date.parse(a.metaData.updatedAt) - Date.parse(b.metaData.updatedAt));
+			setFiles(myPathData);
+		} catch (error) {
+			myConsole.log('error fetching files', error);
+		}
+	}, []);
 
-    const scrollHandler = useAnimatedScrollHandler({
-        onScroll: (event) => {
-            scrollY.value = event.contentOffset.y;
-        },
-    });
+	useLayoutEffect(() => {
+		fetchFiles();
+	}, [fetchFiles]);
 
+	const ratio = CANVAS_HEIGHT / CANVAS_WIDTH;
+	const ItemWidth = FILE_PREVIEW_WIDTH;
+	const ItemHeight = ItemWidth * ratio;
 
-    const fetchFiles = useCallback(async () => {
-        try {
-            let myPathData = await getFiles(defaultStorageDirectory); // comes from cache so all good
-            // Sort the data here before setting it to the state
-            // myPathData = myPathData.sort((a, b) => Date.parse(a.metaData.updatedAt) - Date.parse(b.metaData.updatedAt));
-            setFiles(myPathData);
-        } catch (error) {
-            myConsole.log('error fetching files', error)
-        }
-    }, []);
+	const ListItem = ({item, index, scrollY}) => {
+		// #region
+		// WHAT A FUCKING WASTE OF TIME TRYING TO GET THE SILLY ANIMATION RIGHT THAT NO ONE WILL EVER CARE ABOUT
+		// const scale = interpolate(
+		//     (scrollY.value % (ItemHeight * files.length)),
+		//     [0, ItemHeight * files.length],
+		//     [0.5, 1]
+		// );
 
-    useLayoutEffect(() => {
-        fetchFiles();
-    }, [fetchFiles]);
+		// const scaleStyles = useAnimatedStyle(() => ({
+		//     transform: [
+		//         { scale: 1 },
+		//     ],
+		// }));
+		// const translateY = interpolate(
+		//     scrollY.value,
+		//     inputRange,
+		//     [-ItemHeight, -ItemHeight, 0, 0], // adjust scale values as needed
+		//     Extrapolation.EXTEND
+		// );
 
+		// const rotateX = interpolate(
+		//     scrollY.value,
+		//     inputRange,
+		//     [...Array.from({ length: numItems }).map((_, idx) => idx * (2 * Math.PI / numItems))], // Spread the angles
+		//     Extrapolation.EXTEND
+		// );
 
+		// const rotateStyles = useAnimatedStyle(() => ({
+		//     transform: [
+		//         { rotateX: `${rotateX * Math.PI / 180}deg` },
+		//         { rotateY: `${rotateX * Math.PI / 180}deg` },
+		//         { rotateZ: `${rotateX * Math.PI / 180}deg` },
+		//     ],
+		// }));
 
-    const ratio = CANVAS_HEIGHT / CANVAS_WIDTH;
-    const ItemWidth = FILE_PREVIEW_WIDTH;
-    const ItemHeight = ItemWidth * ratio;
+		// const transateYStyles = useAnimatedStyle(() => ({
+		//     transform: [
+		//         { translateY: translateY },
+		//     ],
+		//     backfaceVisibility: 'hidden',
+		// }));
+		// const currentStyles = [scaleStyles, transateYStyles];
+		// const currentStyles = [rotateStyles];
+		// const currentStyles = [scaleStyles, rotateStyles, transateYStyles];
 
-    const ListItem = ({ item, index, scrollY }) => {
+		// #endregion;
 
-        //#region
-        // WHAT A FUCKING WASTE OF TIME TRYING TO GET THE SILLY ANIMATION RIGHT THAT NO ONE WILL EVER CARE ABOUT
-        // const scale = interpolate(
-        //     (scrollY.value % (ItemHeight * files.length)),
-        //     [0, ItemHeight * files.length],
-        //     [0.5, 1]
-        // );
+		const currentStyles = [];
 
-        // const scaleStyles = useAnimatedStyle(() => ({
-        //     transform: [
-        //         { scale: 1 },
-        //     ],
-        // }));
-        // const translateY = interpolate(
-        //     scrollY.value,
-        //     inputRange,
-        //     [-ItemHeight, -ItemHeight, 0, 0], // adjust scale values as needed
-        //     Extrapolation.EXTEND
-        // );
+		return (
+			<Animated.View style={[{
+				width: ItemWidth,
+				height: ItemHeight,
+				borderWidth: 1,
+				borderRadius: 7,
+				borderColor: 'rgba(0,0,0,0.5)',
+				backgroundColor: 'rgba(255,255,255,1)',
+				opacity: 1,
+				alignContent: 'center',
+				alignItems: 'center',
+				padding: 2,
+				marginBottom: 10,
+				overflow: 'hidden',
+				// ...elevations[10]
+			}, currentStyles]}>
 
+				<TouchableHighlight
+					onPress={() => {
+						setForceRerenderAt(Date.now());
+						router.navigate(`/file?guid=${item.metaData.guid}`);
+					}}
+					activeOpacity={0.1}
+					underlayColor='rgba(0,0,0,0.2)'
+					style={{
+						width: '100%',
+						height: '100%',
+						borderRadius: 4,
+						backgroundColor: 'rgba(0,0,0,0.1)',
+					}}
+				>
 
-        // const rotateX = interpolate(
-        //     scrollY.value,
-        //     inputRange,
-        //     [...Array.from({ length: numItems }).map((_, idx) => idx * (2 * Math.PI / numItems))], // Spread the angles
-        //     Extrapolation.EXTEND
-        // );
+					<MyPreview animate={false} data={item} />
 
+				</TouchableHighlight>
 
-        // const rotateStyles = useAnimatedStyle(() => ({
-        //     transform: [
-        //         { rotateX: `${rotateX * Math.PI / 180}deg` },
-        //         { rotateY: `${rotateX * Math.PI / 180}deg` },
-        //         { rotateZ: `${rotateX * Math.PI / 180}deg` },
-        //     ],
-        // }));
+			</Animated.View>
+		);
+	};
 
+	const renderItem = ({item, index}: {item: MyPathDataType; index: number}) => (
+		<ListItem item={item} index={index} scrollY={scrollY} />
+	);
 
-        // const transateYStyles = useAnimatedStyle(() => ({
-        //     transform: [
-        //         { translateY: translateY },
-        //     ],
-        //     backfaceVisibility: 'hidden',
-        // }));
-        // const currentStyles = [scaleStyles, transateYStyles];
-        // const currentStyles = [rotateStyles];
-        // const currentStyles = [scaleStyles, rotateStyles, transateYStyles];
+	if (!files || (files && files.length === 0)) {
+		return null;
+	}
 
-        //#endregion;
+	return (
+		<ContextMenu
+			anchor={anchor}
+			width={width}
+			height={height}
+			showBackground={false}
+			xPosition={SCREEN_WIDTH - width}
+			yPosition={HEADER_HEIGHT - insets.top}
+			positionOverride={true}
+			// YOffsetFromAnchor={10}
+			// closeMenuAt={forceRerenderAt}
+			animationIn={ModalAnimations.slideInRight}
+			animationOut={ModalAnimations.slideOutRight}
+		>
+			<Animated.FlatList
+				// ContentContainerStyle={{ padding: 5 }}
+				// style={{ flex: 1, }}
+				keyExtractor={item => item.metaData.guid}
+				data={files}
+				onScroll={scrollHandler}
+				renderItem={renderItem}
+				horizontal={false}
+				showsVerticalScrollIndicator={false}
+			/>
+		</ContextMenu>
+	);
+};
 
-        const currentStyles = [];
-
-        return (
-            <Animated.View style={[{
-                width: ItemWidth,
-                height: ItemHeight,
-                borderWidth: 1,
-                borderRadius: 7,
-                borderColor: 'rgba(0,0,0,0.5)',
-                backgroundColor: 'rgba(255,255,255,1)',
-                opacity: 1,
-                alignContent: 'center',
-                alignItems: 'center',
-                padding: 2,
-                marginBottom: 10,
-                overflow: 'hidden',
-                // ...elevations[10]
-            }, currentStyles]}>
-
-
-                <TouchableHighlight
-                    onPress={() => {
-                        setForceRerenderAt(Date.now());
-                        router.navigate(`/file?guid=${item.metaData.guid}`);
-                    }}
-                    activeOpacity={0.1}
-                    underlayColor='rgba(0,0,0,0.2)'
-                    style={{
-                        width: '100%',
-                        height: '100%',
-                        borderRadius: 4,
-                        backgroundColor: 'rgba(0,0,0,0.1)',
-                    }}
-                >
-
-                    <MyPreview animate={false} data={item} />
-
-                </TouchableHighlight>
-
-            </Animated.View>
-        );
-    };
-
-
-    const renderItem = ({ item, index }: { item: MyPathDataType, index: number }) => (
-        <ListItem item={item} index={index} scrollY={scrollY} />
-    );
-
-    if (!files || (files && files.length === 0)) {
-        return null;
-    }
-
-    return (
-        <ContextMenu
-            anchor={anchor}
-            width={width}
-            height={height}
-            showBackground={false}
-            xPosition={SCREEN_WIDTH - width}
-            yPosition={HEADER_HEIGHT - insets.top}
-            positionOverride={true}
-            // yOffsetFromAnchor={10}
-            // closeMenuAt={forceRerenderAt}
-            animationIn={ModalAnimations.slideInRight}
-            animationOut={ModalAnimations.slideOutRight}
-        >
-            <Animated.FlatList
-                // contentContainerStyle={{ padding: 5 }}
-                // style={{ flex: 1, }}
-                keyExtractor={item => item.metaData.guid}
-                data={files}
-                onScroll={scrollHandler}
-                renderItem={renderItem}
-                horizontal={false}
-                showsVerticalScrollIndicator={false}
-            />
-        </ContextMenu>
-    )
-}
-
-export default MyList
+export default MyList;

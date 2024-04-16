@@ -1,23 +1,14 @@
-import MyColorPicker from "./my-color-picker";
-import StrokeWidth from "./stroke-width";
-import StrokeOpacity from "./stroke-opacity";
-import SimplifySmooth from "./simplify-smooth";
-import PathsAsLayersDraw from "./paths-as-layers-draw";
-import SelectShape from "./select-shape";
-import MySlider from "../my-slider";
-import Divider from "./divider";
-import ControlPanel from "./control-panel";
-import ContextMenu from "./context-menu";
 
-export {
-    MyColorPicker,
-    StrokeWidth,
-    StrokeOpacity,
-    SimplifySmooth,
-    PathsAsLayersDraw as PathsAsLayers,
-    SelectShape,
-    MySlider,
-    Divider,
-    ControlPanel,
-    ContextMenu
-};
+
+
+
+export {default as MySlider} from "../my-slider";
+export {default as MyColorPicker} from "./my-color-picker";
+export {default as StrokeWidth} from "./stroke-width";
+export {default as StrokeOpacity} from "./stroke-opacity";
+export {default as SimplifySmooth} from "./simplify-smooth";
+export {default as PathsAsLayers} from "./paths-as-layers-draw";
+export {default as SelectShape} from "./select-shape";
+export {default as Divider} from "./divider";
+export {default as ControlPanel} from "./control-panel";
+export {default as ContextMenu} from "./context-menu";

@@ -1,7 +1,6 @@
-// import { MY_BLACK } from "@u/types";
+// Import { MY_BLACK } from "@u/types";
 // import { View, Text, Pressable } from "react-native";
 // import MyIcon from "./my-icon";
-
 
 // interface MyEdgeButtonProps {
 //     myIcon?: { name: string, size: number };

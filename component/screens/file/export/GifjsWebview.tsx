@@ -1,52 +1,48 @@
-import React, { useEffect, useState } from 'react';
-import { WebView } from 'react-native-webview';
-import * as Clipboard from "expo-clipboard";
-import { gifJs, gifWorkerJs } from './gif';
+import React, {useEffect, useState} from 'react';
+import {WebView} from 'react-native-webview';
+import * as Clipboard from 'expo-clipboard';
 import myConsole from '@c/my-console-log';
+import {gifJs, gifWorkerJs} from './gif';
 
+const GifjsWebview = ({base64EncodedImages, onEncoded}) => {
+	// TODO how to handle super long string??
+	const encodedImagesJson = JSON.stringify(base64EncodedImages);
+	const html = htmlContent(encodedImagesJson, gifJs, gifWorkerJs);
 
-const GifjsWebview = ({ base64EncodedImages, onEncoded }) => {
+	Clipboard.setStringAsync(html || '');
 
-    // TODO how to handle super long string??
-    const encodedImagesJson = JSON.stringify(base64EncodedImages);
-    const html = htmlContent(encodedImagesJson, gifJs, gifWorkerJs)
+	const handleWebViewMessage = event => {
+		const message = JSON.parse(event.nativeEvent.data);
 
+		if (message.type === 'error') {
+			console.error('Error in webview:', message.data);
+		}
 
-    Clipboard.setStringAsync(html || '');
+		// This event will receive the base64 encoded GIF data
+		const base64GifData = message.data;
+		// MyConsole.log('got data from webview', base64GifData.length)
+		// myConsole.log(base64GifData);
+		if (onEncoded) {
+			onEncoded(base64GifData);
+		}
+	};
 
-    const handleWebViewMessage = (event) => {
-        const message = JSON.parse(event.nativeEvent.data);
-
-        if (message.type === 'error') {
-            console.error('Error in webview:', message.data);
-        }
-        // This event will receive the base64 encoded GIF data
-        const base64GifData = message.data;
-        // myConsole.log('got data from webview', base64GifData.length)
-        // myConsole.log(base64GifData);
-        if (onEncoded) {
-            onEncoded(base64GifData);
-        }
-    };
-
-    return <WebView
-        originWhitelist={['*']}
-        source={{ html: html || '' }}
-        onMessage={handleWebViewMessage}
-        style={{ width: 0, height: 0 }}
-        // onLayout={(event) => { myConsole.log('webview is loaded..') }}
-        onError={(syntheticEvent) => {
-            const { nativeEvent } = syntheticEvent;
-            console.error('WebView error: ', nativeEvent);
-        }}
-        onHttpError={(syntheticEvent) => {
-            const { nativeEvent } = syntheticEvent;
-            console.error('WebView HTTP error: ', nativeEvent);
-        }}
-    />;
-
-}
-
+	return <WebView
+		originWhitelist={['*']}
+		source={{html: html || ''}}
+		onMessage={handleWebViewMessage}
+		style={{width: 0, height: 0}}
+		// OnLayout={(event) => { myConsole.log('webview is loaded..') }}
+		onError={syntheticEvent => {
+			const {nativeEvent} = syntheticEvent;
+			console.error('WebView error:', nativeEvent);
+		}}
+		onHttpError={syntheticEvent => {
+			const {nativeEvent} = syntheticEvent;
+			console.error('WebView HTTP error:', nativeEvent);
+		}}
+	/>;
+};
 
 // HTML content with embedded JavaScript for gif.js operation
 const htmlContent = (encodedImagesJson: string, gifJs, gifWorkerJs) => `
@@ -112,7 +108,5 @@ const htmlContent = (encodedImagesJson: string, gifJs, gifWorkerJs) => `
 </body>
 </html>
     `.trim();
-
-
 
 export default GifjsWebview;
