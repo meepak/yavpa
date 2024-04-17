@@ -217,83 +217,83 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = properties => {
 		);
 
 	return (
-		<View style={styles.container} pointerEvents='box-none'>
-			{isLoading ? (
-				<View
-					style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
-				>
-					<ActivityIndicator animating size={200} color={MY_BLACK} />
-				</View>
-			) : (
-				<ErrorBoundary>
-					<Gestures>
-						<View style={styles.container}>
-							<Svg
-								width={'100%'}
-								height={'100%'}
-								viewBox={canvasViewBox}
-								onLayout={() => {
-									setIsLoading(false);
-								}}
-							>
-								{pathEditMode && (
-									<MyPen
-										tip={
-											penTip || {
-												x: (CANVAS_WIDTH / 2) * canvasScale + canvasTranslate.x,
-												y:
+    <View style={styles.container} pointerEvents="box-none">
+      {isLoading ? (
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <ActivityIndicator animating size={200} color={MY_BLACK} />
+        </View>
+      ) : (
+        <ErrorBoundary>
+          <MyGestures {...myGestureProperties}>
+            <View style={styles.container}>
+              <Svg
+                width={"100%"}
+                height={"100%"}
+                viewBox={canvasViewBox}
+                onLayout={() => {
+                  setIsLoading(false);
+                }}
+              >
+                {pathEditMode && (
+                  <MyPen
+                    tip={
+                      penTip || {
+                        x: (CANVAS_WIDTH / 2) * canvasScale + canvasTranslate.x,
+                        y:
                           (CANVAS_HEIGHT / 2) * canvasScale + canvasTranslate.y,
-											}
-										}
-									/>
-								)}
+                      }
+                    }
+                  />
+                )}
 
-								{myPathData.imageData?.map(item =>
-									item.visible ? (
-										<MyPathImage
-											prop={item}
-											keyProp={'completed-' + item.guid}
-											key={item.guid}
-										/>
-									) : null,
-								)}
+                {myPathData.imageData?.map((item) =>
+                  item.visible ? (
+                    <MyPathImage
+                      prop={item}
+                      keyProp={"completed-" + item.guid}
+                      key={item.guid}
+                    />
+                  ) : null,
+                )}
 
-								{myPathData.pathData.map((item, _index) =>
-									item.visible ? (
-										<MyPath
-											prop={item}
-											keyProp={'completed-' + item.updatedAt}
-											key={item.guid}
-										/>
-									) : null,
-								)}
+                {myPathData.pathData.map((item, _index) =>
+                  item.visible ? (
+                    <MyPath
+                      prop={item}
+                      keyProp={"completed-" + item.updatedAt}
+                      key={item.guid}
+                    />
+                  ) : null,
+                )}
 
-								{currentPath.guid !== '' && (
-									<MyPath
-										prop={currentPath}
-										keyProp={'current'}
-										key={currentPath.guid}
-									/>
-								)}
+                {currentPath.guid !== "" && (
+                  <MyPath
+                    prop={currentPath}
+                    keyProp={"current"}
+                    key={currentPath.guid}
+                  />
+                )}
 
-								<MyBoundaryBoxPaths
-									activeBoundaryBoxPath={activeBoundaryBoxPath}
-								/>
-							</Svg>
-						</View>
-					</Gestures>
+                <MyBoundaryBoxPaths
+                  activeBoundaryBoxPath={activeBoundaryBoxPath}
+                />
+              </Svg>
+            </View>
+          </MyGestures>
 
-					<BoundaryBoxIcons
-						activeBoundaryBoxPath={activeBoundaryBoxPath}
-						scaleMode={scaleMode}
-						onScaleModeChange={value => {
-							setScaleMode(value);
-						}}
-					/>
-				</ErrorBoundary>
-			)}
-		</View>
-	);
+          <BoundaryBoxIcons
+            activeBoundaryBoxPath={activeBoundaryBoxPath}
+            scaleMode={scaleMode}
+            onScaleModeChange={(value) => {
+              setScaleMode(value);
+            }}
+          />
+        </ErrorBoundary>
+      )}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({

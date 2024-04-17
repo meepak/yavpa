@@ -67,7 +67,7 @@ type MyGesturesProperties = {
 	setCanvasScale: (value: SetStateAction<number>) => void;
 	canvasTranslate: PointType;
 	setCanvasTranslate: (value: SetStateAction<PointType>) => void;
-	penTipRef: React.MutableRefObject<PointType>;
+	penTipRef: React.MutableRefObject<PointType|undefined>;
 	children: React.ReactNode;
 };
 
@@ -135,7 +135,7 @@ export const MyGestures = ({
 				y: (event.y * canvasScale + penOffsetReference.current.y + canvasTranslate.y), // * SCREEN_HEIGHT,
 		}
 
-		console.log("ACTIVE penTipRef.current", penTipRef.current);
+		// console.log("ACTIVE penTipRef.current", penTipRef.current, state);
 		// PenTipRef.current = { ...penTip as any};
 
 		handleDrawingEvent(

@@ -27,7 +27,7 @@ import simplify from "simplify-js";
 import { applyErasure } from "./apply-erasure";
 
 export const handleDrawingEvent = (
-  penTipRef: React.MutableRefObject<PointType>,
+  penTipRef: React.MutableRefObject<PointType|undefined>,
   event:
     | GestureStateChangeEvent<PanGestureHandlerEventPayload>
     | GestureUpdateEvent<PanGestureHandlerEventPayload>,
@@ -51,11 +51,11 @@ export const handleDrawingEvent = (
     return;
   }
 
-  myConsole.log(penTipRef.current);
+  // myConsole.log(penTipRef.current);
 
   switch (state) {
     case "began": {
-      // Console.log("began")
+      console.log("began")
       setStartTime(Date.now());
 
       const newPath = newPathData();
@@ -78,10 +78,10 @@ export const handleDrawingEvent = (
       });
 
       // Shape takes precedance over path
-      if (isValidShape(currentShape.name)) {
+      if (isValidShape(currentShape.name) && penTipRef.current !== undefined) {
         setCurrentShape((previous) => ({
 			...previous,
-              start: penTipRef.current,
+              start: penTipRef.current as any,
         }));
       }
 
@@ -89,10 +89,13 @@ export const handleDrawingEvent = (
     }
 
     case "active": {
-      console.log("active")
+      // console.log("active.....")
+      if(penTipRef.current === undefined) {
+        break;
+      }
       if (isValidShape(currentShape.name)) {
         setCurrentShape((previous) => {
-          previous.end = penTipRef.current;
+          previous.end = penTipRef.current as any;
           return previous;
         });
         const path = shapeData(currentShape);
@@ -132,7 +135,7 @@ export const handleDrawingEvent = (
     }
 
     case "ended": {
-      console.log("ended");
+      // console.log("ended");
       // MyConsole.log("time", currentPath.time)
 
       if (erasureMode) {
