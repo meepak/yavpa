@@ -1,4 +1,3 @@
-import myConsole from '@c/my-console-log';
 import {createPathdata, createMyPathData} from '@u/helper';
 import {type PathDataType, type ShapeType, type MyPathDataType} from '@u/types';
 import {MyPathDataContext} from '@x/svg-data';

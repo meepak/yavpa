@@ -2,13 +2,13 @@
 import {View, Text} from 'react-native';
 import Svg, {Path} from 'react-native-svg';
 import simplify from 'simplify-js';
-import MySlider from '@c/my-slider';
+import MySlider from '@c/controls/pure/my-slider';
 import React, {useEffect, useState} from 'react';
 import * as d3 from 'd3';
 import {
 	createPathdata, getPathFromPoints, getPointsFromPath, getViewBoxTrimmed,
 } from '@u/helper';
-import MyRadioButtons from '@c/my-radio-buttons';
+import MyRadioButtons from '@c/controls/my-radio-buttons';
 import {getD3CurveBasis} from '@u/shapes';
 import {DEFAULT_STROKE_WIDTH, MY_BLACK} from '@u/types';
 

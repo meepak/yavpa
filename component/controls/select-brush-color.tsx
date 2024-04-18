@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react';
 import {View} from 'react-native';
 import MyColorPicker from './my-color-picker';
 import SelectBrush from './select-brush';
-import MyToggleButton from './my-toggle-button';
+import MyToggleButton from './pure/my-toggle-button';
 
 const SelectBrushColor = ({value, onValueChanged}) => {
 	const [currentValue, setCurrentValue] = useState(value);

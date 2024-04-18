@@ -6,11 +6,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import MyPathLogo from '@c/logo/my-path-logo';
 import {SCREEN_WIDTH} from '@u/types';
-import MyGradientBackground from '@c/my-gradient-background';
-import MyIcon from '@c/my-icon';
+import MyGradientBackground from '@c/controls/pure/my-gradient-background';
+import MyIcon from "@c/controls/pure/my-icon";
 import MyPreferences from '@c/preferences/my-preferences';
-import myConsole from '@c/my-console-log';
-import SvgAnimate from '../file/preview/animate';
+import myConsole from "@c/controls/pure/my-console-log";
 
 const banner = require('@a/banner.png');
 
@@ -23,7 +22,7 @@ const Header: React.FC<HeaderProperties> = ({scrollValue}) => {
 	const [preferencesVisible, setPreferencesVisible] = React.useState(false);
 
 	const imageAnimatedStyle = useAnimatedStyle(() => ({
-		opacity: interpolate(scrollValue.value, [0, 180, 220, 270], [0.7, 0.2, 0.1, 0], Extrapolation.CLAMP),
+		opacity: interpolate(scrollValue.value, [0, 180, 220, 270], [0.5, 0.2, 0.1, 0], Extrapolation.CLAMP),
 	}), [scrollValue]);
 
 	const logoAnimatedStyle = useAnimatedStyle(() => ({

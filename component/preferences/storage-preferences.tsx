@@ -11,8 +11,8 @@ import * as Sharing from 'expo-sharing';
 import JSZip from 'jszip';
 import {Divider} from '@c/controls';
 import {MY_BLACK, SCREEN_WIDTH} from '@u/types';
-import myConsole from '@c/my-console-log';
-import MyIcon from '@c/my-icon';
+import myConsole from '@c/controls/pure/my-console-log';
+import MyIcon from '@c/controls/pure/my-icon';
 import {hrFormatSize} from '@u/helper';
 
 const StoragePreference: React.FC<{disableParentScroll: (value: boolean) => void}> = ({disableParentScroll}) => {

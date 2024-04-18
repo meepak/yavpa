@@ -3,8 +3,8 @@ import React, {useState} from 'react';
 import {
 	type StyleProp, type TextStyle, FlatList, View,
 } from 'react-native';
-import MyCheckBox from './my-check-box';
-import {type MyIconStyle} from './my-icon';
+import MyCheckBox from './pure/my-check-box';
+import {type MyIconStyle} from './pure/my-icon';
 
 type RadioButtonsProperties = {
 	labels: any[];

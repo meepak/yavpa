@@ -3,7 +3,7 @@ import {getPathFromPoints, getPointsFromPath} from '@u/helper';
 import {GestureUpdateEvent, PanGestureHandlerEventPayload} from 'react-native-gesture-handler';
 import {type SetStateAction, useCallback} from 'react';
 import {type PathDataType, type PointType, type MyPathDataType} from '@u/types';
-import myConsole from '@c/my-console-log';
+import myConsole from '@c/controls/pure/my-console-log';
 
 const startPoint = {
 	x: 0,

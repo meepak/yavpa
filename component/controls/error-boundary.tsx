@@ -6,8 +6,8 @@ import {
 // import { CANVAS_WIDTH } from '@u/types';
 import * as Updates from 'expo-updates';
 import {MY_BLACK} from '@u/types';
-import {Divider} from './controls';
-import myConsole from './my-console-log';
+import {Divider} from '.';
+import myConsole from './pure/my-console-log';
 
 type ErrorBoundaryProperties = {
 	children: React.ReactNode;

@@ -1,7 +1,7 @@
 import {createPathdata, getPathFromPoints} from '@u/helper';
 import {MY_BLACK, PointType} from '@u/types';
 import type * as D3Path from 'd3-path';
-import MyPath from './my-path';
+import MyPath from './pure/my-path';
 
 const MyPathEdit = ({path}: {path: typeof D3Path}) => {
 	// What about markers?

@@ -2,8 +2,8 @@ import {useState} from 'react';
 import MySheetModal from '@c/controls/my-sheet-modal';
 import {HEADER_HEIGHT, SCREEN_HEIGHT} from '@u/types';
 import {Text, StyleSheet, ScrollView} from 'react-native';
-import MyCollapsible from '@c/controls/my-collapsible';
-import MyIcon from '@c/my-icon';
+import MyCollapsible from '@c/controls/pure/my-collapsible';
+import MyIcon from '@c/controls/pure/my-icon';
 import StoragePreferences from './storage-preferences';
 import DrawingPreferences from './drawing-preferences';
 
@@ -51,7 +51,7 @@ const MyPreferences: React.FC<MyPreferencesProperties> = ({isVisible, onClose}) 
 							{
 								icon: <MyIcon name='pen' size={24} strokeWidth={1} fill='#512dab' color='#ffffff' />,
 								title: 'Drawing',
-								contentHeight: 500,
+								contentHeight: 240,
 								content: <DrawingPreferences disableParentScroll={(value: boolean) => {
 									setParentScrollEnabled(!value);
 								}}/>,

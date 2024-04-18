@@ -10,7 +10,7 @@ import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import * as Clipboard from 'expo-clipboard';
 import LottieView, {type AnimationObject} from 'lottie-react-native';
-import MyPreview from '@c/my-preview';
+import MyPreview from '@c/controls/my-preview';
 import {
 	CANVAS_HEIGHT,
 	CANVAS_VIEWBOX_DEFAULT,
@@ -19,8 +19,8 @@ import {
 } from '@u/types';
 import * as format from '@u/formatters';
 import createLottie from '@u/lottie';
-import ErrorBoundary from '@c/error-boundary';
-import myConsole from '@c/my-console-log';
+import ErrorBoundary from '@c/controls/error-boundary';
+import myConsole from '@c/controls/pure/my-console-log';
 import {MyPathDataContext} from '@x/svg-data';
 import SaveAsGif from './save-as-gif';
 

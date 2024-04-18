@@ -1,5 +1,5 @@
 import {AvailableShapes, MY_BLACK} from '@u/types';
-import MyRadioButtons from '@c/my-radio-buttons';
+import MyRadioButtons from '@c/controls/my-radio-buttons';
 
 const SelectShape = ({color = 'black', value, onValueChanged}) => {
 	const handleShapeSelection = (shape: string) => {

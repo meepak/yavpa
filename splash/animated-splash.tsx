@@ -4,10 +4,11 @@ import {Animated, StyleSheet, View} from 'react-native';
 import {Easing} from 'react-native-reanimated';
 import {SplashScreen} from 'expo-router';
 import * as SystemUI from 'expo-system-ui';
-import myConsole from '@c/my-console-log';
 import MyPathLogo from '@c/logo/my-path-logo';
 import {StatusBar} from 'expo-status-bar';
 import {MY_PRIMARY_COLOR} from '@u/types';
+import { useUserPreferences } from '@x/user-preferences';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 SystemUI.setBackgroundColorAsync(MY_PRIMARY_COLOR);
 
@@ -21,6 +22,8 @@ const AnimatedSplash = ({
 	const [isAppReady, setAppReady] = useState(false);
 	const [logoLoaded, setLogoLoaded] = useState(false);
 	const [isAnimationComplete, setAnimationComplete] = useState(false);
+
+	const { setUserPreferences } = useUserPreferences();
 
 	const animationValueRotateY = new Animated.Value(0);
 	const animationValueSize = new Animated.Value(0);
@@ -68,6 +71,21 @@ const AnimatedSplash = ({
 				// Load stuff, like read files from the file system, custom fonts, etc.
 				// await Promise.all([]);
 				// await new Promise((resolve) => setTimeout(resolve, 2000));
+
+				// load preferences from Async storage
+				AsyncStorage.getItem('mypath@userPreference')
+				.then((value) => {
+					console.log('Do we have saved preferences?', value)
+					if (value) {
+						const userPreferences = JSON.parse(value);
+						setUserPreferences(userPreferences);
+						console.log('User preferences loaded:', userPreferences);
+					}
+				})
+				.catch((error) => {
+					console.error('Failed to load user preferences:', error);
+				});
+
 			} catch {
 				// Handle errors
 			} finally {

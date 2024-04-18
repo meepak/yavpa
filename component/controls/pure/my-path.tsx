@@ -1,6 +1,6 @@
 
 import React, {useState} from 'react';
-import {Brushes, getBrush} from '@c/my-brushes';
+import {Brushes, getBrush} from '@c/controls/my-brushes';
 import {Circle, Path} from 'react-native-svg';
 import {type BrushType, type PathDataType} from '@u/types';
 import {getPointsFromPath, isValidPath} from '@u/helper';

@@ -1,10 +1,10 @@
 import {Text, View} from 'react-native';
-import MySlider from '@c/my-slider';
+import MySlider from '@c/controls/pure/my-slider';
 import {useEffect, useState} from 'react';
-import MyCheckBox from '@c/my-check-box';
+import MyCheckBox from '@c/controls/pure/my-check-box';
 import {MY_BLACK, TransitionType} from '@u/types';
-import RadioButtons from '@c/my-radio-buttons';
-import myConsole from '@c/my-console-log';
+import RadioButtons from '@c/controls/my-radio-buttons';
+import myConsole from '@c/controls/pure/my-console-log';
 
 const AnimationParameters = ({animationParams, onAnimationParamsChanged}) => {
 	const [speedValue, setSpeedValue] = useState(animationParams.speed ?? 1);

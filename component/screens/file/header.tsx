@@ -7,15 +7,15 @@ import {ControlPanel} from 'component/controls';
 import {
 	BLUE_BUTTON_WIDTH, FOOTER_HEIGHT, HEADER_HEIGHT, SCREEN_HEIGHT, ScreenModes,
 } from '@u/types';
-import MyIcon from '@c/my-icon';
+import MyIcon from '@c/controls/pure/my-icon';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import MyPathLogo from '@c/logo/my-path-logo';
 import {MyPathDataContext} from '@x/svg-data';
-import MyList from '@c/my-list';
-import MyBlueButton from '@c/my-blue-button';
+import MyList from '@c/controls/pure/my-list';
+import MyBlueButton from '@c/controls/pure/my-blue-button';
 import {ToastContext} from '@x/toast-context';
-import MyGradientBackground from '@c/my-gradient-background';
-import myConsole from '@c/my-console-log';
+import MyGradientBackground from '@c/controls/pure/my-gradient-background';
+import myConsole from '@c/controls/pure/my-console-log';
 
 const Header = ({
 	title,

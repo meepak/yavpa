@@ -1,6 +1,6 @@
 import {getViewBoxTrimmed} from '@u/helper';
 import {type MyPathDataType, type BrushType, CANVAS_VIEWBOX_DEFAULT} from '@u/types';
-import {Brushes, getBrushSvg} from '../component/my-brushes';
+import {Brushes, getBrushSvg} from '../component/controls/my-brushes';
 
 export const getStaticSvg = (myPathData: MyPathDataType, trimViewBox = true) => {
 	const viewBox = trimViewBox ? getViewBoxTrimmed(myPathData.pathData) : CANVAS_VIEWBOX_DEFAULT;

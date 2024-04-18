@@ -1,5 +1,5 @@
 import {View, Text} from 'react-native';
-import MySlider from '@c/my-slider';
+import MySlider from "@c/controls/pure/my-slider";
 import {useState} from 'react';
 
 const DashOffsetCorrection = ({value, onValueChanged}) => {

@@ -1,6 +1,6 @@
 import {type ToastFunction} from '@x/toast-context';
 import * as ImagePicker from 'expo-image-picker';
-import myConsole from '@c/my-console-log';
+import myConsole from '@c/controls/my-console-log';
 import {saveImageToCache} from './storage';
 import {CANVAS_HEIGHT, CANVAS_WIDTH} from './types';
 

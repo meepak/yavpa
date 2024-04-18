@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {type DimensionValue, View, type ViewStyle} from 'react-native';
-import MyPreview from '@c/my-preview';
+import MyPreview from '@c/controls/my-preview';
 import {parseMyPathData} from '@u/helper';
 import logoData from './my-path.json';
 
@@ -12,7 +12,8 @@ type MyPathLogoProperties = {
 	isLoaded?: (value: boolean) => void;
 };
 
-const MyPathLogo = ({width, height, animate, style = {}, isLoaded = (value: boolean) => {}}: MyPathLogoProperties) => {
+const
+MyPathLogo = ({width, height, animate, style = {}, isLoaded = (value: boolean) => {}}: MyPathLogoProperties) => {
 	const lg = parseMyPathData(logoData);
 	const [logo, setLogo] = useState(lg);
 	if (!logo) {
@@ -30,7 +31,7 @@ const MyPathLogo = ({width, height, animate, style = {}, isLoaded = (value: bool
 		<View style={[{width, height}, style]}>
 			<MyPreview
 				animate={animate}
-				viewBox={logoData.metaData.viewBox}
+				// viewBox={logoData.metaData.viewBox}
 				data={logo}
 			/>
 		</View>

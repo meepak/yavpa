@@ -1,5 +1,5 @@
 import {View} from 'react-native';
-import MySlider from '@c/my-slider';
+import MySlider from '@c/controls/pure/my-slider';
 import {useContext, useEffect, useState} from 'react';
 import {MyPathDataContext} from '@x/svg-data';
 import StrokePreview from './stroke-preview';

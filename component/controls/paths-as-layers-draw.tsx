@@ -11,16 +11,16 @@ import {
 	createMyPathData, getPathLength, getPointsFromPath, getViewBoxTrimmed, precise,
 } from '@u/helper';
 import DraggableFlatList, {ScaleDecorator} from 'react-native-draggable-flatlist';
-import MyIcon from '@c/my-icon';
-import MyPreview from '@c/my-preview';
+import MyIcon from "@c/controls/pure/my-icon";
+import MyPreview from '@c/controls/my-preview';
 import {MyPathDataContext} from '@x/svg-data';
-import MyCheckBox from '@c/my-check-box';
-import myConsole from '@c/my-console-log';
+import MyCheckBox from "@c/controls/pure/my-check-box";
+import myConsole from "@c/controls/pure/my-console-log";
 import StrokeOpacity from './stroke-opacity';
 import StrokeWidth from './stroke-width';
 import SelectBrushColor from './select-brush-color';
-import Divider from './divider';
-import ContextMenu from './context-menu';
+import Divider from './pure/divider';
+import ContextMenu from './pure/context-menu';
 
 const PathsAsLayersDraw = () => {
 	const {myPathData, setMyPathData} = React.useContext(MyPathDataContext);
@@ -196,8 +196,20 @@ const PathsAsLayersDraw = () => {
 
 	const renderItem = ({item, drag, isActive}) => {
 		const pathAsMyPathData = pathToMyPathData(item);
-		const width = precise(pathAsMyPathData.metaData.viewBox.split(' ')[2]);
-		const height = precise(pathAsMyPathData.metaData.viewBox.split(' ')[3]);
+		const width = precise(pathAsMyPathData.metaData.canvasWidth * pathAsMyPathData.metaData.canvasScale);
+		console.log(
+      "width:",
+      pathAsMyPathData.metaData.canvasWidth,
+      "height:",
+      pathAsMyPathData.metaData.canvasHeight,
+	  "scale:",
+	  pathAsMyPathData.metaData.canvasScale,
+	  "translateX:",
+	  pathAsMyPathData.metaData.canvasTranslateX,
+	  "translateY:",
+	  pathAsMyPathData.metaData.canvasTranslateY,
+    );
+		const height = precise(pathAsMyPathData.metaData.canvasHeight * pathAsMyPathData.metaData.canvasScale);
 		const maxPreviewSize = 44;
 		const previewSize = (width > height)
 			? {width: maxPreviewSize, height: height * maxPreviewSize / width}

@@ -1,5 +1,5 @@
 
-import MyPreview from '@c/my-preview';
+import MyPreview from '@c/controls/my-preview';
 import {getFiles} from '@u/storage';
 import {
 	CANVAS_HEIGHT, CANVAS_WIDTH, HEADER_HEIGHT, ModalAnimations, SCREEN_WIDTH, type MyPathDataType,
@@ -10,7 +10,7 @@ import {Modal, TouchableHighlight} from 'react-native';
 import Animated, {useSharedValue, useAnimatedScrollHandler} from 'react-native-reanimated';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useUserPreferences} from '@x/user-preferences';
-import {ContextMenu} from './controls';
+import {ContextMenu} from '..';
 import myConsole from './my-console-log';
 
 const FILE_PREVIEW_WIDTH = 100;

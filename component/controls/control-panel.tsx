@@ -5,8 +5,8 @@ import {
 	TouchableOpacity,
 	Text,
 } from 'react-native';
-import MyIcon from '@c/my-icon';
-import ContextMenu from 'component/controls/context-menu';
+import MyIcon from '@c/controls/pure/my-icon';
+import ContextMenu from "@c/controls/pure/context-menu";
 import {
 	I_AM_IOS, MY_ON_PRIMARY_COLOR, MY_PRIMARY_COLOR, ModalAnimations,
 } from '@u/types';

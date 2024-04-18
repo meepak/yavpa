@@ -143,8 +143,13 @@ export type MetaDataType = {
 	created_at: string; // Timestamp when svg was created
 	updatedAt: string; // Timestamp when svg was last updated
 	name: string; // Name of the svg
-	viewBox: string; // Default viewBox of the svg
-	viewBoxTrimmed?: string; // ViewBox of the svg after trimming
+	canvasWidth: number; // Width of the canvas
+	canvasHeight: number; // Height of the canvas
+	canvasScale: number; // Scale of the canvas
+	canvasTranslateX: number; // TranslateX of the canvas
+	canvasTranslateY: number; // TranslateY of the canvas
+	// viewBox: string; // Deprecate this,..Default viewBox of the svg
+	// viewBoxTrimmed?: string; // ViewBox of the svg after trimming
 	lastScreenMode?: string; // Last screen mode
 	editable?: boolean; // Is svg editable
 	animation?: AnimationParamsType;

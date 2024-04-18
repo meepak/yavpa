@@ -5,11 +5,11 @@ import {
 import {Button, View} from 'react-native';
 import ViewShot, {captureRef, CaptureOptions} from 'react-native-view-shot';
 import {useEffect, useRef, useState} from 'react';
-import MyPreview from '@c/my-preview';
+import MyPreview from '@c/controls/my-preview';
 import {getViewBoxTrimmed, precise} from '@u/helper';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
-import myConsole from '@c/my-console-log';
+import myConsole from '@c/controls/my-console-log';
 import SvgAnimate from '../preview/animate';
 import GifjsWebview from './GifjsWebview';
 

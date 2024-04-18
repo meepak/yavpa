@@ -8,7 +8,7 @@ import React, {
 	useCallback,
 } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import myConsole from '@c/my-console-log';
+import myConsole from '@c/controls/pure/my-console-log';
 
 export type UserPreferencesType = {
 	usePenOffset: boolean;
@@ -88,7 +88,7 @@ export const UserPreferencesProvider: React.FC<{
 		const storeData = async () => {
 			try {
 				const jsonValue = JSON.stringify(userPreferences);
-				await AsyncStorage.setItem('@userPreferences', jsonValue);
+				await AsyncStorage.setItem('mypath@userPreferences', jsonValue);
 			} catch (error) {
 				// Saving error
 				myConsole.log(error);

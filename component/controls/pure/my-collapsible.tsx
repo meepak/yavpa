@@ -1,5 +1,5 @@
-import MyGradientBackground from '@c/my-gradient-background';
-import MyIcon from '@c/my-icon';
+import MyGradientBackground from "@c/controls/pure/my-gradient-background";
+import MyIcon from "@c/controls/pure/my-icon";
 import {LinearGradient} from 'expo-linear-gradient';
 import React, {useState, useContext, createContext} from 'react';
 import {

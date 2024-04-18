@@ -18,9 +18,9 @@ import {useLocalSearchParams, useRouter} from 'expo-router';
 import {StickyHeaderFlatList, useStickyHeaderScrollProps} from 'react-native-sticky-parallax-header';
 import {StatusBar} from 'expo-status-bar';
 import Header from '@c/screens/browse/header';
-import MyPreview from '@c/my-preview';
-import MyBlueButton from '@c/my-blue-button';
-import myConsole from '@c/my-console-log';
+import MyPreview from '@c/controls/my-preview';
+import MyBlueButton from '@c/controls/pure/my-blue-button';
+import myConsole from '@c/controls/pure/my-console-log';
 import Animated, {FlipInYLeft} from 'react-native-reanimated';
 import {useUserPreferences} from '@x/user-preferences';
 import MyPathLogo from '@c/logo/my-path-logo';
@@ -111,7 +111,7 @@ const BrowseScreen = () => {
 	// refresh all files if default storage directory changed
 	useEffect(() => {
 		myConsole.log('again fetching files..', defaultStorageDirectory);
-		fetchFiles(true).then(() => {
+		fetchFiles(false).then(() => {
 			setIsLoading(false);
 		});
 	}, [defaultStorageDirectory]);

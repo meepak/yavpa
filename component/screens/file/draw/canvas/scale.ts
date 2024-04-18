@@ -5,7 +5,7 @@ import {
 	getPointsFromPath, getPathFromPoints, scalePoints, getPathLength,
 } from '@u/helper';
 import * as Crypto from 'expo-crypto';
-import myConsole from '@c/my-console-log';
+import myConsole from '@c/controls/pure/my-console-log';
 
 let startScale = 1;
 

@@ -1,5 +1,5 @@
 
-import * as AvailableBrushes from '@c/my-brushes';
+import * as AvailableBrushes from '@c/controls/my-brushes';
 import {useEffect, useState} from 'react';
 import Svg, {Defs, Path} from 'react-native-svg';
 

@@ -11,10 +11,12 @@
         "created_at": "1708352095688",
         "editable": false,
         "guid": "1277fbac-9450-4945-9f6a-b84339bb7cbc",
-        "lastScreenMode": "Draw",
+        "lastScreenMode": "Preview",
         "name": "2024-02-19 14:15:49",
         "updatedAt": "2024-02-19T14:15:49.384Z",
-        "viewBox": "-1 45 365 337"
+        "canvasScale": 0.64,
+        "canvasTranslateX": 30,
+        "canvasTranslateY": 0
     },
     "pathData": [
         {

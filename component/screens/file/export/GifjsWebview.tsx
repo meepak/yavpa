@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {WebView} from 'react-native-webview';
 import * as Clipboard from 'expo-clipboard';
-import myConsole from '@c/my-console-log';
+import myConsole from '@c/controls/my-console-log';
 import {gifJs, gifWorkerJs} from './gif';
 
 const GifjsWebview = ({base64EncodedImages, onEncoded}) => {

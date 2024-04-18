@@ -1,4 +1,4 @@
-import {getBoundaryBox} from '@c/my-boundary-box-paths';
+import {getBoundaryBox} from '@u/helper';
 import {type PathDataType, type MyPathDataType} from '@u/types';
 import {useEffect} from 'react';
 

@@ -1,4 +1,4 @@
-import myConsole from '@c/my-console-log';
+import myConsole from "@c/controls/pure/my-console-log";
 import {CANVAS_HEIGHT} from '@u/types';
 import React from 'react';
 import {

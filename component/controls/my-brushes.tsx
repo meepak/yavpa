@@ -2,7 +2,7 @@ import React from 'react';
 import {
 	Defs, LinearGradient, Pattern, RadialGradient, Stop, Image,
 } from 'react-native-svg';
-import {type BrushType, type GradientBrushPropType, type PatternBrushPropType} from '../utilities/types';
+import {type BrushType, type GradientBrushPropType, type PatternBrushPropType} from '../../utilities/types';
 
 export const LinearGradientBrush
   = ({guid, colors, gradientTransform = 'rotate(0, 0, 0)'}: GradientBrushPropType) => (

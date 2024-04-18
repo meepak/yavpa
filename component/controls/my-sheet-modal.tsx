@@ -1,5 +1,5 @@
-import MyGradientBackground from '@c/my-gradient-background';
-import MyIcon from '@c/my-icon';
+import MyGradientBackground from '@c/controls/pure/my-gradient-background';
+import MyIcon from '@c/controls/pure/my-icon';
 import React, {type ReactNode} from 'react';
 import {View, Text, TouchableOpacity} from 'react-native';
 import Modal from 'react-native-modal';

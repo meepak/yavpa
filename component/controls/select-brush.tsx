@@ -1,8 +1,8 @@
 import {useState} from 'react';
-import * as AvailableBrushes from '@c/my-brushes';
-import MyRadioButtons from '@c/my-radio-buttons';
+import * as AvailableBrushes from '@c/controls/my-brushes';
+import MyRadioButtons from '@c/controls/my-radio-buttons';
 import {type BrushType, MY_BLACK} from '@u/types';
-import {Brushes} from '@c/my-brushes';
+import {Brushes} from '@c/controls/my-brushes';
 import Svg, {Line, Defs} from 'react-native-svg';
 import {View} from 'react-native';
 

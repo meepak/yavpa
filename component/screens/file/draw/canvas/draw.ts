@@ -1,5 +1,5 @@
 // Import { applyErasure } from "@u/erasure";
-import myConsole from "@c/my-console-log";
+import myConsole from "@c/controls/my-console-log";
 import {
   getPathFromPoints,
   getPathLength,
@@ -24,7 +24,7 @@ import {
   type PanGestureHandlerEventPayload,
 } from "react-native-gesture-handler";
 import simplify from "simplify-js";
-import { applyErasure } from "./apply-erasure";
+import { applyErasure } from "./erase";
 
 export const handleDrawingEvent = (
   penTipRef: React.MutableRefObject<PointType|undefined>,
@@ -47,7 +47,7 @@ export const handleDrawingEvent = (
   d3CurveBasis: string,
 ) => {
   if (!editMode || !penTipRef.current) {
-	console.log('editing not allowed....');
+	// console.log('editing not allowed....');
     return;
   }
 

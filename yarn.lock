@@ -8148,15 +8148,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-system-ui@npm:^2.9.3":
-  version: 2.9.3
-  resolution: "expo-system-ui@npm:2.9.3"
+"expo-system-ui@npm:^2.9.4":
+  version: 2.9.4
+  resolution: "expo-system-ui@npm:2.9.4"
   dependencies:
     "@react-native/normalize-color": "npm:^2.0.0"
     debug: "npm:^4.3.2"
   peerDependencies:
     expo: "*"
-  checksum: 10c0/145427e8c097db5d9735224eda9496aa1f9ac3d4ee081c44714272d4f29a27649c0dd3fccc0fc62063850b034e5dfcc0042a71ee4de0a3cebfacf68fbca567ae
+  checksum: 10c0/a5e54078acb3e1d7133962ad047d2483798175d42ca0baf6c47d14558239af6fb30d4344b47cfbf1dbba383bc0c6dc2d8976f4a7a0d4a113608ae3942cf80a04
   languageName: node
   linkType: hard
 
@@ -11244,7 +11244,7 @@ __metadata:
     expo-sensors: "npm:^12.9.1"
     expo-sharing: "npm:^11.10.0"
     expo-status-bar: "npm:^1.11.1"
-    expo-system-ui: "npm:^2.9.3"
+    expo-system-ui: "npm:^2.9.4"
     expo-updates: "npm:^0.24.11"
     jszip: "npm:^3.10.1"
     lodash: "npm:^4.17.21"
