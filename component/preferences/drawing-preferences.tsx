@@ -1,36 +1,20 @@
 import { Divider, MySlider } from "@c/controls";
 import MyCheckBox from "@c/controls/pure/my-check-box";
-import myConsole from "@c/controls/pure/my-console-log";
-import MyPath from "@c/controls/pure/my-path";
-import MyPen from "@c/controls/pure/my-pen";
-import {
-  createPathdata,
-  getDeviceOrientation,
-  getPathFromPoints,
-  getPenOffsetFactor,
-} from "@u/helper";
 import {
   MY_BLACK,
-  Orientation,
-  type OrientationType,
-  type PointType,
   SCREEN_WIDTH,
 } from "@u/types";
 import { UserPreferencesContext } from "@x/user-preferences";
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { View, Text, Animated, Easing, ImageBackground } from "react-native";
+import React, { useContext } from "react";
+import { View, Text } from "react-native";
 import Svg, { Line, Circle, Ellipse } from "react-native-svg";
 
 const DrawingPreferences: React.FC<{
   disableParentScroll: (value: boolean) => void;
-}> = ({ disableParentScroll }) => {
+}> = () => {
   const { usePenOffset, penOffset, setUserPreferences } = useContext(
     UserPreferencesContext,
   );
-  const [penTip, setPenTip] = useState();
-  const [samplePathData, setSamplePathData] = useState({
-    ...createPathdata(MY_BLACK, 2, 1),
-  });
 
   return (
     <View style={{ marginHorizontal: 15, marginVertical: 20 }}>

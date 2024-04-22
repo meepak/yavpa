@@ -10,6 +10,8 @@ export const useSelectEffect = ({
 	stroke,
 	strokeWidth,
 	strokeOpacity,
+	canvasScale,
+	canvasTranslate,
 }) => {
 	useEffect(() => {
 		const selectedPaths = myPathData.pathData.filter((item: PathDataType) => item.selected);
@@ -22,8 +24,8 @@ export const useSelectEffect = ({
 
 		setEditMode(false);
 
-		// MyConsole.log("selectedPaths", selectedPaths.length);
-		const rectPathData = getBoundaryBox(selectedPaths);
+		console.log("selectedPaths-scale-translate", selectedPaths.length, canvasScale, canvasTranslate);
+		const rectPathData = getBoundaryBox(selectedPaths, canvasScale, canvasTranslate);
 		setActiveBoundaryBoxPath(rectPathData);
 	}, [myPathData]);
 

@@ -37,8 +37,8 @@ export const createMyPathData = (): MyPathDataType => ({
   imageData: [],
   metaData: {
     guid: "",
-    created_at: Date.now().toString(),
-    updatedAt: Date.now().toString(),
+    created_at: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     name: "",
     // viewBox: `0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`,
     lastScreenMode: ScreenModes[0].name,
@@ -574,6 +574,8 @@ export const getViewBox = (metaData: MetaDataType) => {
 // without scaling and translation
 export const getBoundaryBox = (
   selectedPaths: PathDataType[],
+  scale?: number,
+  translate?: PointType
 ): PathDataType | undefined => {
   if (selectedPaths.length === 0) {
     return;
@@ -589,14 +591,23 @@ export const getBoundaryBox = (
   const offset = maxStrokeWidth / 2 + 2;
   const vbbox = getViewBoxTrimmed(selectedPaths, offset);
   const vbbPoints = vbbox.split(" ");
+  const scaleFactor = scale ?? 1;
+  const translateX = translate?.x ?? 0;
+  const translateY = translate?.y ?? 0;
 
   const start = {
-    x: Number.parseFloat(vbbPoints[0]),
-    y: Number.parseFloat(vbbPoints[1]),
+    x: Number.parseFloat(vbbPoints[0]) * scaleFactor + translateX,
+    y: Number.parseFloat(vbbPoints[1]) * scaleFactor + translateY,
   };
   const end = {
-    x: Number.parseFloat(vbbPoints[0]) + Number.parseFloat(vbbPoints[2]),
-    y: Number.parseFloat(vbbPoints[1]) + Number.parseFloat(vbbPoints[3]),
+    x:
+      (Number.parseFloat(vbbPoints[0]) + Number.parseFloat(vbbPoints[2])) *
+        scaleFactor +
+      translateX,
+    y:
+      (Number.parseFloat(vbbPoints[1]) + Number.parseFloat(vbbPoints[3])) *
+        scaleFactor +
+      translateY,
   };
 
   const path = `M${start.x},${start.y} L${end.x},${start.y} L${end.x},${end.y} L${start.x},${end.y} Z`;
@@ -767,7 +778,7 @@ export function parseMyPathData(myPathData: any, update_updatedAt = false) {
     // pathData.selected = false; // This will unselect each time path is saved though, which we dont want..
     return pathData;
   });
-  
+
   // Check if myPathData has metaData and if not set default values
   myPathData.metaData = myPathData.metaData || {};
 

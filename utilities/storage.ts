@@ -5,6 +5,7 @@ import * as Crypto from "expo-crypto";
 import * as ImageManipulator from "expo-image-manipulator";
 import { type MyPathDataType, CANVAS_HEIGHT } from "./types";
 import { arraysEqual, parseMyPathData } from "./helper";
+import { updateId } from "expo-updates";
 
 // Const AppName = I_AM_IOS ? "mypath.mahat.au" : "draw-replay-svg-path";
 // const DefaultDirName = 'mypath1.mahat.au'; //isIOS ? "mypath.mahat.au" : "draw-replay-svg-path";
@@ -46,7 +47,7 @@ export const saveSvgToFile = async (
   return new Promise((resolve, reject) => {
     if (index === -1) {
       if (myPathData.pathData.length === 0) {
-		console.log('denied, no paths to save.')
+        console.log("denied, no paths to save.");
         return resolve(false);
       }
 
@@ -56,7 +57,7 @@ export const saveSvgToFile = async (
       arraysEqual(myPathData.pathData, fileCache[index].pathData) &&
       myPathData.metaData === fileCache[index].metaData
     ) {
-		console.log('denied, no changes to save.');
+      console.log("denied, no changes to save.");
       return resolve(false);
     } else {
       // Move the updated file to the top of the cache
@@ -85,7 +86,10 @@ export const saveSvgToFile = async (
         }
 
         await FileSystem.writeAsStringAsync(filename, json);
-        myConsole.log("*****FILE SAVED TO DISK***" + JSON.stringify(myPathData.metaData.canvasScale));
+        myConsole.log(
+          "*****FILE SAVED TO DISK***" +
+            JSON.stringify(myPathData.metaData.canvasScale),
+        );
         resolve(true);
       } catch (error) {
         console.error("Failed to save file:", error);
@@ -212,6 +216,38 @@ export const deleteFile = async (
     await FileSystem.deleteAsync(filename);
     fileCache = fileCache.filter((file) => file.metaData.guid !== guid);
     return true;
+  } catch (error) {
+    console.error("Failed to delete the file:", error);
+    return false;
+  }
+};
+
+export const duplicateFile = async (
+  documentDir: string,
+  guid: string,
+): Promise<boolean> => {
+  try {
+    const myPathData = await getFile(documentDir, guid);
+    if (myPathData) {
+      const duplicatePathData = {
+        ...myPathData,
+        pathData: myPathData.pathData.map((pd) => ({
+          ...pd,
+          guid: Crypto.randomUUID(),
+        })),
+        metaData: {
+          ...myPathData.metaData,
+          guid: Crypto.randomUUID(),
+          created_at: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          name: new Date().toISOString(),
+        },
+        updateAt: new Date().toISOString(),
+      };
+      await saveSvgToFile(documentDir, duplicatePathData);
+      return true;
+    }
+    return false;
   } catch (error) {
     console.error("Failed to delete the file:", error);
     return false;

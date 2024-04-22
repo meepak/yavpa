@@ -16,7 +16,7 @@ export const handleSelectEvent = (
   const tappedInsidePathData = (pathData: PathDataType, isPathBbox = false) => {
     const pathBoundaryBox = isPathBbox
       ? pathData.path
-      : getBoundaryBox([pathData])?.path;
+      : getBoundaryBox([pathData])?.path; // Don't we need to apply scale transform here??
     if (!pathBoundaryBox) {
       return false;
     }

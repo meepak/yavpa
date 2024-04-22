@@ -93,6 +93,15 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
   const [canvasScale, setCanvasScale] = useState(canvasScaleProp);
   const [canvasTranslate, setCanvasTranslate] = useState(canvasTranslateProp);
 
+  useEffect(() => {
+  console.log(
+    "og canvasScale, canvasTranslate",
+    canvasScaleProp,
+    canvasTranslateProp,
+  );
+    setCanvasScale(canvasScaleProp);
+    setCanvasTranslate(canvasTranslateProp);
+  }, [canvasScaleProp, canvasTranslateProp]);
   // useEffect(() => {
   //   setCanvasScale(myPathData.metaData.canvasScale ?? 1);
   //   setCanvasTranslate({
@@ -162,6 +171,8 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
     stroke,
     strokeWidth,
     strokeOpacity,
+    canvasScale,
+    canvasTranslate,
   });
 
   useCommandEffect(
@@ -294,6 +305,7 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
                 <MyBoundaryBoxPaths
                   activeBoundaryBoxPath={activeBoundaryBoxPath}
                   scaleFactor={canvasScale}
+                  translateFactor={canvasTranslate}
                 />
               </Svg>
             </View>

@@ -8,6 +8,7 @@ import {
 import {
   Gesture,
   GestureDetector,
+  PinchGestureHandlerEventPayload,
   type GestureUpdateEvent,
   type PanGestureHandlerEventPayload,
 } from "react-native-gesture-handler";
@@ -108,7 +109,7 @@ export const MyGestures = ({
   } // Seems unnecessary
 
   // const snappingTolerance = SNAPPING_TOLERANCE * canvasScale; // TODO ADJUST TOLERANCE AS PER CURRENT ZOOM LEVEL
-  const { penOffset } = useContext(UserPreferencesContext);
+  const { usePenOffset, penOffset } = useContext(UserPreferencesContext);
   const penOffsetReference = useRef({ x: 0, y: 0 });
 
   const existingPaths = useRef<PathDataType[]>([]);
@@ -131,8 +132,10 @@ export const MyGestures = ({
       // Need to measure at begining of each writing event
       const pp = await getPenOffsetFactor();
 
-      penOffsetReference.current.x = (pp?.x || 0) * penOffset.x * canvasScale;
-      penOffsetReference.current.y = (pp?.y || 0) * penOffset.y * canvasScale;
+      if (usePenOffset && pp) {
+        penOffsetReference.current.x = (pp?.x || 0) * penOffset.x * canvasScale;
+        penOffsetReference.current.y = (pp?.y || 0) * penOffset.y * canvasScale;
+      }
     }
     // MyConsole.log('penOffset', penOffsetRef.current);
 
@@ -393,7 +396,11 @@ export const MyGestures = ({
     const selectedPaths = myPathData.pathData.filter(
       (item) => item.selected === true,
     );
-    const bBoxPath = getBoundaryBox(selectedPaths);
+    const bBoxPath = getBoundaryBox(
+      selectedPaths,
+      canvasScale,
+      canvasTranslate,
+    );
     setActiveBoundaryBoxPath(bBoxPath);
   };
 
@@ -464,11 +471,11 @@ export const MyGestures = ({
   });
 
   const debouncedUpdate = debounce(
-    (event:GestureUpdateEvent<PanGestureHandlerEventPayload>) => {
+    (event: GestureUpdateEvent<PanGestureHandlerEventPayload>) => {
       if (activeBoundaryBoxPath) {
         return;
       }
-      if(event.numberOfPointers !== 2) {
+      if (event.numberOfPointers !== 2) {
         return;
       }
 
@@ -496,16 +503,17 @@ export const MyGestures = ({
     // Save the sketch
     // console.log("translate ended -->" + pinch2CanvasScale.current);
 
-        setMyPathData((previous) => ({
-          ...previous,
-          metaData: {
-            ...previous.metaData,
-            canvasTranslateX: panDrag2CanvasTranslate.current.x,
-            canvasTranslateY: panDrag2CanvasTranslate.current.y,
-            updatedAt: "",
-          },
-          updatedAt: new Date().toISOString(),
-        }));
+    setMyPathData((previous) => ({
+      ...previous,
+      metaData: {
+        ...previous.metaData,
+        canvasScale: canvasScale,
+        canvasTranslateX: canvasTranslate.x,
+        canvasTranslateY: canvasTranslate.y,
+        updatedAt: "",
+      },
+      updatedAt: new Date().toISOString(),
+    }));
     panDrag2CanvasTranslate.current.x = 0;
     panDrag2CanvasTranslate.current.y = 0;
     // }, 200);
@@ -515,7 +523,10 @@ export const MyGestures = ({
   const pinch2CanvasScale = useRef(canvasScale);
   // For scaling of path
   const pinchZoomEvent = debounce(
-    (event, state) => {
+    (
+      event: GestureUpdateEvent<PinchGestureHandlerEventPayload>,
+      state: string,
+    ) => {
       if (activeBoundaryBoxPath && !editMode) {
         const focalPoint = {
           x: event.focalX * canvasScale + canvasTranslate.x,
@@ -537,42 +548,45 @@ export const MyGestures = ({
       // There was no boundary box, so no path was selected
       if (state === "began") {
         panDrag2Gesture.enabled(false);
-        pinch2CanvasScale.current = event.scale;
-        // MyConsole.log('scaling started', event.scale);
+        pinch2CanvasScale.current = canvasScale;
+        // console.log("zscaling started", canvasScale, event.scale);
+        return;
       } else if (state === "end") {
-        // console.log('scaling ended -->' + pinch2CanvasScale.current);
-           setMyPathData((previous) => ({
-             ...previous,
-             metaData: {
-               ...previous.metaData,
-               canvasScale: pinch2CanvasScale.current,
-               updatedAt: "",
-             },
-             updatedAt: new Date().toISOString(),
-           }));
-
+        // console.log("scaling ended -->" + pinch2CanvasScale.current);
+        setMyPathData((previous) => ({
+          ...previous,
+          metaData: {
+            ...previous.metaData,
+            canvasScale: canvasScale,
+            canvasTranslateX: canvasTranslate.x,
+            canvasTranslateY: canvasTranslate.y,
+            updatedAt: "",
+          },
+          updatedAt: new Date().toISOString(),
+        }));
 
         panDrag2Gesture.enabled(true);
 
         pinchZoomGesture.enabled(true);
-        pinch2CanvasScale.current = 1;
+        // pinch2CanvasScale.current = 1;
+        return;
       } else {
-        myConsole.log('scaling update', event.scale);
+        if (event.numberOfPointers !== 2) {
+          return;
+        }
         // let do this for canvas scale
-        let scale = precise(
-          (canvasScale * pinch2CanvasScale.current) / event.scale,
-          2,
-        );
-        if (scale < 0.25) {
-          scale = 0.25;
+        let newScale = pinch2CanvasScale.current / event.scale;
+        // myConsole.log("scaling update", event.scale, scale);
+
+        if (newScale < 0.25) {
+          newScale = 0.25;
         }
 
-        if (scale > 2.5) {
-          scale = 2.5;
+        if (newScale > 2.5) {
+          newScale = 2.5;
         }
 
-        setCanvasScale(scale);
-        pinch2CanvasScale.current = event.scale;
+        setCanvasScale(newScale);
       }
     },
     5,

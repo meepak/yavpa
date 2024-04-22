@@ -22,7 +22,7 @@ export const applyErasure = (erasurePathData: PathDataType, completedPathsData: 
 	if (erasurePathPoints.length > 1) {
 		const firstPoint = erasurePathPoints[0];
 		const lastPoint = erasurePathPoints.at(-1);
-		if (firstPoint.x !== lastPoint.x || firstPoint.y !== lastPoint.y) {
+		if (firstPoint.x !== lastPoint?.x || firstPoint.y !== lastPoint?.y) {
 			erasurePathPoints.push(firstPoint);
 		}
 	}

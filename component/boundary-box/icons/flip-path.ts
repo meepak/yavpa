@@ -7,7 +7,7 @@ export const flipPaths = (setMyPathData, showToast, flipX = false, flipY = false
         const points = getPointsFromPath(item.path);
         const newPoints = flipPoints(points, flipX, flipY);
         item.path = getPathFromPoints(newPoints);
-        item.updatedAt = Date.now().toString();
+        item.updatedAt = new Date().toISOString();
       }
     }
 

@@ -153,6 +153,7 @@ export type MetaDataType = {
 	lastScreenMode?: string; // Last screen mode
 	editable?: boolean; // Is svg editable
 	animation?: AnimationParamsType;
+	variable?:any; // Variable for storing any temporary data during operation
 };
 
 export type MyPathDataType = {
