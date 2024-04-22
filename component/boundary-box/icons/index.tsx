@@ -1,7 +1,7 @@
 // BoundaryBox.tsx
 import React, { useContext } from "react";
 import { View } from "react-native";
-import { doPathIntersect, getViewBoxTrimmed } from "@u/helper";
+import { doPathIntersect, getPointsFromPath, getViewBoxTrimmed } from "@u/helper";
 import { CANVAS_HEIGHT, CANVAS_VIEWBOX_DEFAULT, CANVAS_WIDTH } from "@u/types";
 import { MyPathDataContext } from "@x/svg-data";
 import { ToastContext } from "@x/toast-context";
@@ -54,17 +54,16 @@ const BoundaryBoxIcons = ({
   scaleMode,
   onScaleModeChange,
 }) => {
-  if (!activeBoundaryBoxPath?.visible) {
+  if (!activeBoundaryBoxPath?.visible || activeBoundaryBoxPath?.path === "") {
     return null;
   }
 
   const { myPathData, setMyPathData } = useContext(MyPathDataContext);
   const { showToast } = useContext(ToastContext);
 
-
-const [styleClipBoard, setStyleClipBoard] = React.useState<
-  PathStyleType | undefined
->();
+  const [styleClipBoard, setStyleClipBoard] = React.useState<
+    PathStyleType | undefined
+  >();
 
   const handleScaleModePress = (mode: string) => {
     onScaleModeChange(mode);
@@ -75,30 +74,32 @@ const [styleClipBoard, setStyleClipBoard] = React.useState<
     (item) => item.selected === true,
   );
   const vbbox = getViewBoxTrimmed([activeBoundaryBoxPath], 0);
-  const vbbPoints = vbbox.split(" "); // This is relative to canvas
+  const vbbPoints =vbbox.split(" "); // This is relative to canvas
+  // const vbbPoints = getPointsFromPath(vbbox); // This is relative to canvas
+  console.log(vbbPoints);
+  return;
   const canvasPoints = CANVAS_VIEWBOX_DEFAULT.split(" "); // This is relative to screen
 
   const iconBoxWidth = 36;
   const iconBoxHeight = 32;
+  console.log(vbbPoints);
   const start = {
-    x:
-      Number.parseFloat(vbbPoints[0]) +
-      Number.parseFloat(vbbPoints[2]) +
-      Number.parseFloat(canvasPoints[0]),
-    y:
-      Number.parseFloat(vbbPoints[1]) + Number.parseFloat(canvasPoints[1]) + 25,
+    x: Number.parseFloat(vbbPoints[0]),
+    y: Number.parseFloat(vbbPoints[1]),
   };
 
-  if (start.x + iconBoxWidth * 2 > CANVAS_WIDTH) {
-    start.x = CANVAS_WIDTH - iconBoxWidth * 2;
-  }
+  console.log(start);
 
-  if (start.y + iconBoxHeight > CANVAS_HEIGHT) {
-    start.y = CANVAS_HEIGHT - iconBoxHeight;
-  }
+  // if (start.x + iconBoxWidth * 2 > CANVAS_WIDTH) {
+  //   start.x = CANVAS_WIDTH - iconBoxWidth * 2;
+  // }
 
-  const top = start.y - 15 < 0 ? 0 : start.y;
-  const left = start.x < 0 ? 0 : start.x + 5;
+  // if (start.y + iconBoxHeight > CANVAS_HEIGHT) {
+  //   start.y = CANVAS_HEIGHT - iconBoxHeight;
+  // }
+
+  const top = start.y; //- 15 < 0 ? 0 : start.y;
+  const left = start.x; //< 0 ? 0 : start.x + 5;
 
   return (
     <View
@@ -108,8 +109,8 @@ const [styleClipBoard, setStyleClipBoard] = React.useState<
         justifyContent: "flex-start",
         alignItems: "flex-start",
         position: "absolute",
-        top: top * canvasScale + canvasTranslate.y,
-        left: left * canvasScale + canvasTranslate.x,
+        top: top,
+        left: left,
       }}
     >
       <View

@@ -591,23 +591,16 @@ export const getBoundaryBox = (
   const offset = maxStrokeWidth / 2 + 2;
   const vbbox = getViewBoxTrimmed(selectedPaths, offset);
   const vbbPoints = vbbox.split(" ");
-  const scaleFactor = scale ?? 1;
-  const translateX = translate?.x ?? 0;
-  const translateY = translate?.y ?? 0;
 
   const start = {
-    x: Number.parseFloat(vbbPoints[0]) * scaleFactor + translateX,
-    y: Number.parseFloat(vbbPoints[1]) * scaleFactor + translateY,
+    x: Number.parseFloat(vbbPoints[0]),
+    y: Number.parseFloat(vbbPoints[1]),
   };
   const end = {
     x:
-      (Number.parseFloat(vbbPoints[0]) + Number.parseFloat(vbbPoints[2])) *
-        scaleFactor +
-      translateX,
+      (Number.parseFloat(vbbPoints[0]) + Number.parseFloat(vbbPoints[2])),
     y:
-      (Number.parseFloat(vbbPoints[1]) + Number.parseFloat(vbbPoints[3])) *
-        scaleFactor +
-      translateY,
+      (Number.parseFloat(vbbPoints[1]) + Number.parseFloat(vbbPoints[3])),
   };
 
   const path = `M${start.x},${start.y} L${end.x},${start.y} L${end.x},${end.y} L${start.x},${end.y} Z`;
