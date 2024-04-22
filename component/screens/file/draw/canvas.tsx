@@ -94,39 +94,11 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
   const [canvasTranslate, setCanvasTranslate] = useState(canvasTranslateProp);
 
   useEffect(() => {
-  console.log(
-    "og canvasScale, canvasTranslate",
-    canvasScaleProp,
-    canvasTranslateProp,
-  );
     setCanvasScale(canvasScaleProp);
     setCanvasTranslate(canvasTranslateProp);
   }, [canvasScaleProp, canvasTranslateProp]);
-  // useEffect(() => {
-  //   setCanvasScale(myPathData.metaData.canvasScale ?? 1);
-  //   setCanvasTranslate({
-  //     x: myPathData.metaData.canvasTranslateX ?? 0,
-  //     y: myPathData.metaData.canvasTranslateY ?? 0,
-  //   });
-  // }, [myPathData]);
 
-  // const canvasViewBox = useMemo(() => {
-  //   return (
-  //     `${myPathData.metaData.canvasTranslateX ?? 0}` +
-  //     " " +
-  //     `${myPathData.metaData.canvasTranslateY ?? 0}` +
-  //     " " +
-  //     `${(myPathData.metaData.canvasWidth ?? CANVAS_WIDTH) * (myPathData.metaData.canvasScale ?? 1)}` +
-  //     " " +
-  //     `${(myPathData.metaData.canvasHeight ?? CANVAS_HEIGHT) * (myPathData.metaData.canvasScale ?? 1)}`
-  //   );
-  // }, [myPathData.metaData]);
-
-  // const canvasScale = useMemo(() => myPathData.metaData.canvasScale ?? 1, [myPathData.metaData]);
-  // const canvasTranslate = useMemo(() => ({x: myPathData.metaData.canvasTranslateX ?? 0, y: myPathData.metaData.canvasTranslateY ?? 0}), [myPathData.metaData]);
-
-  // This is be enabled in next version only
-  // erasure mode - erasure shape can be square or circle
+  // erasure mode - erasure shape can be any shape
   const [erasureMode, setErasureMode] = useState(false);
   useEffect(() => {
     setErasureMode(erasing);
