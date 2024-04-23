@@ -24,6 +24,7 @@ import {
   SNAPPING_TOLERANCE,
   MY_ON_PRIMARY_COLOR_OPTIONS,
 } from "./types";
+import path from "path";
 
 export function getMyOnPrimaryColor() {
   const randomIndex = Math.floor(
@@ -296,12 +297,30 @@ export const getLastPoint = (path: string) => {
   return { commandType, x: precise(x), y: precise(y) };
 };
 
+export const getFirstPoint = (path: string) => {
+  const commands = path.trim().split(/(?=[MmLlHhVvCcSsQqTtAaZz])/);
+  const firstCommand = commands[0];
+  const commandType = firstCommand[0].toUpperCase();
+  const parameters = firstCommand.slice(1).split(",");
+  const x = parameters[0];
+  const y = parameters[1];
+
+  return { commandType, x: precise(x), y: precise(y) };
+
+}
+
 export const replaceLastPoint = (path: string, lastPoint: PointType) => {
   const commands = path.trim().split(/(?=[MmLlHhVvCcSsQqTtAaZz])/);
   commands[commands.length - 1] =
     (commands.at(-1)?.[0] ?? "") + lastPoint.x + "," + lastPoint.y;
   return commands.join("");
 };
+
+export const replaceFirstPoint = (path: string, firstPoint: PointType) => {
+  const commands = path.trim().split(/(?=[MmLlHhVvCcSsQqTtAaZz])/);
+  commands[0] = (commands[0][0] ?? "") + firstPoint.x + "," + firstPoint.y;
+  return commands.join("");
+}
 
 export const getFirstAndLastPointsFromPath = (path: string) => {
   const commands = path.split("L");

@@ -14,7 +14,6 @@ import { MyPathDataContext } from "@x/svg-data";
 import { useUserPreferences } from "@x/user-preferences";
 import createDrawControls from "./control";
 import SvgCanvas from "./canvas";
-import Window from "./window";
 
 const DrawScreen = ({ initControls }) => {
   const { myPathData, setMyPathData } = useContext(MyPathDataContext);
@@ -70,9 +69,13 @@ const DrawScreen = ({ initControls }) => {
   };
 
   const toggleEnhancedDrawing = () => {
-    setEnhancedDrawingMode((previous) => !previous);
-    setPathEditingMode(false);
-    setEditMode(true);
+    setEnhancedDrawingMode((previous) => {
+      const val = !previous;
+      setPathEditingMode(false);
+      setEditMode(true);
+      showToast("Enhanced drawing mode is " + (val ? "on" : "off"));
+      return val;
+    });
   };
 
   const togglePathEditing = () => {
@@ -147,7 +150,6 @@ const DrawScreen = ({ initControls }) => {
 
   return (
     <View style={{ flex: 1 }} onLayout={() => initControls(buttons)}>
-
       <SvgCanvas
         editable={editMode}
         erasing={erasureMode}
@@ -163,7 +165,7 @@ const DrawScreen = ({ initControls }) => {
         canvasScaleProp={myPathData.metaData.canvasScale}
         canvasTranslateProp={{
           x: myPathData.metaData.canvasTranslateX,
-          y: myPathData.metaData.canvasTranslateY
+          y: myPathData.metaData.canvasTranslateY,
         }}
       />
     </View>

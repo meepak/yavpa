@@ -27,6 +27,7 @@ import { StatusBar } from "expo-status-bar";
 import { useUserPreferences } from "@x/user-preferences";
 import elevations from "@u/elevation";
 import { ToastContext } from "@x/toast-context";
+import Window from "@c/screens/file/draw/window";
 
 const FileScreen = () => {
   // Const insets = useSafeAreaInsets();
@@ -275,6 +276,7 @@ const FileScreen = () => {
             >
               <DisplayPathStat />
               <DisplayScreenName />
+              {/* <Window width={300} height={100} /> */}
               <View
                 style={{
                   width: CANVAS_WIDTH,

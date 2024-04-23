@@ -161,8 +161,12 @@ export const MyGestures = ({
       state,
       myPathData,
       setMyPathData,
+      canvasScale,
+      canvasTranslate,
       editMode,
       erasureMode,
+      enhancedDrawingMode,
+      existingPaths,
       currentPath,
       setCurrentPath,
       startTime,
@@ -178,170 +182,6 @@ export const MyGestures = ({
       // PenTipRef.current = null;
       penOffsetReference.current.x = 0;
       penOffsetReference.current.y = 0;
-      // TODO, this has no business cluttering my-gesture, should be part of handle drawing event
-      // re-assess the  current path, snap the end point to  the nearest point
-      // DONE snap starting point with nearest free point or cornor point within fingertip size tolerance
-      // Convert path to straight line, circle,  curve cornor or sharp cornor based on tolerance
-      // maintain parallel line for straight line or curves if profile fit so  with nerby path
-      // DONE snap end point with nearest free point or cornor point within fingertip size tolerance
-
-      // 		if (enhancedDrawingMode) {
-      // 			const pathPoints = getPointsFromPath(currentPath.path);
-      // 			// Console.log(pathPoints);
-      // 			const d3Points = pathPoints.map(point => [point.x, point.y]);
-      // 			// Console.log(d3Points);
-      // 			const shape = createShapeIt(d3Points);
-
-      // 			let path = '';
-      // 			switch (shape.name) {
-      // 				case 'circle': {
-      // 					// G  {"center": [222.486367154066, 299.6396762931909], "name": "circle", "radius": 22.522530924163494}
-      // 					const center = shape.center;
-      // 					const radius = shape.radius;
-      // 					// Calculate two opposite point on circle
-      // 					const startPoint = {
-      // 						x: center[0] - radius / 2,
-      // 						y: center[1],
-      // 					};
-      // 					const endPoint = {
-      // 						x: center[0] + radius / 2,
-      // 						y: center[1],
-      // 					};
-      // 					path = shapeData({name: shape.name, start: startPoint, end: endPoint});
-      // 					break;
-      // 				}
-
-      // 				default: {
-      // 					console.log(shape);
-      // 					const points = shape.map(point => ({x: point[0], y: point[1]}));
-      // 					path = getPathFromPoints(points);
-      // 					break;
-      // 				}
-      // 			}
-
-      // 			// Console.log(shapePoints);
-      // 			console.log(path);
-      // 			currentPath.path = path;
-      // 			setCurrentPath({
-      // 				...currentPath,
-      // 				path,
-      // 				updatedAt: new Date().toISOString(),
-      // 			});
-
-      // 			/*
-      //   // && existingPaths.current.length > 0
-      //   const revisedLastPoint = getSnappingPoint(existingPaths.current, {x: event.x, y: event.y}, canvasScale, canvasTranslate);
-      //   //replace last point in current path
-      //   // since handle drawing point is not extending this point, lets do it here for now
-      //   // this must be cleaned up later once it works as poc
-      //   let revisedCurrentPath = replaceLastPoint(currentPath.path, revisedLastPoint);
-
-      //   const current5Points = get5PointsFromPath(revisedCurrentPath);
-      //   console.log(current5Points, 'current5Points')
-      //   const currentPath5PointsLength = getPathLength(current5Points);
-
-      //   // lets see if the path is fairly striaght
-      //   if (isLineMeantToBeStraight(current5Points)) {
-      //     // The line is meant to be straight
-      //     console.log('found straight line, replacing it..')
-      //     revisedCurrentPath = getPathFromPoints([current5Points[0], current5Points[4]]);
-      //     setCurrentPath({
-      //       ...currentPath,
-      //       path: revisedCurrentPath,
-      //       updatedAt: new Date().toISOString(),
-      //     });
-      //     return;
-      //   } else {
-      //     console.log('Straight line identification failed');
-      //   }
-
-      //   // let save this one atleast
-      //   setCurrentPath({
-      //     ...currentPath,
-      //     path: revisedCurrentPath,
-      //   });
-      //   // Now re-asses the whole path, is there a line parallel to this  path within tolerance based on its starting and end point
-      //   // parallel could be  straight line or curved line
-      //   // if yes, then replace the path with this parallel path
-
-      //   existingPaths.current.forEach((path) => {
-      //     // with each path, check if there length is within tolerance matches,
-      //     // if so --lets check 4 points with current path
-      //     // start point, end point and 2 points in between
-      //     // if the distances are within tolerance, then we have a parallel path
-      //     // we will just replicate the same path  this starting and end point
-
-      //     const path5Points = get5PointsFromPath(path.path);
-      //     const path5PointsLength = getPathLength(path5Points);
-
-      //     if (Math.abs(currentPath5PointsLength - path5PointsLength) > snappingTolerance) {
-      //       return;
-      //     }
-      //       // lets check the distance between 5 points
-      //      //first distance
-      //      let distance = calculateDistance(current5Points[0], path5Points[0]);
-      //      if (distance > snappingTolerance) {
-      //        return;
-      //      }
-      //       //second distance
-      //       distance = calculateDistance(current5Points[1], path5Points[1]);
-      //       if (distance > snappingTolerance) {
-      //         return;
-      //       }
-      //       //third distance
-      //       distance = calculateDistance(current5Points[2], path5Points[2]);
-      //       if (distance > snappingTolerance) {
-      //         return;
-      //       }
-      //       //fourth distance
-      //       distance = calculateDistance(current5Points[3], path5Points[3]);
-      //       if (distance > snappingTolerance) {
-      //         return;
-      //       }
-      //       //fifth distance
-      //       distance = calculateDistance(current5Points[4], path5Points[4]);
-      //       if (distance > snappingTolerance) {
-      //         return;
-      //       }
-      //       // we found the match
-      //       // lets translate this path to current paths position
-      //       // replace first and last point, and adjust the inbetween points accordingly
-      //       // now we must use getPointsFromPath to get the points from path
-      //       const pathPoints = getPointsFromPath(path.path);
-      //       const firstPoint = pathPoints[0];
-      //       const lastPoint = pathPoints[pathPoints.length - 1];
-      //       const dx = current5Points[0].x - firstPoint.x;
-      //       const dy = current5Points[0].y - firstPoint.y;
-      //       const newPoints = pathPoints.map((point) => {
-      //         return {
-      //           x: point.x + dx,
-      //           y: point.y + dy,
-      //         };
-      //       });
-      //       // does last point match? if not readjust from last point
-      //       const lastPointDistance = calculateDistance(lastPoint, current5Points[4]);
-      //       if (lastPointDistance > snappingTolerance) {
-      //         const dx = current5Points[4].x - lastPoint.x;
-      //         const dy = current5Points[4].y - lastPoint.y;
-      //         newPoints.forEach((point) => {
-      //           point.x += dx;
-      //           point.y += dy;
-      //         });
-      //       }
-      //       // make sure first and last point exactly matches so replace them with our ones
-      //       newPoints[0] = current5Points[0];
-      //       newPoints[newPoints.length - 1] = current5Points[4];
-
-      //       console.log('we are replacing the line');
-      //       // now convert this path to string
-      //       const newPath = getPathFromPoints(newPoints);
-      //       setCurrentPath({
-      //         ...currentPath,
-      //         path: newPath,
-      //       });
-      //       // This should make parallel straight line or curved line, finger crossed
-      //   }); */
-      // 		}
     }
   };
 
@@ -372,7 +212,6 @@ export const MyGestures = ({
   });
 
   // Once select mode is activated by double tap, single tap can also select the path
-  // handy but creating confusion
   const tapSelectGesture = Gesture.Tap();
   tapSelectGesture.numberOfTaps(1).onEnd((event) => {
     if (!activeBoundaryBoxPath) {

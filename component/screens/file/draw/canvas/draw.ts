@@ -1,11 +1,18 @@
 // Import { applyErasure } from "@u/erasure";
-import myConsole from "@c/controls/my-console-log";
 import {
+  calculateDistance,
+  get5PointsFromPath,
+  getFirstAndLastPointsFromPath,
+  getFirstPoint,
   getPathFromPoints,
   getPathLength,
   getPointsFromPath,
+  getSnappingPoint,
+  isLineMeantToBeStraight,
   isValidPath,
   precise,
+  replaceFirstPoint,
+  replaceLastPoint,
 } from "@u/helper";
 import { getD3CurveBasis, isValidShape, shapeData } from "@u/shapes";
 import {
@@ -14,6 +21,7 @@ import {
   type PointType,
   type ShapeType,
   type MyPathDataType,
+  SNAPPING_TOLERANCE,
 } from "@u/types";
 import * as d3 from "d3-shape";
 import * as Crypto from "expo-crypto";
@@ -27,15 +35,19 @@ import simplify from "simplify-js";
 import { applyErasure } from "./erase";
 
 export const handleDrawingEvent = (
-  penTipRef: React.MutableRefObject<PointType|undefined>,
+  penTipRef: React.MutableRefObject<PointType | undefined>,
   event:
     | GestureStateChangeEvent<PanGestureHandlerEventPayload>
     | GestureUpdateEvent<PanGestureHandlerEventPayload>,
   state: string,
   myPathData: MyPathDataType,
   setMyPathData: (value: SetStateAction<MyPathDataType>) => void,
+  canvasScale: number,
+  canvasTranslate: PointType,
   editMode: boolean,
   erasureMode: boolean,
+  enhancedDrawingMode: boolean,
+  existingPaths: React.MutableRefObject<PathDataType[]>,
   currentPath: PathDataType,
   setCurrentPath: (value: SetStateAction<PathDataType>) => void,
   startTime: number,
@@ -47,7 +59,7 @@ export const handleDrawingEvent = (
   d3CurveBasis: string,
 ) => {
   if (!editMode || !penTipRef.current) {
-	// console.log('editing not allowed....');
+    // console.log('editing not allowed....');
     return;
   }
 
@@ -55,7 +67,7 @@ export const handleDrawingEvent = (
 
   switch (state) {
     case "began": {
-      console.log("began")
+      console.log("began");
       setStartTime(Date.now());
 
       const newPath = newPathData();
@@ -80,8 +92,8 @@ export const handleDrawingEvent = (
       // Shape takes precedance over path
       if (isValidShape(currentShape.name) && penTipRef.current !== undefined) {
         setCurrentShape((previous) => ({
-			...previous,
-              start: penTipRef.current as any,
+          ...previous,
+          start: penTipRef.current as any,
         }));
       }
 
@@ -90,7 +102,7 @@ export const handleDrawingEvent = (
 
     case "active": {
       // console.log("active.....")
-      if(penTipRef.current === undefined) {
+      if (penTipRef.current === undefined) {
         break;
       }
       if (isValidShape(currentShape.name)) {
@@ -120,7 +132,7 @@ export const handleDrawingEvent = (
 
         pathExtend = `${pathExtend}L${penTipRef.current.x},${penTipRef.current.y}`;
 
-		if (erasureMode) {
+        if (erasureMode) {
           // Close the path
           pathExtend += "Z";
         }
@@ -142,7 +154,7 @@ export const handleDrawingEvent = (
         // Use currentPath as erasure
         const newCompletedPaths = applyErasure(
           currentPath,
-          myPathData.pathData,
+          existingPaths.current,
         );
         setMyPathData((previous: MyPathDataType) => ({
           ...previous,
@@ -155,16 +167,222 @@ export const handleDrawingEvent = (
       }
 
       currentPath.time = Date.now() - startTime;
-      const points = getPointsFromPath(currentPath.path);
+
+      // Re-assess the  current path, snap the end point to  the nearest point
+      // DONE snap starting point with nearest free point or cornor point within fingertip size tolerance
+      // Convert path to straight line, circle,  curve cornor or sharp cornor based on tolerance
+      // maintain parallel line for straight line or curves if profile fit so  with nerby path
+      // DONE snap end point with nearest free point or cornor point within fingertip size tolerance
+
+      if (enhancedDrawingMode) {
+        console.log("enhanced drawing mode");
+        // const pathPoints = getPointsFromPath(currentPath.path);
+        // 			// Console.log(pathPoints);
+        // const d3Points = pathPoints.map((point) => [point.x, point.y]);
+        // 			// Console.log(d3Points);
+        // shape prediction
+        // const shape = createShapeIt(d3Points);
+
+        // 			let path = '';
+        // 			switch (shape.name) {
+        // 				case 'circle': {
+        // 					// G  {"center": [222.486367154066, 299.6396762931909], "name": "circle", "radius": 22.522530924163494}
+        // 					const center = shape.center;
+        // 					const radius = shape.radius;
+        // 					// Calculate two opposite point on circle
+        // 					const startPoint = {
+        // 						x: center[0] - radius / 2,
+        // 						y: center[1],
+        // 					};
+        // 					const endPoint = {
+        // 						x: center[0] + radius / 2,
+        // 						y: center[1],
+        // 					};
+        // 					path = shapeData({name: shape.name, start: startPoint, end: endPoint});
+        // 					break;
+        // 				}
+
+        // 				default: {
+        // 					console.log(shape);
+        // 					const points = shape.map(point => ({x: point[0], y: point[1]}));
+        // 					path = getPathFromPoints(points);
+        // 					break;
+        // 				}
+        // 			}
+
+        // 			// Console.log(shapePoints);
+        // 			console.log(path);
+        // 			currentPath.path = path;
+        // 			setCurrentPath({
+        // 				...currentPath,
+        // 				path,
+        // 				updatedAt: new Date().toISOString(),
+        // 			});
+
+        // 			/*
+        if (existingPaths.current.length > 0) {
+          // revise first point
+          const firstPoint =
+            getFirstPoint(currentPath.path);
+          const revisedFirstPoint = getSnappingPoint(
+            existingPaths.current,
+            { x: firstPoint.x, y: firstPoint.y },
+            canvasScale,
+            canvasTranslate,
+          );
+          
+          if (revisedFirstPoint !== firstPoint) {
+            currentPath.path = replaceFirstPoint(
+              currentPath.path,
+              revisedFirstPoint,
+            );
+          }
+
+          const lastPoint = {x: event.x, y: event.y};
+          const revisedLastPoint = getSnappingPoint(
+            existingPaths.current,
+            { x: event.x, y: event.y },
+            canvasScale,
+            canvasTranslate,
+          );
+          //replace last point in current path
+          // since handle drawing point is not extending this point, lets do it here for now
+          // this must be cleaned up later once it works as poc
+          if (revisedLastPoint !== lastPoint) {
+            currentPath.path = replaceLastPoint(
+              currentPath.path,
+              revisedLastPoint,
+            );
+          }
+
+          const current5Points = get5PointsFromPath(currentPath.path);
+          //   console.log(current5Points, 'current5Points')
+          const currentPath5PointsLength = getPathLength(current5Points);
+
+          // lets see if the path is fairly striaght
+          if (isLineMeantToBeStraight(current5Points)) {
+            // The line is meant to be straight
+            //     console.log('found straight line, replacing it..')
+            currentPath.path = getPathFromPoints([
+              current5Points[0],
+              current5Points[4],
+            ]);
+
+            console.log("Revised and replaced with straight line.");
+            setCurrentPath({
+              ...currentPath,
+              // path: revisedCurrentPath,
+              updatedAt: new Date().toISOString(),
+            });
+            // return;
+          } else {
+            console.log("Straight line identification failed");
+          }
+
+          // Now re-asses the whole path, is there a line parallel to this  path within tolerance based on its starting and end point
+          // parallel could be  straight line or curved line
+          // if yes, then replace the path with this parallel path
+
+          const snappingTolerance = SNAPPING_TOLERANCE * canvasScale;
+          existingPaths.current.forEach((path) => {
+            // with each path, check if there length is within tolerance matches,
+            // if so --lets check 4 points with current path
+            // start point, end point and 2 points in between
+            // if the distances are within tolerance, then we have a parallel path
+            // we will just replicate the same path  this starting and end point
+
+            const path5Points = get5PointsFromPath(path.path);
+            const path5PointsLength = getPathLength(path5Points);
+
+            if (
+              Math.abs(currentPath5PointsLength - path5PointsLength) >
+              snappingTolerance
+            ) {
+              return;
+            }
+            // lets check the distance between 5 points
+            // first distance
+            let distance = calculateDistance(current5Points[0], path5Points[0]);
+            if (distance > snappingTolerance) {
+              return;
+            }
+            // second distance
+            distance = calculateDistance(current5Points[1], path5Points[1]);
+            if (distance > snappingTolerance) {
+              return;
+            }
+            // third distance
+            distance = calculateDistance(current5Points[2], path5Points[2]);
+            if (distance > snappingTolerance) {
+              return;
+            }
+            // fourth distance
+            distance = calculateDistance(current5Points[3], path5Points[3]);
+            if (distance > snappingTolerance) {
+              return;
+            }
+            // fifth distance
+            distance = calculateDistance(current5Points[4], path5Points[4]);
+            if (distance > snappingTolerance) {
+              return;
+            }
+            // we found the match
+            // lets translate this path to current paths position
+            // replace first and last point, and adjust the inbetween points accordingly
+            // now we must use getPointsFromPath to get the points from path
+            const pathPoints = getPointsFromPath(path.path);
+            const firstPoint = pathPoints[0];
+            const lastPoint = pathPoints[pathPoints.length - 1];
+            const dx = current5Points[0].x - firstPoint.x;
+            const dy = current5Points[0].y - firstPoint.y;
+            const newPoints = pathPoints.map((point) => {
+              return {
+                x: point.x + dx,
+                y: point.y + dy,
+              };
+            });
+            // does last point match? if not readjust from last point
+            const lastPointDistance = calculateDistance(
+              lastPoint,
+              current5Points[4],
+            );
+            if (lastPointDistance > snappingTolerance) {
+              const dx = current5Points[4].x - lastPoint.x;
+              const dy = current5Points[4].y - lastPoint.y;
+              newPoints.forEach((point) => {
+                point.x += dx;
+                point.y += dy;
+              });
+            }
+            // make sure first and last point exactly matches so replace them with our ones
+            newPoints[0] = current5Points[0];
+            newPoints[newPoints.length - 1] = current5Points[4];
+
+            console.log("we are replacing the line with parallel one..");
+            // now convert this path to string
+            const newPath = getPathFromPoints(newPoints);
+            currentPath.path = newPath;
+            setCurrentPath({
+              ...currentPath,
+              // path: newPath,
+            });
+            // return;
+            // This should make parallel straight line or curved line, finger crossed
+          });
+        }
+      }
+
+      // else lets continue with usual way,
+      // this is writing mode, make it very sensitive to be able to draw a point
+
+      const pathPoints = getPointsFromPath(currentPath.path);
       currentPath.path = "";
-
-
       const curveBasis: d3.CurveFactoryLineOnly = getD3CurveBasis(
         d3CurveBasis,
         isValidShape(currentShape.name),
       );
-      if (curveBasis && points.length >= 7) {
-        const pointsXY = points.map((point) => [point.x, point.y]);
+      if (curveBasis && pathPoints.length >= 7) {
+        const pointsXY = pathPoints.map((point) => [point.x, point.y]);
         // Create a line generator
         if (curveBasis) {
           const line = d3.line().curve(curveBasis);
@@ -175,13 +393,13 @@ export const handleDrawingEvent = (
       }
 
       if (currentPath.path === "") {
-        currentPath.path = getPathFromPoints(points);
+        currentPath.path = getPathFromPoints(pathPoints);
       }
 
       if (isValidPath(currentPath.path)) {
         currentPath.visible = true;
         currentPath.selected = false;
-        currentPath.length = getPathLength(points);
+        currentPath.length = getPathLength(pathPoints);
         setMyPathData((previous: MyPathDataType) => ({
           ...previous,
           metaData: { ...previous.metaData, updatedAt: "" },
@@ -199,8 +417,6 @@ export const handleDrawingEvent = (
     }
   }
 };
-
-
 
 /*
 
