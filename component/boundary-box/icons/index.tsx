@@ -53,6 +53,7 @@ const BoundaryBoxIcons = ({
   activeBoundaryBoxPath,
   scaleMode,
   onScaleModeChange,
+  setPathEditMode,
 }) => {
   if (!activeBoundaryBoxPath?.visible) {
     return null;
@@ -108,7 +109,7 @@ const [styleClipBoard, setStyleClipBoard] = React.useState<
         justifyContent: "flex-start",
         alignItems: "flex-start",
         position: "absolute",
-        top: (top  + canvasTranslate.x)/canvasScale,
+        top: (top + canvasTranslate.x) / canvasScale,
         left: (left + canvasTranslate.y) / canvasScale,
       }}
     >
@@ -219,6 +220,23 @@ const [styleClipBoard, setStyleClipBoard] = React.useState<
               strokeWidth={3}
               name={"close-path"}
               onPress={() => closePath(setMyPathData, showToast)}
+            />
+            <MyDivider />
+          </>
+        )}
+
+        {selectedPaths.length === 1 && (
+          <>
+            <BbIcon
+              size={18}
+              marginLeft={0}
+              strokeWidth={2}
+              fill="#000000"
+              name={"pencil"}
+              onPress={() => {
+                selectedPaths[0].edit = !selectedPaths[0].edit;
+                setPathEditMode && setPathEditMode(true);
+              }}
             />
             <MyDivider />
           </>

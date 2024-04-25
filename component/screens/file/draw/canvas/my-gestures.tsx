@@ -3,7 +3,6 @@ import {
   useContext,
   useEffect,
   useRef,
-  useState,
 } from "react";
 import {
   Gesture,
@@ -20,39 +19,24 @@ import {
   type PointType,
   I_AM_IOS,
   I_AM_ANDROID,
-  SCREEN_WIDTH,
-  SCREEN_HEIGHT,
-  SNAPPING_TOLERANCE,
-  CANVAS_WIDTH,
 } from "@u/types";
 import { debounce } from "lodash";
 import { getBoundaryBox } from "@u/helper";
 import { UserPreferencesContext } from "@x/user-preferences";
 import {
-  get5PointsFromPath,
-  calculateDistance,
-  getPathLength,
   getPenOffsetFactor,
-  getPointsFromPath,
-  getSnappingPoint,
-  precise,
-  replaceLastPoint,
-  isLineMeantToBeStraight,
-  getPathFromPoints,
 } from "@u/helper";
-import { shapeData } from "@u/shapes";
-import createShapeIt from "../../../../../lib/shapeit";
 import { handleDrawingEvent } from "./draw";
 import { handleSelectEvent } from "./select";
 import { handleDragEvent } from "./drag";
 import { handleScaleEvent } from "./scale";
 import { handleRotateEvent } from "./rotate";
-import myConsole from "@c/controls/pure/my-console-log";
 
 type MyGesturesProperties = {
   myPathData: { pathData: PathDataType[]; metaData: MetaDataType };
   setMyPathData: (value: SetStateAction<MyPathDataType>) => void;
   editMode: boolean;
+  pathEditMode: boolean;
   enhancedDrawingMode: boolean;
   erasureMode: boolean;
   currentPath: PathDataType;
@@ -82,6 +66,7 @@ export const MyGestures = ({
   myPathData,
   setMyPathData,
   editMode,
+  pathEditMode,
   enhancedDrawingMode,
   erasureMode,
   currentPath,
@@ -104,6 +89,9 @@ export const MyGestures = ({
   penTipRef,
   children,
 }: MyGesturesProperties): React.ReactNode => {
+  if(pathEditMode) {
+    return children;
+  }
   if (!myPathData) {
     return null;
   } // Seems unnecessary
@@ -250,10 +238,10 @@ export const MyGestures = ({
         return;
       }
 
-      const tapPoint = {
-        x: event.x * canvasScale + canvasTranslate.x,
-        y: event.y * canvasScale + canvasTranslate.y,
-      };
+      // const tapPoint = {
+      //   x: event.x * canvasScale + canvasTranslate.x,
+      //   y: event.y * canvasScale + canvasTranslate.y,
+      // };
       // If tapPoint is within the boundary box, move the boundary box
       // else allow to draw the free path which will select the paths on the way
       const panTranslatePoint = {

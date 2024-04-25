@@ -7,15 +7,27 @@ import {
   TransitionType,
   CANVAS_WIDTH,
   CANVAS_HEIGHT,
+  PathDataType,
+  PointType,
 } from "@u/types";
 import React, { useEffect, useRef } from "react";
 import { Animated, Easing, StyleSheet } from "react-native";
 import { Svg } from "react-native-svg";
 import { useMemo } from "react";
-import { getViewBox } from "@u/helper";
+import {
+  getPathFromPoints,
+  getPathLength,
+  getPathLengthFromD3Points,
+  getPointsFromPath,
+  getViewBox,
+} from "@u/helper";
+import { BBox, bboxClip, lineString, polygon } from "@turf/turf";
+import * as Crypto from "expo-crypto";
 
 type Properties = {
   myPathData: MyPathDataType;
+  clipByBbox?: boolean;
+  onClipped?: (clippedPaths: PathDataType[]) => void;
   onLoopBegin?: () => void; // Started playing
   onLoopEnd?: () => void; // Finished playing
   onLoopStopped?: () => void; // Stopped for any reason including finished playing
@@ -24,15 +36,108 @@ type Properties = {
 const SvgAnimate = React.forwardRef((properties: Properties, reference) => {
   const AnimatedPath = Animated.createAnimatedComponent(MyPath);
 
-  // Make a shallow copy of pathData, so any animation changes don't affect the original data
-  const pathData = properties.myPathData.pathData.map((path) => ({ ...path }));
+  const pathData = useRef<PathDataType[]>([
+    ...properties.myPathData.pathData.map((path) => ({
+      ...path,
+    })),
+  ]);
 
-  // MyConsole.log('pathData', pathData);
+  useEffect(() => {
+    pathData.current = [
+      ...properties.myPathData.pathData.map((path) => ({
+        ...path,
+      })),
+    ];
+    if (properties.clipByBbox !== true) {
+      return;
+    }
+    // Get the canvas viewBox
+    const canvasViewBox = getViewBox(properties.myPathData.metaData);
+    const cvb = canvasViewBox.split(" ");
+    const cvbp = {
+      x: parseFloat(cvb[0]),
+      y: parseFloat(cvb[1]),
+      width: parseFloat(cvb[2]),
+      height: parseFloat(cvb[3]),
+    };
+
+    // Create a bounding box polygon
+    const bbox: BBox = [
+      cvbp.x,
+      cvbp.y,
+      cvbp.x + cvbp.width,
+      cvbp.y + cvbp.height,
+    ];
+
+    // console.log("before clipping", pathData.current.length, "by bbox", bbox);
+
+    // Clip each path to the bounding box
+    const newPathData = properties.myPathData.pathData.map((path) => {
+      // Convert path to a line string
+      const line = lineString(
+        getPointsFromPath(path.path).map((point) => [point.x, point.y]),
+      );
+
+      // Clip the line to                     the bounding box
+      // console.log("line", line.geometry.coordinates);
+      const clipped = bboxClip(line, bbox);
+
+      // the path is completely outside the bounding box, lets skip it
+      if (!clipped || clipped.geometry.coordinates.length === 0) {
+        // console.log("skipping the path", path.guid);
+        return;
+      }
+
+      // console.log("clipped", clipped.geometry.coordinates);
+
+      const clippedLineStrings =
+        clipped.geometry.type === "MultiLineString"
+          ? clipped.geometry.coordinates
+          : [clipped.geometry.coordinates];
+
+      const newPaths: PathDataType[] = clippedLineStrings.map((lineString) => {
+
+        // console.log("lineString", lineString);
+
+        const points: PointType[] = lineString.map((position) => ({
+          x: position[0],
+          y: position[1],
+        }));
+
+        // console.log("points", points);
+
+        // Convert the clipped line back to a path
+        const newPath = getPathFromPoints(points);
+        // console.log("newPath", newPath);
+        const newLength = getPathLengthFromD3Points(lineString as any);
+        const newTime = (newLength / path.length) * path.time;
+        // console.log("path.length", path.length, newLength);
+        // console.log("path.time", path.time, newTime);
+
+        return {
+          ...path,
+          time: newTime,
+          length: newLength,
+          path: newPath,
+          guid: Crypto.randomUUID(),
+        };
+      });
+      return newPaths;
+    }).flat() as PathDataType[];
+
+    pathData.current = newPathData.filter(
+      (item): item is PathDataType => item !== undefined,
+    );
+
+    properties.onClipped && properties.onClipped(pathData.current);
+    // console.log("after clipping", pathData.current.length);
+
+  }, [properties.myPathData]);
+
 
   const canvasViewBox = useMemo(() => {
     return getViewBox(properties.myPathData.metaData);
   }, [properties.myPathData]);
-
 
   const [animationParameters, setAnimationParameters] = React.useState({
     speed: 1,
@@ -64,7 +169,7 @@ const SvgAnimate = React.forwardRef((properties: Properties, reference) => {
   // Create an array of animated values
   // const animatedValues = pathData.map(() => new Animated.Value(0));
   const animatedValuesReference = useRef(
-    pathData.map(() => new Animated.Value(0)),
+    pathData.current.map(() => new Animated.Value(0)),
   );
   const isAnimationPlaying = useRef(false);
 
@@ -74,8 +179,8 @@ const SvgAnimate = React.forwardRef((properties: Properties, reference) => {
       ...animatedValuesReference.current.map((animatedValue, index) => {
         const delay = index === 0 ? 0 : 0; // Adjust the delay as needed
         const duration =
-          pathData[index] && pathData[index].time
-            ? pathData[index].time / animationParameters.speed
+          pathData.current[index] && pathData.current[index].time
+            ? pathData.current[index].time / animationParameters.speed
             : 0;
 
         return Animated.sequence([
@@ -268,12 +373,12 @@ const SvgAnimate = React.forwardRef((properties: Properties, reference) => {
           ) : null,
         )}
 
-        {pathData.map((path, index) => {
+        {pathData.current.map((path, index) => {
           const strokeDasharray =
             path.length * (1 + animationParameters.correction);
           const strokeDashoffset = animatedValuesReference.current[
             index
-          ].interpolate({
+          ]?.interpolate({
             inputRange: [0, 1],
             outputRange: [strokeDasharray, 0],
           });

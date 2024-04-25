@@ -2,7 +2,6 @@
 import {
   calculateDistance,
   get5PointsFromPath,
-  getFirstAndLastPointsFromPath,
   getFirstPoint,
   getPathFromPoints,
   getPathLength,
@@ -10,7 +9,6 @@ import {
   getSnappingPoint,
   isLineMeantToBeStraight,
   isValidPath,
-  precise,
   replaceFirstPoint,
   replaceLastPoint,
 } from "@u/helper";
@@ -25,14 +23,15 @@ import {
 } from "@u/types";
 import * as d3 from "d3-shape";
 import * as Crypto from "expo-crypto";
+import createShapeit from "@l/shapeit/src";
 import { type SetStateAction } from "react";
 import {
   type GestureStateChangeEvent,
   type GestureUpdateEvent,
   type PanGestureHandlerEventPayload,
 } from "react-native-gesture-handler";
-import simplify from "simplify-js";
 import { applyErasure } from "./erase";
+import { line } from "d3-polygon";
 
 export const handleDrawingEvent = (
   penTipRef: React.MutableRefObject<PointType | undefined>,
@@ -62,6 +61,92 @@ export const handleDrawingEvent = (
     // console.log('editing not allowed....');
     return;
   }
+
+
+  //Save current path to state and reset current path
+  const saveCurrentPath = (pathPoints: PointType[]) => {
+    if (isValidPath(currentPath.path)) {
+      currentPath.visible = true;
+      currentPath.selected = false;
+      currentPath.length = getPathLength(pathPoints);
+      setMyPathData((previous: MyPathDataType) => ({
+        ...previous,
+        metaData: { ...previous.metaData, updatedAt: "" },
+        pathData: [...previous.pathData, {...currentPath, guid: Crypto.randomUUID()}],
+      }));
+    }
+    setCurrentPath({
+      ...newPathData(),
+      guid: Crypto.randomUUID()
+    });
+    setStartTime(0);
+    return;
+  };
+
+  // Detect shape in handwritten drawing using createShapeit
+  const validShapeDetected = (pathPoints: PointType[]) => {
+    // check if shape matches
+    const d3Points = pathPoints.map((point) => [point.x, point.y]);
+    // shape prediction
+    const shape = createShapeit(d3Points);
+
+    console.log("Shape name is " + shape.name);
+
+    let validShapeDetected = false;
+
+    // if (
+    //   shape.name in
+    //   [
+    //     "circle",
+    //     "square",
+    //     "quadrilateral",
+    //     "rectangle",
+    //     "triangle",
+    //     "pentagon",
+    //     "hexagon",
+    //     "octagon",
+    //   ]
+    // ) {
+    // const points = shape.map(point => ({x: point[0], y: point[1]}));
+    // path = getPathFromPoints(points);
+    switch (shape.name) {
+      case "circle":
+        //     // G  {"center": [222.486367154066, 299.6396762931909], "name": "circle", "radius": 22.522530924163494}
+        const center = shape.center;
+        const radius = shape.radius;
+        //     // Calculate two opposite point on circle
+        const startPoint = {
+          x: center[0] - radius / 2,
+          y: center[1],
+        };
+        const endPoint = {
+          x: center[0] + radius / 2,
+          y: center[1],
+        };
+        currentPath.path = shapeData({
+          name: shape.name,
+          start: startPoint,
+          end: endPoint,
+        });
+        validShapeDetected = true;
+        break;
+      default:
+        console.log('shape name is ', shape.name);
+        const points = shape.map(point => ({x: point[0], y: point[1]}));
+        if(points.length > 0) {
+          currentPath.path = getPathFromPoints(points);
+          validShapeDetected = true;
+        }
+        break;
+    }
+
+    // Console.log(shapePoints);
+    if (validShapeDetected) {
+      saveCurrentPath(pathPoints);
+      return true;
+    }
+    return false;
+  };
 
   // myConsole.log(penTipRef.current);
 
@@ -137,6 +222,10 @@ export const handleDrawingEvent = (
           pathExtend += "Z";
         }
 
+        //if art pen mode is on, lets create new path on  velocity changes
+        // slower velocity, thicker stroke
+
+
         setCurrentPath({
           ...currentPath,
           path: pathExtend,
@@ -167,78 +256,48 @@ export const handleDrawingEvent = (
       }
 
       currentPath.time = Date.now() - startTime;
+      const pathPoints = getPointsFromPath(currentPath.path);
 
-      // Re-assess the  current path, snap the end point to  the nearest point
-      // DONE snap starting point with nearest free point or cornor point within fingertip size tolerance
-      // Convert path to straight line, circle,  curve cornor or sharp cornor based on tolerance
-      // maintain parallel line for straight line or curves if profile fit so  with nerby path
-      // DONE snap end point with nearest free point or cornor point within fingertip size tolerance
+      // If it was shape, lets deal with it and get over it
+      if (isValidShape(currentShape.name)) {
+        // we already have currentShape, nothing needs to be done..
+        saveCurrentPath(pathPoints);
+        return;
+      }
 
+      // Enhanced drawing mode
       if (enhancedDrawingMode) {
         console.log("enhanced drawing mode");
-        // const pathPoints = getPointsFromPath(currentPath.path);
-        // 			// Console.log(pathPoints);
-        // const d3Points = pathPoints.map((point) => [point.x, point.y]);
-        // 			// Console.log(d3Points);
-        // shape prediction
-        // const shape = createShapeIt(d3Points);
 
-        // 			let path = '';
-        // 			switch (shape.name) {
-        // 				case 'circle': {
-        // 					// G  {"center": [222.486367154066, 299.6396762931909], "name": "circle", "radius": 22.522530924163494}
-        // 					const center = shape.center;
-        // 					const radius = shape.radius;
-        // 					// Calculate two opposite point on circle
-        // 					const startPoint = {
-        // 						x: center[0] - radius / 2,
-        // 						y: center[1],
-        // 					};
-        // 					const endPoint = {
-        // 						x: center[0] + radius / 2,
-        // 						y: center[1],
-        // 					};
-        // 					path = shapeData({name: shape.name, start: startPoint, end: endPoint});
-        // 					break;
-        // 				}
+        if (validShapeDetected(pathPoints)) {
+          return;
+        }
+        console.log("valid shape not detected");
 
-        // 				default: {
-        // 					console.log(shape);
-        // 					const points = shape.map(point => ({x: point[0], y: point[1]}));
-        // 					path = getPathFromPoints(points);
-        // 					break;
-        // 				}
-        // 			}
-
-        // 			// Console.log(shapePoints);
-        // 			console.log(path);
-        // 			currentPath.path = path;
-        // 			setCurrentPath({
-        // 				...currentPath,
-        // 				path,
-        // 				updatedAt: new Date().toISOString(),
-        // 			});
+        //------------------------lets try to snap the path to existing paths
 
         // 			/*
         if (existingPaths.current.length > 0) {
+          let lineReplaced = false;
           // revise first point
-          const firstPoint =
-            getFirstPoint(currentPath.path);
+          const firstPoint = getFirstPoint(currentPath.path);
           const revisedFirstPoint = getSnappingPoint(
             existingPaths.current,
             { x: firstPoint.x, y: firstPoint.y },
             canvasScale,
             canvasTranslate,
           );
-          
+
           if (revisedFirstPoint !== firstPoint) {
             currentPath.path = replaceFirstPoint(
               currentPath.path,
               revisedFirstPoint,
             );
+
+            setCurrentPath(currentPath);
           }
 
-          const lastPoint = {x: event.x, y: event.y};
+          const lastPoint = { x: event.x, y: event.y };
           const revisedLastPoint = getSnappingPoint(
             existingPaths.current,
             { x: event.x, y: event.y },
@@ -253,6 +312,7 @@ export const handleDrawingEvent = (
               currentPath.path,
               revisedLastPoint,
             );
+            setCurrentPath(currentPath);
           }
 
           const current5Points = get5PointsFromPath(currentPath.path);
@@ -274,6 +334,8 @@ export const handleDrawingEvent = (
               // path: revisedCurrentPath,
               updatedAt: new Date().toISOString(),
             });
+
+            lineReplaced = true;
             // return;
           } else {
             console.log("Straight line identification failed");
@@ -366,16 +428,20 @@ export const handleDrawingEvent = (
               ...currentPath,
               // path: newPath,
             });
+            lineReplaced = true;
             // return;
             // This should make parallel straight line or curved line, finger crossed
           });
+
+          if (lineReplaced) {
+            saveCurrentPath(getPointsFromPath(currentPath.path));
+          }
         }
       }
 
       // else lets continue with usual way,
       // this is writing mode, make it very sensitive to be able to draw a point
 
-      const pathPoints = getPointsFromPath(currentPath.path);
       currentPath.path = "";
       const curveBasis: d3.CurveFactoryLineOnly = getD3CurveBasis(
         d3CurveBasis,

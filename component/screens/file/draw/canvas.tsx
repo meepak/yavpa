@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState, useMemo } from "react";
 import { View, StyleSheet, ActivityIndicator } from "react-native";
-import Svg from "react-native-svg";
+import Svg, { ClipPath, Defs, G, Rect } from "react-native-svg";
 import { createPathdata } from "@u/helper";
 import {
   CANVAS_HEIGHT,
@@ -28,6 +28,7 @@ import { useSelectEffect } from "./canvas/use-select";
 import { useCommandEffect } from "./canvas/use-command";
 import { PathEditGestures } from "./canvas/path-edit/path-edit-gestures";
 import MyBoundaryBoxPaths from "@c/boundary-box";
+import MyPathEditor from "@c/controls/pure/my-path-editor";
 
 type SvgCanvasProperties = {
   selectedPaths?: PathDataType[];
@@ -162,6 +163,7 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
     myPathData,
     setMyPathData,
     editMode,
+    pathEditMode,
     enhancedDrawingMode,
     erasureMode,
     currentPath,
@@ -206,15 +208,15 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
     setPathEditPoints,
   };
 
-  const Gestures = ({ children }) =>
-    pathEditMode ? (
-      <PathEditGestures {...pathEditGestureProperties}>
-        {children}
-      </PathEditGestures>
-    ) : (
-      <MyGestures {...myGestureProperties}>{children}</MyGestures>
-    );
-
+  // console.log(pathEditMode);
+  // const MineGestures = ({ children }) =>
+  //   pathEditMode ? (
+  //     <PathEditGestures {...pathEditGestureProperties}>
+  //       {children}
+  //     </PathEditGestures>
+  //   ) : (
+  //     <MyGestures {...myGestureProperties}>{children}</MyGestures>
+  //   );
   return (
     <View style={styles.container} pointerEvents="box-none">
       {isLoading ? (
@@ -225,6 +227,7 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
         </View>
       ) : (
         <ErrorBoundary>
+          {/* <PathEditGestures {...pathEditGestureProperties}> */}
           <MyGestures {...myGestureProperties}>
             <View style={styles.container}>
               <Svg
@@ -235,53 +238,79 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
                   setIsLoading(false);
                 }}
               >
-                {pathEditMode && (
-                  <MyPen
-                    tip={
-                      penTip || {
-                        x: (CANVAS_WIDTH / 2) * canvasScale + canvasTranslate.x,
-                        y:
-                          (CANVAS_HEIGHT / 2) * canvasScale + canvasTranslate.y,
+                <Defs>
+                  <ClipPath id="clip">
+                    <Rect
+                      x="0"
+                      y="0"
+                      width={myPathData.metaData.canvasWidth ?? CANVAS_WIDTH}
+                      height={myPathData.metaData.canvasHeight ?? CANVAS_HEIGHT}
+                    />
+                  </ClipPath>
+                </Defs>
+                <G ClipPath="url(#clip)">
+                  {pathEditMode && (
+                    <MyPen
+                      tip={
+                        penTip || {
+                          x:
+                            (CANVAS_WIDTH / 2) * canvasScale +
+                            canvasTranslate.x,
+                          y:
+                            (CANVAS_HEIGHT / 2) * canvasScale +
+                            canvasTranslate.y,
+                        }
                       }
-                    }
-                  />
-                )}
-
-                {myPathData.imageData?.map((item) =>
-                  item.visible ? (
-                    <MyPathImage
-                      prop={item}
-                      keyProp={"completed-" + item.guid}
-                      key={item.guid}
                     />
-                  ) : null,
-                )}
+                  )}
 
-                {myPathData.pathData.map((item, _index) =>
-                  item.visible ? (
+                  {myPathData.imageData?.map((item) =>
+                    item.visible ? (
+                      <MyPathImage
+                        prop={item}
+                        keyProp={"completed-" + item.guid}
+                        key={item.guid}
+                      />
+                    ) : null,
+                  )}
+
+                  {myPathData.pathData.map((item, _index) =>
+                    item.visible ? (
+                      item.edit ? (
+                        <MyPathEditor
+                          pathData={item}
+                          key={item.guid}
+                          keyProp={"completed-" + item.updatedAt}
+                        />
+                      ) : (
+                        <MyPath
+                          prop={item}
+                          keyProp={"completed-" + item.updatedAt}
+                          key={item.guid}
+                          showMarker={item.edit ?? false}
+                        />
+                      )
+                    ) : null,
+                  )}
+
+                  {currentPath.guid !== "" && (
                     <MyPath
-                      prop={item}
-                      keyProp={"completed-" + item.updatedAt}
-                      key={item.guid}
+                      prop={currentPath}
+                      keyProp={"current"}
+                      key={currentPath.guid}
                     />
-                  ) : null,
-                )}
+                  )}
 
-                {currentPath.guid !== "" && (
-                  <MyPath
-                    prop={currentPath}
-                    keyProp={"current"}
-                    key={currentPath.guid}
+                  <MyBoundaryBoxPaths
+                    activeBoundaryBoxPath={activeBoundaryBoxPath}
+                    scaleFactor={canvasScale}
+                    translateFactor={canvasTranslate}
                   />
-                )}
-                <MyBoundaryBoxPaths
-                  activeBoundaryBoxPath={activeBoundaryBoxPath}
-                  scaleFactor={canvasScale}
-                  translateFactor={canvasTranslate}
-                />
+                </G>
               </Svg>
             </View>
           </MyGestures>
+          {/* </PathEditGestures> */}
 
           <BoundaryBoxIcons
             canvasScale={canvasScale}
@@ -291,6 +320,7 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
             onScaleModeChange={(value) => {
               setScaleMode(value);
             }}
+            setPathEditMode={(val) => setPathEditMode(val)}
           />
         </ErrorBoundary>
       )}

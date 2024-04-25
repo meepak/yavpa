@@ -16,13 +16,13 @@ export const applyErasure = (erasurePathData, completedPathsData) => {
   }
 
   const erasurePolygon = createPolygonFromPoints(erasurePathPoints);
-  return processPaths(erasurePathData, completedPathsData, erasurePolygon);
+  return processPaths(completedPathsData, erasurePolygon);
 };
 
 function ensurePolygonCloses(points) {
   const firstPoint = points[0];
   const lastPoint = points.at(-1);
-  if (firstPoint.x !== lastPoint?.x || firstPoint.y !== lastPoint?.y) {
+  if (firstPoint?.x !== lastPoint?.x || firstPoint?.y !== lastPoint?.y) {
     points.push(firstPoint);
   }
 }
@@ -31,48 +31,47 @@ function createPolygonFromPoints(points) {
   return turf.polygon([points.map((point) => [point.x, point.y])]);
 }
 
-function processPaths(erasurePathData, pathsData, erasurePolygon) {
-  return pathsData
-    .flatMap((pathData) => {
-      if (pathData.path === "" || !pathData.visible) {
-        return [];
-      }
+function processPaths(pathsData, erasurePolygon) {
+  return pathsData.flatMap((pathData) => {
+    if (pathData.path === "" || !pathData.visible) {
+      return [];
+    }
 
-      const points = getPointsFromPath(pathData.path, 40, 0.01);
-      const line = turf.lineString(points.map((point) => [point.x, point.y]));
-      return splitAndFilterPath(pathData, line, erasurePolygon);
-    })
-    .filter((pathData) => pathData.path !== ""); // Remove empty paths
+    const points = getPointsFromPath(pathData.path);
+    const line = turf.lineString(points.map((point) => [point.x, point.y]));
+    const splits = turf.lineSplit(line, erasurePolygon);
+
+    return filterSegments(splits, erasurePolygon, pathData);
+  });
 }
 
-function splitAndFilterPath(pathData, line, erasurePolygon) {
-  const split = turf.lineSplit(line, erasurePolygon);
-  return split.features.flatMap((feature) =>
-    reconstructPath(feature, pathData, erasurePolygon),
-  );
-}
+function filterSegments(splits, erasurePolygon, originalPathData) {
+  return splits.features.flatMap((feature) => {
+    // Check if any point of the segment is inside the polygon
+    const segmentPoints = feature.geometry.coordinates;
+    const segmentLine = turf.lineString(segmentPoints);
+    const midpoint = turf.midpoint(
+      turf.point(segmentPoints[0]),
+      turf.point(segmentPoints[segmentPoints.length - 1]),
+    );
 
-function reconstructPath(feature, originalPathData, erasurePolygon) {
-  const firstPoint = turf.point(feature.geometry.coordinates[0]);
-  const inside = turf.booleanPointInPolygon(firstPoint, erasurePolygon);
-
-  if (!inside) {
-    const newPath = feature.geometry.coordinates.map((coord) => ({
-      x: coord[0],
-      y: coord[1],
-    }));
-    const length = getPathLength(newPath);
-    const time = (length / originalPathData.length) * originalPathData.time;
-
-    return [
-      {
-        ...originalPathData,
-        path: getPathFromPoints(newPath),
-        guid: Crypto.randomUUID(),
-        length: precise(length),
-        time: precise(time),
-      },
-    ];
-  }
-  return [];
+    if (!turf.booleanPointInPolygon(midpoint, erasurePolygon)) {
+      const newPath = segmentPoints.map((coord) => ({
+        x: coord[0],
+        y: coord[1],
+      }));
+      const length = getPathLength(newPath);
+      const time = (length / originalPathData.length) * originalPathData.time;
+      return [
+        {
+          ...originalPathData,
+          path: getPathFromPoints(newPath),
+          guid: Crypto.randomUUID(),
+          length: precise(length),
+          time: precise(time),
+        },
+      ];
+    }
+    return [];
+  });
 }

@@ -69,6 +69,10 @@ export const PathEditGestures = ({
 	setPathEditPoints,
 	children,
 }: PathEditGesturesProperties): React.ReactNode => {
+	if(!pathEditMode) {
+		return children;
+	}
+	console.log('path edit mode');
 	const pathPointsReference = useRef<Array<{point: PointType; type: PathPointType}>>([]);
 	const previousPointReference = useRef<PointType>();
 	const editedPathReference = useRef<typeof D3Path>();
@@ -98,6 +102,7 @@ export const PathEditGestures = ({
 			x: event.x * canvasScale + canvasTranslate.x,
 			y: event.y * canvasScale + canvasTranslate.y,
 		};
+		console.log(tapPoint);
 		if (!editedPath) {
 			editedPathReference.current = D3Path.path();
 			editedPathReference.current.moveTo(tapPoint.x, tapPoint.y);

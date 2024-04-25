@@ -47,8 +47,15 @@ const FileScreen = () => {
   const { guid } = useLocalSearchParams<{ guid: string }>(); // Capture the GUID from the URL
   const [currentScreenMode, setCurrentScreenMode] = useState(ScreenModes[0]); // Default DRAW, but save & read from metadata
 
+  const [clippedPathStat, setClippedPathStat] = useState({
+    totalPaths: -1,
+    totalTime: -1,
+  });
+
+  const [pathStat, setPathStat] = useState("");
+
   const insets = useSafeAreaInsets();
-  const { showToast	} = useContext(ToastContext);
+  const { showToast } = useContext(ToastContext);
 
   //* ***************************IMPORTANT********************************** */
   // If you are updating myPathData through context and if it requires saving to file
@@ -65,11 +72,11 @@ const FileScreen = () => {
       myPathData.metaData.guid != "" &&
       myPathData.metaData.updatedAt === ""
     ) {
-		console.log('requesting save');
+      console.log("requesting save");
       saveSvgToFile(defaultStorageDirectory, myPathData)
         .then((saved) => {
           if (saved) {
-           	showToast("Data saved", { duration: 200});
+            showToast("Data saved", { duration: 200 });
           }
         })
         .catch(() => {
@@ -136,7 +143,14 @@ const FileScreen = () => {
     switch (currentScreenMode.name) {
       case ScreenModes[1].name: {
         // Preview
-        return <PreviewScreen initControls={setControlButtons} />;
+        return (
+          <PreviewScreen
+            initControls={setControlButtons}
+            onPathClippedByBbox={(totalPaths: number, totalTime: number) =>
+              setClippedPathStat({ totalPaths, totalTime })
+            }
+          />
+        );
       }
 
       case ScreenModes[2].name: {
@@ -180,48 +194,34 @@ const FileScreen = () => {
     );
   };
 
-  const DisplayPathStat = useMemo(() => {
-    const numberPath = myPathData?.pathData.length;
-    const animationTime =
-      myPathData?.pathData.reduce(
-        (accumulator, item) => accumulator + item.time,
-        0,
-      ) / (myPathData?.metaData.animation?.speed || 1);
-    return () => {
-      if (numberPath > 0) {
-        return (
-          <Text
-            style={{
-              position: "absolute",
-              opacity: 0.7,
-              color: MY_BLACK,
-              fontSize: 9,
-              fontWeight: "bold",
-              textTransform: "uppercase",
-              letterSpacing: 1,
-              zIndex: -1,
-              top: 0,
-              right: 20,
-            }}
-          >
-            {numberPath +
-              " path" +
-              (numberPath > 1 ? "s" : "") +
-              ", " +
-              hrFormatTime(animationTime)}
-          </Text>
-        );
-      }
-    };
+  useEffect(() => {
+    const useClippedPathStat =
+      clippedPathStat.totalPaths > -1 &&
+      clippedPathStat.totalTime > -1 &&
+      currentScreenMode.name === ScreenModes[1].name;
 
-    return <></>;
-  }, [myPathData]) as React.JSXElementConstructor<Record<string, unknown>>;
+    const numberPath = useClippedPathStat
+      ? clippedPathStat.totalPaths
+      : myPathData?.pathData.length;
+    const animationTime =
+      (useClippedPathStat
+        ? clippedPathStat.totalTime
+        : myPathData?.pathData.reduce(
+            (accumulator, item) => accumulator + item.time,
+            0,
+          )) / (myPathData?.metaData.animation?.speed || 1);
+
+          console.log("animationTime", numberPath, animationTime);
+    setPathStat(
+      `${numberPath} path${numberPath > 1 ? "s" : ""} | ${hrFormatTime(animationTime)}`,
+    );
+  }, [myPathData, clippedPathStat, currentScreenMode]);
 
   // TODO NEXT FINISH THIS OFF AS WELL,
   // TODO MAKE CANVASSCALE AND TRANSLATE PART OF PATHDATA
   // const ZoomScaleText = () => (
   //     canvasScale !== 1 &&
-  //     <MyBlueButton
+  //     <MyBlueButtonx
   //         text={() => <Text style={{
   //             color: '#FFFFFF',
   //             fontSize: 18,
@@ -274,7 +274,23 @@ const FileScreen = () => {
                 margin: 5,
               }}
             >
-              <DisplayPathStat />
+              <Text
+                style={{
+                  position: "absolute",
+                  opacity: 0.7,
+                  color: MY_BLACK,
+                  fontSize: 9,
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                  zIndex: -1,
+                  top: 0,
+                  right: 20,
+                }}
+              >
+                {pathStat}
+              </Text>
+
               <DisplayScreenName />
               {/* <Window width={300} height={100} /> */}
               <View

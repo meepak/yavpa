@@ -121,6 +121,7 @@ export type PathDataType = {
 		startOffset?: string; // Start offset
 	};
 	selected?: boolean; // TODO handle this with selected path context or anything else but path prop
+	edit?: boolean;
 };
 
 export type ImageDataType = {

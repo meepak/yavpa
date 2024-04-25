@@ -1,6 +1,7 @@
 import { type Linecap, type Linejoin } from "react-native-svg";
 import * as Crypto from "expo-crypto";
-import { polygonContains, polygonLength, line, curveBasis } from "d3-polygon";
+import { polygonContains, polygonLength } from "d3-polygon";
+import { line, curveBasis } from "d3-shape";
 import { Accelerometer } from "expo-sensors";
 import simplify from "simplify-js";
 import myConsole from "@c/controls/pure/my-console-log";
@@ -24,7 +25,6 @@ import {
   SNAPPING_TOLERANCE,
   MY_ON_PRIMARY_COLOR_OPTIONS,
 } from "./types";
-import path from "path";
 
 export function getMyOnPrimaryColor() {
   const randomIndex = Math.floor(
@@ -158,6 +158,35 @@ export const getRealPathFromPoints = (points: PointType[]) => {
   return lineGenerator(points) || "";
 };
 
+export const getCommandsFromPath = (path: string) => {
+  if (typeof path !== "string") {
+    return [];
+  }
+
+  if (path === "") {
+    return [];
+  }
+  //lets first prepare path, reduce resolution and simplify
+  const points = getPointsFromPath(path, 10, 4);
+  // convert back to svg path with full command set as offered by d3 lib
+  const svgPath = getRealPathFromPoints(points);
+
+  const pathRegex = /([MmLlHhVvCcSsQqTtAaZz])([^MmLlHhVvCcSsQqTtAaZz]*)/g;
+  let match;
+  let pointSets: { command: string; points: number[] }[] = [];
+
+  while ((match = pathRegex.exec(svgPath)) !== null) {
+    const command = match[1];
+    const pointParams = match[2]
+      .trim()
+      .split(/[\s,]+/)
+      .map(Number);
+    pointSets.push({ command, points: pointParams });
+  }
+
+  return pointSets;
+};
+
 export const getPathFromPoints = (points: PointType[]) => {
   if (!points || points.length === 0) {
     return "";
@@ -188,6 +217,7 @@ export const getPointsFromPath = (
   path: string,
   resolution = 100,
   simplifyTolerance: number = DEFAULT_SIMPLIFY_TOLERANCE,
+  returnCommands: boolean = false,
 ): PointType[] => {
   if (typeof path !== "string") {
     return [];
@@ -268,12 +298,11 @@ export const getPointsFromPath = (
 
   // MyConsole.log(points.length, "Points");
 
-  // simplify cPoints to reduce number of points
+  // simplify cPoints to reduce number of points but lets allow dot or scribble of tiny chars
   const simplifiedPoints =
-    points.length > 10 ? simplify(points, simplifyTolerance) : points;
+    points.length > 30 ? simplify(points, simplifyTolerance) : points;
 
   // MyConsole.log(simplifiedPoints.length, "simplifiedPoints");
-
   if (isClosed) {
     simplifiedPoints.push({
       x: simplifiedPoints[0].x,
@@ -306,8 +335,7 @@ export const getFirstPoint = (path: string) => {
   const y = parameters[1];
 
   return { commandType, x: precise(x), y: precise(y) };
-
-}
+};
 
 export const replaceLastPoint = (path: string, lastPoint: PointType) => {
   const commands = path.trim().split(/(?=[MmLlHhVvCcSsQqTtAaZz])/);
@@ -320,7 +348,7 @@ export const replaceFirstPoint = (path: string, firstPoint: PointType) => {
   const commands = path.trim().split(/(?=[MmLlHhVvCcSsQqTtAaZz])/);
   commands[0] = (commands[0][0] ?? "") + firstPoint.x + "," + firstPoint.y;
   return commands.join("");
-}
+};
 
 export const getFirstAndLastPointsFromPath = (path: string) => {
   const commands = path.split("L");
@@ -356,6 +384,8 @@ export const get5PointsFromPath = (path: string): PointType[] => {
   });
 };
 
+export const getPathLengthFromD3Points = (d3Points: [number, number][]) =>
+  polygonLength(d3Points);
 export const getPathLength = (points: PointType[]): number =>
   polygonLength(points.map((point) => [point.x, point.y]));
 
@@ -378,7 +408,7 @@ export const getSnappingPoint = (
   for (const path of paths) {
     // Console.log('path', path.guid);
     // we just want first and last point, lets not complicate with getPointsFromPath
-    const { firstPoint, lastPoint } = getFirstAndLastPointsFromPath(path.path);
+    const firstPoint = getFirstPoint(path.path);
     if (currentPoint) {
       const distanceFromFirst = calculateDistance(firstPoint, currentPoint);
       // Console.log('distanceFromFirst', distanceFromFirst, tolerance, firstPoint, currentPointRef.current);
@@ -389,6 +419,7 @@ export const getSnappingPoint = (
         continue;
       }
 
+      const lastPoint = getLastPoint(path.path);
       const distanceFromLast = calculateDistance(lastPoint, currentPoint);
       // Console.log('distanceFromLast', distanceFromLast, tolerance, lastPoint, currentPointRef.current);
       if (distanceFromLast <= snappingTolerance) {
@@ -579,22 +610,23 @@ export const getViewBoxTrimmed = (pathData: PathDataType[], offset = 0) => {
 };
 
 export const getViewBox = (metaData: MetaDataType) => {
-  return (metaData.canvasTranslateX || 0) +
-          " " +
-          (metaData.canvasTranslateY || 0) +
-          " " +
-          (metaData.canvasWidth || CANVAS_WIDTH) * (metaData.canvasScale || 1) +
-          " " +
-          (metaData.canvasHeight || CANVAS_HEIGHT) * (metaData.canvasScale || 1);
-
-}
+  return (
+    (metaData.canvasTranslateX || 0) +
+    " " +
+    (metaData.canvasTranslateY || 0) +
+    " " +
+    (metaData.canvasWidth || CANVAS_WIDTH) * (metaData.canvasScale || 1) +
+    " " +
+    (metaData.canvasHeight || CANVAS_HEIGHT) * (metaData.canvasScale || 1)
+  );
+};
 
 // This gives pure boundary box path data
 // without scaling and translation
 export const getBoundaryBox = (
   selectedPaths: PathDataType[],
   scale?: number,
-  translate?: PointType
+  translate?: PointType,
 ): PathDataType | undefined => {
   if (selectedPaths.length === 0) {
     return;
@@ -616,10 +648,8 @@ export const getBoundaryBox = (
     y: Number.parseFloat(vbbPoints[1]),
   };
   const end = {
-    x:
-      (Number.parseFloat(vbbPoints[0]) + Number.parseFloat(vbbPoints[2])),
-    y:
-      (Number.parseFloat(vbbPoints[1]) + Number.parseFloat(vbbPoints[3])),
+    x: Number.parseFloat(vbbPoints[0]) + Number.parseFloat(vbbPoints[2]),
+    y: Number.parseFloat(vbbPoints[1]) + Number.parseFloat(vbbPoints[3]),
   };
 
   const path = `M${start.x},${start.y} L${end.x},${start.y} L${end.x},${end.y} L${start.x},${end.y} Z`;
