@@ -191,11 +191,11 @@ export const getD3CurveBasis = (d3Value: string, validShape: boolean): d3.CurveF
 		}
 
 		default: {
-			if (!validShape) {
-				return d3.curveBasis;
-			}
+			// if (!validShape) {
+			// 	return d3.curveBasis;
+			// }
 
-			return d3.curveLinear;
+			return d3.curveBasis;
 		}
 	}
 };

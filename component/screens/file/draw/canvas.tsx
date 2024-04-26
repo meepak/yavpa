@@ -36,6 +36,7 @@ type SvgCanvasProperties = {
   editable?: boolean;
   erasing?: boolean;
   enhancedDrawing?: boolean;
+  snapToNearestPoint?: boolean;
   pathEditing?: boolean;
   command?: string;
   forceUpdate?: number;
@@ -53,6 +54,7 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
     editable = true,
     erasing = false,
     enhancedDrawing = false,
+    snapToNearestPoint = false,
     pathEditing = false,
     command = "",
     forceUpdate = 0,
@@ -74,6 +76,7 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
   const [editMode, setEditMode] = useState(editable);
   const [enhancedDrawingMode, setEnhancedDrawingMode] =
     useState(enhancedDrawing);
+  const [snappingMode, setSnappingMode] = useState(snapToNearestPoint);
   const [pathEditMode, setPathEditMode] = useState(pathEditing);
   const [editedPath, setEditedPath] = useState<typeof D3Path>();
   const currentPathPointType = useRef<PathPointType>(PathPointType.None);
@@ -108,6 +111,10 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
   useEffect(() => {
     setEnhancedDrawingMode(enhancedDrawing);
   }, [enhancedDrawing]);
+
+  useEffect(() => {
+    setSnappingMode(snapToNearestPoint);
+  }, [snapToNearestPoint]);
 
   useEffect(() => {
     setPathEditMode(pathEditing);
@@ -165,6 +172,7 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
     editMode,
     pathEditMode,
     enhancedDrawingMode,
+    snappingMode,
     erasureMode,
     currentPath,
     setCurrentPath,
@@ -186,27 +194,27 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
     penTipRef,
   };
 
-  const pathEditGestureProperties = {
-    myPathData,
-    setMyPathData,
-    pathEditMode,
-    setPathEditMode,
-    currentPath,
-    setCurrentPath,
-    startTime,
-    setStartTime,
-    newPathData,
-    canvasScale,
-    setCanvasScale,
-    canvasTranslate,
-    setCanvasTranslate,
-    penTip,
-    setPenTip,
-    editedPath,
-    setEditedPath,
-    currentPathPointType,
-    setPathEditPoints,
-  };
+  // const pathEditGestureProperties = {
+  //   myPathData,
+  //   setMyPathData,
+  //   pathEditMode,
+  //   setPathEditMode,
+  //   currentPath,
+  //   setCurrentPath,
+  //   startTime,
+  //   setStartTime,
+  //   newPathData,
+  //   canvasScale,
+  //   setCanvasScale,
+  //   canvasTranslate,
+  //   setCanvasTranslate,
+  //   penTip,
+  //   setPenTip,
+  //   editedPath,
+  //   setEditedPath,
+  //   currentPathPointType,
+  //   setPathEditPoints,
+  // };
 
   // console.log(pathEditMode);
   // const MineGestures = ({ children }) =>

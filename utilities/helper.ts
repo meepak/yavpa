@@ -433,6 +433,7 @@ export const getSnappingPoint = (
 
   if (snapPointFound) {
     console.log("snap point found", currentPoint);
+  return currentPoint;
   } else {
     // TODO FIND SNAP POINT WITHIN PATH
     // lets find the nearest point on the path
@@ -456,9 +457,8 @@ export const getSnappingPoint = (
     //   }
     // });
     console.log("snap point not found", currentPoint);
+    return false;
   }
-
-  return currentPoint;
 };
 
 export const pathContainsPoint = (path: string, checkPoint: PointType) => {

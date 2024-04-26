@@ -28,6 +28,7 @@ const DrawScreen = ({ initControls }) => {
   const [editMode, setEditMode] = useState(true);
   const [erasureMode, setErasureMode] = useState(false);
   const [enhancedDrawingMode, setEnhancedDrawingMode] = useState(false);
+  const [snappingMode, setSnappingMode] = useState(false);
   const [pathEditingMode, setPathEditingMode] = useState(false);
   const { showToast } = useContext(ToastContext);
   const { undo, redo } = useContext(MyPathDataContext);
@@ -77,6 +78,14 @@ const DrawScreen = ({ initControls }) => {
       return val;
     });
   };
+
+  const toggleSnapping = () => {
+    setSnappingMode((previous) => {
+      const val = !previous;
+      showToast("Point snapping " + (val ? "on" : "off"));
+      return val;
+    });
+  }
 
   const togglePathEditing = () => {
     setPathEditingMode((previous) => !previous);
@@ -134,6 +143,7 @@ const DrawScreen = ({ initControls }) => {
     pickImage,
     toggleEnhancedDrawing,
     togglePathEditing,
+    toggleSnapping
   });
 
   useEffect(() => {
@@ -154,6 +164,7 @@ const DrawScreen = ({ initControls }) => {
         editable={editMode}
         erasing={erasureMode}
         enhancedDrawing={enhancedDrawingMode}
+        snapToNearestPoint={snappingMode}
         pathEditing={pathEditingMode}
         command={command}
         forceUpdate={commandEnforcer}

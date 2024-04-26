@@ -38,6 +38,7 @@ type MyGesturesProperties = {
   editMode: boolean;
   pathEditMode: boolean;
   enhancedDrawingMode: boolean;
+  snappingMode: boolean;
   erasureMode: boolean;
   currentPath: PathDataType;
   setCurrentPath: (value: SetStateAction<PathDataType>) => void;
@@ -68,6 +69,7 @@ export const MyGestures = ({
   editMode,
   pathEditMode,
   enhancedDrawingMode,
+  snappingMode,
   erasureMode,
   currentPath,
   setCurrentPath,
@@ -154,6 +156,7 @@ export const MyGestures = ({
       editMode,
       erasureMode,
       enhancedDrawingMode,
+      snappingMode,
       existingPaths,
       currentPath,
       setCurrentPath,
