@@ -55,23 +55,25 @@ function filterSegments(splits, erasurePolygon, originalPathData) {
       turf.point(segmentPoints[segmentPoints.length - 1]),
     );
 
-    if (!turf.booleanPointInPolygon(midpoint, erasurePolygon)) {
-      const newPath = segmentPoints.map((coord) => ({
-        x: coord[0],
-        y: coord[1],
-      }));
-      const length = getPathLength(newPath);
-      const time = (length / originalPathData.length) * originalPathData.time;
-      return [
-        {
-          ...originalPathData,
-          path: getPathFromPoints(newPath),
-          guid: Crypto.randomUUID(),
-          length: precise(length),
-          time: precise(time),
-        },
-      ];
+    // Change this to check if the midpoint is outside the erasure polygon
+    if (turf.booleanPointInPolygon(midpoint, erasurePolygon)) {
+      return [];
     }
-    return [];
+
+    const newPath = segmentPoints.map((coord) => ({
+      x: coord[0],
+      y: coord[1],
+    }));
+    const length = getPathLength(newPath);
+    const time = (length / originalPathData.length) * originalPathData.time;
+    return [
+      {
+        ...originalPathData,
+        path: getPathFromPoints(newPath),
+        guid: Crypto.randomUUID(),
+        length: precise(length),
+        time: precise(time),
+      },
+    ];
   });
 }

@@ -44,8 +44,8 @@ type SvgCanvasProperties = {
   strokeOpacity?: number;
   simplifyTolerance?: number;
   d3CurveBasis?: any;
-  canvasScaleProp?: number;
-  canvasTranslateProp?: { x: number; y: number };
+  canvasScaleProp: number;
+  canvasTranslateProp: { x: number; y: number };
 };
 
 const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
@@ -330,8 +330,7 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
 
 const styles = StyleSheet.create({
   container: {
-    // Flex: 1,
-    // overflow: 'hidden',
+    flex: 1,
   },
   flex1: {
     flex: 1,

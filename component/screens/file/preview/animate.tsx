@@ -9,9 +9,16 @@ import {
   CANVAS_HEIGHT,
   PathDataType,
   PointType,
+  MY_BLACK,
 } from "@u/types";
 import React, { useEffect, useRef } from "react";
-import { Animated, Easing, StyleSheet } from "react-native";
+import {
+  ActivityIndicator,
+  Animated,
+  Easing,
+  StyleSheet,
+  View,
+} from "react-native";
 import { Svg } from "react-native-svg";
 import { useMemo } from "react";
 import {
@@ -19,6 +26,7 @@ import {
   getPathLength,
   getPathLengthFromD3Points,
   getPointsFromPath,
+  getRealPathFromPoints,
   getViewBox,
 } from "@u/helper";
 import { BBox, bboxClip, lineString, polygon } from "@turf/turf";
@@ -35,6 +43,7 @@ type Properties = {
 
 const SvgAnimate = React.forwardRef((properties: Properties, reference) => {
   const AnimatedPath = Animated.createAnimatedComponent(MyPath);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   const pathData = useRef<PathDataType[]>([
     ...properties.myPathData.pathData.map((path) => ({
@@ -42,111 +51,26 @@ const SvgAnimate = React.forwardRef((properties: Properties, reference) => {
     })),
   ]);
 
-  useEffect(() => {
-    pathData.current = [
-      ...properties.myPathData.pathData.map((path) => ({
-        ...path,
-      })),
-    ];
-    if (properties.clipByBbox !== true) {
-      return;
-    }
-    // Get the canvas viewBox
-    const canvasViewBox = getViewBox(properties.myPathData.metaData);
-    const cvb = canvasViewBox.split(" ");
-    const cvbp = {
-      x: parseFloat(cvb[0]),
-      y: parseFloat(cvb[1]),
-      width: parseFloat(cvb[2]),
-      height: parseFloat(cvb[3]),
-    };
-
-    // Create a bounding box polygon
-    const bbox: BBox = [
-      cvbp.x,
-      cvbp.y,
-      cvbp.x + cvbp.width,
-      cvbp.y + cvbp.height,
-    ];
-
-    // console.log("before clipping", pathData.current.length, "by bbox", bbox);
-
-    // Clip each path to the bounding box
-    const newPathData = properties.myPathData.pathData.map((path) => {
-      // Convert path to a line string
-      const line = lineString(
-        getPointsFromPath(path.path).map((point) => [point.x, point.y]),
-      );
-
-      // Clip the line to                     the bounding box
-      // console.log("line", line.geometry.coordinates);
-      const clipped = bboxClip(line, bbox);
-
-      // the path is completely outside the bounding box, lets skip it
-      if (!clipped || clipped.geometry.coordinates.length === 0) {
-        // console.log("skipping the path", path.guid);
-        return;
-      }
-
-      // console.log("clipped", clipped.geometry.coordinates);
-
-      const clippedLineStrings =
-        clipped.geometry.type === "MultiLineString"
-          ? clipped.geometry.coordinates
-          : [clipped.geometry.coordinates];
-
-      const newPaths: PathDataType[] = clippedLineStrings.map((lineString) => {
-
-        // console.log("lineString", lineString);
-
-        const points: PointType[] = lineString.map((position) => ({
-          x: position[0],
-          y: position[1],
-        }));
-
-        // console.log("points", points);
-
-        // Convert the clipped line back to a path
-        const newPath = getPathFromPoints(points);
-        // console.log("newPath", newPath);
-        const newLength = getPathLengthFromD3Points(lineString as any);
-        const newTime = (newLength / path.length) * path.time;
-        // console.log("path.length", path.length, newLength);
-        // console.log("path.time", path.time, newTime);
-
-        return {
-          ...path,
-          time: newTime,
-          length: newLength,
-          path: newPath,
-          guid: Crypto.randomUUID(),
-        };
-      });
-      return newPaths;
-    }).flat() as PathDataType[];
-
-    pathData.current = newPathData.filter(
-      (item): item is PathDataType => item !== undefined,
-    );
-
-    properties.onClipped && properties.onClipped(pathData.current);
-    // console.log("after clipping", pathData.current.length);
-
-  }, [properties.myPathData]);
-
-
   const canvasViewBox = useMemo(() => {
     return getViewBox(properties.myPathData.metaData);
-  }, [properties.myPathData]);
+  }, [
+    properties.myPathData.metaData.canvasTranslateX,
+    properties.myPathData.metaData.canvasTranslateY,
+    properties.myPathData.metaData.canvasWidth,
+    properties.myPathData.metaData.canvasHeight,
+    properties.myPathData.metaData.canvasScale,
+  ]);
 
-  const [animationParameters, setAnimationParameters] = React.useState({
-    speed: 1,
-    loop: true,
-    delay: 0,
-    transition: 0,
-    transitionType: 0,
-    correction: 0.05,
-  });
+  const [animationParameters, setAnimationParameters] =
+    React.useState<AnimationParamsType>({
+      speed: properties.myPathData.metaData.animation?.speed || 1,
+      loop: properties.myPathData.metaData.animation?.loop || true,
+      delay: properties.myPathData.metaData.animation?.delay || 0,
+      transition: properties.myPathData.metaData.animation?.transition || 0,
+      transitionType:
+        properties.myPathData.metaData.animation?.transitionType || 0,
+      correction: properties.myPathData.metaData.animation?.correction || 0.05,
+    });
 
   const opacity = useRef(new Animated.Value(1)).current;
   const scale = useRef(new Animated.Value(1)).current;
@@ -158,20 +82,14 @@ const SvgAnimate = React.forwardRef((properties: Properties, reference) => {
       setAnimationParameters(animationValues);
     }
   };
-
-  useEffect(() => {
-    const animationData = properties.myPathData.metaData.animation;
-    if (animationData) {
-      setAnimationParameters(animationData);
-    }
-  }, [properties.myPathData]);
-
   // Create an array of animated values
   // const animatedValues = pathData.map(() => new Animated.Value(0));
   const animatedValuesReference = useRef(
     pathData.current.map(() => new Animated.Value(0)),
   );
   const isAnimationPlaying = useRef(false);
+
+  const animations = useRef<Animated.CompositeAnimation | undefined>();
 
   // Create an array of animations
   const getAnimations = () =>
@@ -247,17 +165,139 @@ const SvgAnimate = React.forwardRef((properties: Properties, reference) => {
           ]
         : []),
     ]);
-  let animations = getAnimations();
+
+  useEffect(() => {
+    pathData.current = [
+      ...properties.myPathData.pathData.map((path) => ({
+        ...path,
+      })),
+    ];
+    if (properties.clipByBbox !== true) {
+      setIsLoading(false);
+      return;
+    }
+    console.log("clipping by bbox");
+    setIsLoading(true);
+    // Get the canvas viewBox
+    // const canvasViewBox = getViewBox(properties.myPathData.metaData);
+    const cvb = canvasViewBox.split(" ");
+    const cvbp = {
+      x: parseFloat(cvb[0]),
+      y: parseFloat(cvb[1]),
+      width: parseFloat(cvb[2]),
+      height: parseFloat(cvb[3]),
+    };
+
+    // Create a bounding box polygon
+    const bbox: BBox = [
+      cvbp.x,
+      cvbp.y,
+      cvbp.x + cvbp.width,
+      cvbp.y + cvbp.height,
+    ];
+
+    // console.log("before clipping", pathData.current.length, "by bbox", bbox);
+
+    // Clip each path to the bounding box
+    const newPathData = properties.myPathData.pathData
+      .map((path) => {
+        // Convert path to a line string
+        const line = lineString(
+          getPointsFromPath(path.path).map((point) => [point.x, point.y]),
+        );
+
+        // Clip the line to                     the bounding box
+        // console.log("line", line.geometry.coordinates);
+        const clipped = bboxClip(line, bbox);
+
+        // the path is completely outside the bounding box, lets skip it
+        if (!clipped || clipped.geometry.coordinates.length === 0) {
+          // console.log("skipping the path", path.guid);
+          return;
+        }
+
+        // console.log("clipped", clipped.geometry.coordinates);
+
+        const clippedLineStrings =
+          clipped.geometry.type === "MultiLineString"
+            ? clipped.geometry.coordinates
+            : [clipped.geometry.coordinates];
+
+        const newPaths: PathDataType[] = clippedLineStrings.map(
+          (lineString) => {
+            // console.log("lineString", lineString);
+
+            const points: PointType[] = lineString.map((position) => ({
+              x: position[0],
+              y: position[1],
+            }));
+
+            // console.log("points", points);
+
+            // Convert the clipped line back to a path
+            const newPath = getPathFromPoints(points);
+            // const newPath = getRealPathFromPoints(points);
+            // console.log("newPath", newPath);
+            const newLength = getPathLengthFromD3Points(lineString as any);
+            const newTime = (newLength / path.length) * path.time;
+            // console.log("path.length", path.length, newLength);
+            // console.log("path.time", path.time, newTime);
+
+            return {
+              ...path,
+              time: newTime,
+              length: newLength,
+              path: newPath,
+              guid: Crypto.randomUUID(),
+            };
+          },
+        );
+        return newPaths;
+      })
+      .flat() as PathDataType[];
+
+    pathData.current = newPathData.filter(
+      (item): item is PathDataType => item !== undefined,
+    );
+
+    // make sure the starting and end points are
+    // actually two end of the path
+    // path shouldn't start in the middle of the path
+    // pathData.current.forEach((path) => {
+    //   const points = getPointsFromPath(path.path);
+    //   if (points.length > 1) {
+    //     const firstPoint = points[0];
+    //     const lastPoint = points.at(-1);
+    //    // is first point
+    //   }
+    // });
+
+    properties.onClipped && properties.onClipped(pathData.current);
+    // console.log("after clipping", pathData.current.length);
+
+    // most of heavy lifting is done, we can now render the paths
+    setIsLoading(false);
+  }, [properties.myPathData]);
+
+  useEffect(() => {
+    // do some animated related stuff
+    const animationData = properties.myPathData.metaData.animation;
+    if (animationData) {
+      setAnimationParameters(animationData);
+    }
+
+    animations.current = getAnimations();
+  }, [properties.myPathData]);
 
   // Create the animation sequence once
-  // const animationSequence = Animated.sequence(animations);
+  // const animationSequence = Animated.sequence(animations.current);
 
   // play animation
   const playAnimation = (startIndex = 0) => {
     // MyConsole.log('playing animation')
-    if (!animations) {
+    if (!animations.current) {
       // Create an array of animations
-      animations = getAnimations();
+      animations.current = getAnimations();
     }
 
     // Add a listener to the first animated value
@@ -291,15 +331,15 @@ const SvgAnimate = React.forwardRef((properties: Properties, reference) => {
 
       if (!isAnimationPlaying.current) {
         // MyConsole.log('resettig')
-        animations.reset();
+        animations.current.reset();
       }
 
-      Animated.loop(animations).start(() => {
+      Animated.loop(animations.current).start(() => {
         properties.onLoopStopped && properties.onLoopStopped();
       });
     } else {
       // MyConsole.log('not looping')
-      animations.start();
+      animations.current.start();
     }
 
     // MyConsole.log('play animation playing')
@@ -309,7 +349,7 @@ const SvgAnimate = React.forwardRef((properties: Properties, reference) => {
   // Stop animation
   const stopAnimation = () => {
     // MyConsole.log("stopping animation");
-    animations.stop();
+    animations.current?.stop();
     isAnimationPlaying.current = false;
 
     // Remove the listeners from the first and last animated values
@@ -345,6 +385,7 @@ const SvgAnimate = React.forwardRef((properties: Properties, reference) => {
   useEffect(() => {
     playAnimation();
     isAnimationPlaying.current = true;
+    console.log("should be last");
   }, []);
 
   return (
@@ -362,40 +403,48 @@ const SvgAnimate = React.forwardRef((properties: Properties, reference) => {
             : {}),
       }}
     >
-      <Svg width={"100%"} height={"100%"} viewBox={canvasViewBox}>
-        {properties.myPathData.imageData?.map((item) =>
-          item.visible ? (
-            <MyPathImage
-              prop={item}
-              keyProp={"completed-" + item.guid}
-              key={item.guid}
-            />
-          ) : null,
-        )}
-
-        {pathData.current.map((path, index) => {
-          const strokeDasharray =
-            path.length * (1 + animationParameters.correction);
-          const strokeDashoffset = animatedValuesReference.current[
-            index
-          ]?.interpolate({
-            inputRange: [0, 1],
-            outputRange: [strokeDasharray, 0],
-          });
-          path.strokeDasharray = strokeDasharray as any;
-          path.strokeDashoffset = strokeDashoffset as any;
-
-          return (
-            <React.Fragment key={index}>
-              <AnimatedPath
-                key={index}
-                keyProp={"animated"}
-                prop={{ ...path }}
+      {isLoading ? (
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <ActivityIndicator animating size={200} color={MY_BLACK} />
+        </View>
+      ) : (
+        <Svg width={"100%"} height={"100%"} viewBox={canvasViewBox}>
+          {properties.myPathData.imageData?.map((item) =>
+            item.visible ? (
+              <MyPathImage
+                prop={item}
+                keyProp={"completed-" + item.guid}
+                key={item.guid}
               />
-            </React.Fragment>
-          );
-        })}
-      </Svg>
+            ) : null,
+          )}
+
+          {pathData.current.map((path, index) => {
+            const strokeDasharray =
+              path.length * (1 + animationParameters.correction);
+            const strokeDashoffset = animatedValuesReference.current[
+              index
+            ]?.interpolate({
+              inputRange: [0, 1],
+              outputRange: [strokeDasharray, 0],
+            });
+            path.strokeDasharray = strokeDasharray as any;
+            path.strokeDashoffset = strokeDashoffset as any;
+
+            return (
+              <React.Fragment key={index}>
+                <AnimatedPath
+                  key={index}
+                  keyProp={"animated"}
+                  prop={{ ...path }}
+                />
+              </React.Fragment>
+            );
+          })}
+        </Svg>
+      )}
     </Animated.View>
   );
 });

@@ -162,10 +162,10 @@ const DrawScreen = ({ initControls }) => {
         strokeOpacity={strokeOpacity}
         simplifyTolerance={simplifyTolerance}
         d3CurveBasis={d3CurveBasis}
-        canvasScaleProp={myPathData.metaData.canvasScale}
+        canvasScaleProp={myPathData.metaData.canvasScale || 1}
         canvasTranslateProp={{
-          x: myPathData.metaData.canvasTranslateX,
-          y: myPathData.metaData.canvasTranslateY,
+          x: myPathData.metaData.canvasTranslateX || 0,
+          y: myPathData.metaData.canvasTranslateY || 0,
         }}
       />
     </View>
