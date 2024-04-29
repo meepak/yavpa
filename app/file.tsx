@@ -5,7 +5,7 @@ import {
   MY_ON_PRIMARY_COLOR,
   ScreenModes,
 } from "@u/types";
-import { createMyPathData, hrFormatTime } from "@u/helper";
+import { createMyPathData, hrFormatTime, precise } from "@u/helper";
 import { getFile, saveSvgToFile } from "@u/storage";
 import { MyPathDataContext } from "@x/svg-data";
 import {
@@ -211,7 +211,7 @@ const FileScreen = () => {
             0,
           )) / (myPathData?.metaData.animation?.speed || 1);
 
-          console.log("animationTime", numberPath, animationTime);
+    console.log("animationTime", numberPath, animationTime);
     setPathStat(
       `${numberPath} path${numberPath > 1 ? "s" : ""} | ${hrFormatTime(animationTime)}`,
     );
@@ -219,25 +219,31 @@ const FileScreen = () => {
 
   // TODO NEXT FINISH THIS OFF AS WELL,
   // TODO MAKE CANVASSCALE AND TRANSLATE PART OF PATHDATA
-  // const ZoomScaleText = () => (
-  //     canvasScale !== 1 &&
-  //     <MyBlueButtonx
-  //         text={() => <Text style={{
-  //             color: '#FFFFFF',
-  //             fontSize: 18,
-  //             fontWeight: 'bold',
-  //             textTransform: 'uppercase',
-  //             letterSpacing: 1,
-  //             opacity: 1,
-  //         }}>
-  //             {precise(canvasScale * 100, 0) + '%'}
-  //         </Text>
-  //         }
-  //         aligned="right"
-  //         onPress={() => setCanvasScale(1)}
-  //         bottom={insets.bottom + 16}
-  //     />
-  // );
+  const ZoomScaleText = () =>
+    myPathData.metaData.canvasScale !== 1 && (
+      <MyBlueButton
+        text={() => (
+          <Text
+            style={{
+              color: "#FFFFFF",
+              fontSize: 18,
+              fontWeight: "bold",
+              textTransform: "uppercase",
+              letterSpacing: 1,
+              opacity: 1,
+            }}
+          >
+            {precise(myPathData.metaData.canvasScale * 100, 0) + "%"}
+          </Text>
+        )}
+        aligned="right"
+        onPress={
+          () => {}
+          //setCanvasScale(1)
+        }
+        bottom={insets.bottom + 16}
+      />
+    );
   const ViewDecoration =
     currentScreenMode.name === ScreenModes[1].name
       ? MyFilmStripView
@@ -292,7 +298,10 @@ const FileScreen = () => {
               </Text>
 
               <DisplayScreenName />
-              {/* <Window width={300} height={100} /> */}
+             { (myPathData.metaData.canvasScale != 1 ||
+             Math.abs(myPathData.metaData.canvasTranslateX) > CANVAS_WIDTH ||
+             Math.abs(myPathData.metaData.canvasTranslateY) > CANVAS_HEIGHT) &&
+              <Window  maxHeight={100} maxWidth={200}/>}
               <View
                 style={{
                   width: CANVAS_WIDTH,
@@ -321,6 +330,7 @@ const FileScreen = () => {
         </View>
       )}
 
+      {/* <ZoomScaleText /> */}
       {currentScreenMode.name === ScreenModes[1].name ? (
         <MyBlueButton
           icon={{ desc: "EXPORT", name: "export", size: 24 }}

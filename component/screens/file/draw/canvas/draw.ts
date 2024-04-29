@@ -57,8 +57,19 @@ export const handleDrawingEvent = (
     return;
   }
 
+  const getCurrentPath = (pathPoints: PointType[]) => {
+    // currentPath.path = getPathFromPoints(pathPoints);
+    if (isValidPath(currentPath.path)) {
+      currentPath.visible = true;
+      currentPath.selected = false;
+      currentPath.length = getPathLength(pathPoints);
+    }
+    setCurrentPath(currentPath);
+    return currentPath;
+  };
   //Save current path to state and reset current path
   const saveCurrentPath = (pathPoints: PointType[]) => {
+    // currentPath.path = getPathFromPoints(pathPoints); //pathPoint came from path
     if (isValidPath(currentPath.path)) {
       currentPath.visible = true;
       currentPath.selected = false;
@@ -83,7 +94,7 @@ export const handleDrawingEvent = (
     setStartTime(0);
   };
 
-  const snapAnalysis = (pathPoints: PointType[]) => {
+  const snapAnalysis = (pathPoints: PointType[], save=true) => {
     if (existingPaths.current.length > 0) {
       // revise first point
       const firstPoint = { ...pathPoints[0] }; // getFirstPoint(revisedCurrentPath.path);
@@ -127,7 +138,7 @@ export const handleDrawingEvent = (
       }
 
       if (snapped) {
-        return saveCurrentPath(pathPoints);
+        return save ? saveCurrentPath(pathPoints): getCurrentPath(pathPoints);
       }
       return null;
     }
@@ -187,11 +198,7 @@ export const handleDrawingEvent = (
         // Snapping of points enabled
         if (snappingMode) {
           //------------------------lets try to snap the path to existing paths
-          const revisedCurrentPath = snapAnalysis(points);
-          if (revisedCurrentPath) {
-            currentPath = revisedCurrentPath; // directly mutate as below can keep going even if state update is late, if causes issue use useRef
-            setCurrentPath(revisedCurrentPath);
-          }
+          const revisedCurrentPath = snapAnalysis(points, false);
         }
 
         if (points.length > 0) {

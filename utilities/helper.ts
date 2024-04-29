@@ -605,7 +605,7 @@ export const getViewBoxTrimmed = (pathData: PathDataType[], offset = 0) => {
   maxY = r(maxY) ?? CANVAS_HEIGHT ?? SCREEN_HEIGHT;
 
   const viewBox = `${minX - offset} ${minY - offset} ${maxX - minX + 2 * offset} ${maxY - minY + 2 * offset}`;
-  // MyConsole.log("viewBox trimmed", viewBox);
+  console.log("viewBox trimmed", viewBox);
   return viewBox;
 };
 

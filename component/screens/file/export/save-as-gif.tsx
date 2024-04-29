@@ -9,7 +9,6 @@ import MyPreview from '@c/controls/my-preview';
 import {getViewBoxTrimmed, precise} from '@u/helper';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
-import myConsole from '@c/controls/my-console-log';
 import SvgAnimate from '../preview/animate';
 import GifjsWebview from './GifjsWebview';
 
@@ -181,7 +180,7 @@ const SaveAsGif: React.FC<SaveAsGifProperties> = ({isVisible, onClose, myPathDat
 					>
 						<SvgAnimate
 							myPathData={myPathData}
-							viewBox={CANVAS_VIEWBOX_DEFAULT}
+							// viewBox={CANVAS_VIEWBOX_DEFAULT}
 							ref={previewReference}
 							onLoopBegin={onAnimationBegin}
 							onLoopEnd={onAnimationEnd}

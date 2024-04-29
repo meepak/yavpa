@@ -1,9 +1,4 @@
-import {
-  type SetStateAction,
-  useContext,
-  useEffect,
-  useRef,
-} from "react";
+import { type SetStateAction, useContext, useEffect, useRef } from "react";
 import {
   Gesture,
   GestureDetector,
@@ -21,16 +16,15 @@ import {
   I_AM_ANDROID,
 } from "@u/types";
 import { debounce } from "lodash";
-import { getBoundaryBox } from "@u/helper";
+import { getBoundaryBox, precise } from "@u/helper";
 import { UserPreferencesContext } from "@x/user-preferences";
-import {
-  getPenOffsetFactor,
-} from "@u/helper";
+import { getPenOffsetFactor } from "@u/helper";
 import { handleDrawingEvent } from "./draw";
 import { handleSelectEvent } from "./select";
 import { handleDragEvent } from "./drag";
 import { handleScaleEvent } from "./scale";
 import { handleRotateEvent } from "./rotate";
+import { ToastContext } from "@x/toast-context";
 
 type MyGesturesProperties = {
   myPathData: { pathData: PathDataType[]; metaData: MetaDataType };
@@ -91,14 +85,21 @@ export const MyGestures = ({
   penTipRef,
   children,
 }: MyGesturesProperties): React.ReactNode => {
-  if(pathEditMode) {
+  if (pathEditMode) {
     return children;
   }
   if (!myPathData) {
     return null;
   } // Seems unnecessary
 
-  // const snappingTolerance = SNAPPING_TOLERANCE * canvasScale; // TODO ADJUST TOLERANCE AS PER CURRENT ZOOM LEVEL
+  const { showToast } = useContext(ToastContext);
+  // N times bigger or smaller than original size
+  // N times the width on left or right hand side
+  // At 100% scale -- display in middle
+  // At 250% scale -- match
+  // At 25% scale
+  const MAX_PAN_SCALE_FACTOR = 5; // N
+
   const { usePenOffset, penOffset } = useContext(UserPreferencesContext);
   const penOffsetReference = useRef({ x: 0, y: 0 });
 
@@ -408,6 +409,7 @@ export const MyGestures = ({
         let newScale = pinch2CanvasScale.current / event.scale;
         // myConsole.log("scaling update", event.scale, scale);
 
+        // The maximum allowable scale is 2.5 and minimum is 0.25
         if (newScale < 0.25) {
           newScale = 0.25;
         }
@@ -416,6 +418,7 @@ export const MyGestures = ({
           newScale = 2.5;
         }
 
+        showToast("Scaled at " + precise(newScale) + '%');
         setCanvasScale(newScale);
       }
     },
