@@ -5,7 +5,12 @@ import {
   MY_ON_PRIMARY_COLOR,
   ScreenModes,
 } from "@u/types";
-import { createMyPathData, hrFormatTime, precise } from "@u/helper";
+import {
+  createMyPathData,
+  hrFormatTime,
+  precise,
+  scaleToZoom,
+} from "@u/helper";
 import { getFile, saveSvgToFile } from "@u/storage";
 import { MyPathDataContext } from "@x/svg-data";
 import {
@@ -222,25 +227,37 @@ const FileScreen = () => {
   const ZoomScaleText = () =>
     myPathData.metaData.canvasScale !== 1 && (
       <MyBlueButton
+        bgColor={"#08256777"}
+        bgPressedColor={"#00224477"}
         text={() => (
           <Text
             style={{
               color: "#FFFFFF",
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: "bold",
               textTransform: "uppercase",
               letterSpacing: 1,
               opacity: 1,
             }}
           >
-            {precise(myPathData.metaData.canvasScale * 100, 0) + "%"}
+            {scaleToZoom(myPathData.metaData.canvasScale) + "%"}
           </Text>
         )}
         aligned="right"
-        onPress={
-          () => {}
-          //setCanvasScale(1)
-        }
+        onPress={() => {
+          setMyPathData((prev) => ({
+            ...prev,
+            metaData: {
+              ...prev.metaData,
+              canvasScale: 1,
+              canvasTranslateX: 0,
+              canvasTranslateY: 0,
+              updatedAt: "",
+            },
+            updatedAt: new Date().toISOString(),
+          }));
+          showToast("Canvas scale, translate reset");
+        }}
         bottom={insets.bottom + 16}
       />
     );
@@ -309,10 +326,10 @@ const FileScreen = () => {
               >
                 {getCurrentScreen()}
               </View>
-             {/* { (myPathData.metaData.canvasScale != 1 ||
-             Math.abs(myPathData.metaData.canvasTranslateX) > CANVAS_WIDTH ||
-             Math.abs(myPathData.metaData.canvasTranslateY) > CANVAS_HEIGHT) &&
-              <Window  maxHeight={100} maxWidth={200}/>} */}
+              {(myPathData.metaData.canvasScale != 1 ||
+                Math.abs(myPathData.metaData.canvasTranslateX) > CANVAS_WIDTH ||
+                Math.abs(myPathData.metaData.canvasTranslateY) >
+                  CANVAS_HEIGHT) && <Window maxHeight={100} maxWidth={200} />}
             </View>
           </ViewDecoration>
         </View>
@@ -330,7 +347,7 @@ const FileScreen = () => {
         </View>
       )}
 
-      {/* <ZoomScaleText /> */}
+      <ZoomScaleText />
       {currentScreenMode.name === ScreenModes[1].name ? (
         <MyBlueButton
           icon={{ desc: "EXPORT", name: "export", size: 24 }}

@@ -115,6 +115,10 @@ export const precise = (
 ): number =>
   Number.parseFloat(Number.parseFloat(number_ as string).toFixed(precision));
 
+// 0.25 = 250%, 1 = 100%, 2.5 = 25%, curve that fits this 3 points is
+export const scaleToZoom = (scale: number) =>
+    parseInt((66.67 * scale * scale - 283.33 * scale + 316.67) as any);
+
 export const isValidPath = (path: string): boolean => {
   if (path === undefined || path === null) {
     return false;

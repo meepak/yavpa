@@ -26,7 +26,6 @@ import type * as D3Path from "d3-path";
 import { MyGestures } from "./canvas/my-gestures";
 import { useSelectEffect } from "./canvas/use-select";
 import { useCommandEffect } from "./canvas/use-command";
-import { PathEditGestures } from "./canvas/path-edit/path-edit-gestures";
 import MyBoundaryBoxPaths from "@c/boundary-box";
 import MyPathEditor from "@c/controls/pure/my-path-editor";
 
@@ -194,37 +193,7 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
     penTipRef,
   };
 
-  // const pathEditGestureProperties = {
-  //   myPathData,
-  //   setMyPathData,
-  //   pathEditMode,
-  //   setPathEditMode,
-  //   currentPath,
-  //   setCurrentPath,
-  //   startTime,
-  //   setStartTime,
-  //   newPathData,
-  //   canvasScale,
-  //   setCanvasScale,
-  //   canvasTranslate,
-  //   setCanvasTranslate,
-  //   penTip,
-  //   setPenTip,
-  //   editedPath,
-  //   setEditedPath,
-  //   currentPathPointType,
-  //   setPathEditPoints,
-  // };
 
-  // console.log(pathEditMode);
-  // const MineGestures = ({ children }) =>
-  //   pathEditMode ? (
-  //     <PathEditGestures {...pathEditGestureProperties}>
-  //       {children}
-  //     </PathEditGestures>
-  //   ) : (
-  //     <MyGestures {...myGestureProperties}>{children}</MyGestures>
-  //   );
   return (
     <View style={styles.container} pointerEvents="box-none">
       {isLoading ? (
@@ -235,7 +204,6 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
         </View>
       ) : (
         <ErrorBoundary>
-          {/* <PathEditGestures {...pathEditGestureProperties}> */}
           <MyGestures {...myGestureProperties}>
             <View style={styles.container}>
               <Svg
@@ -318,7 +286,6 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
               </Svg>
             </View>
           </MyGestures>
-          {/* </PathEditGestures> */}
 
           <BoundaryBoxIcons
             canvasScale={canvasScale}

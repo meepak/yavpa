@@ -16,7 +16,7 @@ import {
   I_AM_ANDROID,
 } from "@u/types";
 import { debounce } from "lodash";
-import { getBoundaryBox, precise } from "@u/helper";
+import { getBoundaryBox } from "@u/helper";
 import { UserPreferencesContext } from "@x/user-preferences";
 import { getPenOffsetFactor } from "@u/helper";
 import { handleDrawingEvent } from "./draw";
@@ -352,9 +352,6 @@ export const MyGestures = ({
   });
 
   const pinch2CanvasScale = useRef(canvasScale);
-  // 0.25 = 250%, 1 = 100%, 2.5 = 25%, curve that fits this 3 points is
-  const scaleToZoom = (scale) =>
-    parseInt((66.67 * scale * scale - 283.33 * scale + 316.67) as any);
   // For scaling of path
   const pinchZoomEvent = debounce(
     (
@@ -420,8 +417,7 @@ export const MyGestures = ({
         if (newScale > 2.5) {
           newScale = 2.5;
         }
-
-        showToast("Zoom " + scaleToZoom(newScale) + '%');
+        
         setCanvasScale(newScale);
       }
     },
