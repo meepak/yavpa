@@ -18,7 +18,6 @@ import * as Crypto from "expo-crypto";
 import { Feather } from "@expo/vector-icons";
 import {
   createMyPathData,
-  getBounds,
   getPathLength,
   getPointsFromPath,
   getViewBoxTrimmed,

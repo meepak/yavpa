@@ -352,6 +352,9 @@ export const MyGestures = ({
   });
 
   const pinch2CanvasScale = useRef(canvasScale);
+  // 0.25 = 250%, 1 = 100%, 2.5 = 25%, curve that fits this 3 points is
+  const scaleToZoom = (scale) =>
+    parseInt((66.67 * scale * scale - 283.33 * scale + 316.67) as any);
   // For scaling of path
   const pinchZoomEvent = debounce(
     (
@@ -418,7 +421,7 @@ export const MyGestures = ({
           newScale = 2.5;
         }
 
-        showToast("Scaled at " + precise(newScale) + '%');
+        showToast("Zoom " + scaleToZoom(newScale) + '%');
         setCanvasScale(newScale);
       }
     },

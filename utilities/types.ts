@@ -42,7 +42,7 @@ export const SNAPPING_TOLERANCE = 30;
 // ---- fix for the canvas size ---------------------
 export const SCREEN_WIDTH = Dimensions.get('window').width;
 export const SCREEN_HEIGHT = Dimensions.get('window').height;
-export const HEADER_HEIGHT = 110;
+export const HEADER_HEIGHT = 110 + (I_AM_IOS ? 10 : 0)
 // We need to make footer optional through configuration, i can't adjust that if heigt is constant
 // TODO once user configuration is implemented, take footer height from context
 export const FOOTER_HEIGHT = 0; // 40;

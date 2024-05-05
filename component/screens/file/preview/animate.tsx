@@ -207,7 +207,7 @@ const SvgAnimate = React.forwardRef((properties: Properties, reference) => {
           path.path,
           pathPointResolution.high,
         );
-        console.log("****LINE POINTS NUMBER ****", linePoints.length);
+        // console.log("****LINE POINTS NUMBER ****", linePoints.length);
         if(linePoints.length < 2) {
           return;
         }

@@ -241,7 +241,7 @@ export const getPointsFromPath = (
   switch (resolution) {
     case pathPointResolution.high: {
       numberOfPoints = pathPointResolution.high;
-      simplifyTolerance = 0;
+      simplifyTolerance = 0.001;
       break;
     }
 
