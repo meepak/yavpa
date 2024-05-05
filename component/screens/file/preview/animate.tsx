@@ -28,6 +28,7 @@ import {
   getPointsFromPath,
   getRealPathFromPoints,
   getViewBox,
+  pathPointResolution,
 } from "@u/helper";
 import { BBox, bboxClip, lineString, polygon } from "@turf/turf";
 import * as Crypto from "expo-crypto";
@@ -202,9 +203,16 @@ const SvgAnimate = React.forwardRef((properties: Properties, reference) => {
     const newPathData = properties.myPathData.pathData
       .map((path) => {
         // Convert path to a line string
-        const line = lineString(
-          getPointsFromPath(path.path).map((point) => [point.x, point.y]),
+        const linePoints = getPointsFromPath(
+          path.path,
+          pathPointResolution.high,
         );
+        console.log("****LINE POINTS NUMBER ****", linePoints.length);
+        if(linePoints.length < 2) {
+          return;
+        }
+        const d3LinePoints = linePoints.map((point) => [point.x, point.y]);
+        const line = lineString(d3LinePoints);
 
         // Clip the line to                     the bounding box
         // console.log("line", line.geometry.coordinates);

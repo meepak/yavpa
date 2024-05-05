@@ -2,7 +2,7 @@ import React, {Component, forwardRef} from 'react';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {Svg, Path} from 'react-native-svg';
 import {getIcon} from '@u/icons';
-import {MY_BLACK} from '@u/types';
+import {myBlack} from '@u/types';
 
 export type MyIconStyle = {
 	size?: number;

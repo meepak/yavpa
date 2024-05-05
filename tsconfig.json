@@ -32,6 +32,9 @@
       ],
       "@l/*": [
         "./lib/*"
+      ],
+      "@lottie/*": [
+        "./lottie/*"
       ]
     }
   },
@@ -42,5 +45,9 @@
     "./utilities/**/*",
     "./context/**/*",
     "./splash/**/*",
+    "./context/**/*",
+    "./lib/**/*",
+    "./lottie/*", "lottie/animate/path.ts",
+
   ]
 }

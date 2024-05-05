@@ -167,7 +167,7 @@ export const getCommandsFromPath = (path: string) => {
     return [];
   }
   //lets first prepare path, reduce resolution and simplify
-  const points = getPointsFromPath(path, 10, 4);
+  const points = getPointsFromPath(path, pathPointResolution.low);
   // convert back to svg path with full command set as offered by d3 lib
   const svgPath = getRealPathFromPoints(points);
 
@@ -211,13 +211,18 @@ export const getPathFromPoints = (points: PointType[]) => {
   return path;
 };
 
+export enum pathPointResolution {
+  high = 200,
+  medium = 100,
+  low = 10,
+}
+
 // TODO DEFINE RESOLUTION & TOLERANCE AS USER CONFIG
 // TODO APPLY CACHING MECHANISM ON THIS
 export const getPointsFromPath = (
   path: string,
-  resolution = 100,
-  simplifyTolerance: number = DEFAULT_SIMPLIFY_TOLERANCE,
-  returnCommands: boolean = false,
+  resolution?: pathPointResolution,
+  // returnCommands: boolean = false,
 ): PointType[] => {
   if (typeof path !== "string") {
     return [];
@@ -225,6 +230,31 @@ export const getPointsFromPath = (
 
   if (path === "") {
     return [];
+  }
+
+  if (!resolution) {
+    resolution = pathPointResolution.medium;
+  }
+
+  let numberOfPoints = pathPointResolution.medium;
+  let simplifyTolerance = DEFAULT_SIMPLIFY_TOLERANCE;
+  switch (resolution) {
+    case pathPointResolution.high: {
+      numberOfPoints = pathPointResolution.high;
+      simplifyTolerance = 0;
+      break;
+    }
+
+    case pathPointResolution.low: {
+      numberOfPoints = pathPointResolution.low;
+      simplifyTolerance = 4;
+      break;
+    }
+
+    case pathPointResolution.medium:
+    default: {
+      break; //already defined above
+    }
   }
 
   path = path.trim();
@@ -241,8 +271,8 @@ export const getPointsFromPath = (
     let point: PointType | undefined = undefined;
     switch (type) {
       case "C": {
-        for (let t = 0; t <= resolution; t++) {
-          const s = t / resolution;
+        for (let t = 0; t <= numberOfPoints; t++) {
+          const s = t / numberOfPoints;
           const x =
             (1 - s) ** 3 * (previousPoint?.x || 0) +
             3 * (1 - s) ** 2 * s * coords[0] +
@@ -300,7 +330,7 @@ export const getPointsFromPath = (
 
   // simplify cPoints to reduce number of points but lets allow dot or scribble of tiny chars
   const simplifiedPoints =
-    points.length > 30 ? simplify(points, simplifyTolerance) : points;
+    points.length > 15 ? simplify(points, simplifyTolerance) : points;
 
   // MyConsole.log(simplifiedPoints.length, "simplifiedPoints");
   if (isClosed) {

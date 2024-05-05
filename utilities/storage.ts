@@ -178,7 +178,9 @@ export const getFile = async (
     const appSaveDir = getAppSavePath(documentDir);
     const file = fileCache.find((file) => file.metaData.guid === guid);
     if (file) {
+      myConsole.log("file found in fileCache");
       // Reset selected path to false, find betteer way
+      let needCacheUpdate = false;
       for (const path of file.pathData) {
         path.selected = false;
       }
@@ -206,15 +208,18 @@ export const getFile = async (
   }
 };
 
-export const deleteFile = async (
+export const deleteFiles = async (
   documentDir: string,
-  guid: string,
+  guids: string[],
 ): Promise<boolean> => {
   try {
     const appSaveDir = getAppSavePath(documentDir);
-    const filename = myPathFile(appSaveDir, guid);
-    await FileSystem.deleteAsync(filename);
-    fileCache = fileCache.filter((file) => file.metaData.guid !== guid);
+    for (const guid of guids) {
+      if(guid === '') continue;
+      const filename = myPathFile(appSaveDir, guid);
+      await FileSystem.deleteAsync(filename);
+      fileCache = fileCache.filter((file) => file.metaData.guid !== guid);
+    }
     return true;
   } catch (error) {
     console.error("Failed to delete the file:", error);

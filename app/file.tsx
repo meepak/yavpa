@@ -298,10 +298,6 @@ const FileScreen = () => {
               </Text>
 
               <DisplayScreenName />
-             { (myPathData.metaData.canvasScale != 1 ||
-             Math.abs(myPathData.metaData.canvasTranslateX) > CANVAS_WIDTH ||
-             Math.abs(myPathData.metaData.canvasTranslateY) > CANVAS_HEIGHT) &&
-              <Window  maxHeight={100} maxWidth={200}/>}
               <View
                 style={{
                   width: CANVAS_WIDTH,
@@ -313,6 +309,10 @@ const FileScreen = () => {
               >
                 {getCurrentScreen()}
               </View>
+             {/* { (myPathData.metaData.canvasScale != 1 ||
+             Math.abs(myPathData.metaData.canvasTranslateX) > CANVAS_WIDTH ||
+             Math.abs(myPathData.metaData.canvasTranslateY) > CANVAS_HEIGHT) &&
+              <Window  maxHeight={100} maxWidth={200}/>} */}
             </View>
           </ViewDecoration>
         </View>

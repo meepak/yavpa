@@ -17,7 +17,7 @@ import {
   MY_ON_PRIMARY_COLOR,
   MY_PRIMARY_COLOR,
 } from "@u/types";
-import { deleteFile, duplicateFile, getFiles } from "@u/storage";
+import { deleteFiles, duplicateFile, getFiles } from "@u/storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   StickyHeaderFlatList,
@@ -171,13 +171,11 @@ const BrowseScreen = () => {
         {
           text: "Delete",
           async onPress() {
+            const guids = files.map((item) => item.metaData.variable ? item.metaData.guid : '');
             await Promise.all(
               files.map((item) => {
                 if (item.metaData.variable) {
-                  return deleteFile(
-                    defaultStorageDirectory,
-                    item.metaData.guid,
-                  );
+                  return deleteFiles(defaultStorageDirectory, guids);
                 }
               }),
             );

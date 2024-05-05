@@ -83,8 +83,8 @@ import {
   type PointType,
 } from "@u/types";
 import { type SetStateAction } from "react";
-import { getPointsFromPath, getBoundaryBox } from "@u/helper";
-import { polygonContains } from "d3-polygon";
+import { pathContainsPoint } from "@u/helper";
+import { shapeData } from "@u/shapes";
 
 export const handleSelectEvent = (
   tapPoint: PointType,
@@ -92,19 +92,9 @@ export const handleSelectEvent = (
   setMyPathData: (value: SetStateAction<MyPathDataType>) => void,
   newSelect: boolean,
 ) => {
-  const tappedInsidePathData = (pathData: PathDataType, isPathBbox = false) => {
-    const pathBoundaryBox = isPathBbox
-      ? pathData.path
-      : getBoundaryBox([pathData])?.path; // Don't we need to apply scale transform here??
-    if (!pathBoundaryBox) {
-      return false;
-    }
 
-    const points = getPointsFromPath(pathBoundaryBox);
-    const d3Points = points.map(
-      (point) => [point.x, point.y] as [number, number],
-    );
-    return polygonContains(d3Points, [tapPoint.x, tapPoint.y]);
+  const tappedInsidePathData = (pathData: PathDataType) => {
+    return pathContainsPoint(pathData.path, tapPoint);
   };
 
   setMyPathData((previous) => {
@@ -126,7 +116,7 @@ export const handleSelectEvent = (
     if (
       activePathIndex !== -1 &&
       activeBoundaryBoxPath &&
-      tappedInsidePathData(activeBoundaryBoxPath, true)
+      tappedInsidePathData(activeBoundaryBoxPath)
     ) {
       for (let i = activePathIndex + 1; i < newPathData.length; i++) {
         if (!newSelect && newPathData[i].selected) {

@@ -18,7 +18,7 @@ import {
 	I_AM_IOS,
 } from '@u/types';
 import * as format from '@u/formatters';
-import createLottie from '@u/lottie';
+import createLottie from '@lottie/create';
 import ErrorBoundary from '@c/controls/error-boundary';
 import myConsole from '@c/controls/pure/my-console-log';
 import {MyPathDataContext} from '@x/svg-data';
@@ -199,7 +199,7 @@ const ExportScreen = ({initControls}) => {
 								<MyPreview
 									data={myPathData}
 									animate={false}
-									viewBox={CANVAS_VIEWBOX_DEFAULT}
+									// viewBox={CANVAS_VIEWBOX_DEFAULT}
 								/>
 							</ErrorBoundary>
 						</View>

@@ -5,7 +5,7 @@ import {
 // Import MyPathLogo from './logo/my-path-logo';
 // import { CANVAS_WIDTH } from '@u/types';
 import * as Updates from 'expo-updates';
-import {MY_BLACK} from '@u/types';
+import {myBlack} from '@u/types';
 import {Divider} from '.';
 import myConsole from './pure/my-console-log';
 
@@ -49,7 +49,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProperties, Erro
 						Updates.reloadAsync();
 						this.setState({hasError: false});
 					}}>
-						<Text style={{color: MY_BLACK}} >Restart</Text>
+						<Text style={{color: myBlack}} >Restart</Text>
 					</TouchableOpacity>
 				</View >
 			);

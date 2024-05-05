@@ -1,37 +1,78 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Circle, Path, Rect } from "react-native-svg";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
+import { Circle, Path, Rect, G } from "react-native-svg";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { Brushes, getBrush } from "@c/controls/my-brushes";
+import { runOnJS, useSharedValue } from "react-native-reanimated";
+import { path as d3Path } from "d3-path";
 import { getCommandsFromPath, getPathLength, isValidPath } from "@u/helper";
 import myConsole from "./my-console-log";
-import { runOnJS } from "react-native-reanimated";
-import {path as d3Path} from "d3-path";
-import { getPointsFromPath } from '@u/helper';
+import MyPath from "./my-path";
 
 const DraggableMarker = ({ command, onMove }) => {
-  const panMarker = Gesture.Pan().onUpdate((event) => {
-    // If using Reanimated, ensure to pass data via runOnJS or similar if needed.
-    runOnJS(onMove)({ x: event.translationX, y: event.translationY });
+  const position = useSharedValue({
+    x: command.points[0],
+    y: command.points[1],
   });
+  const lastGesturePosition = useRef({ x: 0, y: 0 });
+
+ const panMarker = Gesture.Pan()
+   .onStart(() => {
+     lastGesturePosition.current = { x: 0, y: 0 };
+   })
+   .onUpdate((event) => {
+     "worklet";
+     const deltaX = event.translationX - lastGesturePosition.current.x;
+     const deltaY = event.translationY - lastGesturePosition.current.y;
+     const newX = position.value.x + deltaX;
+     const newY = position.value.y + deltaY;
+     position.value.x = newX;
+     position.value.y = newY;
+     runOnJS(onMove)({ x: newX, y: newY });
+     lastGesturePosition.current = {
+       x: event.translationX,
+       y: event.translationY,
+     };
+   });
 
   const shapeProps = {
     M: {
       component: Rect,
-      props: { fill: "green", x: -10, y: -10, width: 20, height: 20 },
+      props: {
+        fill: "green",
+        x: position.value.x - 10,
+        y: position.value.y - 10,
+        width: 20,
+        height: 20,
+      },
     },
     L: {
       component: Rect,
-      props: { fill: "blue", x: -10, y: -10, width: 20, height: 20 },
+      props: {
+        fill: "blue",
+        x: position.value.x - 10,
+        y: position.value.y - 10,
+        width: 20,
+        height: 20,
+      },
     },
-    C: { component: Circle, props: { fill: "yellow", r: 10 } },
+    C: {
+      component: Circle,
+      props: {
+        fill: "yellow",
+        cx: position.value.x,
+        cy: position.value.y,
+        r: 10,
+      }, // <-- Fixed line
+    },
   };
 
   const Shape = shapeProps[command.command]?.component || Circle;
-  const shapePropsAdjusted = {
-    ...shapeProps[command.command]?.props,
-    cx: command.points[0],
-    cy: command.points[1], // Adjust for Circle
-  };
+  const shapePropsAdjusted = shapeProps[command.command]?.props;
 
   return (
     <GestureDetector gesture={panMarker}>
@@ -41,21 +82,15 @@ const DraggableMarker = ({ command, onMove }) => {
 };
 
 const MyPathEditor = ({ pathData, keyProp }) => {
-  const [commands, setCommands] = useState<
-    { command: string; points: number[] }[]
-  >([]);
+  const commands = useRef<{ command: string; points: number[] }[]>(
+    getCommandsFromPath(pathData),
+  );
+  const [updatedPathData, setUpdatedPathData] = useState(pathData);
 
-  useEffect(() => {
-    if (pathData.type === "d" && isValidPath(pathData.path)) {
-      setCommands(getCommandsFromPath(pathData.path));
-    } else {
-      myConsole.log("Invalid path data - ", pathData.path);
-    }
-  }, [pathData]);
-
-  const updatePath = useCallback((commands) => {
-    const path = d3Path(); // Create a new instance of d3Path
-    commands.forEach((command) => {
+  const updatePath = useCallback(() => {
+    const path = d3Path();
+    commands.current?.forEach((command) => {
+      // Handling different types of commands
       if (command.command === "M") {
         path.moveTo(command.points[0], command.points[1]);
       } else if (command.command === "L") {
@@ -70,69 +105,52 @@ const MyPathEditor = ({ pathData, keyProp }) => {
           command.points[5],
         );
       }
-      // Add other command types as needed
     });
     return path.toString();
   }, []);
 
-	const updatedPath = useMemo(() => updatePath(commands), [commands]);
-
-  const handleMove = (index) => (newPosition) => {
-    const updatedCommands = [...commands];
-    updatedCommands[index] = {
-      ...updatedCommands[index],
-      points: [
+  const handleMove = useCallback((newPosition, index) => {
+    const command = commands.current[index];
+    let newPoints;
+    if (command.command === "C") {
+      // If it's a 'C' command, keep the existing control points and update the endpoint
+      newPoints = [
+        command.points[0],
+        command.points[1],
+        command.points[2],
+        command.points[3],
         newPosition.x,
         newPosition.y,
-        ...updatedCommands[index].points.slice(2),
-      ],
-    };
-
-
-    setCommands(updatedCommands);
-
-    // console.log(updatedPath);
-    if (isValidPath(updatedPath)) {
-      // Update the pathData state
-      const time = pathData.time;
-      const length = pathData.length;
-      const newLength = getPathLength(getPointsFromPath(updatedPath));
-      const newTime = (newLength / length) * time;
-
-      pathData.time = newTime;
-      pathData.length = newLength;
-      pathData.path = updatedPath;
+      ];
+    } else {
+      // For 'M' and 'L' commands, just update the point
+      newPoints = [newPosition.x, newPosition.y];
     }
-  };
+    commands.current[index] = {
+      ...command,
+      points: newPoints,
+    };
+    const newPath = updatePath();
+    setUpdatedPathData((prev) => ({
+      ...prev,
+      path: newPath,
+      updatedAt: new Date().toISOString(),
+    }));
+  }, []);
 
   return (
-    <React.Fragment key={`${keyProp}-${pathData.updatedAt}`}>
-      {Brushes.find(
-        (brush) => brush.params.guid === pathData.stroke.slice(5, -1),
-      ) &&
-        getBrush(
-          Brushes.find(
-            (brush) => brush.params.guid === pathData.stroke.slice(5, -1),
-          )!,
-        )}
-      <Path
-        d={pathData.path}
-        stroke={pathData.stroke}
-        strokeWidth={pathData.strokeWidth}
-        strokeLinecap={pathData.strokeCap}
-        strokeLinejoin={pathData.strokeJoin}
-        opacity={pathData.strokeOpacity}
-        fill={pathData.fill ?? "none"}
-        strokeDasharray={pathData.strokeDasharray ?? undefined}
-        strokeDashoffset={pathData.strokeDashoffset ?? undefined}
-      />
-      {commands.map((command, index) => (
-        <DraggableMarker
-          key={`marker-${index}`}
-          command={command}
-          onMove={handleMove(index)}
-        />
-      ))}
+    <React.Fragment key={`${keyProp}-${updatedPathData?.updatedAt}`}>
+      <MyPath prop={updatedPathData} keyProp={keyProp} />
+      <G>
+        {commands.current.map((command, index) => (
+          <DraggableMarker
+            key={`marker-${index}`}
+            command={command}
+            onMove={(newPosition: any) => handleMove(newPosition, index)}
+            // onEnd={handleEnd}
+          />
+        ))}
+      </G>
     </React.Fragment>
   );
 };

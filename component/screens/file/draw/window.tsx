@@ -2,22 +2,22 @@ import React, { useContext, useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
 import Svg, { Rect, G, Circle } from "react-native-svg";
 import MyPath from "@c/controls/pure/my-path"; // Assuming MyPath renders paths
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from "@u/types";
+import { CANVAS_WIDTH, CANVAS_HEIGHT, MY_BLACK } from "@u/types";
 import { MyPathDataContext } from "@x/svg-data";
 import { getViewBoxTrimmed } from "@u/helper";
+import { ToastContext } from "@x/toast-context";
+import { StrokeWidth } from "@c/controls";
 
 const PreviewWindow = ({ maxHeight, maxWidth }) => {
   const { myPathData, setMyPathData } = useContext(MyPathDataContext);
+  const { showToast } = useContext(ToastContext);
   const [viewBox, setViewBox] = useState("0 0 0 0");
   const [rect, setRect] = useState({ x: 0, y: 0, width: 0, height: 0 });
-
+  const [pressed, setPressed] = useState(false);
 
   useEffect(() => {
-    const canvasScale = myPathData.metaData.canvasScale;
-    const translateX = myPathData.metaData.canvasTranslateX;
-    const translateY = myPathData.metaData.canvasTranslateY;
-
     // Get the initial viewBox based on trimmed path data or CANVAS_WIDTH/HEIGHT if empty
+    console.log('GETTING INITIAL VIEWBOX.. why would points be empty here though');
     const initialViewBox =
       getViewBoxTrimmed(myPathData.pathData) ||
       `0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`;
@@ -28,39 +28,43 @@ const PreviewWindow = ({ maxHeight, maxWidth }) => {
 
     const viewBox = `${tx} ${ty} ${fullWidth} ${fullHeight}`; // Use the correct viewBox
 
+    console.log("New ViewBox", viewBox);
     setViewBox(viewBox);
+  }, [myPathData.pathData]);
 
+  useEffect(() => {
+    const canvasScale = myPathData.metaData.canvasScale;
+    const translateX = myPathData.metaData.canvasTranslateX;
+    const translateY = myPathData.metaData.canvasTranslateY;
+
+    const [tx, ty, fullWidth, fullHeight] = viewBox.split(" ");
+    const fW = parseFloat(fullWidth);
+    const fH = parseFloat(fullHeight);
     // Calculate initial rectangle dimensions and position based on initial viewBox
-   const rectWidth = Math.round(fullWidth * canvasScale);
-   const rectHeight = Math.round(fullHeight * canvasScale);
-   const rectX = Math.round(
-     (translateX + parseFloat(tx) + (fullWidth - CANVAS_WIDTH) / 2) /
-       canvasScale,
-   );
-   const rectY = Math.round(
-     (translateY + parseFloat(ty) + (fullHeight - CANVAS_HEIGHT) / 2) /
-       canvasScale,
-   );
+    const rectWidth = Math.round(fW * canvasScale);
+    const rectHeight = Math.round(fH * canvasScale);
+    const rectX = Math.round(
+      (translateX + parseFloat(tx) + (fW - CANVAS_WIDTH) / 2) / canvasScale,
+    );
+    const rectY = Math.round(
+      (translateY + parseFloat(ty) + (fH - CANVAS_HEIGHT) / 2) / canvasScale,
+    );
+
+    console.log("rect is recalculated");
 
     setRect({ x: rectX, y: rectY, width: rectWidth, height: rectHeight });
-  }, [myPathData.pathData, myPathData.metaData]);
-
+  }, [myPathData.metaData]);
 
   return (
-      <View
-        style={{
-          position: "absolute",
-          bottom: 30,
-          right: 30,
-          backgroundColor: "#ffff00",
-          width: maxWidth,
-          height: maxHeight,
-          overflow: "hidden", // Ensure SVG does not overflow the container
-        }}
-      >
-
     <Pressable
-      onPressIn={() => {}}
+      onPressIn={() => {
+        console.log("pressed in");
+        setPressed(true);
+      }}
+      onPressOut={() => {
+        console.log("pressed out");
+        setPressed(false);
+      }}
       onLongPress={() => {
         setMyPathData((prev) => ({
           ...prev,
@@ -73,35 +77,51 @@ const PreviewWindow = ({ maxHeight, maxWidth }) => {
           },
           updatedAt: new Date().toISOString(),
         }));
+        showToast("Canvas scale, translate reset");
+      }}
+      style={{
+        position: "absolute",
+        bottom: 30,
+        right: 30,
+        width: maxWidth,
+        height: maxHeight,
+        overflow: "hidden", // Ensure SVG does not overflow the container
       }}
     >
-        <Svg width="100%" height="100%" viewBox={viewBox}>
+      <View
+        style={{
+          flex: 1,
+          alignContent: 'center',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: pressed ? "ff000044" : "#ffff0044",
+          borderWidth: 1, borderColor: 'blue'}}
+      >
+          <Svg viewBox={viewBox} style={{borderWidth:4, borderColor: 'blue'}}>
+          <G>
+            {/* Render your paths using MyPath */}
+            {[...myPathData.pathData].map((item, index) =>
+              item.visible ? (
+                <MyPath
+                  key={item.guid}
+                  prop={{...item, strokeWidth:4}}
+                  keyProp={`rect+${item.guid}`}
+                />
+              ) : null,
+            )}
+          </G>
           <Rect
             x={rect.x}
             y={rect.y}
             width={rect.width}
             height={rect.height}
             fill="rgba(255, 0, 0, 0.2)"
-            stroke="red"
+            stroke={MY_BLACK}
             strokeWidth={2}
           />
-          <G>
-            {/* Render your paths using MyPath */}
-            {myPathData.pathData.map((item, index) =>
-              item.visible ? (
-                <MyPath
-                  key={item.guid}
-                  prop={item}
-                  keyProp={`rect+${item.guid}`}
-                />
-              ) : null,
-            )}
-            {/* If needed, render circles directly if not using MyPath */}
-            {/* <Circle cx="50" cy="50" r="20" fill="blue" /> */}
-          </G>
         </Svg>
-    </Pressable>
       </View>
+    </Pressable>
   );
 };
 
