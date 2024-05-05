@@ -492,7 +492,7 @@ export const getSnappingPoint = (
 };
 
 export const pathContainsPoint = (path: string, checkPoint: PointType) => {
-  const points = getPointsFromPath(path);
+  const points = getPointsFromPath(path, pathPointResolution.low);
   const d3Points = points.map(
     (point) => [point.x, point.y] as [number, number],
   );
@@ -501,7 +501,7 @@ export const pathContainsPoint = (path: string, checkPoint: PointType) => {
 
 // If given path is atleast half inside canvas
 export const isShapeInsideCanvas = (path: string) => {
-  const points = getPointsFromPath(path);
+  const points = getPointsFromPath(path, pathPointResolution.low);
   const d3Points = points.map(
     (point) => [point.x, point.y] as [number, number],
   );
@@ -594,21 +594,23 @@ export const doPathIntersect = (path1: string, path2: string) => {
 };
 
 export const getViewBoxTrimmed = (pathData: PathDataType[], offset = 0) => {
-  let minX = CANVAS_WIDTH;
-  let minY = CANVAS_HEIGHT;
-  let maxX = 0;
-  let maxY = 0;
+  if (pathData.length === 0) {
+    return;
+  }
+
+
+  let minX = Number.MAX_SAFE_INTEGER;
+  let minY = Number.MAX_SAFE_INTEGER;
+  let maxX = Number.MIN_SAFE_INTEGER;
+  let maxY = Number.MIN_SAFE_INTEGER;
   // Let offset = 20;
 
   //
-  if (pathData.length === 0) {
-    return `0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`;
-  }
 
   // MyConsole.log("pathData", pathData)
   for (const path of pathData) {
     // MyConsole.log("path", path)
-    const points = getPointsFromPath(path.path);
+    const points = getPointsFromPath(path.path, pathPointResolution.low);
     // MyConsole.log("points", points);
     for (const point of points) {
       if (point.x === undefined || point.y === undefined) {
@@ -671,6 +673,8 @@ export const getBoundaryBox = (
 
   const offset = maxStrokeWidth / 2 + 2;
   const vbbox = getViewBoxTrimmed(selectedPaths, offset);
+  if(!vbbox) return;
+
   const vbbPoints = vbbox.split(" ");
 
   const start = {

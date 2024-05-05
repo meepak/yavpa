@@ -112,7 +112,7 @@ export const handleSelectEvent = (
       } // Unselect  current active paths
     }
 
-    // If there is active bounding box and if tap is insded it, try to select next path
+    // If there is active bounding box and if tap is inside it, try to select next path
     if (
       activePathIndex !== -1 &&
       activeBoundaryBoxPath &&
