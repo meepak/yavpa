@@ -242,7 +242,7 @@ export const getIcon = (name: string) => {
         `m 13,19 a 1,1 0 0 1 -1,1 1,1 0 0 1 -1,-1 1,1 0 0 1 1,-1 1,1 0 0 1 1,1 z M 13,5 a 1,1 0 0 1 -1,1 1,1 0 0 1 -1,-1 1,1 0
         0 1 1,-1 1,1 0 0 1 1,1 z m 0,7 a 1,1 0 0 1 -1,1 1,1 0 0 1 -1,-1 1,1 0 0 1 1,-1 1,1 0 0 1 1,1 z`,
       ];
-	  transform="rotate(90, 12, 12)";
+      transform = "rotate(90, 12, 12)";
       break;
     }
     case "back": {
@@ -655,6 +655,16 @@ export const getIcon = (name: string) => {
         "m 10.11,6.26 h 9.56 L 13.94,1.48 h 9.56",
       ];
       viewBox = "0 0 24 24";
+      transform = "";
+      break;
+    }
+
+    case "zoom": {
+      paths = [
+        "M 26,14 A 12,12 0 0 1 14,26 12,12 0 0 1 2,14 12,12 0 0 1 14,2 12,12 0 0 1 26,14 Z",
+        "m23 23 7 7M9 12V9h3m4 0h3v3M9 16v3h3m7-3v3h-3",
+      ];
+      viewBox = "0 0 32 32";
       transform = "";
       break;
     }

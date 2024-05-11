@@ -72,4 +72,6 @@ function ToastProvider({children}) {
 	);
 }
 
-export {ToastContext, ToastProvider};
+const useToastContext = () : ToastContextType => React.useContext(ToastContext);
+
+export {useToastContext, ToastProvider};

@@ -7,16 +7,16 @@ import {
   MY_BLACK,
   type MyPathDataType,
 } from "@u/types";
-import { ToastContext } from "@x/toast-context";
+import { useToastContext } from "@x/toast-context";
 import { pickImageAsync } from "@u/image-picker";
 import { createImageData, createPathdata } from "@u/helper";
-import { MyPathDataContext } from "@x/svg-data";
+import { useMyPathDataContext } from "@x/svg-data";
 import { useUserPreferences } from "@x/user-preferences";
 import createDrawControls from "./control";
 import SvgCanvas from "./canvas";
 
 const DrawScreen = ({ initControls }) => {
-  const { myPathData, setMyPathData } = useContext(MyPathDataContext);
+  const { myPathData, setMyPathData } = useMyPathDataContext();
   const [stroke, setStroke] = useState(MY_BLACK);
   const [strokeWidth, setStrokeWidth] = useState(3);
   const [strokeOpacity, setStrokeOpacity] = useState(1);
@@ -30,8 +30,8 @@ const DrawScreen = ({ initControls }) => {
   const [enhancedDrawingMode, setEnhancedDrawingMode] = useState(false);
   const [snappingMode, setSnappingMode] = useState(false);
   const [pathEditingMode, setPathEditingMode] = useState(false);
-  const { showToast } = useContext(ToastContext);
-  const { undo, redo } = useContext(MyPathDataContext);
+  const { showToast } = useToastContext();
+  const { undo, redo } = useMyPathDataContext();
   const { defaultStorageDirectory } = useUserPreferences();
 
   const executeCommand = (cmd: string) => {

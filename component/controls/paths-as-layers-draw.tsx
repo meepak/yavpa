@@ -28,7 +28,7 @@ import DraggableFlatList, {
 } from "react-native-draggable-flatlist";
 import MyIcon from "@c/controls/pure/my-icon";
 import MyPreview from "@c/controls/my-preview";
-import { MyPathDataContext } from "@x/svg-data";
+import { useMyPathDataContext } from "@x/svg-data";
 import MyCheckBox from "@c/controls/pure/my-check-box";
 import myConsole from "@c/controls/pure/my-console-log";
 import StrokeOpacity from "./stroke-opacity";
@@ -38,7 +38,7 @@ import Divider from "./pure/divider";
 import ContextMenu from "./pure/context-menu";
 
 const PathsAsLayersDraw = () => {
-  const { myPathData, setMyPathData } = React.useContext(MyPathDataContext);
+  const { myPathData, setMyPathData } = React.useMyPathDataContext();
 
   // Remove the path permanently
   function deletePath(item: PathDataType) {

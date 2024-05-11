@@ -57,6 +57,7 @@ export const createMyPathData = (): MyPathDataType => ({
     canvasScale: 1,
     canvasTranslateX: 0,
     canvasTranslateY: 0,
+    variable: [],
   },
   updatedAt: new Date().toString(),
 });
@@ -117,7 +118,7 @@ export const precise = (
 
 // 0.25 = 250%, 1 = 100%, 2.5 = 25%, curve that fits this 3 points is
 export const scaleToZoom = (scale: number) =>
-    parseInt((66.67 * scale * scale - 283.33 * scale + 316.67) as any);
+  parseInt((66.67 * scale * scale - 283.33 * scale + 316.67) as any);
 
 export const isValidPath = (path: string): boolean => {
   if (path === undefined || path === null) {
@@ -467,7 +468,7 @@ export const getSnappingPoint = (
 
   if (snapPointFound) {
     console.log("snap point found", currentPoint);
-  return currentPoint;
+    return currentPoint;
   } else {
     // TODO FIND SNAP POINT WITHIN PATH
     // lets find the nearest point on the path
@@ -602,7 +603,6 @@ export const getViewBoxTrimmed = (pathData: PathDataType[], offset = 0) => {
     return;
   }
 
-
   let minX = Number.MAX_SAFE_INTEGER;
   let minY = Number.MAX_SAFE_INTEGER;
   let maxX = Number.MIN_SAFE_INTEGER;
@@ -613,6 +613,9 @@ export const getViewBoxTrimmed = (pathData: PathDataType[], offset = 0) => {
 
   // MyConsole.log("pathData", pathData)
   for (const path of pathData) {
+    if (!path.visible) {
+      continue;
+    }
     // MyConsole.log("path", path)
     const points = getPointsFromPath(path.path, pathPointResolution.low);
     // MyConsole.log("points", points);
@@ -641,7 +644,7 @@ export const getViewBoxTrimmed = (pathData: PathDataType[], offset = 0) => {
   maxY = r(maxY) ?? CANVAS_HEIGHT ?? SCREEN_HEIGHT;
 
   const viewBox = `${minX - offset} ${minY - offset} ${maxX - minX + 2 * offset} ${maxY - minY + 2 * offset}`;
-  console.log("viewBox trimmed", viewBox);
+  // console.log("viewBox trimmed", viewBox);
   return viewBox;
 };
 
@@ -661,8 +664,6 @@ export const getViewBox = (metaData: MetaDataType) => {
 // without scaling and translation
 export const getBoundaryBox = (
   selectedPaths: PathDataType[],
-  scale?: number,
-  translate?: PointType,
 ): PathDataType | undefined => {
   if (selectedPaths.length === 0) {
     return;
@@ -677,7 +678,7 @@ export const getBoundaryBox = (
 
   const offset = maxStrokeWidth / 2 + 2;
   const vbbox = getViewBoxTrimmed(selectedPaths, offset);
-  if(!vbbox) return;
+  if (!vbbox) return;
 
   const vbbPoints = vbbox.split(" ");
 
@@ -915,6 +916,8 @@ export function parseMyPathData(myPathData: any, update_updatedAt = false) {
     myPathData.metaData.canvasTranslateY = 0;
   }
 
+  myPathData.metaData.variable = []; //reset it at closing and opening
+
   return myPathData;
 }
 
@@ -937,7 +940,7 @@ export const getPenOffsetFactor = async (
 ) => {
   try {
     const orientation = deviceOrientation ?? (await getDeviceOrientation());
-    // MyConsole.log('Device orientation', orientation);
+    // console.log('Device orientation', orientation);
     let factorX = 1;
     let factorY = 1;
     switch (orientation) {

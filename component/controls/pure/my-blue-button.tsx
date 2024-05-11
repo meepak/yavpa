@@ -7,7 +7,7 @@ import MyIcon from "./my-icon";
 const SIZE = BLUE_BUTTON_WIDTH / 2;
 
 type MyBlueButtonProperties = {
-  icon?: { desc: string; name: string; size: number };
+  icon?: { desc: string; name: string; size: number; margin?: number };
   text?: () => React.ReactNode;
   onPress: () => void;
   top?: number;
@@ -63,13 +63,13 @@ const MyBlueButton = ({
     },
     text: {
       color: colors.text,
-      fontSize: 10,
+      fontSize: isPressed ? 8 : 10,
       fontWeight: "300",
       textAlign: "right",
       paddingRight: 5,
     },
     buttonBase: {
-      backgroundColor: isPressed ? colors.bgPressed : colors.bg, // Solid background color
+      backgroundColor: isPressed ? colors.bgPressed : colors.bg,
       width: isPressed ? SIZE * 2 - 2 : SIZE * 2,
       height: SIZE - 4,
       justifyContent: "center",
@@ -79,12 +79,11 @@ const MyBlueButton = ({
     },
   });
 
-  // Adjustments for alignment and pressed effect
   const dynamicStyles = {
     ...(aligned === "left" ? { left: 0 } : { right: 0 }),
     top,
     bottom,
-    borderColor: isPressed ? colors.borderPressed : colors.border, // Darker border when pressed
+    borderColor: isPressed ? colors.borderPressed : colors.border,
 
     ...buttonRadiusStyle,
     borderRightWidth: aligned === "left" ? (isPressed ? 1 : 2) : 0,
@@ -118,7 +117,12 @@ const MyBlueButton = ({
               size={icon.size}
               activeOpacity={1}
               strokeWidth={0.8}
-              style={{ paddingRight: icon.desc ? 5 : 0 }}
+              style={{
+                paddingRight: icon.desc ? 5 : 0,
+                ...(aligned === "left"
+                  ? { marginRight: icon.margin ?? 0 }
+                  : { marginLeft: icon.margin ?? 0 }),
+              }}
             />
           )}
           {text?.()}

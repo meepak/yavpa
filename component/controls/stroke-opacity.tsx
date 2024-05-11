@@ -1,12 +1,12 @@
 import {View} from 'react-native';
 import MySlider from '@c/controls/pure/my-slider';
 import {useContext, useEffect, useState} from 'react';
-import {MyPathDataContext} from '@x/svg-data';
+import { useMyPathDataContext } from '@x/svg-data';
 import StrokePreview from './stroke-preview';
 
 const StrokeOpacity = ({stroke, strokeWidth, value, onValueChanged}) => {
 	const [currentValue, setCurrentValue] = useState(value);
-	const {myPathData} = useContext(MyPathDataContext);
+	const {myPathData} = useMyPathDataContext();
 
 	useEffect(() => {
 		const selectedPathOpacity = myPathData.pathData.find(path => path.selected)?.strokeOpacity;

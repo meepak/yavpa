@@ -16,7 +16,7 @@ import {
   type ShapeType,
 } from "@u/types";
 import MyPath from "@c/controls/pure/my-path";
-import { MyPathDataContext } from "@x/svg-data";
+import { useMyPathDataContext } from "@x/svg-data";
 import { defaultShape } from "@u/shapes";
 import ErrorBoundary from "@c/controls/error-boundary";
 import BoundaryBox, { BoundaryBoxIcons } from "@c/boundary-box";
@@ -66,7 +66,7 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
     canvasTranslateProp = { x: 0, y: 0 },
   } = properties;
 
-  const { myPathData, setMyPathData } = useContext(MyPathDataContext);
+  const { myPathData, setMyPathData } = useMyPathDataContext();
   const newPathData = () => createPathdata(stroke, strokeWidth, strokeOpacity);
 
   const [currentPath, setCurrentPath] = useState(newPathData());

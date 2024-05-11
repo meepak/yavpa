@@ -21,11 +21,11 @@ import * as format from '@u/formatters';
 import createLottie from '@lottie/create';
 import ErrorBoundary from '@c/controls/error-boundary';
 import myConsole from '@c/controls/pure/my-console-log';
-import {MyPathDataContext} from '@x/svg-data';
+import { useMyPathDataContext } from '@x/svg-data';
 import SaveAsGif from './save-as-gif';
 
 const ExportScreen = ({initControls}) => {
-	const {myPathData} = useContext(MyPathDataContext);
+	const {myPathData} = useMyPathDataContext();
 	const [saveAsGif, setSaveAsGif] = useState(false);
 
 	const [nativeJson, setNativeJson] = useState('');

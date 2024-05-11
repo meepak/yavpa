@@ -3,8 +3,8 @@ import React, { useContext } from "react";
 import { View } from "react-native";
 import { doPathIntersect, getViewBoxTrimmed } from "@u/helper";
 import { CANVAS_HEIGHT, CANVAS_VIEWBOX_DEFAULT, CANVAS_WIDTH } from "@u/types";
-import { MyPathDataContext } from "@x/svg-data";
-import { ToastContext } from "@x/toast-context";
+import { useMyPathDataContext } from "@x/svg-data";
+import { useToastContext } from "@x/toast-context";
 
 import MyIcon from "../../controls/pure/my-icon";
 import { Divider } from "../../controls";
@@ -59,8 +59,8 @@ const BoundaryBoxIcons = ({
     return null;
   }
 
-  const { myPathData, setMyPathData } = useContext(MyPathDataContext);
-  const { showToast } = useContext(ToastContext);
+  const { myPathData, setMyPathData } = useMyPathDataContext();
+  const { showToast } = useToastContext();
 
 
 const [styleClipBoard, setStyleClipBoard] = React.useState<

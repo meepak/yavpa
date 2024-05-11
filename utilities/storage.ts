@@ -3,7 +3,13 @@ import * as FileSystem from "expo-file-system";
 import myConsole from "@c/controls/pure/my-console-log";
 import * as Crypto from "expo-crypto";
 import * as ImageManipulator from "expo-image-manipulator";
-import { type MyPathDataType, CANVAS_HEIGHT } from "./types";
+import {
+  type MyPathDataType,
+  CANVAS_HEIGHT,
+  CANVAS_WIDTH,
+  FILE_PREVIEW_WIDTH,
+  ScreenShotType,
+} from "./types";
 import { arraysEqual, parseMyPathData } from "./helper";
 import { updateId } from "expo-updates";
 
@@ -11,14 +17,16 @@ import { updateId } from "expo-updates";
 // const DefaultDirName = 'mypath1.mahat.au'; //isIOS ? "mypath.mahat.au" : "draw-replay-svg-path";
 // const AppSaveDirectory = FileSystem.documentDirectory;// + DefaultDirName + "/";
 
+const pngBase64Prefix = `data:image/png;base64,`;
+
 let fileCache: MyPathDataType[] = [];
 let saveTimeout: NodeJS.Timeout;
 
 // This are all json files
 export const myPathFileExt = ".mp";
 export const myPathImageExt = ".mpi";
-const myPathFile = (appSaveDir: string, guid: string) =>
-  path.join(appSaveDir, `${guid}` + myPathFileExt);
+const myPathFile = (appSaveDir: string, guid: string, ext = myPathFileExt) =>
+  path.join(appSaveDir, `${guid}` + ext);
 const myPathImage = (appSaveDir: string, guid: string) =>
   path.join(appSaveDir, `${guid}` + myPathImageExt);
 
@@ -120,22 +128,13 @@ export const getFiles = async (
 
     const filenames = await FileSystem.readDirectoryAsync(appSaveDir);
 
-    // TODO REMOVE THIS CODE!!!
-    // if there are .json file rename to .mp
-    for (const filename of filenames) {
-      if (filename.endsWith(".json")) {
-        const oldPath = path.join(appSaveDir, filename);
-        const newPath = path.join(appSaveDir, filename.replace(".json", ".mp"));
-        await FileSystem.moveAsync({ from: oldPath, to: newPath });
-      }
-    } // Temporary code, will remove later
-
     // Get json files only
     const myPathFiles = filenames.filter((filename) =>
       filename.endsWith(myPathFileExt),
     );
 
     const myPathDataFiles: MyPathDataType[] = [];
+
     // MyConsole.log('we have files, /lets load them - ', myPathFiles);
     for (const svgFile of myPathFiles) {
       const info = await FileSystem.getInfoAsync(
@@ -143,6 +142,7 @@ export const getFiles = async (
       );
       const json = await FileSystem.readAsStringAsync(info.uri);
       const myPathData = parseMyPathData(JSON.parse(json));
+
       myPathDataFiles.push(myPathData);
     }
 
@@ -214,11 +214,14 @@ export const deleteFiles = async (
 ): Promise<boolean> => {
   try {
     const appSaveDir = getAppSavePath(documentDir);
+    const exts = [myPathFileExt, "canvas", "full"];
     for (const guid of guids) {
-      if(guid === '') continue;
-      const filename = myPathFile(appSaveDir, guid);
-      await FileSystem.deleteAsync(filename);
-      fileCache = fileCache.filter((file) => file.metaData.guid !== guid);
+      if (guid === "") continue;
+      for (const ext of exts) {
+        const filename = myPathFile(appSaveDir, guid, ext);
+        await FileSystem.deleteAsync(filename);
+        fileCache = fileCache.filter((file) => file.metaData.guid !== guid);
+      }
     }
     return true;
   } catch (error) {
@@ -259,7 +262,8 @@ export const duplicateFile = async (
   }
 };
 
-// Deal with images, for now only 1 image as background can be used
+// Deal with PathhData images, for now only 1 image as background can be used
+// TODO -- why am i saving in base 64, json format instead of not saving as image as is??
 export const saveImageToCache = async (
   documentDir: string,
   filePath: string,
@@ -278,7 +282,7 @@ export const saveImageToCache = async (
     [{ resize: { height: CANVAS_HEIGHT } }],
     { base64: true, compress: 0.9, format: ImageManipulator.SaveFormat.PNG },
   );
-  const base64Data = `data:image/png;base64,${resizedImage.base64}`;
+  const base64Data = pngBase64Prefix + resizedImage.base64;
   const dataHash =
     base64Data &&
     (await Crypto.digestStringAsync(
@@ -339,3 +343,47 @@ export const saveImageToCache = async (
 
 //     return JSON.parse(imageJson);
 // }
+
+// save screenshot to cache,
+export const saveScreenshot = async (
+  documentDir: string,
+  guid: string,
+  uri: string,
+  type: ScreenShotType,
+) => {
+  const appSaveDir = getAppSavePath(documentDir);
+
+  const resizeHeight = 300; // TODO readjust, define Window max Height
+
+  const resizedImage = await ImageManipulator.manipulateAsync(
+    uri,
+    type === "full" ? [{ resize: { height: resizeHeight } }] : undefined,
+    { base64: true, compress: 0.9, format: ImageManipulator.SaveFormat.PNG },
+  );
+
+  // console.log("saveScreenshot", resizedImage.base64?.length);
+  const base64Data = pngBase64Prefix + resizedImage.base64;
+  // console.log(base64Data);
+  const savePath = path.join(appSaveDir, `${guid}.${type}`);
+  await FileSystem.writeAsStringAsync(savePath, base64Data);
+
+  // FileSystem.deleteAsync(uri); // we don't need it, lets not clutter
+};
+
+// retrieve the screenshot
+export const getScreenshot = async (
+  documentDir: string,
+  guid: string,
+  type: ScreenShotType,
+): Promise<string | undefined> => {
+  const appSaveDir = getAppSavePath(documentDir);
+  const filePath = path.join(appSaveDir, `${guid}.${type}`);
+  const info = await FileSystem.getInfoAsync(filePath);
+  if (!info.exists) {
+    return;
+  }
+
+  console.log("getScreenshot", filePath);
+  const data = await FileSystem.readAsStringAsync(filePath);
+  return (!data.startsWith(pngBase64Prefix) ? pngBase64Prefix : "") + data;
+};

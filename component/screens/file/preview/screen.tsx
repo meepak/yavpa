@@ -8,13 +8,13 @@ import {
   MyPathDataContextType,
   MyPathDataType,
 } from "@u/types";
-import { MyPathDataContext } from "@x/svg-data";
+import { useMyPathDataContext } from "@x/svg-data";
 import SvgAnimate from "./animate";
 import createPreviewControls from "./control";
 import { type AnimationTrackBarInterface, AnimationTrackBar } from "./trackbar";
 
 const PreviewScreen = ({ initControls, onPathClippedByBbox }) => {
-  const { myPathData, setMyPathData } = useContext(MyPathDataContext);
+  const { myPathData, setMyPathData } = useMyPathDataContext();
   const [clippedMyPathData, setClippedMyPathData] = useState<MyPathDataType>(myPathData);
   const [animationParameters, setAnimationParameters] =
     useState<AnimationParamsType>({

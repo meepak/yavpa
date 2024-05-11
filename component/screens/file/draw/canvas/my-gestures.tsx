@@ -24,7 +24,7 @@ import { handleSelectEvent } from "./select";
 import { handleDragEvent } from "./drag";
 import { handleScaleEvent } from "./scale";
 import { handleRotateEvent } from "./rotate";
-import { ToastContext } from "@x/toast-context";
+import { useToastContext } from "@x/toast-context";
 
 type MyGesturesProperties = {
   myPathData: { pathData: PathDataType[]; metaData: MetaDataType };
@@ -92,7 +92,7 @@ export const MyGestures = ({
     return null;
   } // Seems unnecessary
 
-  const { showToast } = useContext(ToastContext);
+  const { showToast } = useToastContext();
   // N times bigger or smaller than original size
   // N times the width on left or right hand side
   // At 100% scale -- display in middle
@@ -417,7 +417,7 @@ export const MyGestures = ({
         if (newScale > 2.5) {
           newScale = 2.5;
         }
-        
+
         setCanvasScale(newScale);
       }
     },

@@ -12,7 +12,7 @@ import {
   scaleToZoom,
 } from "@u/helper";
 import { getFile, saveSvgToFile } from "@u/storage";
-import { MyPathDataContext } from "@x/svg-data";
+import { useMyPathDataContext } from "@x/svg-data";
 import {
   DrawScreen,
   ExportScreen,
@@ -31,8 +31,10 @@ import Footer from "@c/screens/file/footer";
 import { StatusBar } from "expo-status-bar";
 import { useUserPreferences } from "@x/user-preferences";
 import elevations from "@u/elevation";
-import { ToastContext } from "@x/toast-context";
+import { useToastContext } from "@x/toast-context";
 import Window from "@c/screens/file/draw/window";
+import ZoomResetButton from "@c/controls/pure/zoom-reset-button";
+import MyScreenShot from "@c/controls/my-screenshot";
 
 const FileScreen = () => {
   // Const insets = useSafeAreaInsets();
@@ -41,8 +43,7 @@ const FileScreen = () => {
   // const [canvasScale, setCanvasScale] = useState(1);
 
   const { defaultStorageDirectory } = useUserPreferences();
-  const { loadNewFile, myPathData, setMyPathData } =
-    useContext(MyPathDataContext);
+  const { loadNewFile, myPathData, setMyPathData } = useMyPathDataContext();
   const [controlButtons, setControlButtons] = useState([
     {
       name: "Loading...",
@@ -60,7 +61,8 @@ const FileScreen = () => {
   const [pathStat, setPathStat] = useState("");
 
   const insets = useSafeAreaInsets();
-  const { showToast } = useContext(ToastContext);
+  const { showToast } = useToastContext();
+  const [exiting, setExiting] = useState(false);
 
   //* ***************************IMPORTANT********************************** */
   // If you are updating myPathData through context and if it requires saving to file
@@ -94,7 +96,9 @@ const FileScreen = () => {
   useEffect(
     () => () => {
       // MyConsole.log("reset svg data from context, component unmounted")
-      resetMyPathData();
+      setExiting(true);
+      // allow 40 ms to take a shot
+      setTimeout(() => resetMyPathData(), 40);
     },
     [],
   );
@@ -222,45 +226,6 @@ const FileScreen = () => {
     );
   }, [myPathData, clippedPathStat, currentScreenMode]);
 
-  // TODO NEXT FINISH THIS OFF AS WELL,
-  // TODO MAKE CANVASSCALE AND TRANSLATE PART OF PATHDATA
-  const ZoomScaleText = () =>
-    myPathData.metaData.canvasScale !== 1 && (
-      <MyBlueButton
-        bgColor={"#08256777"}
-        bgPressedColor={"#00224477"}
-        text={() => (
-          <Text
-            style={{
-              color: "#FFFFFF",
-              fontSize: 16,
-              fontWeight: "bold",
-              textTransform: "uppercase",
-              letterSpacing: 1,
-              opacity: 1,
-            }}
-          >
-            {scaleToZoom(myPathData.metaData.canvasScale) + "%"}
-          </Text>
-        )}
-        aligned="right"
-        onPress={() => {
-          setMyPathData((prev) => ({
-            ...prev,
-            metaData: {
-              ...prev.metaData,
-              canvasScale: 1,
-              canvasTranslateX: 0,
-              canvasTranslateY: 0,
-              updatedAt: "",
-            },
-            updatedAt: new Date().toISOString(),
-          }));
-          showToast("Canvas scale, translate reset");
-        }}
-        bottom={insets.bottom + 16}
-      />
-    );
   const ViewDecoration =
     currentScreenMode.name === ScreenModes[1].name
       ? MyFilmStripView
@@ -314,7 +279,7 @@ const FileScreen = () => {
                 {pathStat}
               </Text>
 
-              <DisplayScreenName />
+              {/* <DisplayScreenName /> */}
               <View
                 style={{
                   width: CANVAS_WIDTH,
@@ -329,7 +294,7 @@ const FileScreen = () => {
               {(myPathData.metaData.canvasScale != 1 ||
                 Math.abs(myPathData.metaData.canvasTranslateX) > CANVAS_WIDTH ||
                 Math.abs(myPathData.metaData.canvasTranslateY) >
-                  CANVAS_HEIGHT) && <Window maxHeight={100} maxWidth={200} />}
+                  CANVAS_HEIGHT) && <Window maxHeight={200} maxWidth={200} />}
             </View>
           </ViewDecoration>
         </View>
@@ -347,7 +312,7 @@ const FileScreen = () => {
         </View>
       )}
 
-      <ZoomScaleText />
+      <ZoomResetButton />
       {currentScreenMode.name === ScreenModes[1].name ? (
         <MyBlueButton
           icon={{ desc: "EXPORT", name: "export", size: 24 }}
@@ -359,7 +324,11 @@ const FileScreen = () => {
         />
       ) : null}
 
-      <Footer />
+      <MyScreenShot
+        hostIsExiting={exiting}
+        onScreenShotSaved={() => console.log("path updated, shot saved")}
+      />
+      {/* <Footer /> */}
     </View>
   );
 };

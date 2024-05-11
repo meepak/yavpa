@@ -11,6 +11,9 @@ const boundaryBoxCornors = (
   }
 
   const vbbox = getViewBoxTrimmed([activeBoundaryBoxPath], 0);
+  if(!vbbox) {
+    return null;
+  }
   const vbbPoints = vbbox.split(" ");
   // Create corner paths
   const cornerStrokeWidth = 5 * scaleFactor;

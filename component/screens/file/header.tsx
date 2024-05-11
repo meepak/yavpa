@@ -18,10 +18,10 @@ import {
 import MyIcon from "@c/controls/pure/my-icon";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MyPathLogo from "@c/logo/my-path-logo";
-import { MyPathDataContext } from "@x/svg-data";
+import { useMyPathDataContext } from "@x/svg-data";
 import MyList from "@c/controls/pure/my-list";
 import MyBlueButton from "@c/controls/pure/my-blue-button";
-import { ToastContext } from "@x/toast-context";
+import { useToastContext } from "@x/toast-context";
 import MyGradientBackground from "@c/controls/pure/my-gradient-background";
 import myConsole from "@c/controls/pure/my-console-log";
 
@@ -37,10 +37,10 @@ const Header = ({
   const [screenMode, setScreenMode] = useState(
     initialScreenMode || ScreenModes[0],
   );
-  const { myPathData } = useContext(MyPathDataContext);
+  const { myPathData } = useMyPathDataContext();
   // Const [buttonInstruction, setButtonInstruction] = useState("");
   const router = useRouter();
-  const { showToast } = useContext(ToastContext);
+  const { showToast } = useToastContext();
 
   useEffect(() => {
     setName(title);

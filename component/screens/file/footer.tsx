@@ -3,13 +3,13 @@ import {View, Text, Dimensions} from 'react-native';
 import MyGradientBackground from '@c/controls/pure/my-gradient-background';
 import {FOOTER_HEIGHT} from '@u/types';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {MyPathDataContext} from '@x/svg-data';
+import { useMyPathDataContext } from '@x/svg-data';
 import {precise} from '@u/helper';
 import MyTicker from '@c/controls/my-ticker';
 
 const Footer = () => {
 	const insets = useSafeAreaInsets();
-	const {myPathData} = useContext(MyPathDataContext);
+	const {myPathData} = useMyPathDataContext();
 
 	const defaultMessage = 'This is a development preview. Tips: Long press to delete the sketch. Double tap to select the path. Scroll the menu items to explore options.';
 
