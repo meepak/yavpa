@@ -37,7 +37,7 @@ export const createMyPathData = (): MyPathDataType => ({
   pathData: [],
   imageData: [],
   metaData: {
-    guid: "",
+    guid: Crypto.randomUUID(),
     created_at: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     name: "",
@@ -333,6 +333,7 @@ export const getPointsFromPath = (
 
   // MyConsole.log(points.length, "Points");
 
+  // return points;
   // simplify cPoints to reduce number of points but lets allow dot or scribble of tiny chars
   const simplifiedPoints =
     points.length > 15 ? simplify(points, simplifyTolerance) : points;

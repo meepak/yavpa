@@ -9,7 +9,7 @@ import { getViewBoxTrimmed } from "@u/helper";
 import { getScreenshot } from "@u/storage";
 import { useUserPreferences } from "@x/user-preferences";
 
-const PreviewWindow = ({ maxHeight, maxWidth }) => {
+const PreviewWindow = ({ refresh, maxHeight, maxWidth }) => {
   const { myPathData, setMyPathData } = useMyPathDataContext();
   const [viewBox, setViewBox] = useState("0 0 0 0");
   const [rect, setRect] = useState({ x: 0, y: 0, width: 0, height: 0 });
@@ -25,10 +25,11 @@ const PreviewWindow = ({ maxHeight, maxWidth }) => {
       })
       .catch((error) => console.log(error));
   }, [
-    myPathData.pathData,
-    myPathData.metaData.canvasScale,
-    myPathData.metaData.canvasTranslateX,
-    myPathData.metaData.canvasTranslateY,
+    refresh
+    // myPathData.pathData,
+    // myPathData.metaData.canvasScale,
+    // myPathData.metaData.canvasTranslateX,
+    // myPathData.metaData.canvasTranslateY,
   ]);
 
   useEffect(() => {

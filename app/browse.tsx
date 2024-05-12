@@ -127,6 +127,7 @@ const BrowseScreen = () => {
 
   const fetchFiles = useCallback(
     async (allowCache = true) => {
+      setFiles([]);
       setIsLoading(true);
       const myPathData: MyPathDataType[] = (
         await getFiles(defaultStorageDirectory, allowCache)
@@ -207,6 +208,9 @@ const BrowseScreen = () => {
             renderItem={renderItem}
             horizontal={false}
             showsVerticalScrollIndicator={false}
+            // onRefresh={() => fetchFiles(false)}
+            // refreshing={isLoading}
+
           />
           {isLoading && (
             <View

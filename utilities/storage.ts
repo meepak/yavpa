@@ -367,7 +367,7 @@ export const saveScreenshot = async (
   const savePath = path.join(appSaveDir, `${guid}.${type}`);
   await FileSystem.writeAsStringAsync(savePath, base64Data);
 
-  // FileSystem.deleteAsync(uri); // we don't need it, lets not clutter
+  FileSystem.deleteAsync(uri); // we don't need it, lets not clutter
 };
 
 // retrieve the screenshot

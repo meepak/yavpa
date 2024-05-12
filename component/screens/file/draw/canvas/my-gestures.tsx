@@ -15,8 +15,9 @@ import {
   I_AM_IOS,
   I_AM_ANDROID,
 } from "@u/types";
+import * as Crypto from "expo-crypto";
 import { debounce } from "lodash";
-import { getBoundaryBox } from "@u/helper";
+import { getBoundaryBox, getPathFromPoints } from "@u/helper";
 import { UserPreferencesContext } from "@x/user-preferences";
 import { getPenOffsetFactor } from "@u/helper";
 import { handleDrawingEvent } from "./draw";
@@ -25,6 +26,7 @@ import { handleDragEvent } from "./drag";
 import { handleScaleEvent } from "./scale";
 import { handleRotateEvent } from "./rotate";
 import { useToastContext } from "@x/toast-context";
+import { circlePathDirect } from "@u/shapes";
 
 type MyGesturesProperties = {
   myPathData: { pathData: PathDataType[]; metaData: MetaDataType };
@@ -206,14 +208,42 @@ export const MyGestures = ({
   // Once select mode is activated by double tap, single tap can also select the path
   const tapSelectGesture = Gesture.Tap();
   tapSelectGesture.numberOfTaps(1).onEnd((event) => {
-    if (!activeBoundaryBoxPath) {
-      return;
-    }
-
     const tapPoint = {
       x: event.x * canvasScale + canvasTranslate.x,
       y: event.y * canvasScale + canvasTranslate.y,
     };
+    if (!activeBoundaryBoxPath) {
+      // if edit mode is on, then draw a dot
+      if (editMode) {
+            setMyPathData((previous: MyPathDataType) => ({
+              ...previous,
+              metaData: { ...previous.metaData, updatedAt: "" },
+              pathData: [
+                ...previous.pathData,
+                {
+                  ...newPathData(),
+                  path: getPathFromPoints([
+                    { x: tapPoint.x, y: tapPoint.y },
+                    { x: tapPoint.x + 0.5, y: tapPoint.y },
+                    { x: tapPoint.x + 0.5, y: tapPoint.y + 0.5 },
+                    { x: tapPoint.x - 0.5, y: tapPoint.y },
+                    { x: tapPoint.x - 0.5, y: tapPoint.y - 0.5 },
+                    { x: tapPoint.x, y: tapPoint.y },
+                  ]),
+                  time: 5,
+                  updatedAt: new Date().toISOString(),
+                  visible: true,
+                  selected: false,
+                  length: 2,
+                  guid: Crypto.randomUUID(),
+                },
+              ],
+            }));
+            return;
+      }
+      return;
+    }
+
     handleSelectEvent(
       { ...tapPoint },
       activeBoundaryBoxPath,
@@ -227,11 +257,7 @@ export const MyGestures = ({
     const selectedPaths = myPathData.pathData.filter(
       (item) => item.selected === true,
     );
-    const bBoxPath = getBoundaryBox(
-      selectedPaths,
-      canvasScale,
-      canvasTranslate,
-    );
+    const bBoxPath = getBoundaryBox(selectedPaths);
     setActiveBoundaryBoxPath(bBoxPath);
   };
 

@@ -34,7 +34,7 @@ import elevations from "@u/elevation";
 import { useToastContext } from "@x/toast-context";
 import Window from "@c/screens/file/draw/window";
 import ZoomResetButton from "@c/controls/pure/zoom-reset-button";
-import MyScreenShot from "@c/controls/my-screenshot";
+import MyScreenShot from "@c/controls/my-screen-shot";
 
 const FileScreen = () => {
   // Const insets = useSafeAreaInsets();
@@ -63,6 +63,7 @@ const FileScreen = () => {
   const insets = useSafeAreaInsets();
   const { showToast } = useToastContext();
   const [exiting, setExiting] = useState(false);
+  const [newFullShotCounter, setNewFullShotCounter] = useState(0);
 
   //* ***************************IMPORTANT********************************** */
   // If you are updating myPathData through context and if it requires saving to file
@@ -279,6 +280,10 @@ const FileScreen = () => {
                 {pathStat}
               </Text>
 
+              {(myPathData.metaData.canvasScale != 1 ||
+                Math.abs(myPathData.metaData.canvasTranslateX) > CANVAS_WIDTH ||
+                Math.abs(myPathData.metaData.canvasTranslateY) >
+                  CANVAS_HEIGHT) && <Window refresh={newFullShotCounter} maxHeight={200} maxWidth={200} />}
               {/* <DisplayScreenName /> */}
               <View
                 style={{
@@ -291,10 +296,6 @@ const FileScreen = () => {
               >
                 {getCurrentScreen()}
               </View>
-              {(myPathData.metaData.canvasScale != 1 ||
-                Math.abs(myPathData.metaData.canvasTranslateX) > CANVAS_WIDTH ||
-                Math.abs(myPathData.metaData.canvasTranslateY) >
-                  CANVAS_HEIGHT) && <Window maxHeight={200} maxWidth={200} />}
             </View>
           </ViewDecoration>
         </View>
@@ -326,7 +327,7 @@ const FileScreen = () => {
 
       <MyScreenShot
         hostIsExiting={exiting}
-        onScreenShotSaved={() => console.log("path updated, shot saved")}
+        onScreenShotSaved={() => setNewFullShotCounter((prev) => prev + 1)}
       />
       {/* <Footer /> */}
     </View>
