@@ -8,6 +8,8 @@ import { useMyPathDataContext } from "@x/svg-data";
 import { getViewBoxTrimmed } from "@u/helper";
 import { getScreenshot } from "@u/storage";
 import { useUserPreferences } from "@x/user-preferences";
+import MyFloatingWindow from "@c/controls/pure/my-floating-window";
+import MyEdgeButton from "@c/controls/my-edge-button";
 
 const PreviewWindow = ({ refresh, maxHeight, maxWidth }) => {
   const { myPathData, setMyPathData } = useMyPathDataContext();
@@ -38,7 +40,6 @@ const PreviewWindow = ({ refresh, maxHeight, maxWidth }) => {
     }
     Image.getSize(imageBase64, (width, height) => {
       // Calculate the scale factor
-      console.log(width, height);
       const scaleFactor = Math.min(maxWidth / width, maxHeight / height);
 
       // Apply the scale factor to the original dimensions
@@ -46,6 +47,11 @@ const PreviewWindow = ({ refresh, maxHeight, maxWidth }) => {
       const scaledHeight = height * scaleFactor;
 
       setImageSize({ width: scaledWidth, height: scaledHeight });
+
+      // If this image size represents my whole of drawing,
+      // where is my current viewing canvas? I need x, y, width & height within image area
+
+
     });
   }, [imageBase64]);
   // useEffect(() => {
@@ -110,6 +116,22 @@ const PreviewWindow = ({ refresh, maxHeight, maxWidth }) => {
     //   }}
     //   pointerEvents="none"
     // >
+    <MyFloatingWindow
+      width={maxWidth}
+      height={maxHeight}
+      xPosition={10}
+      yPosition={SCREEN_HEIGHT - maxHeight - 10}
+      anchor={
+        <MyEdgeButton
+          text="Preview"
+          leftOrRight="left"
+          onPress={() => {
+            console.log("Preview button pressed");
+          }}
+          top={50}
+          />
+      }
+      >x
     <Image
       source={{ uri: imageBase64 }}
       style={{
@@ -118,13 +140,12 @@ const PreviewWindow = ({ refresh, maxHeight, maxWidth }) => {
         left: 10,
         width: imageSize.width,
         height: imageSize.height,
-        borderWidth: 2,
-        borderColor: MY_BLACK
+        // borderWidth: 2,
+        // borderColor: MY_BLACK
       }}
       resizeMode="cover"
     />
-
-    // </View>
+</MyFloatingWindow>
   );
 };
 

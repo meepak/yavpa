@@ -31,6 +31,7 @@ import { circlePathDirect } from "@u/shapes";
 type MyGesturesProperties = {
   myPathData: { pathData: PathDataType[]; metaData: MetaDataType };
   setMyPathData: (value: SetStateAction<MyPathDataType>) => void;
+  currentlyDrawingShape: React.MutableRefObject<boolean>;
   editMode: boolean;
   pathEditMode: boolean;
   enhancedDrawingMode: boolean;
@@ -38,8 +39,7 @@ type MyGesturesProperties = {
   erasureMode: boolean;
   currentPath: PathDataType;
   setCurrentPath: (value: SetStateAction<PathDataType>) => void;
-  startTime: number;
-  setStartTime: (value: SetStateAction<number>) => void;
+  pathTime: React.MutableRefObject<number>;
   newPathData: () => PathDataType;
   currentShape: ShapeType;
   setCurrentShape: (value: SetStateAction<ShapeType>) => void;
@@ -62,6 +62,7 @@ type MyGesturesProperties = {
 export const MyGestures = ({
   myPathData,
   setMyPathData,
+  currentlyDrawingShape,
   editMode,
   pathEditMode,
   enhancedDrawingMode,
@@ -69,8 +70,7 @@ export const MyGestures = ({
   erasureMode,
   currentPath,
   setCurrentPath,
-  startTime,
-  setStartTime,
+  pathTime,
   newPathData,
   currentShape,
   setCurrentShape,
@@ -154,6 +154,7 @@ export const MyGestures = ({
       state,
       myPathData,
       setMyPathData,
+      currentlyDrawingShape,
       canvasScale,
       canvasTranslate,
       editMode,
@@ -163,8 +164,7 @@ export const MyGestures = ({
       existingPaths,
       currentPath,
       setCurrentPath,
-      startTime,
-      setStartTime,
+      pathTime,
       newPathData,
       currentShape,
       setCurrentShape,
@@ -215,31 +215,31 @@ export const MyGestures = ({
     if (!activeBoundaryBoxPath) {
       // if edit mode is on, then draw a dot
       if (editMode) {
-            setMyPathData((previous: MyPathDataType) => ({
-              ...previous,
-              metaData: { ...previous.metaData, updatedAt: "" },
-              pathData: [
-                ...previous.pathData,
-                {
-                  ...newPathData(),
-                  path: getPathFromPoints([
-                    { x: tapPoint.x, y: tapPoint.y },
-                    { x: tapPoint.x + 0.5, y: tapPoint.y },
-                    { x: tapPoint.x + 0.5, y: tapPoint.y + 0.5 },
-                    { x: tapPoint.x - 0.5, y: tapPoint.y },
-                    { x: tapPoint.x - 0.5, y: tapPoint.y - 0.5 },
-                    { x: tapPoint.x, y: tapPoint.y },
-                  ]),
-                  time: 5,
-                  updatedAt: new Date().toISOString(),
-                  visible: true,
-                  selected: false,
-                  length: 2,
-                  guid: Crypto.randomUUID(),
-                },
-              ],
-            }));
-            return;
+        setMyPathData((previous: MyPathDataType) => ({
+          ...previous,
+          metaData: { ...previous.metaData, updatedAt: "" },
+          pathData: [
+            ...previous.pathData,
+            {
+              ...newPathData(),
+              path: getPathFromPoints([
+                { x: tapPoint.x, y: tapPoint.y },
+                { x: tapPoint.x + 0.5, y: tapPoint.y },
+                { x: tapPoint.x + 0.5, y: tapPoint.y + 0.5 },
+                { x: tapPoint.x - 0.5, y: tapPoint.y },
+                { x: tapPoint.x - 0.5, y: tapPoint.y - 0.5 },
+                { x: tapPoint.x, y: tapPoint.y },
+              ]),
+              time: 5,
+              updatedAt: new Date().toISOString(),
+              visible: true,
+              selected: false,
+              length: 2,
+              guid: Crypto.randomUUID(),
+            },
+          ],
+        }));
+        return;
       }
       return;
     }
@@ -350,6 +350,7 @@ export const MyGestures = ({
     5,
     { leading: I_AM_ANDROID, trailing: I_AM_IOS },
   );
+
 
   panDrag2Gesture.onUpdate(debouncedUpdate);
 
@@ -498,7 +499,7 @@ export const MyGestures = ({
     });
 
   // Combine all gestures and initialize
-  const composedPanDrag = Gesture.Simultaneous(panDrawGesture, panDragGesture);
+  const panGesture = (editMode && !activeBoundaryBoxPath) ? panDrawGesture : panDragGesture;
   const composedPinch = Gesture.Simultaneous(pinchZoomGesture, panDrag2Gesture);
   const composedSelect = Gesture.Exclusive(
     doubleTapSelectGesture,
@@ -506,7 +507,7 @@ export const MyGestures = ({
   );
   const composedGesture = Gesture.Race(
     composedPinch,
-    composedPanDrag,
+    panGesture,
     composedSelect,
     rotateGesture,
   );

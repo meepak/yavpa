@@ -14,19 +14,19 @@ const presentPath = (
   setCurrentPath: (value: SetStateAction<PathDataType>) => void,
 ) => {
   const set = (currentPathPoints?: PointType[]) => {
+    if (!isValidPath(currentPath.path)) {
+      return;
+    }
     if (currentPathPoints) {
       currentPath.path = getPathFromPoints(currentPathPoints);
       currentPath.length = getPathLength(currentPathPoints);
-    }
-    if (isValidPath(currentPath.path)) {
-      currentPath.visible = true;
-      currentPath.selected = false;
-      if (!currentPathPoints) {
+    } else {
         // TODO:: IS THIS NECESSARY???
         currentPathPoints = getPointsFromPath(currentPath.path);
         currentPath.length = getPathLength(currentPathPoints);
-      }
     }
+      currentPath.visible = true;
+      currentPath.selected = false;
     setCurrentPath(currentPath);
     return presentPath(currentPath, setCurrentPath);
   };

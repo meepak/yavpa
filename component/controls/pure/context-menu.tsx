@@ -1,202 +1,180 @@
-import myConsole from "@c/controls/pure/my-console-log";
-import {CANVAS_HEIGHT} from '@u/types';
-import React from 'react';
+import React from "react";
 import {
-	View,
-	TouchableWithoutFeedback,
-	Dimensions,
-	TouchableOpacity,
-} from 'react-native';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import Modal from 'react-native-modal';
+  View,
+  TouchableWithoutFeedback,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Portal } from "@gorhom/portal";
+import Animated, { EntryExitAnimationFunction, FadeIn, FadeOut } from "react-native-reanimated";
 
 type ContextMenuProperties = {
-	width?: number;
-	height?: number;
-	// CloseMenuAt?: number;
-	anchor: React.ReactNode;
-	children: React.ReactNode;
-	showBackground?: boolean;
-	xPosition?: number;
-	yPosition?: number;
-	positionOverride?: boolean;
-	yOffsetFromAnchor?: number;
-	animationIn?: any;
-	animationOut?: any;
+  width?: number;
+  height?: number;
+  anchor: React.ReactNode;
+  children: React.ReactNode;
+  showBackground?: boolean;
+  xPosition: number;
+  yPosition: number;
+  positionOverride?: boolean;
+  yOffsetFromAnchor?: number;
+  animationIn?: EntryExitAnimationFunction;
+  animationOut?: EntryExitAnimationFunction;
 };
 
 type ContextMenuState = {
-	menuVisible: boolean;
-	xPosition: number;
-	yPosition: number;
-	positionOverride: boolean;
-	windowWidth: number;
-	windowHeight: number;
-	yOffsetFromAnchor: number;
+  menuVisible: boolean;
+  xPosition: number;
+  yPosition: number;
+  positionOverride: boolean;
+  windowWidth: number;
+  windowHeight: number;
+  yOffsetFromAnchor: number;
 };
 
-const initialRenderTime = Date.now();
+class ContextMenu extends React.PureComponent<
+  ContextMenuProperties,
+  ContextMenuState
+> {
+  static defaultProps = {
+    width: 150,
+    height: 200,
+    showBackground: true,
+    xPosition: 0,
+    yPosition: 0,
+    positionOverride: false,
+    yOffsetFromAnchor: 10,
+    animationIn: FadeIn,
+    animationOut: FadeOut,
+  };
 
-class ContextMenu extends React.PureComponent<ContextMenuProperties, ContextMenuState> {
-	static defaultProps = {
-		width: 150,
-		height: 200,
-		// CloseMenuAt: initialRenderTime,
-		showBackground: true,
-		xPosition: 0,
-		yPosition: 0,
-		positionOverride: false,
-		yOffsetFromAnchor: 10,
-	};
+  private readonly anchorRef = React.createRef<View>();
 
-	private readonly anchorRef = React.createRef<View>();
+  constructor(properties: ContextMenuProperties) {
+    super(properties);
+    this.state = {
+      menuVisible: false,
+      xPosition: properties.xPosition || 0,
+      yPosition: properties.yPosition || 0,
+      positionOverride: properties.positionOverride || false,
+      windowWidth: Dimensions.get("window").width,
+      windowHeight: Dimensions.get("window").height,
+      yOffsetFromAnchor: properties.yOffsetFromAnchor || 10,
+    };
+  }
 
-	constructor(properties: ContextMenuProperties) {
-		super(properties);
-		this.state = {
-			menuVisible: false,
-			xPosition: properties.xPosition || 0,
-			yPosition: properties.yPosition || 0,
-			positionOverride: properties.positionOverride || false,
-			windowWidth: Dimensions.get('window').width,
-			windowHeight: Dimensions.get('window').height,
-			yOffsetFromAnchor: properties.yOffsetFromAnchor || 10,
-		};
-	}
+  hideMenu = () => {
+    this.setState({ menuVisible: false });
+  };
 
-	// We will only close if hideMenu is explicitly called
-	// componentDidUpdate(prevProps: ContextMenuProps, prevState: ContextMenuState) {
-	// if (prevState.menuVisible !== this.state.menuVisible ) {
-	//   myConsole.log('menu close -- trigger unknown if no reason below?? ', this.state.menuVisible);
-	//    this.hideMenu();
-	// }
+  showMenu = () => {
+    if (
+      this.props.positionOverride &&
+      this.props.xPosition &&
+      this.props.yPosition
+    ) {
+      this.setState({
+        xPosition: this.props.xPosition,
+        yPosition: this.props.yPosition,
+        menuVisible: true,
+      });
+      return;
+    }
 
-	// if (prevProps.closeMenuAt !== this.props.closeMenuAt && !this.state.menuVisible) {
-	//   myConsole.log('REASON:: closeMenuAt trigger closure', this.props.closeMenuAt);
-	//   this.hideMenu();
-	// }
-	// }
+    this.anchorRef.current?.measure((x, y, anchorWidth, anchorHeight) => {
+      if (isNaN(x) || isNaN(y) || isNaN(anchorWidth) || isNaN(anchorHeight)) {
+        console.error("Invalid measurements:", {
+          x,
+          y,
+          anchorWidth,
+          anchorHeight,
+        });
+        return;
+      }
 
-	hideMenu = () => {
-		// MyConsole.log('REASON:: hideMenu trigger closure', this.props.closeMenuAt);
-		this.setState({menuVisible: false});
-	};
+      let newXPosition = x - anchorWidth; // Default to left of anchor
+      let newYPosition =
+        y + anchorHeight + (this.props.yOffsetFromAnchor || 10); // Default to below anchor
 
-	showMenu = () => {
-		myConsole.log('opning..who\'d overridding this already??');
-		// If the menu close time is within last 200 ms, do not open agian
-		// if (this.props.closeMenuAt && (Date.now() - this.props.closeMenuAt < 200)) {
-		//   myConsole.log('CANC:: showMenu trigger closure', this.props.closeMenuAt);
-		//   return;
-		// }
-		if (this.props.positionOverride && this.props.xPosition && this.props.yPosition) {
-			this.setState({xPosition: this.props.xPosition, yPosition: this.props.yPosition, menuVisible: true});
-			return;
-		}
+      if (newXPosition + this.props.width! > this.state.windowWidth) {
+        newXPosition = this.state.windowWidth - this.props.width! - 40;
+      }
 
-		this.anchorRef.current?.measureInWindow((x, y, anchorWidth, anchorHeight) => {
-			if (isNaN(x) || isNaN(y) || isNaN(anchorWidth) || isNaN(anchorHeight)) {
-				console.error('Invalid measurements:', {
-					x, y, anchorWidth, anchorHeight,
-				});
-				return;
-			}
+      if (newYPosition + this.props.height! > this.state.windowHeight) {
+        newYPosition = this.state.windowHeight - this.props.height! - 40;
+      }
 
-			let newXPosition = x - anchorWidth; // Default to left of anchor
-			let newYPosition = y + anchorHeight + (this.props.yOffsetFromAnchor || 10); // Default to below anchor
+      if (newXPosition < 0) {
+        newXPosition = 10;
+      }
 
-			// If menu goes beyond the right edge of the screen, position it to the left of the anchor
-			if (newXPosition + this.props.width! > this.state.windowWidth) {
-				newXPosition = this.state.windowWidth - this.props.width! - 40; // 10 is the margin from the right edge
-			}
+      if (newYPosition < 0) {
+        newYPosition = 10;
+      }
 
-			// If menu goes beyond the bottom edge of the screen, position it above the anchor
-			if (newYPosition + this.props.height! > this.state.windowHeight) {
-				newYPosition = this.state.windowHeight - this.props.height! - 40; // 10 is the margin from the bottom edge
-			}
+      this.setState({
+        xPosition: newXPosition,
+        yPosition: newYPosition,
+        menuVisible: true,
+      });
+    });
+  };
 
-			// If menu goes beyond the left edge of the screen, position it to the right of the anchor
-			if (newXPosition < 0) {
-				newXPosition = 10; // 10 is the margin from the left edge
-			}
-
-			// If menu goes beyond the top edge of the screen, position it below the anchor
-			if (newYPosition < 0) {
-				newYPosition = 10; // 10 is the margin from the top edge
-			}
-
-			this.setState({xPosition: newXPosition, yPosition: newYPosition, menuVisible: true});
-		});
-	};
-
-	render() {
-		return (
-			<View>
-				<View
-					ref={this.anchorRef}
-					onLayout={() => {}}
-				>
-					<TouchableOpacity onPress={this.showMenu}>
-						{this.props.anchor}
-					</TouchableOpacity>
-				</View>
-
-				{/* TODO DURING APP START UP CHOOSE ONE SET OF STYLE RANDOMLY AND STICK WITH IT TILL APPLICATION RESTARTS */}
-				<Modal
-					isVisible={this.state.menuVisible}
-					coverScreen={true}
-					hasBackdrop={true}
-					backdropColor='rgba(0,0,0,0.5)'
-					onBackdropPress={() => this.hideMenu}
-					statusBarTranslucent={true}
-					animationIn={this.props.animationIn || 'slideInUp'}
-					animationOut={this.props.animationOut || 'slideOutUp'}
-					useNativeDriver
-					useNativeDriverForBackdrop
-					hideModalContentWhileAnimating
-				>
-					<GestureHandlerRootView style={{
-						width: '100%',
-						height: '100%',
-						overflow: 'visible',
-					}}>
-						<TouchableWithoutFeedback onPress={this.hideMenu}>
-							<View style={{
-								flex: 1,
-								justifyContent: 'center',
-								alignItems: 'center',
-							}}>
-								<TouchableWithoutFeedback>
-									<View style={{
-										minHeight: this.props.height,
-										maxHeight: CANVAS_HEIGHT - 40,
-										position: 'absolute',
-										left: this.state.xPosition,
-										top: this.state.yPosition,
-										...(
-											this.props.showBackground
-												? {
-													width: this.props.width,
-													padding: 20,
-													borderRadius: 10,
-													backgroundColor: 'rgba(150,150,250, 0.85)',
-													borderWidth: 0.7,
-													borderColor: 'rgba(0,0,0,0.5)',
-													// ...elevations[2],
-												}
-												: {width: (this.props.width || 150) * 3}
-										),
-									}}>
-										{this.props.children}
-									</View>
-								</TouchableWithoutFeedback>
-							</View>
-						</TouchableWithoutFeedback>
-					</GestureHandlerRootView>
-				</Modal>
-			</View>
-		);
-	}
+  render() {
+    const { menuVisible, xPosition, yPosition } = this.state;
+    return (
+      <Animated.View ref={this.anchorRef}>
+        <TouchableOpacity onPress={this.showMenu}>
+          {this.props.anchor}
+        </TouchableOpacity>
+        {menuVisible && (
+          <Portal hostName="root" name="contextMenuPortal">
+            <Animated.View
+              style={{
+                position: "absolute",
+                left: xPosition,
+                top: yPosition,
+                width: this.props.width,
+                height: this.props.height,
+                ...(this.props.showBackground
+                  ? {
+                      backgroundColor: "rgba(150,150,250, 0.85)",
+                      padding: 20,
+                      borderRadius: 10,
+                      borderWidth: 0.7,
+                      borderColor: "rgba(0,0,0,0.5)",
+                    }
+                  : {}),
+              }}
+              entering={this.props.animationIn}
+              exiting={this.props.animationOut}
+            >
+              <GestureHandlerRootView
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  overflow: "visible",
+                }}
+              >
+                <TouchableWithoutFeedback onPress={this.hideMenu}>
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {this.props.children}
+                  </View>
+                </TouchableWithoutFeedback>
+              </GestureHandlerRootView>
+            </Animated.View>
+          </Portal>
+        )}
+      </Animated.View>
+    );
+  }
 }
 
 export default ContextMenu;

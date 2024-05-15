@@ -11,7 +11,7 @@ import {
 	I_AM_IOS, MY_ON_PRIMARY_COLOR, MY_PRIMARY_COLOR, ModalAnimations,
 } from '@u/types';
 
-const ICON_SIZE = 24;
+const ICON_SIZE = 22;
 const currentTime = Date.now();
 
 const ControlPanel = ({buttons, paddingLeft = 40, paddingRight = 40}) => {
@@ -47,7 +47,7 @@ const ControlPanel = ({buttons, paddingLeft = 40, paddingRight = 40}) => {
 			backgroundColor: 'transparent',
 			paddingLeft,
 			paddingRight,
-			height: 32,
+			height: 22,
 		}}>
 			<FlatList
 				horizontal={true}
@@ -57,7 +57,7 @@ const ControlPanel = ({buttons, paddingLeft = 40, paddingRight = 40}) => {
 				snapToAlignment='end'
 				data={buttons}
 				keyExtractor={(item, index) => index.toString()}
-				contentContainerStyle={{marginLeft: 10, alignItems: 'baseline'}}
+				contentContainerStyle={{marginLeft: 10, height: 22}}
 				fadingEdgeLength={20}
 				renderItem={({item}) => (
 					item.extraControl

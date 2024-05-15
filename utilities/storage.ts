@@ -360,14 +360,20 @@ export const saveScreenshot = async (
     type === "full" ? [{ resize: { height: resizeHeight } }] : undefined,
     { base64: true, compress: 0.9, format: ImageManipulator.SaveFormat.PNG },
   );
-
-  // console.log("saveScreenshot", resizedImage.base64?.length);
-  const base64Data = pngBase64Prefix + resizedImage.base64;
-  // console.log(base64Data);
-  const savePath = path.join(appSaveDir, `${guid}.${type}`);
-  await FileSystem.writeAsStringAsync(savePath, base64Data);
-
-  FileSystem.deleteAsync(uri); // we don't need it, lets not clutter
+  try {
+    // console.log("saveScreenshot", resizedImage.base64?.length);
+    const base64Data = pngBase64Prefix + resizedImage.base64;
+    // console.log(base64Data);
+    const savePath = path.join(appSaveDir, `${guid}.${type}`);
+    await FileSystem.writeAsStringAsync(savePath, base64Data);
+  } catch (error) {
+    console.log("File save error", error);
+  }
+  try {
+    FileSystem.deleteAsync(uri); // we don't need it, lets not clutter
+  } catch (error) {
+    console.log("File delete error", error);
+  }
 };
 
 // retrieve the screenshot

@@ -6,7 +6,7 @@ export const I_AM_IOS = Platform.OS === "ios";
 
 export const MY_BLACK = "#120e31";
 export const MY_WHITE = "#ffffff";
-export const MY_PRIMARY_COLOR = "#02093599";
+export const MY_PRIMARY_COLOR = "#020935";
 export const MY_ON_PRIMARY_COLOR = "#ffe7f4";
 export const MY_ON_PRIMARY_COLOR_OPTIONS = [
   "#ebe4ff",

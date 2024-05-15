@@ -1,8 +1,21 @@
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import {
+  View,
+  Text,
+  Animated,
+  Easing,
+  BackHandler,
+  TextInput,
+} from "react-native";
 import {
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
+  FOOTER_HEIGHT,
+  HEADER_HEIGHT,
   MY_BLACK,
   MY_ON_PRIMARY_COLOR,
+  SCREEN_HEIGHT,
+  SCREEN_WIDTH,
   ScreenModes,
 } from "@u/types";
 import {
@@ -19,9 +32,8 @@ import {
   Header,
   PreviewScreen,
 } from "@c/screens/file";
-import { useLocalSearchParams } from "expo-router";
-import React, { useContext, useEffect, useMemo, useState } from "react";
-import { View, Text } from "react-native";
+import { Stack, useLocalSearchParams } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 import * as Crypto from "expo-crypto";
 import MyFilmStripView from "@c/controls/pure/my-film-strip-view";
 import MyBlueButton from "@c/controls/pure/my-blue-button";
@@ -35,6 +47,11 @@ import { useToastContext } from "@x/toast-context";
 import Window from "@c/screens/file/draw/window";
 import ZoomResetButton from "@c/controls/pure/zoom-reset-button";
 import MyScreenShot from "@c/controls/my-screen-shot";
+import MyEdgeButton from "@c/controls/my-edge-button";
+import { ControlPanel } from "@c/controls";
+import MyGradientBackground from "@c/controls/pure/my-gradient-background";
+import MyList from "@c/controls/pure/my-list";
+import MyPathLogo from "@c/logo/my-path-logo";
 
 const FileScreen = () => {
   // Const insets = useSafeAreaInsets();
@@ -64,6 +81,7 @@ const FileScreen = () => {
   const { showToast } = useToastContext();
   const [exiting, setExiting] = useState(false);
   const [newFullShotCounter, setNewFullShotCounter] = useState(0);
+  const [name, setName] = useState(myPathData.metaData.name);
 
   //* ***************************IMPORTANT********************************** */
   // If you are updating myPathData through context and if it requires saving to file
@@ -104,24 +122,18 @@ const FileScreen = () => {
     [],
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (guid) {
       myConsole.log(`Open file with GUID: ${guid}`);
       openMyPathDataFile(guid);
     } else {
-      // Create new file
-      // myConsole.log('Create new file');
       const newMyPathData = createMyPathData();
       newMyPathData.metaData.guid = Crypto.randomUUID();
       setMyPathData(newMyPathData);
     }
   }, [guid]);
 
-  // Const handleScreenModeChanged = (mode: ScreenModeType) => {
-  //     setCurrentScreenMode(mode);
-  // }
-
-  async function openMyPathDataFile(guid: string) {
+  async function openMyPathDataFile(guid) {
     const myPathDataFromFile = await getFile(defaultStorageDirectory, guid);
     if (myPathDataFromFile && myPathDataFromFile.metaData.guid === guid) {
       myConsole.log("File found with GUID: ", guid);
@@ -148,31 +160,22 @@ const FileScreen = () => {
     }));
   };
 
-  // MyConsole.log(controlButtons)
   const getCurrentScreen = React.useCallback(() => {
     switch (currentScreenMode.name) {
-      case ScreenModes[1].name: {
-        // Preview
+      case ScreenModes[1].name:
         return (
           <PreviewScreen
             initControls={setControlButtons}
-            onPathClippedByBbox={(totalPaths: number, totalTime: number) =>
+            onPathClippedByBbox={(totalPaths, totalTime) =>
               setClippedPathStat({ totalPaths, totalTime })
             }
           />
         );
-      }
-
-      case ScreenModes[2].name: {
-        // Export
+      case ScreenModes[2].name:
         return <ExportScreen initControls={setControlButtons} />;
-      }
-
-      case ScreenModes[0].name: // Draw
-      default: {
+      case ScreenModes[0].name:
+      default:
         return <DrawScreen initControls={setControlButtons} />;
-        break;
-      }
     }
   }, [currentScreenMode]);
 
@@ -233,19 +236,61 @@ const FileScreen = () => {
       : React.Fragment;
 
   return (
-    <View style={{ flex: 1, backgroundColor: MY_ON_PRIMARY_COLOR }}>
-      <StatusBar
-        hidden={false}
-        style={"light"}
-        backgroundColor="transparent"
-        translucent={true}
-      />
-      <Header
-        controlPanelButtons={controlButtons}
-        title={myPathData?.metaData?.name || ""}
-        onTitleChange={handleNameChange}
-        onScreenModeChanged={setCurrentScreenMode}
-        initialScreenMode={currentScreenMode}
+    <View style={{ flex: 1 }}>
+      <Stack.Screen
+        options={{
+          presentation: "card",
+          animation: "fade",
+          headerShown: true,
+          gestureEnabled: false,
+          statusBarTranslucent: true,
+          statusBarHidden: false,
+          statusBarStyle: "light",
+          statusBarAnimation: "none",
+          statusBarColor: "transparent",
+          headerBackground: () => <MyGradientBackground />,
+          headerBackVisible: true,
+          navigationBarColor: "#FFFFFF",
+          headerTintColor: "#FFFFFF",
+          headerBackTitleVisible: false,
+          headerTitle: "",
+          headerLeft: () => (
+            <TextInput
+              style={{
+                // flex: 1,
+                width: SCREEN_WIDTH / 1.7,
+                // height: 11,
+                fontSize: 21,
+                fontWeight: "300",
+                textAlign: "left",
+                paddingLeft: 10,
+                color: "rgba(255, 255, 255, 0.7)",
+                // borderWidth: 1,
+                // borderColor: "yellow",
+              }}
+              onChangeText={setName}
+              onEndEditing={(e) => {
+                if (handleNameChange) {
+                  handleNameChange(e.nativeEvent.text);
+                }
+              }}
+              value={name}
+              placeholder="Title"
+              enterKeyHint="done"
+              placeholderTextColor="rgba(255, 255, 255, 0.8)"
+            />
+          ),
+          headerRight: () => (
+            <MyList
+              anchor={<MyPathLogo animate={false} width={36} height={36} />}
+              width={150}
+              height={SCREEN_HEIGHT - HEADER_HEIGHT - FOOTER_HEIGHT}
+            />
+          ),
+          contentStyle: {
+            // backgroundColor: MY_PRIMARY_COLOR
+          }
+        }}
       />
 
       {currentScreenMode.name === ScreenModes[0].name ||
@@ -283,7 +328,13 @@ const FileScreen = () => {
               {(myPathData.metaData.canvasScale != 1 ||
                 Math.abs(myPathData.metaData.canvasTranslateX) > CANVAS_WIDTH ||
                 Math.abs(myPathData.metaData.canvasTranslateY) >
-                  CANVAS_HEIGHT) && <Window refresh={newFullShotCounter} maxHeight={200} maxWidth={200} />}
+                  CANVAS_HEIGHT) && (
+                <Window
+                  refresh={newFullShotCounter}
+                  maxHeight={200}
+                  maxWidth={200}
+                />
+              )}
               {/* <DisplayScreenName /> */}
               <View
                 style={{
@@ -324,6 +375,15 @@ const FileScreen = () => {
           aligned="right"
         />
       ) : null}
+
+      <MyEdgeButton
+        text="Preview"
+        leftOrRight="left"
+        onPress={() => {
+          console.log("Preview button pressed");
+        }}
+        top={200}
+      />
 
       <MyScreenShot
         hostIsExiting={exiting}

@@ -35,6 +35,7 @@ export const handleDrawingEvent = (
   state: string,
   myPathData: MyPathDataType,
   setMyPathData: (value: SetStateAction<MyPathDataType>) => void,
+  currentlyDrawingShape: React.MutableRefObject<boolean>,
   canvasScale: number,
   canvasTranslate: PointType,
   editMode: boolean,
@@ -44,8 +45,7 @@ export const handleDrawingEvent = (
   existingPaths: React.MutableRefObject<PathDataType[]>,
   currentPath: PathDataType,
   setCurrentPath: (value: SetStateAction<PathDataType>) => void,
-  startTime: number,
-  setStartTime: (value: SetStateAction<number>) => void,
+  pathTime: React.MutableRefObject<number>,
   newPathData: { (): PathDataType; (): any },
   currentShape: ShapeType,
   setCurrentShape: (value: SetStateAction<ShapeType>) => void,
@@ -57,10 +57,9 @@ export const handleDrawingEvent = (
     return;
   }
 
-
   switch (state) {
     case "began": {
-      setStartTime(Date.now());
+      pathTime.current = Date.now();
 
       const newPath = {
         ...newPathData(),
@@ -82,7 +81,8 @@ export const handleDrawingEvent = (
       setCurrentPath(newPath);
 
       // Shape takes precedance over path
-      if (isValidShape(currentShape.name) && penTipRef.current !== undefined) {
+      currentlyDrawingShape.current = isValidShape(currentShape.name);;
+      if (currentlyDrawingShape.current && penTipRef.current !== undefined) {
         setCurrentShape((previous) => ({
           ...previous,
           start: penTipRef.current as any,
@@ -96,7 +96,7 @@ export const handleDrawingEvent = (
       if (penTipRef.current === undefined) {
         break;
       }
-      if (isValidShape(currentShape.name)) {
+      if (currentlyDrawingShape.current) {
         setCurrentShape((previous) => {
           previous.end = penTipRef.current as any;
           return previous;
@@ -154,9 +154,13 @@ export const handleDrawingEvent = (
         return;
       }
 
-      currentPath.time = Date.now() - startTime;
+      currentPath.time = Date.now() - pathTime.current;
+      pathTime.current = 0; // time has been tracked, reset right away
 
-      let pathPoints = getPointsFromPath(currentPath.path, pathPointResolution.high);
+      let pathPoints = getPointsFromPath(
+        currentPath.path,
+        pathPointResolution.high,
+      );
       if (pathPoints.length < 2) {
         return;
       }
@@ -193,7 +197,7 @@ export const handleDrawingEvent = (
         // if(!pathPoints) {
         //   pathPoints = getPointsFromPath(currentPath.path);
         // }
-        const validShapePoints =  detectShape(pathPoints);
+        const validShapePoints = detectShape(pathPoints);
         if (validShapePoints) {
           pathPoints = validShapePoints;
           // presentPath(currentPath, setCurrentPath)
@@ -203,7 +207,12 @@ export const handleDrawingEvent = (
         }
         console.log("valid shape not detected");
 
-        const parallelPathPoints = detectParallel(currentPath, setCurrentPath, existingPaths, canvasScale);
+        const parallelPathPoints = detectParallel(
+          currentPath,
+          setCurrentPath,
+          existingPaths,
+          canvasScale,
+        );
         if (parallelPathPoints && parallelPathPoints.length > 0) {
           console.log("parallel path detected");
           pathPoints = parallelPathPoints;
@@ -216,13 +225,13 @@ export const handleDrawingEvent = (
 
       // else lets continue with usual way,
 
-        if (!pathPoints) {
-          console.log('how come pathpoints wasnt set at this point.');
-          pathPoints = getPointsFromPath(
-            currentPath.path,
-            pathPointResolution.high,
-          );
-        }
+      if (!pathPoints) {
+        console.log("how come pathpoints wasnt set at this point.");
+        pathPoints = getPointsFromPath(
+          currentPath.path,
+          pathPointResolution.high,
+        );
+      }
       // lets get the path point again, so we can start with simplified path
       // pathPoints = getPointsFromPath(currentPath.path, pathPointResolution.medium);
       // currentPath.path = "";

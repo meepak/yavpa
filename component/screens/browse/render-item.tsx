@@ -57,7 +57,12 @@ const RenderItem = ({
 
           scrollViewRef.current?.forceUpdate(() => console.log("updated"));
         } else {
-          router.navigate(`/file?guid=${item.metaData.guid}`);
+          // router.navigate(`/file?guid=${item.metaData.guid}`);
+          
+           router.push({
+             pathname: "/file",
+             params: { guid: item.metaData.guid },
+           });
         }
       }}
       onLongPress={() => {

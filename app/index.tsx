@@ -1,9 +1,10 @@
 import React, {useState} from 'react';
 import * as SystemUI from 'expo-system-ui';
-import {Redirect, SplashScreen} from 'expo-router';
+import {Redirect, SplashScreen, Stack} from 'expo-router';
 import {StatusBar} from 'expo-status-bar';
 import AnimatedSplash from '@s/animated-splash';
 import {MY_PRIMARY_COLOR} from '@u/types';
+import { View } from 'react-native';
 // Import * as Updates from 'expo-updates';
 
 SystemUI.setBackgroundColorAsync(MY_PRIMARY_COLOR);
@@ -23,17 +24,23 @@ const App = () => {
 	//   : 'This app is running an update';
 
 	return (
-		<>
-			<StatusBar hidden={false} style={'light'} translucent={true} />
-			<AnimatedSplash
-				onAnimationComplete={value => {
-					setAnimationComplete(value);
-				}}
-			>
-				{isAnimationComplete && <Redirect href={'/browse?heroEntry=yes'} />}
-			</AnimatedSplash>
-		</>
-	);
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          contentStyle: { backgroundColor: MY_PRIMARY_COLOR },
+        }}
+      />
+      <StatusBar hidden={false} style={"light"} translucent={true} />
+      <AnimatedSplash
+        onAnimationComplete={(value) => {
+          setAnimationComplete(value);
+        }}
+      >
+        {isAnimationComplete && <Redirect href={"/browse?heroEntry=yes"} />}
+      </AnimatedSplash>
+    </View>
+  );
 };
 
 export default App;

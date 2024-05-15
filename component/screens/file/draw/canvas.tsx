@@ -70,7 +70,6 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
   const newPathData = () => createPathdata(stroke, strokeWidth, strokeOpacity);
 
   const [currentPath, setCurrentPath] = useState(newPathData());
-  const [startTime, setStartTime] = useState(0);
   const [currentShape, setCurrentShape] = useState<ShapeType>(defaultShape);
   const [editMode, setEditMode] = useState(editable);
   const [enhancedDrawingMode, setEnhancedDrawingMode] =
@@ -91,10 +90,15 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
   const [penTip, setPenTip] = useState<PointType | undefined>();
   const penTipRef = useRef<PointType | undefined>();
 
+  const pathTime = useRef<number>(0);
+  const currentlyDrawingShape = useRef<boolean>(false);
+
   const [scaleMode, setScaleMode] = useState<"X" | "Y" | "XY">("XY");
 
   const [canvasScale, setCanvasScale] = useState(canvasScaleProp);
   const [canvasTranslate, setCanvasTranslate] = useState(canvasTranslateProp);
+
+  const [viewBox, setViewBox] = useState<string>("");
 
   useEffect(() => {
     setCanvasScale(canvasScaleProp);
@@ -141,6 +145,17 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
     }
   }, [editable]);
 
+  useEffect(() => {
+    setViewBox(
+      `${canvasTranslate.x} ${canvasTranslate.y} ${(myPathData.metaData.canvasWidth ?? CANVAS_WIDTH) * canvasScale} ${(myPathData.metaData.canvasHeight ?? CANVAS_HEIGHT) * canvasScale}`,
+    );
+  }, [
+    canvasTranslate,
+    canvasScale,
+    myPathData.metaData.canvasWidth,
+    myPathData.metaData.canvasHeight,
+  ]);
+
   // Get bounding box of selected paths
   useSelectEffect({
     myPathData,
@@ -168,6 +183,7 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
   const myGestureProperties = {
     myPathData,
     setMyPathData,
+    currentlyDrawingShape,
     editMode,
     pathEditMode,
     enhancedDrawingMode,
@@ -175,8 +191,7 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
     erasureMode,
     currentPath,
     setCurrentPath,
-    startTime,
-    setStartTime,
+    pathTime,
     newPathData,
     currentShape,
     setCurrentShape,
@@ -193,7 +208,6 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
     penTipRef,
   };
 
-
   return (
     <View style={styles.container} pointerEvents="box-none">
       {isLoading ? (
@@ -206,84 +220,92 @@ const SvgCanvas: React.FC<SvgCanvasProperties> = (properties) => {
         <ErrorBoundary>
           <MyGestures {...myGestureProperties}>
             <View style={styles.container}>
-              <Svg
-                width={"100%"}
-                height={"100%"}
-                viewBox={`${canvasTranslate.x} ${canvasTranslate.y} ${(myPathData.metaData.canvasWidth ?? CANVAS_WIDTH) * canvasScale} ${(myPathData.metaData.canvasHeight ?? CANVAS_HEIGHT) * canvasScale}`}
-                onLayout={() => {
-                  setIsLoading(false);
-                }}
-              >
-                <Defs>
-                  <ClipPath id="clip">
-                    <Rect
-                      x="0"
-                      y="0"
-                      width={myPathData.metaData.canvasWidth ?? CANVAS_WIDTH}
-                      height={myPathData.metaData.canvasHeight ?? CANVAS_HEIGHT}
-                    />
-                  </ClipPath>
-                </Defs>
-                <G ClipPath="url(#clip)">
-                  {pathEditMode && (
-                    <MyPen
-                      tip={
-                        penTip || {
-                          x:
-                            (CANVAS_WIDTH / 2) * canvasScale +
-                            canvasTranslate.x,
-                          y:
-                            (CANVAS_HEIGHT / 2) * canvasScale +
-                            canvasTranslate.y,
+              {
+                <Svg
+                  width={"100%"}
+                  height={"100%"}
+                  viewBox={viewBox}
+                  onLayout={() => {
+                    setIsLoading(false);
+                  }}
+                >
+                  <Defs>
+                    <ClipPath id="clip">
+                      <Rect
+                        x="0"
+                        y="0"
+                        width={myPathData.metaData.canvasWidth ?? CANVAS_WIDTH}
+                        height={
+                          myPathData.metaData.canvasHeight ?? CANVAS_HEIGHT
                         }
-                      }
-                    />
-                  )}
-
-                  {myPathData.imageData?.map((item) =>
-                    item.visible ? (
-                      <MyPathImage
-                        prop={item}
-                        keyProp={"completed-" + item.guid}
-                        key={item.guid}
                       />
-                    ) : null,
-                  )}
-
-                  {myPathData.pathData.map((item, _index) =>
-                    item.visible ? (
-                      item.edit ? (
-                        <MyPathEditor
-                          pathData={item}
+                    </ClipPath>
+                  </Defs>
+                  <G ClipPath="url(#clip)">
+                    {myPathData.imageData?.map((item) =>
+                      item.visible ? (
+                        <MyPathImage
+                          prop={item}
+                          keyProp={"completed-" + item.guid}
                           key={item.guid}
-                          keyProp={"completed-" + item.updatedAt}
                         />
-                      ) : (
+                      ) : null,
+                    )}
+
+                    {myPathData.pathData.map((item, _index) =>
+                      item.visible ? (
                         <MyPath
                           prop={item}
                           keyProp={"completed-" + item.updatedAt}
                           key={item.guid}
                           showMarker={item.edit ?? false}
                         />
-                      )
-                    ) : null,
-                  )}
+                      ) : null,
+                    )}
 
-                  {currentPath.guid !== "" && (
-                    <MyPath
-                      prop={currentPath}
-                      keyProp={"current"}
-                      key={currentPath.guid}
+                    {currentPath.guid !== "" && (
+                      <MyPath
+                        prop={currentPath}
+                        keyProp={"current"}
+                        key={currentPath.guid}
+                      />
+                    )}
+
+                    {pathEditMode && (
+                      <>
+                        <MyPen
+                          tip={
+                            penTip || {
+                              x:
+                                (CANVAS_WIDTH / 2) * canvasScale +
+                                canvasTranslate.x,
+                              y:
+                                (CANVAS_HEIGHT / 2) * canvasScale +
+                                canvasTranslate.y,
+                            }
+                          }
+                        />
+
+                        {myPathData.pathData.map((item, _index) =>
+                          item.visible && item.edit ? (
+                            <MyPathEditor
+                              pathData={item}
+                              key={item.guid}
+                              keyProp={"completed-" + item.updatedAt}
+                            />
+                          ) : null,
+                        )}
+                      </>
+                    )}
+
+                    <MyBoundaryBoxPaths
+                      activeBoundaryBoxPath={activeBoundaryBoxPath}
+                      scaleFactor={canvasScale}
+                      translateFactor={canvasTranslate}
                     />
-                  )}
-
-                  <MyBoundaryBoxPaths
-                    activeBoundaryBoxPath={activeBoundaryBoxPath}
-                    scaleFactor={canvasScale}
-                    translateFactor={canvasTranslate}
-                  />
-                </G>
-              </Svg>
+                  </G>
+                </Svg>
+              }
             </View>
           </MyGestures>
 

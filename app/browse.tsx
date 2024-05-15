@@ -1,25 +1,15 @@
-import React, {
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
-  type ListRenderItem,
-  type FlatList,
   ActivityIndicator,
+  FlatList,
+  ListRenderItem,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import {
-  SCREEN_WIDTH,
-  FILE_PREVIEW_WIDTH,
-  type MyPathDataType,
-} from "@u/types";
-import {
-  getFiles,
-} from "@u/storage";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
+import { SCREEN_WIDTH, FILE_PREVIEW_WIDTH, MyPathDataType, MY_PRIMARY_COLOR } from "@u/types";
+import { getFiles } from "@u/storage";
 import {
   StickyHeaderFlatList,
   useStickyHeaderScrollProps,
@@ -44,15 +34,12 @@ const MINIMUM_GAP_BETWEN_PREVIEW = 11;
 const BrowseScreen = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { heroEntry } = useLocalSearchParams<{ heroEntry: string }>();
   const [files, setFiles] = useState<MyPathDataType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { defaultStorageDirectory } = useUserPreferences();
-
-  // const selectMode = useRef(false);
   const [selectionMode, setSelectionMode] = useState(false);
-
   const { showToast } = useToastContext();
+
 
   const flip = FlipInYLeft.springify()
     .damping(30)
@@ -69,8 +56,9 @@ const BrowseScreen = () => {
       ],
     });
 
-  const enteringAnimation = heroEntry === "yes" ? flip : undefined;
+  const enteringAnimation = flip;
   const exitingAnimation = undefined;
+
 
   const {
     onMomentumScrollEnd,
@@ -80,39 +68,24 @@ const BrowseScreen = () => {
     scrollValue,
     scrollViewRef,
   } = useStickyHeaderScrollProps<FlatList>({
-    parallaxHeight: PARALLAX_HEIGHT,
-    snapStartThreshold: SNAP_START_THRESHOLD,
-    snapStopThreshold: SNAP_STOP_THRESHOLD,
+    parallaxHeight: 238,
+    snapStartThreshold: 50,
+    snapStopThreshold: 238,
     snapToEdge: true,
   });
 
-  const actualWindowsWidth = SCREEN_WIDTH - insets.left - insets.right;
+ const actualWindowsWidth = SCREEN_WIDTH - insets.left - insets.right;
+ let numberOfColumns = Math.floor(actualWindowsWidth / FILE_PREVIEW_WIDTH);
+ let gap =
+   (actualWindowsWidth - numberOfColumns * FILE_PREVIEW_WIDTH) /
+   (numberOfColumns + 1);
+ while (gap < 11) {
+   numberOfColumns -= 1;
+   gap =
+     (actualWindowsWidth - numberOfColumns * FILE_PREVIEW_WIDTH) /
+     (numberOfColumns + 1);
+ }
 
-  let numberOfColumns = Math.floor(actualWindowsWidth / FILE_PREVIEW_WIDTH);
-  let gap =
-    (actualWindowsWidth - numberOfColumns * FILE_PREVIEW_WIDTH) /
-    (numberOfColumns + 1);
-  while (gap < MINIMUM_GAP_BETWEN_PREVIEW) {
-    numberOfColumns -= 1;
-    gap =
-      (actualWindowsWidth - numberOfColumns * FILE_PREVIEW_WIDTH) /
-      (numberOfColumns + 1);
-  }
-
-  // let timeOutHandle;
-  // useEffect(() => {
-  //   timeOutHandle = setTimeout(() => {
-  //     if (!isLoading) {
-  //       clearTimeout(timeOutHandle);
-  //       console.log("clearing timeout");
-  //       return;
-  //     }
-  //     showToast(
-  //       "Taking longer to load? \nPlease archive some of the sketches, you can restore them later.",
-  //       { duration: 4000 },
-  //     );
-  //   }, 5000);
-  // }, [isLoading]);
 
   const setSelectMode = (value: boolean) => {
     setSelectionMode(value);
@@ -125,6 +98,9 @@ const BrowseScreen = () => {
     scrollViewRef.current?.forceUpdate(() => {});
   };
 
+  // const fetchPreviewFiles
+
+  // fetch file images only
   const fetchFiles = useCallback(
     async (allowCache = true) => {
       setFiles([]);
@@ -150,13 +126,14 @@ const BrowseScreen = () => {
   }, [defaultStorageDirectory]);
 
   // Assign this component to renderItem for use in a FlatList or StickyHeaderFlatList
-  const renderItem: ListRenderItem<MyPathDataType> = ({ item }) => (
+  const renderItem: ListRenderItem<MyPathDataType> = ({ item, index }) => (
     <RenderItem
       item={item}
       selectionMode={selectionMode}
       setSelectMode={setSelectMode}
       scrollViewRef={scrollViewRef}
       gap={gap}
+      key={index}
     />
   );
 
@@ -170,12 +147,19 @@ const BrowseScreen = () => {
   );
 
   return (
-    <>
-      <StatusBar
-        hidden={false}
-        style={"light"}
-        backgroundColor="transparent"
-        translucent={true}
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          statusBarTranslucent: true,
+          statusBarHidden: false,
+          statusBarStyle: "light",
+          statusBarAnimation: "none",
+          statusBarColor: "transparent",
+          contentStyle: {
+            backgroundColor: MY_PRIMARY_COLOR,
+          }
+        }}
       />
       <Animated.View
         style={StyleSheet.absoluteFill}
@@ -208,9 +192,6 @@ const BrowseScreen = () => {
             renderItem={renderItem}
             horizontal={false}
             showsVerticalScrollIndicator={false}
-            // onRefresh={() => fetchFiles(false)}
-            // refreshing={isLoading}
-
           />
           {isLoading && (
             <View
@@ -250,7 +231,7 @@ const BrowseScreen = () => {
           aligned="right"
         />
       </Animated.View>
-    </>
+    </View>
   );
 };
 

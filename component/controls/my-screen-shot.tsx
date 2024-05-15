@@ -66,6 +66,7 @@ const MyScreenShot = ({
   }, [takeScreenShot]);
 
   const handleCapture = (uri: string) => {
+    try{
     if (takeScreenShot) {
       console.log("****SAVING!!!", uri);
       saveScreenshot(
@@ -77,6 +78,9 @@ const MyScreenShot = ({
         onScreenShotSaved && onScreenShotSaved();
       });
     }
+  }catch(e){
+    console.log('Error during screen shot capture', e)
+  }
   };
 
   if (!["canvas", "full"].includes(takeScreenShot || "")) {
