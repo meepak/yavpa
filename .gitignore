@@ -46,3 +46,7 @@ temp/*
 
 .yarn/install-state.gz
 .yarn/install-state.gz
+
+.vscode
+.idea
+
